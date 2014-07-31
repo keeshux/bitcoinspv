@@ -20,7 +20,7 @@ Nothing more is due as long as this rule of thumb is followed, still a note in t
 
 __Version 0.1__ - July 31, 2014
 
-* Being the first minor release the library is to be considered experimental, will eventually undergo huge modifications and is quite far from being production ready. In other words: __you DO NOT want to use this version in production environments__.
+* Being the first minor release the library is experimental and quite far from being production ready. In other words: __you DO NOT want to use this version in production environments__.
 
 ## Quick start
 
@@ -154,7 +154,7 @@ HD seeds are not serialized with the other wallet structures in order to allow c
 
 ## Known issues
 
-WaSPV is still a work-in-progress and as such several basic features are still missing.
+WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do:
 
 * Submit CocoaPods podspec.
 * Autosave wallet.
