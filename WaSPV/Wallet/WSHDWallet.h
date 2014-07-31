@@ -41,13 +41,12 @@
 - (uint32_t)currentAccount;
 
 //
-// WARNING
-//
-// seed phrase is NOT serialized and MUST be saved elsewhere
+// WARNING: mnemonic is NOT serialized and MUST be saved elsewhere
 //
 // NSKeyedUnarchiver deserialization alone won't be able to restore
-// the wallet seed, therefore you should only use the following method
+// the wallet, you should only use the following method and explicity
+// provide the mnemonic each time you reload a serialized wallet.
 //
-+ (instancetype)loadFromPath:(NSString *)path seedPhrase:(NSString *)seedPhrase;
++ (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic;
 
 @end

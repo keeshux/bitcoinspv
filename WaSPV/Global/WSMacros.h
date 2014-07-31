@@ -130,10 +130,10 @@ WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t services);
 
 WSCheckpoint *WSCheckpointMake(NSUInteger step, NSString *blockHash, uint32_t timestamp, uint32_t bits);
 
-WSSeed *WSSeedMake(NSString *phrase, NSTimeInterval creationTime);
-WSSeed *WSSeedMakeUnknown(NSString *phrase);
-WSSeed *WSSeedMakeNow(NSString *phrase);
-WSSeed *WSSeedMakeFromISODate(NSString *phrase, NSString *iso); // yyyy/MM/dd
+WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
+WSSeed *WSSeedMakeUnknown(NSString *mnemonic);
+WSSeed *WSSeedMakeNow(NSString *mnemonic);
+WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso); // yyyy/MM/dd
 
 NSString *WSNetworkHostFromUint32(uint32_t value);
 uint32_t WSNetworkUint32FromHost(NSString *host);

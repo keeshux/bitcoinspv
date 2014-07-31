@@ -80,15 +80,15 @@
 {
     WSSeed *seed = [self.bip39 generateRandomSeed];
 
-    DDLogInfo(@"Seedphrase: %@", seed.seedPhrase);
-    NSData *mnemData = [self.bip39 dataFromMnemonic:seed.seedPhrase error:nil];
+    DDLogInfo(@"Mnemonic: %@", seed.mnemonic);
+    NSData *mnemData = [self.bip39 dataFromMnemonic:seed.mnemonic error:nil];
     XCTAssertNotNil(mnemData, @"Invalid mnemonic");
 
-    DDLogInfo(@"Seedphrase (hex): %@", [mnemData hexString]);
-    NSString *decodedSeedPhrase = [self.bip39 mnemonicFromData:mnemData error:nil];
+    DDLogInfo(@"Mnemonic (hex): %@", [mnemData hexString]);
+    NSString *decodedMnemonic = [self.bip39 mnemonicFromData:mnemData error:nil];
 
-    DDLogInfo(@"Seedphrase: %@", decodedSeedPhrase);
-    XCTAssertEqualObjects(decodedSeedPhrase, seed.seedPhrase, @"Decoded seedphrase doesn't match original");
+    DDLogInfo(@"Mnemonic: %@", decodedMnemonic);
+    XCTAssertEqualObjects(decodedMnemonic, seed.mnemonic, @"Decoded mnemonic doesn't match original");
 }
 
 @end

@@ -29,9 +29,9 @@
 
 @interface WSSeed : NSObject
 
-- (instancetype)initWithSeedPhrase:(NSString *)seedPhrase;
-- (instancetype)initWithSeedPhrase:(NSString *)seedPhrase creationTime:(NSTimeInterval)creationTime;
-- (NSString *)seedPhrase;
+- (instancetype)initWithMnemonic:(NSString *)mnemonic;
+- (instancetype)initWithMnemonic:(NSString *)mnemonic creationTime:(NSTimeInterval)creationTime;
+- (NSString *)mnemonic;
 - (NSData *)derivedKeyData;
 - (NSTimeInterval)creationTime;
 

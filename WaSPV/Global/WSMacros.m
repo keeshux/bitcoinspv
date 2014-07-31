@@ -185,26 +185,26 @@ inline WSCheckpoint *WSCheckpointMake(NSUInteger step, NSString *blockIdHex, uin
     return [[WSCheckpoint alloc] initWithHeight:(step * 2016) blockId:WSHash256FromHex(blockIdHex) timestamp:timestamp bits:bits];
 }
 
-inline WSSeed *WSSeedMake(NSString *phrase, NSTimeInterval creationTime)
+inline WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime)
 {
-    return [[WSSeed alloc] initWithSeedPhrase:phrase creationTime:creationTime];
+    return [[WSSeed alloc] initWithMnemonic:mnemonic creationTime:creationTime];
 }
 
-inline WSSeed *WSSeedMakeUnknown(NSString *phrase)
+inline WSSeed *WSSeedMakeUnknown(NSString *mnemonic)
 {
-    return [[WSSeed alloc] initWithSeedPhrase:phrase creationTime:0.0];
+    return [[WSSeed alloc] initWithMnemonic:mnemonic creationTime:0.0];
 }
 
-inline WSSeed *WSSeedMakeNow(NSString *phrase)
+inline WSSeed *WSSeedMakeNow(NSString *mnemonic)
 {
-    return [[WSSeed alloc] initWithSeedPhrase:phrase];
+    return [[WSSeed alloc] initWithMnemonic:mnemonic];
 }
 
-inline WSSeed *WSSeedMakeFromISODate(NSString *phrase, NSString *iso)
+inline WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso)
 {
     const NSTimeInterval creationTime = WSTimestampFromISODate(iso) - NSTimeIntervalSince1970;
     
-    return WSSeedMake(phrase, creationTime);
+    return WSSeedMake(mnemonic, creationTime);
 }
 
 // assume uint32 already in network byte order

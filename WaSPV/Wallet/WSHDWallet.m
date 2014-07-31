@@ -491,14 +491,14 @@
     }
 }
 
-+ (instancetype)loadFromPath:(NSString *)path seedPhrase:(NSString *)seedPhrase
++ (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic
 {
     @synchronized (self) {
         WSHDWallet *wallet = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
         if (![wallet isKindOfClass:[WSHDWallet class]]) {
             return nil;
         }
-        WSSeed *seed = WSSeedMake(seedPhrase, wallet.creationTime);
+        WSSeed *seed = WSSeedMake(mnemonic, wallet.creationTime);
         [wallet rebuildTransientStructuresWithSeed:seed];
         return wallet;
     }

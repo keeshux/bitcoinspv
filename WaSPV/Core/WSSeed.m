@@ -30,34 +30,34 @@
 
 @interface WSSeed ()
 
-@property (nonatomic, copy) NSString *seedPhrase;
+@property (nonatomic, copy) NSString *mnemonic;
 @property (nonatomic, assign) NSTimeInterval creationTime;
 
 @end
 
 @implementation WSSeed
 
-- (instancetype)initWithSeedPhrase:(NSString *)seedPhrase
+- (instancetype)initWithMnemonic:(NSString *)mnemonic
 {
-    return [self initWithSeedPhrase:seedPhrase creationTime:[NSDate timeIntervalSinceReferenceDate]];
+    return [self initWithMnemonic:mnemonic creationTime:[NSDate timeIntervalSinceReferenceDate]];
 }
 
-- (instancetype)initWithSeedPhrase:(NSString *)seedPhrase creationTime:(NSTimeInterval)creationTime
+- (instancetype)initWithMnemonic:(NSString *)mnemonic creationTime:(NSTimeInterval)creationTime
 {
-    WSExceptionCheckIllegal(seedPhrase != nil, @"Nil seedPhrase");
+    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
 //    WSExceptionCheckIllegal(creationTime >= 0.0, @"creationTime must be positive");
 
     if ((self = [super init])) {
         WSSeedGenerator *bip = [WSSeedGenerator sharedInstance];
 
-        NSData *seedData = [bip dataFromMnemonic:seedPhrase error:nil];
-        if (!seedData) {
+        NSData *mnemonicData = [bip dataFromMnemonic:mnemonic error:nil];
+        if (!mnemonicData) {
             return nil;
         }
-        NSAssert1([[bip mnemonicFromData:seedData error:nil] isEqualToString:seedPhrase],
-                  @"Seedphrase reencoding test failed: '%@'", seedPhrase);
+        NSAssert1([[bip mnemonicFromData:mnemonicData error:NULL] isEqualToString:mnemonic],
+                  @"Mnemonic reencoding test failed: '%@'", mnemonic);
 
-        self.seedPhrase = seedPhrase;
+        self.mnemonic = mnemonic;
         self.creationTime = creationTime;
     }
     return self;
@@ -65,7 +65,7 @@
 
 - (NSData *)derivedKeyData
 {
-    return [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:self.seedPhrase passphrase:nil];
+    return [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:self.mnemonic passphrase:nil];
 }
 
 @end
