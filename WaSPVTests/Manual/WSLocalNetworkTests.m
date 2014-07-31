@@ -252,10 +252,10 @@
 
     id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
 
-    NSString *seedPhrase = [self mockWalletSeedPhrase];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath seedPhrase:seedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];
     if (!wallet) {
-        WSSeed *seed = WSSeedMake(seedPhrase, 0.0);
+        WSSeed *seed = WSSeedMake(mnemonic, 0.0);
         wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:2];
     }
 
@@ -312,8 +312,8 @@
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
     DDLogInfo(@"Blockchain: %@", [chain descriptionWithMaxBlocks:10]);
 
-    NSString *seedPhrase = [self mockWalletSeedPhrase];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath seedPhrase:seedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];
 
     [wallet sortTransactions];
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);

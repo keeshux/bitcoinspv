@@ -317,7 +317,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
     chain.delegate = self;
     
-    self.wallet = [[WSHDWallet alloc] initWithSeed:WSSeedMake(@"one two three", 0)];
+    self.wallet = [[WSHDWallet alloc] initWithSeed:WSSeedMake(@"one two three", 0.0)];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidRegisterTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         DDLogInfo(@"Registered transaction: %@", [note.userInfo[WSWalletTransactionKey] txId]);

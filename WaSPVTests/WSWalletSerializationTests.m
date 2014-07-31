@@ -52,10 +52,10 @@
     
     self.path = [self mockPathForFile:@"WalletSerializationTests.wallet"];
 
-    NSString *seedPhrase = [self mockWalletSeedPhrase];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:self.path seedPhrase:seedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:self.path mnemonic:mnemonic];
     if (!wallet) {
-        WSSeed *seed = WSSeedMakeNow(seedPhrase);
+        WSSeed *seed = WSSeedMakeNow(mnemonic);
         wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:5];
 
         [self saveWallet:wallet];
@@ -146,7 +146,7 @@
 
 - (WSHDWallet *)loadWallet
 {
-    return [WSHDWallet loadFromPath:self.path seedPhrase:[self mockWalletSeedPhrase]];
+    return [WSHDWallet loadFromPath:self.path mnemonic:[self mockWalletMnemonic]];
 }
 
 - (WSHDWallet *)rehashWallet:(WSHDWallet *)wallet

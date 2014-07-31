@@ -36,7 +36,7 @@ int ddLogLevel = LOG_LEVEL_DEBUG;
 
 static NSString *const      CHAIN_FILE              = @"Demo.sqlite";
 static NSString *const      WALLET_FILE             = @"Demo.wallet";
-static NSString *const      WALLET_SEEDPHRASE       = @"news snake whip verb camera renew siege never eager physical type wet";
+static NSString *const      WALLET_MNEMONIC         = @"news snake whip verb camera renew siege never eager physical type wet";
 static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 @interface WSAppDelegate ()
@@ -181,9 +181,9 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 - (void)createWallet
 {
-    self.wallet = [WSHDWallet loadFromPath:self.walletPath seedPhrase:WALLET_SEEDPHRASE];
+    self.wallet = [WSHDWallet loadFromPath:self.walletPath mnemonic:WALLET_MNEMONIC];
     if (!self.wallet) {
-        WSSeed *seed = WSSeedMake(WALLET_SEEDPHRASE, WALLET_CREATION_TIME);
+        WSSeed *seed = WSSeedMake(WALLET_MNEMONIC, WALLET_CREATION_TIME);
 
         self.wallet = [[WSHDWallet alloc] initWithSeed:seed];
     }

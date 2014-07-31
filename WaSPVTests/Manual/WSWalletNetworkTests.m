@@ -67,7 +67,7 @@
     self.storeTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.sqlite"];
     self.walletMainPath = [self mockPathForFile:@"WalletNetworkTests-Main.wallet"];
     self.walletTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.wallet"];
-    self.seedPhrase = [self mockWalletSeedPhrase];
+    self.seedPhrase = [self mockWalletMnemonic];
 
 //    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 //        WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
@@ -370,7 +370,7 @@
 
 - (WSHDWallet *)loadWalletFromCurrentPath
 {
-    return [WSHDWallet loadFromPath:self.currentWalletPath seedPhrase:self.seedPhrase];
+    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase];
 }
 
 - (void)saveWallet:(id<WSWallet>)wallet

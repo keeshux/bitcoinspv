@@ -452,7 +452,7 @@
     // a905b3814244e7710ce5ec696193c4b87111a788a8c0033e1a4b9b4851fa746d = 19857000
     //
 
-    WSSeed *seed = WSSeedMakeNow([self mockWalletSeedPhrase]);
+    WSSeed *seed = WSSeedMakeNow([self mockWalletMnemonic]);
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed];
 
     DDLogInfo(@"Wallet receive addresses: %@", wallet.allReceiveAddresses);

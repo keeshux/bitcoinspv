@@ -206,7 +206,7 @@
 
 - (void)testBIP32org
 {
-    NSString *mnemonic = [self mockWalletSeedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
     WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
     
@@ -247,7 +247,7 @@
 
 - (void)testAddresses
 {
-    NSString *mnemonic = [self mockWalletSeedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
     WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
     
@@ -285,7 +285,7 @@
 
 - (void)testSequentialTime
 {
-    NSString *mnemonic = [self mockWalletSeedPhrase];
+    NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
     WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
     const NSUInteger count = 100;

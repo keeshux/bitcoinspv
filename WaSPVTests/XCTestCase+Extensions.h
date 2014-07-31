@@ -31,7 +31,7 @@
 
 @interface XCTestCase (Extensions)
 
-- (NSString *)mockWalletSeedPhrase;
+- (NSString *)mockWalletMnemonic;
 - (NSString *)mockPathForFile:(NSString *)file;
 
 - (void)runForever;

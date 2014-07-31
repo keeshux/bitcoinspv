@@ -34,7 +34,7 @@ static volatile BOOL running;
 
 @implementation XCTestCase (Extensions)
 
-- (NSString *)mockWalletSeedPhrase
+- (NSString *)mockWalletMnemonic
 {
     return @"news snake whip verb camera renew siege never eager physical type wet";
 }

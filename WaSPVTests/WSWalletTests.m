@@ -51,7 +51,7 @@
 
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
 
-    self.seed = WSSeedMakeNow([self mockWalletSeedPhrase]);
+    self.seed = WSSeedMakeNow([self mockWalletMnemonic]);
 }
 
 - (void)tearDown
