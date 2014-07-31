@@ -195,7 +195,7 @@
 
     NSMutableData *key = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
     CFMutableStringRef password = CFStringCreateMutableCopy(NULL, mnemonic.length, (CFStringRef)mnemonic);
-    CFMutableStringRef salt = CFStringCreateMutableCopy(NULL, 8 + passphrase.length, WSBIP39SaltPrefix);
+    CFMutableStringRef salt = CFStringCreateMutableCopy(NULL, WSBIP39SaltPrefixLength + passphrase.length, WSBIP39SaltPrefix);
     if (passphrase) {
         CFStringAppend(salt, (CFStringRef)passphrase);
     }

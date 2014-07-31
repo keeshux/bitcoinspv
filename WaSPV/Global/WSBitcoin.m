@@ -257,3 +257,4 @@ const uint32_t          WSBIP37HashMultiplier                   = 0xfba4c795;
 NSString *const         WSBIP39WordsResource                    = @"WSBIP39Words";
 NSString *const         WSBIP39WordsType                        = @"txt";
 const CFStringRef       WSBIP39SaltPrefix                       = CFSTR("mnemonic");
+const NSUInteger        WSBIP39SaltPrefixLength                 = 8;

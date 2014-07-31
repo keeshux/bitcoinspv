@@ -234,3 +234,4 @@ typedef enum {
 extern NSString *const          WSBIP39WordsResource;
 extern NSString *const          WSBIP39WordsType;
 extern const CFStringRef        WSBIP39SaltPrefix;
+extern const NSUInteger         WSBIP39SaltPrefixLength;
