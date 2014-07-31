@@ -55,7 +55,7 @@ Most of the tests are automated, except those in the `WaSPVTests/Manual` subdire
 
 ### Basic usage
 
-Developers familiar with bitcoinj may recall some of the class naming in the following tests.
+Developers familiar with bitcoinj may recall some of the class names in the following tests.
 
 #### Create new wallet
 
@@ -114,7 +114,7 @@ Bitcoin nodes can operate on three networks:
 
 For security reasons, the library defaults to testnet3. Testnet3 is a full-blown network -it has DNS seeds and a real blockchain- but losing coins there is not an issue. An explicit call to the `WSParametersSetCurrentType()` macro is needed to switch to main or regtest networks.
 
-Current network must be set once on application launch and strictly before any library component is used, e.g.:
+Current network must be set once on application launch:
 
     - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
     {
@@ -122,23 +122,36 @@ Current network must be set once on application launch and strictly before any l
         ...
     }
 
-and must not change throughout the application lifecycle.
+strictly before any library component is used and must not change throughout the application lifecycle.
 
 __WARNING: switching to main network may cost you real money, make sure you know what you're doing!__
 
+### Mnemonics
+
+[BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) gives special hints on how human-readable phrases (mnemonics) can produce a binary seed for HD wallets. WaSPV implements the BIP39 specification in the `WSSeedGenerator` class that can be used to:
+
+* Generate a random mnemonic.
+* Convert a mnemonic to binary data.
+* Convert binary data to a mnemonic.
+* Derive key data from mnemonic.
+
+However, mnemonics in WaSPV are usually wrapped in a `WSSeed` object that also contains the time the mnemonic was first created. Blockchain sync time can be dramatically faster by specifying such a time (called the "fast catch-up time") because blocks found before won't contain relevant transactions to our wallet and can be safely skipped.
+
 ### Hierarchical deterministic wallets
 
-BIP32 wallets are instances of the `WSHDWallet` class and are created from a `WSSeed` object, which is in turn made of a mnemonic phrase and a creation time (Apple time). Blockchain sync time can be dramatically faster by specifying the time when the seed was created (called the "fast catch-up time") because blocks before that date won't contain relevant transactions to our wallet and can be safely skipped.
+HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class built from a `WSSeed` object and an optional integer gap limit.
+
+It's worth noting that the seed mnemonic is a *very* sensitive information -it technically holds all your coins- and as such it's not serialized with the `[WSWallet saveToPath:]` method, you must store it elsewhere (e.g. in the keychain). The mnemonic will be required later to restore a serialized wallet with the `[WSHDWallet loadFromPath:mnemonic:]` method.
 
 ### Block store
 
-Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There are currently two implementations: `WSMemoryBlockStore` and `WSCoreDataBlockStore`. The latter requires `Resources/WSCoreDataBlockStore.xcdatamodeld` to be explicitly added to your project target.
+Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There are currently two implementations: `WSMemoryBlockStore` and `WSCoreDataBlockStore`. The latter requires `WaSPV/Resources/WSCoreDataBlockStore.xcdatamodeld` to be explicitly added to your project target.
 
 ### Peer group
 
 The `WSPeerGroup` class hold the whole connection logic for the Bitcoin network and is also the main notification source. A group can simultaneously connect to several nodes, enforce the number of connected nodes and download the blockchain to a block store. A peer group can also forward the blocks and transactions it receives to a wallet.
 
-Last but not least, the most important interaction with the network is clearly the ability of publishing transactions: not surprisingly, this is done with the `publishTransaction:` method.
+Last but not least, the most important interaction with the network is clearly the ability of publishing transactions. Not surprisingly, this is done with the `publishTransaction:` method.
 
 ## Insights
 
@@ -146,11 +159,11 @@ Last but not least, the most important interaction with the network is clearly t
 
 Bitcoin structures are generally little-endian, an example consequence is that transaction and block hashes are seen "reversed" in hex editors compared to how we see them on web blockchain explorers like [Blockchain.info](http://blockchain.info). There are exceptions, though, because network addresses retain the standard big-endian byte order. Yes, this all makes binary encoding quite error-prone.
 
-That's why WaSPV wraps the encoding internals in the `WSBuffer` and `WSMutableBuffer` classes. From a buffer class you can safely read/write arbitrary bytes or basic structures like hashes, network addresses, inventories etc. without the hassle of protocol byte order.
+That's why WaSPV wraps the encoding internals in the `WSBuffer` and `WSMutableBuffer` classes. With a buffer class you can safely read/write arbitrary bytes or basic structures like hashes, network addresses, inventories etc. without the hassle of protocol byte order.
 
 ### Security
 
-HD seeds are not serialized with the other wallet structures in order to allow clients to save them by other, safer means. For example, used addresses and transactions are normally saved to a file, while the secret seed may be separately stored encrypted into the keychain. In fact seeds may even not be saved at all on the device. There's total freedom on how to preserve seeds security.
+Sensitive data are never serialized automatically so that clients will be able to save them by other, safer means. For example, transactions and addresses of a HD wallet can be safely written to a file, while the secret mnemonic deserves more attention. You may store it encrypted into the keychain, you may retrieve it encrypted from a service provider and decrypt it locally, you may even decide not to store it at all. In fact there's total freedom on how to preserve mnemonics security.
 
 ## Known issues
 
