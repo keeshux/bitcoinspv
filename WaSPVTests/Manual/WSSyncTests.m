@@ -1,0 +1,407 @@
+//
+//  WSSyncTests.m
+//  WaSPV
+//
+//  Created by Davide De Rosa on 12/07/14.
+//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//
+//  http://github.com/keeshux
+//  http://twitter.com/keeshux
+//  http://davidederosa.com
+//
+//  This file is part of WaSPV.
+//
+//  WaSPV is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  WaSPV is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+#import <XCTest/XCTest.h>
+#import "XCTestCase+Extensions.h"
+
+#import "WSPeerGroup.h"
+#import "WSPeer.h"
+#import "WSConnectionPool.h"
+#import "WSCoreDataManager.h"
+#import "WSMemoryBlockStore.h"
+#import "WSCoreDataBlockStore.h"
+#import "WSStorableBlock.h"
+#import "WSCheckpoint.h"
+#import "WSBlockChain.h"
+#import "WSTransaction.h"
+
+@interface WSSyncTests : XCTestCase
+
+@property (nonatomic, copy) NSString *mainPath;
+@property (nonatomic, copy) NSString *testPath;
+@property (nonatomic, strong) WSConnectionPool *pool;
+@property (nonatomic, strong) id<WSBlockStore> store;
+@property (nonatomic, assign) volatile BOOL stopOnSync;
+
+- (id<WSBlockStore>)memoryStore;
+- (id<WSBlockStore>)persistentStore;
+
+@end
+
+@implementation WSSyncTests
+
+- (void)setUp
+{
+    [super setUp];
+
+    self.mainPath = [self mockPathForFile:@"SyncTests-Main.sqlite"];
+    self.testPath = [self mockPathForFile:@"SyncTests-Test3.sqlite"];
+    self.pool = [[WSConnectionPool alloc] init];
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    
+    [nc addObserverForName:WSPeerGroupDidStartDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        const NSUInteger from = [note.userInfo[WSPeerGroupDownloadFromHeightKey] unsignedIntegerValue];
+        const NSUInteger to = [note.userInfo[WSPeerGroupDownloadToHeightKey] unsignedIntegerValue];
+        
+        DDLogInfo(@"Started download, status = %u/%u", from, to);
+    }];
+    [nc addObserverForName:WSPeerGroupDidUpdateDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        const NSUInteger height = [note.userInfo[WSPeerGroupDownloadCurrentHeightKey] unsignedIntegerValue];
+
+        if (height % 1000 == 0) {
+            const NSUInteger to = [note.userInfo[WSPeerGroupDownloadToHeightKey] unsignedIntegerValue];
+            const double progress = [note.userInfo[WSPeerGroupDownloadProgressKey] doubleValue];
+
+            DDLogInfo(@"Current download status = %u/%u (%.2f%%)", height, to, 100.0 * progress);
+        }
+    }];
+    [nc addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        DDLogInfo(@"Finished download");
+
+        if (self.stopOnSync) {
+            [self stopRunning];
+        }
+    }];
+
+    [nc addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
+        
+        if (block.height % 100 == 0) {
+            DDLogInfo(@"Downloaded block #%u: %@", block.height, block);
+        }
+    }];
+    [nc addObserverForName:WSPeerGroupDidRelayTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        WSSignedTransaction *tx = note.userInfo[WSPeerGroupRelayTransactionKey];
+        
+        DDLogInfo(@"Relayed transaction: %@", tx);
+    }];
+}
+
+- (void)tearDown
+{
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
+}
+
+- (void)testMemoryWithFCU
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+
+    self.store = [self memoryStore];
+    const uint32_t timestamp = WSTimestampFromISODate(@"2013/08/29");
+    
+    DDLogInfo(@"Catch-up: %u", timestamp);
+
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    peerGroup.maxConnections = 1;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    [self runForSeconds:10.0];
+}
+
+- (void)testPersistentWithFCU_Test3
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    [self privateTestPersistentWithFCU];
+}
+
+- (void)testPersistentWithFCU_Main
+{
+    WSParametersSetCurrentType(WSParametersTypeMain);
+
+    [self privateTestPersistentWithFCU];
+}
+
+- (void)testPersistentStoredHeads
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.store = [self persistentStore];
+    DDLogInfo(@"Test: %@", self.store.head);
+
+    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.store = [self persistentStore];
+    DDLogInfo(@"Main: %@", self.store.head);
+}
+
+- (void)testPersistentStoredWork_Test3
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    [self privateTestPersistentStoredWork];
+}
+
+- (void)testPersistentStoredWork_Main
+{
+    WSParametersSetCurrentType(WSParametersTypeMain);
+    
+    [self privateTestPersistentStoredWork];
+}
+
+- (void)testPersistent1
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    //    // WARNING: check this, clears all blockchain store!
+    //    [self.currentManager truncate];
+    
+    self.store = [self persistentStore];
+    self.stopOnSync = YES;
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool];
+    peerGroup.maxConnections = 5;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    
+    [self runForever];
+}
+
+- (void)testPersistent2
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+//    // WARNING: check this, clears all blockchain store!
+//    [self.currentManager truncate];
+    
+    self.store = [self persistentStore];
+    self.stopOnSync = YES;
+    
+    // = ?, headers should stop at #266668
+    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/04");
+//    const uint32_t timestamp = 0;
+
+//    // = 1401055200, headers should stop at #267965
+//    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/10");
+
+//    // = 1405288800, headers should stop at #268578
+//    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/14");
+
+    DDLogInfo(@"Catch-up: %u", timestamp);
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    peerGroup.maxConnections = 10;
+    [peerGroup startConnections];
+//    [peerGroup startSyncingUntilHeight:266000];     // fcu 10/07 -> headers only
+//    [peerGroup startSyncingUntilHeight:268000];     // fcu 14/07 -> headers only
+//    [peerGroup startSyncingUntilHeight:268583];     // fcu 14/07 -> headers + 5 blocks
+
+    //
+    // fcu 04/07 (266921)
+    //
+    // 262080 -> 269000 = 6920 storable
+    //
+    // 266668 - 262080 = 4588 headers
+    // 269000 - 266668 = 2332 blocks
+    //
+    // 4588 headers + 2332 blocks = 6920
+    //
+    // last retarget at floor(6920 / 2016) * 2016 = 3 * 2016 = 6048
+    //
+    // 6920 - 6048 = 872 + 1 (head) blocks after pruning
+    //
+    [peerGroup startBlockChainDownload];
+    
+    [self runForever];
+//    [self runForSeconds:15.0];
+//    [self.store save];
+}
+
+- (void)testPersistent2StoredHead
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+
+    self.store = [self persistentStore];
+    DDLogInfo(@"Head: %@", [self.store head]);
+}
+
+- (void)testPersistent2StoredChain
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    self.store = [self persistentStore];
+    WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.store];
+    DDLogInfo(@"Chain: %@", [chain descriptionWithMaxBlocks:50]);
+}
+
+- (void)testPersistent2StoredBlock
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    self.store = [self persistentStore];
+    
+    WSHash256 *blockId = WSHash256FromHex(@"0000000000006a4ac43153c23121f95ce7cced8e18abcf6ece0235e6435472f5");
+    WSStorableBlock *block = [self.store blockForId:blockId];
+    
+    DDLogInfo(@"Transactions in #%u = %u", block.height, block.transactions.count);
+    XCTAssertEqual(block.height, 268977);
+    XCTAssertEqual(block.transactions.count, 10);
+
+    for (WSSignedTransaction *tx in block.transactions) {
+        DDLogInfo(@"%@", tx);
+    }
+}
+
+//- (void)testPersistent2ConnectedTransactions
+//{
+//    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+//
+//    self.store = [self persistentStore];
+//
+//    // considering:
+//    //
+//    // checkpoint = #262080
+//    // fcu = 2014/07/04 (#266668)
+//    //
+//    // headers from #262080 until #266667
+//    // blocks from #266668 until #269000
+//
+//    NSArray *hexes = @[@"72ff2259ab9207f5ffb8bb8725cdd44f717366d7063c40edd3dd829cb845778e",     // GOOD
+//                       @"64dff9790f8360088575d83df3ef1aefb2ff62cafdc6ea5f8512a9db40e8a8f0",     // GOOD
+//                       @"06e7162630f2f24cae7f22e601390e2aabbee4beda7b822df150f0611b20639b",     // GOOD, nil previous, from coinbase
+//                       @"5ede1c303512b10b78226bdd0532c401960b7cfad5ede17c2f39fc16d879b0fd",     // GOOD
+//                       @"33f497a0985ec946cb8712c670a7364415be601d349d90da035b62664ce3d44d",     // GOOD: inputs #1 and #3 have nil previous, from txs before catch-up
+//                       @"083b5aa36b588f38be23f11718d6a4044548f2872239ad929bdde5b612d7c2d4"];    // GOOD
+//    
+//    NSArray *connected = @[@(YES),
+//                           @(YES),
+//                           @(NO),
+//                           @(YES),
+//                           @(NO),
+//                           @(YES)];
+//
+//    NSUInteger i = 0;
+//    for (NSString *hex in hexes) {
+//        WSSignedTransaction *tx = [self.store transactionForId:WSHash256FromHex(hex) connect:YES];
+//
+//        XCTAssertEqual([tx isConnected], [connected[i] boolValue]);
+//        
+//        uint64_t fee;
+//        NSError *error;
+//        if ([tx verifyWithEffectiveFee:&fee error:&error]) {
+//            DDLogInfo(@"Valid (fee: %llu): %@", fee, tx);
+//        }
+//        else {
+//            DDLogInfo(@"Invalid (%@): %@", error, tx);
+//        }
+//        
+//        ++i;
+//    }
+//}
+
+- (void)testMemorySearchingNullBlockChainBug
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    self.store = [self memoryStore];
+    
+    const uint32_t timestamp = 1489667954;//1482932908 + mrand48() % 10000000;
+    
+    DDLogInfo(@"Catch-up: %u", timestamp);
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        [self stopRunning];
+        
+        [self performSelector:@selector(testMemorySearchingNullBlockChainBug) withObject:self afterDelay:2.0];
+    }];
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+//    peerGroup.peerHosts = @[@"203.69.212.66"];
+    peerGroup.maxConnections = 10;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    
+    [self runForever];
+}
+
+#pragma mark Reusable
+
+- (void)privateTestPersistentWithFCU
+{
+//    // WARNING: check this, clears all blockchain store!
+//    [self.currentManager truncate];
+    
+    self.store = [self persistentStore];
+    self.stopOnSync = YES;
+    const uint32_t timestamp = WSTimestampFromISODate(@"2013/02/09");
+    
+    DDLogInfo(@"Catch-up: %u", timestamp);
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    peerGroup.maxConnections = 10;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    
+    [self runForever];
+}
+
+- (void)privateTestPersistentStoredWork
+{
+    self.store = [self persistentStore];
+    
+    DDLogInfo(@"Head: %@", self.store.head);
+    
+    //
+    // notice delta(work) changing at:
+    //
+    // 28 * 2016 = 56448 (+11)
+    // 27 * 2016 = 54432 (+12)
+    // 26 * 2016 = 52416 (+11)
+    // 25 * 2016 = 50400 (+7)
+    // 24 * 2016 = 48384 (+6)
+    // 23 * 2016 = 46368 (+4)
+    // ...
+    // ...
+    //
+    //    WSStorableBlock *block = chain.head;
+    //    while (block) {
+    //        DDLogInfo(@"Work at #%u = %@", block.height, block.workString);
+    //        block = [block previousBlockInChain:chain];
+    //    }
+}
+
+#pragma mark Utils
+
+- (id<WSBlockStore>)memoryStore
+{
+    return [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+}
+
+- (id<WSBlockStore>)persistentStore
+{
+    NSString *path = nil;
+    if (WSParametersGetCurrentType() == WSParametersTypeMain) {
+        path = self.mainPath;
+    }
+    else {
+        path = self.testPath;
+    }
+    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
+    return [[WSCoreDataBlockStore alloc] initWithManager:manager];
+}
+
+@end

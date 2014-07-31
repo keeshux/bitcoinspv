@@ -1,0 +1,32 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
+#import "DDLog.h"
+#import "AutoCoding.h"
+
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSParameters.h"
+#import "WSParametersFactory.h"
+#import "WSHash256.h"
+#import "WSAddress.h"
+#import "WSBuffer.h"
+#import "NSData+Binary.h"
+#import "NSData+Base58.h"
+#import "NSString+Binary.h"
+#import "NSString+Base58.h"
+#import "NSData+Hash.h"
+#import "WSErrors.h"
+#import "WSMacros.h"
+
+extern int ddLogLevel;
+
+#endif

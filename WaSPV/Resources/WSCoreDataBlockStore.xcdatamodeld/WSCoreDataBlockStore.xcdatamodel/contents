@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13E28" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="WSBlockHeaderEntity" representedClassName="WSBlockHeaderEntity" syncable="YES">
+        <attribute name="bits" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="blockIdData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="merkleRootData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="nonce" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="previousBlockIdData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <relationship name="block" maxCount="1" deletionRule="Nullify" destinationEntity="WSStorableBlockEntity" inverseName="header" inverseEntity="WSStorableBlockEntity" syncable="YES"/>
+    </entity>
+    <entity name="WSStorableBlockEntity" representedClassName="WSStorableBlockEntity" syncable="YES">
+        <attribute name="height" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="work" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="header" maxCount="1" deletionRule="Cascade" destinationEntity="WSBlockHeaderEntity" inverseName="block" inverseEntity="WSBlockHeaderEntity" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="WSTransactionEntity" inverseName="block" inverseEntity="WSTransactionEntity" syncable="YES"/>
+    </entity>
+    <entity name="WSTransactionEntity" representedClassName="WSTransactionEntity" syncable="YES">
+        <attribute name="lockTime" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="txIdData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <relationship name="block" maxCount="1" deletionRule="Nullify" destinationEntity="WSStorableBlockEntity" inverseName="transactions" inverseEntity="WSStorableBlockEntity" syncable="YES"/>
+        <relationship name="inputs" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="WSTransactionInputEntity" inverseName="transaction" inverseEntity="WSTransactionInputEntity" syncable="YES"/>
+        <relationship name="outputs" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="WSTransactionOutputEntity" inverseName="transaction" inverseEntity="WSTransactionOutputEntity" syncable="YES"/>
+    </entity>
+    <entity name="WSTransactionInputEntity" representedClassName="WSTransactionInputEntity" syncable="YES">
+        <attribute name="scriptData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="sequence" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <relationship name="outpoint" maxCount="1" deletionRule="Cascade" destinationEntity="WSTransactionOutPointEntity" inverseName="input" inverseEntity="WSTransactionOutPointEntity" syncable="YES"/>
+        <relationship name="transaction" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WSTransactionEntity" inverseName="inputs" inverseEntity="WSTransactionEntity" syncable="YES"/>
+    </entity>
+    <entity name="WSTransactionOutPointEntity" representedClassName="WSTransactionOutPointEntity" syncable="YES">
+        <attribute name="index" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="txIdData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="input" maxCount="1" deletionRule="Nullify" destinationEntity="WSTransactionInputEntity" inverseName="outpoint" inverseEntity="WSTransactionInputEntity" syncable="YES"/>
+    </entity>
+    <entity name="WSTransactionOutputEntity" representedClassName="WSTransactionOutputEntity" syncable="YES">
+        <attribute name="scriptData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="transaction" maxCount="1" deletionRule="Nullify" destinationEntity="WSTransactionEntity" inverseName="outputs" inverseEntity="WSTransactionEntity" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="WSBlockHeaderEntity" positionX="-173" positionY="-36" width="128" height="163"/>
+        <element name="WSStorableBlockEntity" positionX="-360" positionY="180" width="128" height="103"/>
+        <element name="WSTransactionEntity" positionX="-495" positionY="257" width="128" height="135"/>
+        <element name="WSTransactionInputEntity" positionX="-549" positionY="423" width="128" height="103"/>
+        <element name="WSTransactionOutPointEntity" positionX="-369" positionY="560" width="128" height="88"/>
+        <element name="WSTransactionOutputEntity" positionX="-218" positionY="369" width="128" height="88"/>
+    </elements>
+</model>
