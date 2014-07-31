@@ -185,6 +185,7 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 * Support basic wallets with static keys.
 * Improve addresses generation time.
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
+* Full multiSig support.
 
 ## Disclaimer
 
