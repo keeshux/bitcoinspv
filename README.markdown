@@ -10,9 +10,9 @@ Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5M
 
 ## License
 
-The library is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
+WaSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
 
-Basically those willing to use the library for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
+Basically those willing to use WaSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
 
 Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be great!
 
