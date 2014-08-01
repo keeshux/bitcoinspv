@@ -58,7 +58,7 @@ static void WSReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 + (instancetype)reachabilityWithAddress:(const struct sockaddr_in *)address
 {
-    return [[self alloc] initWithAddress:address];
+    return [[WSReachability alloc] initWithAddress:address];
 }
 
 - (instancetype)initWithAddress:(const struct sockaddr_in *)address
