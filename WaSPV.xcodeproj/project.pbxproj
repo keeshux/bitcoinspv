@@ -35,6 +35,7 @@
 		8C498220197092D5007CE061 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C60058D1949EC9400248F04 /* CoreData.framework */; };
 		8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C49824F1970B316007CE061 /* WSBlockHeaderEntity.m */; };
 		8C49825C1970B316007CE061 /* WSStorableBlockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4982571970B316007CE061 /* WSStorableBlockEntity.m */; };
+		8C560D3B198D3C6C00423144 /* WaSPV.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB5B06198D0A1D006599DB /* WaSPV.bundle */; };
 		8C5DB95419677E9100AF079E /* WaSPVTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5DB95319677E9100AF079E /* WaSPVTests.m */; };
 		8C6005881949EC9400248F04 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C6005871949EC9400248F04 /* Foundation.framework */; };
 		8C60058A1949EC9400248F04 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C6005891949EC9400248F04 /* CoreGraphics.framework */; };
@@ -131,6 +132,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		8C560D39198D3C4800423144 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C60057C1949EC9400248F04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C8FB7F6196776B400A07156;
+			remoteInfo = WaSPV;
+		};
 		8C8FB808196776B700A07156 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8C60057C1949EC9400248F04 /* Project object */;
@@ -835,6 +843,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				8C560D3A198D3C4800423144 /* PBXTargetDependency */,
 				8CBB5B1B198D0C7C006599DB /* PBXTargetDependency */,
 			);
 			name = WaSPVDemo;
@@ -874,8 +883,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				8CBB5B19198D0C77006599DB /* PBXTargetDependency */,
 				8C8FB809196776B700A07156 /* PBXTargetDependency */,
+				8CBB5B19198D0C77006599DB /* PBXTargetDependency */,
 			);
 			name = WaSPVTests;
 			productName = WaSPVTests;
@@ -947,6 +956,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C560D3B198D3C6C00423144 /* WaSPV.bundle in Resources */,
 				8C6005941949EC9400248F04 /* InfoPlist.strings in Resources */,
 				8C60059F1949EC9400248F04 /* Images.xcassets in Resources */,
 			);
@@ -1200,6 +1210,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		8C560D3A198D3C4800423144 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C8FB7F6196776B400A07156 /* WaSPV */;
+			targetProxy = 8C560D39198D3C4800423144 /* PBXContainerItemProxy */;
+		};
 		8C8FB809196776B700A07156 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8C8FB7F6196776B400A07156 /* WaSPV */;
