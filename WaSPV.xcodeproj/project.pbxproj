@@ -12,12 +12,6 @@
 		8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */; };
 		8C0EB608197D5C53004DBBC6 /* WSParametersFactoryRegtest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0EB607197D5C53004DBBC6 /* WSParametersFactoryRegtest.m */; };
 		8C196B5F197EE62900D27CA1 /* WSHDWallet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C196B5E197EE62900D27CA1 /* WSHDWallet.m */; };
-		8C196B63197EEA7D00D27CA1 /* WSConnectionPoolTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */; };
-		8C196B65197EEA7D00D27CA1 /* WSPeerGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */; };
-		8C196B66197EEA7D00D27CA1 /* WSPeerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2971979D18000783ADF /* WSPeerTests.m */; };
-		8C196B67197EEA7D00D27CA1 /* WSLocalNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0EB60A197D7A01004DBBC6 /* WSLocalNetworkTests.m */; };
-		8C196B69197EEA7D00D27CA1 /* WSSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2981979D18000783ADF /* WSSyncTests.m */; };
-		8C196B6A197EEA7D00D27CA1 /* WSWalletNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C7B3AF2197BE59100FC676B /* WSWalletNetworkTests.m */; };
 		8C40243B19840536008FDC5F /* WSTransactionOutPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C40243A19840536008FDC5F /* WSTransactionOutPoint.m */; };
 		8C40243E19840622008FDC5F /* WSTransactionInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C40243D19840622008FDC5F /* WSTransactionInput.m */; };
 		8C4024411984062E008FDC5F /* WSTransactionOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4024401984062E008FDC5F /* WSTransactionOutput.m */; };
@@ -1186,27 +1180,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C196B6A197EEA7D00D27CA1 /* WSWalletNetworkTests.m in Sources */,
 				8C8FB838196776F300A07156 /* WSWalletTests.m in Sources */,
 				8C8FB82C196776F300A07156 /* WSBIP32Tests.m in Sources */,
 				8C7CC4AB19813F1D00FD5782 /* WSWalletSerializationTests.m in Sources */,
 				8C8FB830196776F300A07156 /* WSBlockTests.m in Sources */,
-				8C196B65197EEA7D00D27CA1 /* WSPeerGroupTests.m in Sources */,
 				8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */,
 				8CDD9A241983066300720304 /* WSTimerTests.m in Sources */,
 				8C8FB831196776F300A07156 /* WSKeysTests.m in Sources */,
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
-				8C196B67197EEA7D00D27CA1 /* WSLocalNetworkTests.m in Sources */,
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
 				8C5DB95419677E9100AF079E /* WaSPVTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
 				8C7CC4A91981379C00FD5782 /* WSCoreDataStoreTests.m in Sources */,
-				8C196B63197EEA7D00D27CA1 /* WSConnectionPoolTests.m in Sources */,
 				8C8FB835196776F300A07156 /* WSScriptTests.m in Sources */,
-				8C196B69197EEA7D00D27CA1 /* WSSyncTests.m in Sources */,
 				8C8FB82D196776F300A07156 /* WSBIP37Tests.m in Sources */,
 				8C8FB82F196776F300A07156 /* WSBlockChainTests.m in Sources */,
-				8C196B66197EEA7D00D27CA1 /* WSPeerTests.m in Sources */,
 				8C8FB836196776F300A07156 /* WSTransactionTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
