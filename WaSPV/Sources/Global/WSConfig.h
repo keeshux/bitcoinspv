@@ -36,7 +36,7 @@
 //#define WASPV_TEST_DUMMY_TXS              // don't check transaction relevancy
 
 // required by CocoaLumberjack, define in client project
-extern int                      ddLogLevel;
+extern const int                ddLogLevel;
 
 #pragma mark - Library
 

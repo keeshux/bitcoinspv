@@ -29,7 +29,7 @@
 
 #import "WSLogFormatter.h"
 
-int ddLogLevel = LOG_LEVEL_DEBUG;
+const int ddLogLevel = LOG_LEVEL_DEBUG;
 
 @interface WSConfig : NSObject
 
