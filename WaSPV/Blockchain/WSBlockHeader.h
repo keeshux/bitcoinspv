@@ -27,7 +27,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSIndentableDescription.h"
+
+@class WSCheckpoint;
 
 @interface WSBlockHeader : NSObject <NSCopying, WSBufferEncoder, WSBufferDecoder, WSIndentableDescription>
 

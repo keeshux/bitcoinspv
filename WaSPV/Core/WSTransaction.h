@@ -27,9 +27,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSSized.h"
 #import "WSIndentableDescription.h"
 
+@class WSHash256;
 @protocol WSTransactionInput;
 @class WSSignedTransactionInput;
 @class WSSignableTransactionInput;

@@ -27,6 +27,8 @@
 
 #import "WSTransactionOutput.h"
 #import "WSScript.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSTransactionOutput ()
 
@@ -116,7 +118,7 @@
     const NSUInteger scriptSize = [self.script estimatedSize];
     
     // value + var_int + script
-    return 8 + WSMessageVarIntSize(scriptSize) + scriptSize;
+    return 8 + WSBufferVarIntSize(scriptSize) + scriptSize;
 }
 
 @end

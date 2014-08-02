@@ -29,6 +29,8 @@
 
 #warning TODO: checkpoints, this class will be soon removed as it's currently sort of an incomplete/broken WSBlockHeader
 
+@class WSHash256;
+
 @interface WSCheckpoint : NSObject
 
 - (instancetype)initWithHeight:(uint32_t)height blockId:(WSHash256 *)blockId timestamp:(uint32_t)timestamp bits:(uint32_t)bits;

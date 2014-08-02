@@ -25,8 +25,12 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+#import "AutoCoding.h"
+
 #import "WSHDWallet.h"
 #import "WSSeed.h"
+#import "WSHash256.h"
 #import "WSHDKeyring.h"
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
@@ -37,6 +41,11 @@
 #import "WSScript.h"
 #import "WSStorableBlock.h"
 #import "WSTransactionMetadata.h"
+#import "WSParametersFactory.h"
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSHDWallet () {
 

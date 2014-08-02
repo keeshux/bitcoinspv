@@ -26,6 +26,10 @@
 //
 
 #import "WSTransactionOutPoint.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSTransactionOutPoint ()
 

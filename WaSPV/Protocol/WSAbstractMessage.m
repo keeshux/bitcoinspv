@@ -25,7 +25,11 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "WSMacros.h"
+#import "WSErrors.h"
+
 #import "WSAbstractMessage.h"
+#import "WSHash256.h"
 
 @interface WSAbstractMessage ()
 

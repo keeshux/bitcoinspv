@@ -26,6 +26,7 @@
 //
 
 #import "WSBlockMacros.h"
+#import "WSMacros.h"
 
 //
 // difficulty = maxTarget / target > 1.0

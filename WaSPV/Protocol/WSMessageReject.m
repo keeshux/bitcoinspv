@@ -26,6 +26,7 @@
 //
 
 #import "WSMessageReject.h"
+#import "WSErrors.h"
 
 @interface WSMessageReject ()
 

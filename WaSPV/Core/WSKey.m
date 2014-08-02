@@ -31,6 +31,13 @@
 
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSString+Base58.h"
+#import "NSString+Binary.h"
+#import "NSData+Base58.h"
 
 static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 

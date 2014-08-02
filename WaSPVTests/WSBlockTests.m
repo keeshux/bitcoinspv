@@ -25,10 +25,9 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <XCTest/XCTest.h>
 #import <openssl/bn.h>
-#import "XCTestCase+Extensions.h"
 
+#import "XCTestCase+WaSPV.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"

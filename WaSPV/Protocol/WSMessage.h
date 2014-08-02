@@ -27,6 +27,46 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
+
+//
+// Protocol
+//
+// https://en.bitcoin.it/wiki/Protocol_specification
+//
+
+extern const NSInteger          WSMessageHeaderLength;
+extern const NSUInteger         WSMessageMaxLength;
+extern const NSUInteger         WSMessageMaxInventories;
+extern const NSUInteger         WSMessageAddrMaxCount;
+extern const NSUInteger         WSMessageBlocksMaxCount;
+extern const NSUInteger         WSMessageHeadersMaxCount;
+
+extern NSString *const          WSMessageType_VERSION;
+extern NSString *const          WSMessageType_VERACK;
+extern NSString *const          WSMessageType_ADDR;
+extern NSString *const          WSMessageType_INV;
+extern NSString *const          WSMessageType_GETDATA;
+extern NSString *const          WSMessageType_NOTFOUND;
+extern NSString *const          WSMessageType_GETBLOCKS;
+extern NSString *const          WSMessageType_GETHEADERS;
+extern NSString *const          WSMessageType_TX;
+extern NSString *const          WSMessageType_BLOCK;
+extern NSString *const          WSMessageType_HEADERS;
+extern NSString *const          WSMessageType_GETADDR;
+extern NSString *const          WSMessageType_MEMPOOL;
+extern NSString *const          WSMessageType_CHECKORDER;       // deprecated
+extern NSString *const          WSMessageType_SUBMITORDER;      // deprecated
+extern NSString *const          WSMessageType_REPLY;            // deprecated
+extern NSString *const          WSMessageType_PING;
+extern NSString *const          WSMessageType_PONG;
+extern NSString *const          WSMessageType_REJECT;           // described in BIP61: https://gist.github.com/gavinandresen/7079034
+extern NSString *const          WSMessageType_FILTERLOAD;
+extern NSString *const          WSMessageType_FILTERADD;
+extern NSString *const          WSMessageType_FILTERCLEAR;
+extern NSString *const          WSMessageType_MERKLEBLOCK;
+extern NSString *const          WSMessageType_ALERT;
+
 @protocol WSMessage <WSBufferEncoder>
 
 - (NSString *)messageType;

@@ -27,8 +27,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSIndentableDescription.h"
 
+@class WSHash256;
 @class WSBlockHeader;
 @class WSPartialMerkleTree;
 

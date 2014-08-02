@@ -25,12 +25,18 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSBlockChain.h"
+#import "WSHash256.h"
 #import "WSBlockStore.h"
 #import "WSStorableBlock.h"
 #import "WSBlockHeader.h"
 #import "WSCheckpoint.h"
 #import "WSBlockLocator.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 // adapted from: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/com/google/bitcoin/core/AbstractBlockChain.java
 

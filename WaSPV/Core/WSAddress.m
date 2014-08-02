@@ -25,8 +25,16 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSAddress.h"
 #import "WSScript.h"
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Base58.h"
+#import "NSString+Base58.h"
 
 @interface WSAddress ()
 

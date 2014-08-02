@@ -31,6 +31,7 @@
 @class WSPeer;
 @class WSStorableBlock;
 @protocol WSTransaction;
+@class WSSignedTransaction;
 
 extern NSString *const WSPeerGroupDidConnectNotification;
 extern NSString *const WSPeerGroupDidDisconnectNotification;

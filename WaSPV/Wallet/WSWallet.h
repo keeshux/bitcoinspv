@@ -27,8 +27,10 @@
 
 #import "WSIndentableDescription.h"
 
+@class WSHash256;
 @class WSKey;
 @class WSPublicKey;
+@class WSAddress;
 @class WSTransactionBuilder;
 @class WSSignedTransaction;
 @class WSStorableBlock;

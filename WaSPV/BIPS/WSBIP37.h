@@ -27,8 +27,30 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
+
 @class WSAddress;
 @class WSTransactionOutPoint;
+
+//
+// Bloom filtering
+//
+// https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki
+//
+
+#pragma mark -
+
+extern const uint32_t           WSBIP37MaxFilterLength;
+extern const uint32_t           WSBIP37MaxHashFunctions;
+extern const uint32_t           WSBIP37HashMultiplier;
+
+typedef enum {
+    WSBIP37FlagsUpdateNone = 0,
+    WSBIP37FlagsUpdateAll,
+    WSBIP37FlagsUpdateP2PubKeyOnly
+} WSBIP37Flags;
+
+#pragma mark -
 
 @interface WSBIP37FilterParameters : NSObject <NSCopying>
 
@@ -37,6 +59,8 @@
 @property (nonatomic, assign) WSBIP37Flags flags;
 
 @end
+
+#pragma mark -
 
 @interface WSBIP37Filter : NSObject <NSCopying, WSBufferEncoder>
 

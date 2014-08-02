@@ -27,6 +27,7 @@
 
 #import "WSMessageMerkleblock.h"
 #import "WSFilteredBlock.h"
+#import "WSErrors.h"
 
 @interface WSMessageMerkleblock ()
 

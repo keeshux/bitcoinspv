@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class WSHash256;
 @class WSNetworkAddress;
 @class WSInventory;
 
@@ -105,3 +106,10 @@
 - (WSBuffer *)toBuffer;
 
 @end
+
+#pragma mark -
+
+extern const uint8_t            WSBufferVarInt16Byte;
+extern const uint8_t            WSBufferVarInt32Byte;
+extern const uint8_t            WSBufferVarInt64Byte;
+extern NSUInteger               WSBufferVarIntSize(uint64_t i);

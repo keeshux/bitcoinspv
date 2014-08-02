@@ -26,6 +26,7 @@
 //
 
 #import "WSMessagePong.h"
+#import "WSErrors.h"
 
 @interface WSMessagePong ()
 

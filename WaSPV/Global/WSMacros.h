@@ -27,6 +27,26 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSParametersFactory.h"
+
+@class WSHash256;
+@class WSBuffer;
+@class WSMutableBuffer;
+@class WSKey;
+@class WSPublicKey;
+@class WSAddress;
+@class WSInventory;
+@class WSNetworkAddress;
+@class WSSeed;
+@class WSPeer;
+@class WSCheckpoint;
+@class WSScript;
+@class WSSignedTransaction;
+@protocol WSMessage;
+@class WSBlockHeader;
+@class WSPartialMerkleTree;
+@class WSFilteredBlock;
+
 #pragma mark - Parameters
 
 #define WSCurrentParameters [[WSParametersFactory sharedInstance] parameters]
@@ -80,26 +100,7 @@ static inline double WSUtilsProgress(const NSUInteger from, const NSUInteger to,
     return ((current >= to) ? 1.0 : ((double)(current - from) / (to - from)));
 }
 
-#define WSDatesOneMinute            (60)
-#define WSDatesOneHour              (60 * WSDatesOneMinute)
-#define WSDatesOneDay               (24 * WSDatesOneHour)
-#define WSDatesOneWeek              (7 * WSDatesOneDay)
-
 #pragma mark - Shortcuts
-
-@class WSKey;
-@class WSPublicKey;
-@class WSInventory;
-@class WSNetworkAddress;
-@class WSSeed;
-@class WSPeer;
-@class WSCheckpoint;
-@class WSScript;
-@class WSSignedTransaction;
-@protocol WSMessage;
-@class WSBlockHeader;
-@class WSPartialMerkleTree;
-@class WSFilteredBlock;
 
 WSHash256 *WSHash256Compute(NSData *sourceData);
 WSHash256 *WSHash256FromHex(NSString *hexString);
@@ -151,15 +152,3 @@ uint32_t WSCurrentTimestamp();
 void WSTimestampSetCurrent(uint32_t timestamp);
 void WSTimestampUnsetCurrent();
 uint32_t WSTimestampFromISODate(NSString *iso); // yyyy/MM/dd
-
-#pragma mark - Errors
-
-void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);
-void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...);
-void WSExceptionRaiseUnsupported(NSString *format, ...);
-
-NSError *WSErrorMake(WSErrorCode code, NSString *format, ...);
-void WSErrorSet(NSError **error, WSErrorCode code, NSString *format, ...);
-void WSErrorSetUserInfo(NSError **error, WSErrorCode code, NSDictionary *userInfo, NSString *format, ...);
-void WSErrorSetNotEnoughBytes(NSError **error, Class bufferClass, NSUInteger found, NSUInteger expected);
-void WSErrorSetNotEnoughMessageBytes(NSError **error, NSString *messageType, NSUInteger found, NSUInteger expected);

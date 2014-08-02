@@ -35,3 +35,93 @@ NSString *const         WSExceptionUnsupported                      = @"Unsuppor
 #pragma mark - Errors
 
 NSString *const         WSErrorDomain                               = @"WaSPV";
+
+#pragma mark - Macros
+
+#warning XXX: redundant, strange things happen forwarding varargs
+
+void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    if (!condition) {
+        [NSException raise:name format:format arguments:args];
+    }
+    va_end(args);
+}
+
+void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    if (!condition) {
+        [NSException raise:WSExceptionIllegalArgument format:format arguments:args];
+    }
+    va_end(args);
+}
+
+void WSExceptionRaiseUnsupported(NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    [NSException raise:WSExceptionUnsupported format:format arguments:args];
+    va_end(args);
+}
+
+NSError *WSErrorMake(WSErrorCode code, NSString *format, ...)
+{
+    NSString *description = nil;
+    if (format) {
+        va_list args;
+        va_start(args, format);
+        description = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+    }
+    NSDictionary *userInfo = nil;
+    if (description) {
+        userInfo = @{NSLocalizedDescriptionKey: description};
+    }
+    return [NSError errorWithDomain:WSErrorDomain code:code userInfo:userInfo];
+}
+
+void WSErrorSet(NSError **error, WSErrorCode code, NSString *format, ...)
+{
+    if (error) {
+        NSString *description = nil;
+        if (format) {
+            va_list args;
+            va_start(args, format);
+            description = [[NSString alloc] initWithFormat:format arguments:args];
+            va_end(args);
+        }
+        NSDictionary *userInfo = nil;
+        if (description) {
+            userInfo = @{NSLocalizedDescriptionKey: description};
+        }
+        *error = [NSError errorWithDomain:WSErrorDomain code:code userInfo:userInfo];
+    }
+}
+
+void WSErrorSetUserInfo(NSError **error, WSErrorCode code, NSDictionary *userInfo, NSString *format, ...)
+{
+    if (error) {
+        NSString *description = nil;
+        if (format) {
+            va_list args;
+            va_start(args, format);
+            description = [[NSString alloc] initWithFormat:format arguments:args];
+            va_end(args);
+        }
+        *error = [NSError errorWithDomain:WSErrorDomain code:code userInfo:userInfo];
+    }
+}
+
+inline void WSErrorSetNotEnoughBytes(NSError **error, Class clazz, NSUInteger found, NSUInteger expected)
+{
+    WSErrorSet(error, WSErrorCodeMalformed, @"Premature end of %@ buffer (length: %u < %u)", clazz, found, expected);
+}
+
+inline void WSErrorSetNotEnoughMessageBytes(NSError **error, NSString *messageType, NSUInteger found, NSUInteger expected)
+{
+    WSErrorSet(error, WSErrorCodeMalformed, @"Premature end of '%@' message (length: %u < %u)", messageType, found, expected);
+}

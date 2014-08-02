@@ -25,6 +25,8 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSPeer.h"
 #import "WSProtocolDeserializer.h"
 #import "WSMessageFactory.h"
@@ -37,6 +39,10 @@
 #import "WSBlockLocator.h"
 #import "WSInventory.h"
 #import "WSTransaction.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Binary.h"
 
 @interface WSPeerParameters ()
 

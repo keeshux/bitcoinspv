@@ -25,10 +25,9 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <XCTest/XCTest.h>
 #import "GCDAsyncSocket.h"
-#import "XCTestCase+Extensions.h"
 
+#import "XCTestCase+WaSPV.h"
 #import "WSConnectionPool.h"
 #import "WSPeer.h"
 

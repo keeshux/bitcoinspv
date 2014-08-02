@@ -25,6 +25,8 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "WSErrors.h"
+
 #import "WSGCDTimer.h"
 
 // adapted from: https://gist.github.com/maicki/7622108

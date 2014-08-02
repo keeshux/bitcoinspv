@@ -25,9 +25,7 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+Extensions.h"
-
+#import "XCTestCase+WaSPV.h"
 #import "WSGCDTimer.h"
 
 @interface WSTimerTests : XCTestCase

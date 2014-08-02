@@ -27,11 +27,38 @@
 
 #import <Foundation/Foundation.h>
 
+//
+// HD wallets
+//
+// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+//
+
 @class WSBIP32Key;
 @protocol WSBIP32PublicKeyring;
 @class WSBIP32Node;
 @class WSKey;
 @class WSPublicKey;
+@class WSAddress;
+
+#pragma mark -
+
+extern const char *             WSBIP32InitSeed;
+extern const uint32_t           WSBIP32HardenedMask;
+extern const NSUInteger         WSBIP32KeyLength;
+extern NSString *const          WSBIP32PathValidityRegex;
+
+static inline uint32_t WSBIP32ChildIndex(uint32_t child)
+{
+    return (child & ~WSBIP32HardenedMask);
+}
+
+static inline BOOL WSBIP32ChildIsHardened(uint32_t child)
+{
+    return ((child & WSBIP32HardenedMask) != 0);
+}
+
+void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i);
+void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i);
 
 #pragma mark -
 
@@ -151,8 +178,3 @@
 - (uint32_t)child;
 
 @end
-
-#pragma mark - Algorithms
-
-void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i);
-void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i);

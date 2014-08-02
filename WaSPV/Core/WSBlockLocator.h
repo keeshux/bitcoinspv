@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSIndentableDescription.h"
 
 @interface WSBlockLocator : NSObject <WSBufferEncoder, WSIndentableDescription>

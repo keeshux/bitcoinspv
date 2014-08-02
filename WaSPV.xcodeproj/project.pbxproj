@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		87BA5F7590D749B58D517A47 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
-		8C068C03196B10D3001E2CE4 /* XCTestCase+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C068C02196B10D3001E2CE4 /* XCTestCase+Extensions.m */; };
+		8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */; };
 		8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */; };
 		8C0EB608197D5C53004DBBC6 /* WSParametersFactoryRegtest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0EB607197D5C53004DBBC6 /* WSParametersFactoryRegtest.m */; };
 		8C196B5F197EE62900D27CA1 /* WSHDWallet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C196B5E197EE62900D27CA1 /* WSHDWallet.m */; };
@@ -45,7 +45,7 @@
 		8C498220197092D5007CE061 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C60058D1949EC9400248F04 /* CoreData.framework */; };
 		8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C49824F1970B316007CE061 /* WSBlockHeaderEntity.m */; };
 		8C49825C1970B316007CE061 /* WSStorableBlockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4982571970B316007CE061 /* WSStorableBlockEntity.m */; };
-		8C5DB95419677E9100AF079E /* WSConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5DB95319677E9100AF079E /* WSConfig.m */; };
+		8C5DB95419677E9100AF079E /* WaSPVTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5DB95319677E9100AF079E /* WaSPVTests.m */; };
 		8C6005881949EC9400248F04 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C6005871949EC9400248F04 /* Foundation.framework */; };
 		8C60058A1949EC9400248F04 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C6005891949EC9400248F04 /* CoreGraphics.framework */; };
 		8C60058C1949EC9400248F04 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C60058B1949EC9400248F04 /* UIKit.framework */; };
@@ -162,8 +162,8 @@
 /* Begin PBXFileReference section */
 		35B1312A39704004A5AC7444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D4073529BAE4955A74F8CE7 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
-		8C068C01196B10D3001E2CE4 /* XCTestCase+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+Extensions.h"; sourceTree = "<group>"; };
-		8C068C02196B10D3001E2CE4 /* XCTestCase+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+Extensions.m"; sourceTree = "<group>"; };
+		8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+WaSPV.h"; sourceTree = "<group>"; };
+		8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+WaSPV.m"; sourceTree = "<group>"; };
 		8C06C3A7197F9CE5000CA653 /* WSMessageReject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageReject.h; sourceTree = "<group>"; };
 		8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageReject.m; sourceTree = "<group>"; };
 		8C0EB606197D5C53004DBBC6 /* WSParametersFactoryRegtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSParametersFactoryRegtest.h; sourceTree = "<group>"; };
@@ -218,7 +218,7 @@
 		8C4982561970B316007CE061 /* WSStorableBlockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSStorableBlockEntity.h; sourceTree = "<group>"; };
 		8C4982571970B316007CE061 /* WSStorableBlockEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSStorableBlockEntity.m; sourceTree = "<group>"; };
 		8C4DAF251987C1CA0002B111 /* WaSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaSPV.h; sourceTree = "<group>"; };
-		8C5DB95319677E9100AF079E /* WSConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConfig.m; sourceTree = "<group>"; };
+		8C5DB95319677E9100AF079E /* WaSPVTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaSPVTests.m; sourceTree = "<group>"; };
 		8C6005841949EC9400248F04 /* WaSPVDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WaSPVDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C6005871949EC9400248F04 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8C6005891949EC9400248F04 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -738,13 +738,13 @@
 			isa = PBXGroup;
 			children = (
 				8CB6D2931979D18000783ADF /* Manual */,
+				8C5DB95319677E9100AF079E /* WaSPVTests.m */,
 				8C8FB81C196776F300A07156 /* WSAddressTests.m */,
 				8C8FB81D196776F300A07156 /* WSBIP32Tests.m */,
 				8C8FB81E196776F300A07156 /* WSBIP37Tests.m */,
 				8C8FB81F196776F300A07156 /* WSBIP39Tests.m */,
 				8C8FB820196776F300A07156 /* WSBlockChainTests.m */,
 				8C8FB821196776F300A07156 /* WSBlockTests.m */,
-				8C5DB95319677E9100AF079E /* WSConfig.m */,
 				8C7CC4A81981379C00FD5782 /* WSCoreDataStoreTests.m */,
 				8C8FB822196776F300A07156 /* WSKeysTests.m */,
 				8C8FB823196776F300A07156 /* WSMessageTests.m */,
@@ -753,8 +753,8 @@
 				8C8FB827196776F300A07156 /* WSTransactionTests.m */,
 				8C7CC4AA19813F1D00FD5782 /* WSWalletSerializationTests.m */,
 				8C8FB829196776F300A07156 /* WSWalletTests.m */,
-				8C068C01196B10D3001E2CE4 /* XCTestCase+Extensions.h */,
-				8C068C02196B10D3001E2CE4 /* XCTestCase+Extensions.m */,
+				8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */,
+				8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */,
 				8C8FB80C196776B700A07156 /* Supporting Files */,
 			);
 			path = WaSPVTests;
@@ -1133,13 +1133,13 @@
 				8C40244E198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld in Sources */,
 				8C8FB830196776F300A07156 /* WSBlockTests.m in Sources */,
 				8C196B65197EEA7D00D27CA1 /* WSPeerGroupTests.m in Sources */,
-				8C068C03196B10D3001E2CE4 /* XCTestCase+Extensions.m in Sources */,
+				8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */,
 				8CDD9A241983066300720304 /* WSTimerTests.m in Sources */,
 				8C8FB831196776F300A07156 /* WSKeysTests.m in Sources */,
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
 				8C196B67197EEA7D00D27CA1 /* WSLocalNetworkTests.m in Sources */,
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
-				8C5DB95419677E9100AF079E /* WSConfig.m in Sources */,
+				8C5DB95419677E9100AF079E /* WaSPVTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
 				8C7CC4A91981379C00FD5782 /* WSCoreDataStoreTests.m in Sources */,
 				8C196B63197EEA7D00D27CA1 /* WSConnectionPoolTests.m in Sources */,

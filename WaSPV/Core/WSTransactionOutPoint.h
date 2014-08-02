@@ -27,7 +27,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSSized.h"
+
+@class WSHash256;
 
 @interface WSTransactionOutPoint : NSObject <NSCopying, WSBufferEncoder, WSBufferDecoder, WSSized>
 

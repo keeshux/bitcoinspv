@@ -29,6 +29,7 @@
 
 #import "WSConnectionPool.h"
 #import "WSMessageFactory.h"
+#import "WSInventory.h"
 
 @class WSBloomFilter;
 @class WSSignedTransaction;
@@ -41,6 +42,10 @@ typedef enum {
     WSPeerStatusDisconnected,
     WSPeerStatusConnected
 } WSPeerStatus;
+
+typedef enum {
+    WSPeerServicesNodeNetwork = 0x1     // indicates a node offers full blocks, not just headers
+} WSPeerServices;
 
 #pragma mark -
 

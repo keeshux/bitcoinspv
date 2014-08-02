@@ -25,8 +25,19 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
+#import "WSBuffer.h"
+#import "WSHash256.h"
 #import "WSNetworkAddress.h"
 #import "WSInventory.h"
+#import "WSMessage.h"
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Hash.h"
+#import "NSData+Binary.h"
 
 @interface WSBuffer ()
 
@@ -105,19 +116,19 @@
 {
     uint8_t h = [self uint8AtOffset:offset];
     
-    if (h == WSMessageVarInt16Header) {
+    if (h == WSBufferVarInt16Byte) {
         if (length) {
             *length = sizeof(h) + sizeof(uint16_t);
         }
         return [self uint16AtOffset:offset + 1];
         
-    } else if (h == WSMessageVarInt32Header) {
+    } else if (h == WSBufferVarInt32Byte) {
         if (length) {
             *length = sizeof(h) + sizeof(uint32_t);
         }
         return [self uint32AtOffset:offset + 1];
         
-    } else if (h == WSMessageVarInt64Header) {
+    } else if (h == WSBufferVarInt64Byte) {
         if (length) {
             *length = sizeof(h) + sizeof(uint64_t);
         }
@@ -313,27 +324,27 @@
 
 - (void)appendVarInt:(uint64_t)n
 {
-    if (n < WSMessageVarInt16Header) {
+    if (n < WSBufferVarInt16Byte) {
         const uint8_t payload = (uint8_t)n;
         
         [self.mutableData appendBytes:&payload length:sizeof(payload)];
     }
     else if (n <= UINT16_MAX) {
-        const uint8_t header = WSMessageVarInt16Header;
+        const uint8_t header = WSBufferVarInt16Byte;
         const uint16_t payload = CFSwapInt16HostToLittle((uint16_t)n);
         
         [self.mutableData appendBytes:&header length:sizeof(header)];
         [self.mutableData appendBytes:&payload length:sizeof(payload)];
     }
     else if (n <= UINT32_MAX) {
-        const uint8_t header = WSMessageVarInt32Header;
+        const uint8_t header = WSBufferVarInt32Byte;
         const uint32_t payload = CFSwapInt32HostToLittle((uint32_t)n);
         
         [self.mutableData appendBytes:&header length:sizeof(header)];
         [self.mutableData appendBytes:&payload length:sizeof(payload)];
     }
     else {
-        const uint8_t header = WSMessageVarInt64Header;
+        const uint8_t header = WSBufferVarInt64Byte;
         const uint64_t payload = CFSwapInt64HostToLittle(n);
         
         [self.mutableData appendBytes:&header length:sizeof(header)];
@@ -444,3 +455,25 @@
 }
 
 @end
+
+#pragma mark -
+
+const uint8_t           WSBufferVarInt16Byte                 = 0xfd;
+const uint8_t           WSBufferVarInt32Byte                 = 0xfe;
+const uint8_t           WSBufferVarInt64Byte                 = 0xff;
+
+NSUInteger WSBufferVarIntSize(uint64_t i)
+{
+    if (i < WSBufferVarInt16Byte) {
+        return sizeof(uint8_t);
+    }
+    else if (i <= UINT16_MAX) {
+        return sizeof(uint8_t) + sizeof(uint16_t);
+    }
+    else if (i <= UINT32_MAX) {
+        return sizeof(uint8_t) + sizeof(uint32_t);
+    }
+    else {
+        return sizeof(uint8_t) + sizeof(uint64_t);
+    }
+}

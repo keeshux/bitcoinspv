@@ -30,6 +30,9 @@
 #import "WSBlockHeader.h"
 #import "WSBlockMacros.h"
 #import "WSCheckpoint.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSBlockHeader ()
 

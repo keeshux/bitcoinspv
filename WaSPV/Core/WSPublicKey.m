@@ -31,6 +31,12 @@
 
 #import "WSPublicKey.h"
 #import "WSKey.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Hash.h"
+#import "NSData+Binary.h"
 
 @interface WSPublicKey ()
 

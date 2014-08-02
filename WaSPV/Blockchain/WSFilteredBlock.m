@@ -28,8 +28,12 @@
 #import <openssl/bn.h>
 
 #import "WSFilteredBlock.h"
+#import "WSHash256.h"
 #import "WSBlockHeader.h"
 #import "WSPartialMerkleTree.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSFilteredBlock ()
 

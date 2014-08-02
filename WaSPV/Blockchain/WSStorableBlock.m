@@ -25,13 +25,19 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "AutoCoding.h"
+
 #import "WSStorableBlock.h"
+#import "WSHash256.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
 #import "WSCheckpoint.h"
 #import "WSBlockChain.h"
 #import "WSBlockMacros.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSStorableBlock ()
 

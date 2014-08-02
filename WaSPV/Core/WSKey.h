@@ -27,7 +27,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class WSHash256;
 @class WSPublicKey;
+@class WSAddress;
 
 #pragma mark -
 

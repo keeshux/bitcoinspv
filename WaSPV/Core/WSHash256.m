@@ -26,6 +26,9 @@
 //
 
 #import "WSHash256.h"
+#import "WSErrors.h"
+#import "WSBitcoin.h"
+#import "NSData+Binary.h"
 
 @interface WSHash256 ()
 

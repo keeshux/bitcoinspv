@@ -25,6 +25,8 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "NSData+Binary.h"
+
 @implementation NSData (Binary)
 
 - (NSString *)hexString

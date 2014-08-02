@@ -27,6 +27,9 @@
 
 #import "WSAbstractMessageLocatorBased.h"
 #import "WSBlockLocator.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSAbstractMessageLocatorBased ()
 

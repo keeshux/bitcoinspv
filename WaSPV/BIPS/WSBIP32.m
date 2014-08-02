@@ -29,10 +29,22 @@
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
 #import <openssl/bn.h>
+#import "DDLog.h"
 
 #import "WSBIP32.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Base58.h"
+
+const char *            WSBIP32InitSeed                         = "Bitcoin seed";
+const uint32_t          WSBIP32HardenedMask                     = 0x80000000;
+const NSUInteger        WSBIP32KeyLength                        = 78;
+NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d+'?)*";
+
+#pragma mark -
 
 @interface WSBIP32Key ()
 
@@ -236,7 +248,7 @@
 
 @end
 
-#pragma mark - Algorithms
+#pragma mark -
 
 //
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRBIP32Sequence.m

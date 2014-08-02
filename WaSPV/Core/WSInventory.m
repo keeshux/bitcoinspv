@@ -26,6 +26,9 @@
 //
 
 #import "WSInventory.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSErrors.h"
 
 @interface WSInventory ()
 
@@ -98,3 +101,21 @@
 }
 
 @end
+
+#pragma mark -
+
+NSString *WSInventoryTypeString(WSInventoryType inventoryType)
+{
+    static NSMutableDictionary *names = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        names = [[NSMutableDictionary alloc] init];
+        names[@(WSInventoryTypeError)]          = @"error";
+        names[@(WSInventoryTypeTx)]             = @"tx";
+        names[@(WSInventoryTypeBlock)]          = @"block";
+        names[@(WSInventoryTypeFilteredBlock)]  = @"filtered_block";
+    });
+    
+    return (names[@(inventoryType)] ?: @"");
+}

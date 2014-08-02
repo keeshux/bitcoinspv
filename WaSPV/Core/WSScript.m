@@ -25,8 +25,16 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSScript.h"
 #import "WSPublicKey.h"
+#import "WSAddress.h"
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Binary.h"
 
 @interface WSScriptChunk ()
 
@@ -892,3 +900,41 @@
 }
 
 @end
+
+#pragma mark -
+
+NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
+{
+    static NSMutableDictionary *names = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        names = [[NSMutableDictionary alloc] init];
+        names[@(WSScriptOpcode_OP_0)]               	= @"OP_0";
+        //        names[@(WSScriptOpcode_PUSHDATA1)]              = @"OP_PUSHDATA1";
+        //        names[@(WSScriptOpcode_PUSHDATA2)]              = @"OP_PUSHDATA2";
+        //        names[@(WSScriptOpcode_PUSHDATA4)]              = @"OP_PUSHDATA4";
+        for (int numberOpcode = WSScriptOpcode_OP_1; numberOpcode <= WSScriptOpcode_OP_16; ++numberOpcode) {
+            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%u", WSScriptOpcodeValue(numberOpcode)];
+        }
+        names[@(WSScriptOpcode_OP_RETURN)]              = @"RETURN";
+        names[@(WSScriptOpcode_DUP)]                    = @"DUP";
+        names[@(WSScriptOpcode_EQUAL)]                  = @"EQUAL";
+        names[@(WSScriptOpcode_EQUALVERIFY)]            = @"EQUALVERIFY";
+        names[@(WSScriptOpcode_HASH160)]                = @"HASH160";
+        names[@(WSScriptOpcode_CHECKSIG)]               = @"CHECKSIG";
+        names[@(WSScriptOpcode_CHECKSIGVERIFY)]         = @"CHECKSIGVERIFY";
+        names[@(WSScriptOpcode_CHECKMULTISIG)]          = @"CHECKMULTISIG";
+        names[@(WSScriptOpcode_CHECKMULTISIGVERIFY)]    = @"CHECKMULTISIGVERIFY";
+    });
+    
+    return names[@(opcode)] ?: [NSString stringWithFormat:@"OP_?(%X)", opcode];
+}
+
+NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode)
+{
+    NSCAssert(((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16)),
+              @"Not an OP_1-16 opcode (%x)", opcode);
+    
+    return (opcode - WSScriptOpcode_OP_1 + 1);
+}

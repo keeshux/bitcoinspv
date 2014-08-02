@@ -29,11 +29,13 @@
 
 #import "WSIndentableDescription.h"
 
+@class WSHash256;
 @protocol WSBlockStore;
 @class WSStorableBlock;
 @class WSBlockHeader;
 @class WSFilteredBlock;
 @class WSBlockLocator;
+@class WSCheckpoint;
 
 #pragma mark -
 

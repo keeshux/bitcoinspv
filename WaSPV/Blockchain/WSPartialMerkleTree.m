@@ -26,6 +26,11 @@
 //
 
 #import "WSPartialMerkleTree.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Binary.h"
 
 // adapted from: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/com/google/bitcoin/core/PartialMerkleTree.java
 

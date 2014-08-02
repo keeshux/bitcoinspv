@@ -26,6 +26,7 @@
 //
 
 #import "WSCheckpoint.h"
+#import "WSErrors.h"
 
 @interface WSCheckpoint ()
 

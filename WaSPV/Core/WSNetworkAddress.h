@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
+
 @interface WSNetworkAddress : NSObject <WSBufferEncoder, WSBufferDecoder>
 
 - (instancetype)initWithServices:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port;

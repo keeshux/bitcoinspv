@@ -27,6 +27,7 @@
 
 #import "WSSeed.h"
 #import "WSSeedGenerator.h"
+#import "WSErrors.h"
 
 @interface WSSeed ()
 

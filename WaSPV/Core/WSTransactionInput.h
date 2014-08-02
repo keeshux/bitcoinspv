@@ -27,13 +27,18 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSSized.h"
 
+@class WSHash256;
+@class WSScript;
+@class WSAddress;
 @class WSTransactionOutPoint;
 @class WSTransactionOutput;
 @class WSSignedTransactionInput;
 @class WSSignedTransaction;
 @class WSKey;
+@class WSPublicKey;
 
 #pragma mark -
 

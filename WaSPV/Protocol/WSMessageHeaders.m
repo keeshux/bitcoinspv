@@ -27,6 +27,9 @@
 
 #import "WSMessageHeaders.h"
 #import "WSBlockHeader.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSMessageHeaders ()
 

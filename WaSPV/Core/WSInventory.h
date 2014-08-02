@@ -27,6 +27,19 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
+
+typedef enum {
+    WSInventoryTypeError = 0,
+    WSInventoryTypeTx,
+    WSInventoryTypeBlock,
+    WSInventoryTypeFilteredBlock
+} WSInventoryType;
+
+NSString *WSInventoryTypeString(WSInventoryType inventoryType);
+
+#pragma mark -
+
 @interface WSInventory : NSObject <WSBufferEncoder, WSBufferDecoder>
 
 - (instancetype)initWithType:(WSInventoryType)inventoryType hash:(WSHash256 *)inventoryHash;

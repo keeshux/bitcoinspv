@@ -27,8 +27,13 @@
 
 #import <openssl/crypto.h>
 #import <CommonCrypto/CommonCrypto.h>
+#import "DDLog.h"
 
 #import "WSSeedGenerator.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSData+Hash.h"
 
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRBIP39Mnemonic.m
 

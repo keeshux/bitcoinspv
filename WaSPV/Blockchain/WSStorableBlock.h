@@ -29,6 +29,7 @@
 
 #import "WSIndentableDescription.h"
 
+@class WSHash256;
 @class WSBlockHeader;
 @class WSFilteredBlock;
 @class WSCheckpoint;

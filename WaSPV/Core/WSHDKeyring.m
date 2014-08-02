@@ -31,6 +31,7 @@
 #import "WSSeedGenerator.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSErrors.h"
 
 #pragma mark -
 

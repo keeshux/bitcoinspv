@@ -26,9 +26,12 @@
 //
 
 #import "WSParametersFactoryTestnet3.h"
+#import "WSHash256.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
 
 @interface WSParametersFactoryTestnet3 ()
 

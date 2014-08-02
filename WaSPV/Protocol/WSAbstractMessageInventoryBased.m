@@ -26,6 +26,8 @@
 //
 
 #import "WSAbstractMessageInventoryBased.h"
+#import "WSBitcoin.h"
+#import "WSErrors.h"
 
 @interface WSAbstractMessageInventoryBased ()
 

@@ -27,6 +27,9 @@
 
 #import "WSMessageAddr.h"
 #import "WSNetworkAddress.h"
+#import "WSBuffer.h"
+#import "WSBitcoin.h"
+#import "WSErrors.h"
 
 @interface WSMessageAddr ()
 
@@ -87,7 +90,7 @@
 {
     // var_int + addresses.count * (timestamp + address)
     const NSUInteger addressesCount = self.addresses.count;
-    const NSUInteger capacity = WSMessageVarIntSize(addressesCount) + addressesCount * (4 + WSNetworkAddressLength);
+    const NSUInteger capacity = WSBufferVarIntSize(addressesCount) + addressesCount * (4 + WSNetworkAddressLength);
     
     WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:capacity];
     [self appendToMutableBuffer:buffer];

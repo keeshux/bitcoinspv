@@ -26,6 +26,10 @@
 //
 
 #import "WSNetworkAddress.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "WSBitcoin.h"
+#import "NSData+Binary.h"
 
 @interface WSNetworkAddress ()
 

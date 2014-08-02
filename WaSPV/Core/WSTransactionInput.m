@@ -32,6 +32,10 @@
 #import "WSScript.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSMessage.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSSignedTransactionInput ()
 
@@ -165,7 +169,7 @@
     const NSUInteger scriptSize = [self.script estimatedSize];
     
     // outpoint + var_int + script + sequence
-    return [self.outpoint estimatedSize] + WSMessageVarIntSize(scriptSize) + scriptSize + 4;
+    return [self.outpoint estimatedSize] + WSBufferVarIntSize(scriptSize) + scriptSize + 4;
 }
 
 @end
@@ -270,7 +274,7 @@
     const NSUInteger scriptSize = [self.script estimatedSize];
     
     // outpoint + var_int + script + sequence
-    return [self.outpoint estimatedSize] + WSMessageVarIntSize(scriptSize) + scriptSize + 4;
+    return [self.outpoint estimatedSize] + WSBufferVarIntSize(scriptSize) + scriptSize + 4;
 }
 
 @end

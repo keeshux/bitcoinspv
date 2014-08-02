@@ -29,6 +29,7 @@
 #import "WSParametersFactoryMain.h"
 #import "WSParametersFactoryTestnet3.h"
 #import "WSParametersFactoryRegtest.h"
+#import "WSErrors.h"
 
 @interface WSParametersFactory ()
 

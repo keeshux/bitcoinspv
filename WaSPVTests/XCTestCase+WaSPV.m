@@ -1,5 +1,5 @@
 //
-//  XCTestCase+Extensions.m
+//  XCTestCase+WaSPV.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/07/14.
@@ -25,14 +25,14 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "XCTestCase+Extensions.h"
+#import "XCTestCase+WaSPV.h"
 #import "WSMessage.h"
 #import "WSPeer.h"
 
 // XXX: I know, but CFRunLoopStop is useless and category properties are overkill
 static volatile BOOL running;
 
-@implementation XCTestCase (Extensions)
+@implementation XCTestCase (WaSPV)
 
 - (NSString *)mockWalletMnemonic
 {

@@ -27,3 +27,34 @@
 
 #import "WSMessage.h"
 
+const NSInteger         WSMessageHeaderLength                   = 24;
+const NSUInteger        WSMessageMaxLength                      = 0x02000000;
+const NSUInteger        WSMessageMaxInventories                 = 50000;
+const NSUInteger        WSMessageAddrMaxCount                   = 1000;
+const NSUInteger        WSMessageBlocksMaxCount                 = 500;
+const NSUInteger        WSMessageHeadersMaxCount                = 2000;
+
+NSString *const         WSMessageType_VERSION                   = @"version";
+NSString *const         WSMessageType_VERACK                    = @"verack";
+NSString *const         WSMessageType_ADDR                      = @"addr";
+NSString *const         WSMessageType_INV                       = @"inv";
+NSString *const         WSMessageType_GETDATA                   = @"getdata";
+NSString *const         WSMessageType_NOTFOUND                  = @"notfound";
+NSString *const         WSMessageType_GETBLOCKS                 = @"getblocks";
+NSString *const         WSMessageType_GETHEADERS                = @"getheaders";
+NSString *const         WSMessageType_TX                        = @"tx";
+NSString *const         WSMessageType_BLOCK                     = @"block";
+NSString *const         WSMessageType_HEADERS                   = @"headers";
+NSString *const         WSMessageType_GETADDR                   = @"getaddr";
+NSString *const         WSMessageType_MEMPOOL                   = @"mempool";
+NSString *const         WSMessageType_CHECKORDER                = @"checkorder";
+NSString *const         WSMessageType_SUBMITORDER               = @"submitorder";
+NSString *const         WSMessageType_REPLY                     = @"reply";
+NSString *const         WSMessageType_PING                      = @"ping";
+NSString *const         WSMessageType_PONG                      = @"pong";
+NSString *const         WSMessageType_REJECT                    = @"reject";
+NSString *const         WSMessageType_FILTERLOAD                = @"filterload";
+NSString *const         WSMessageType_FILTERADD                 = @"filteradd";
+NSString *const         WSMessageType_FILTERCLEAR               = @"filterclear";
+NSString *const         WSMessageType_MERKLEBLOCK               = @"merkleblock";
+NSString *const         WSMessageType_ALERT                     = @"alert";

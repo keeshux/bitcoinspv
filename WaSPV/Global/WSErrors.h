@@ -51,3 +51,15 @@ typedef enum {
     WSErrorCodeInsufficientFunds,
     WSErrorCodeBIP39BadMnemonic
 } WSErrorCode;
+
+#pragma mark - Macros
+
+void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);
+void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...);
+void WSExceptionRaiseUnsupported(NSString *format, ...);
+
+NSError *WSErrorMake(WSErrorCode code, NSString *format, ...);
+void WSErrorSet(NSError **error, WSErrorCode code, NSString *format, ...);
+void WSErrorSetUserInfo(NSError **error, WSErrorCode code, NSDictionary *userInfo, NSString *format, ...);
+void WSErrorSetNotEnoughBytes(NSError **error, Class bufferClass, NSUInteger found, NSUInteger expected);
+void WSErrorSetNotEnoughMessageBytes(NSError **error, NSString *messageType, NSUInteger found, NSUInteger expected);

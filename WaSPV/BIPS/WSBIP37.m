@@ -26,6 +26,17 @@
 //
 
 #import "WSBIP37.h"
+#import "WSBuffer.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+
+const uint32_t          WSBIP37MaxFilterLength                  = 36000;
+const uint32_t          WSBIP37MaxHashFunctions                 = 50;
+const uint32_t          WSBIP37HashMultiplier                   = 0xfba4c795;
+
+static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
+
+#pragma mark -
 
 @implementation WSBIP37FilterParameters
 
@@ -74,8 +85,6 @@
 @end
 
 #pragma mark -
-
-static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 @interface WSBIP37Filter ()
 
@@ -235,6 +244,8 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 }
 
 @end
+
+#pragma mark -
 
 //
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRBloomFilter.m

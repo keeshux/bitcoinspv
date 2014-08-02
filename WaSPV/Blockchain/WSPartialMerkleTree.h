@@ -27,7 +27,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSIndentableDescription.h"
+
+@class WSHash256;
 
 @interface WSPartialMerkleTree : NSObject <WSBufferEncoder, WSBufferDecoder, WSIndentableDescription>
 

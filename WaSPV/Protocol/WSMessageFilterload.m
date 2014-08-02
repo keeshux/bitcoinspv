@@ -26,6 +26,7 @@
 //
 
 #import "WSMessageFilterload.h"
+#import "WSErrors.h"
 
 @interface WSMessageFilterload ()
 

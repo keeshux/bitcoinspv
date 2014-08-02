@@ -27,11 +27,55 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSSized.h"
+
+//
+// Script
+//
+// https://en.bitcoin.it/wiki/Script
+//
 
 @class WSScriptChunk;
 @class WSPublicKey;
 @class WSAddress;
+
+#pragma mark -
+
+typedef enum {
+    WSScriptOpcode_OP_0                 = 0x00,
+    WSScriptOpcode_PUSHDATA1            = 0x4c,
+    WSScriptOpcode_PUSHDATA2            = 0x4d,
+    WSScriptOpcode_PUSHDATA4            = 0x4e,
+    WSScriptOpcode_OP_1                 = 0x51,
+    WSScriptOpcode_OP_2                 = 0x52,
+    WSScriptOpcode_OP_3                 = 0x53,
+    WSScriptOpcode_OP_4                 = 0x54,
+    WSScriptOpcode_OP_5                 = 0x55,
+    WSScriptOpcode_OP_6                 = 0x56,
+    WSScriptOpcode_OP_7                 = 0x57,
+    WSScriptOpcode_OP_8                 = 0x58,
+    WSScriptOpcode_OP_9                 = 0x59,
+    WSScriptOpcode_OP_10                = 0x5a,
+    WSScriptOpcode_OP_11                = 0x5b,
+    WSScriptOpcode_OP_12                = 0x5c,
+    WSScriptOpcode_OP_13                = 0x5d,
+    WSScriptOpcode_OP_14                = 0x5e,
+    WSScriptOpcode_OP_15                = 0x5f,
+    WSScriptOpcode_OP_16                = 0x60,
+    WSScriptOpcode_OP_RETURN            = 0x6a,
+    WSScriptOpcode_DUP                  = 0x76,
+    WSScriptOpcode_EQUAL                = 0x87,
+    WSScriptOpcode_EQUALVERIFY          = 0x88,
+    WSScriptOpcode_HASH160              = 0xa9,
+    WSScriptOpcode_CHECKSIG             = 0xac,
+    WSScriptOpcode_CHECKSIGVERIFY       = 0xad,
+    WSScriptOpcode_CHECKMULTISIG        = 0xae,
+    WSScriptOpcode_CHECKMULTISIGVERIFY  = 0xaf
+} WSScriptOpcode;
+
+NSString *WSScriptOpcodeString(WSScriptOpcode opcode);
+NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode);
 
 #pragma mark -
 

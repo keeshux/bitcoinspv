@@ -28,6 +28,8 @@
 #import "WSTransactionOutPointEntity.h"
 #import "WSTransactionInputEntity.h"
 #import "WSCoreDataManager.h"
+#import "WSHash256.h"
+#import "WSMacros.h"
 
 @implementation WSTransactionOutPointEntity
 

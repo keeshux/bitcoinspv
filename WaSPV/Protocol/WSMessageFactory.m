@@ -26,6 +26,7 @@
 //
 
 #import "WSMessageFactory.h"
+#import "WSErrors.h"
 
 @implementation WSMessageFactory
 

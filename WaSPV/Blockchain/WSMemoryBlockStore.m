@@ -25,13 +25,19 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSMemoryBlockStore.h"
+#import "WSHash256.h"
 #import "WSStorableBlock.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
 #import "WSTransaction.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSMemoryBlockStore ()
 

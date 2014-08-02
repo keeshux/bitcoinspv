@@ -29,10 +29,15 @@
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
 #import "WSTransactionOutput.h"
+#import "WSHash256.h"
 #import "WSScript.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSMessage.h"
 #import "WSWallet.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures);
 
@@ -417,7 +422,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     
     size += sizeof(uint32_t); // version
     
-    size += WSMessageVarIntSize(inputs.count);
+    size += WSBufferVarIntSize(inputs.count);
     if (simulatingSignatures) {
         size += inputs.count * WSTransactionInputTypicalLength;
     }
@@ -425,13 +430,13 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
         for (id<WSTransactionInput> input in inputs) {
             size += WSTransactionOutPointLength;
             const NSUInteger scriptSize = [input.script estimatedSize];
-            size += WSMessageVarIntSize(scriptSize);
+            size += WSBufferVarIntSize(scriptSize);
             size += scriptSize;
             size += sizeof(uint32_t); // sequence
         }
     }
     
-    size += WSMessageVarIntSize(outputs.count);
+    size += WSBufferVarIntSize(outputs.count);
     if (simulatingSignatures) {
         size += outputs.count * WSTransactionOutputTypicalLength;
     }
@@ -439,7 +444,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
         for (WSTransactionOutput *output in outputs) {
             size += sizeof(uint64_t); // value
             const NSUInteger scriptSize = [output.script estimatedSize];
-            size += WSMessageVarIntSize(scriptSize);
+            size += WSBufferVarIntSize(scriptSize);
             size += scriptSize;
         }
     }

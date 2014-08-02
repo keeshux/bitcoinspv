@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 @class WSAddress;
+@class WSHash256;
 
 #pragma mark -
 

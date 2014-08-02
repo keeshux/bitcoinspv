@@ -1,5 +1,5 @@
 //
-//  XCTestCase+Extensions.h
+//  XCTestCase+WaSPV.h
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/07/14.
@@ -26,10 +26,22 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "DDLog.h"
+
+#import "WSConfig.h"
+#import "WSBitcoin.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
+#import "NSString+Base58.h"
+#import "NSString+Binary.h"
+#import "NSData+Base58.h"
+#import "NSData+Binary.h"
+#import "NSData+Hash.h"
 
 @protocol WSMessage;
+@class WSPeer;
 
-@interface XCTestCase (Extensions)
+@interface XCTestCase (WaSPV)
 
 - (NSString *)mockWalletMnemonic;
 - (NSString *)mockPathForFile:(NSString *)file;

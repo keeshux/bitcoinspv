@@ -26,8 +26,16 @@
 //
 
 #import <openssl/bn.h>
+#import "DDLog.h"
 
 #import "NSString+Base58.h"
+#import "NSString+Binary.h"
+#import "NSData+Base58.h"
+#import "NSData+Binary.h"
+#import "WSHash256.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSBitcoin.h"
 
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/NSString%2BBase58.m
 

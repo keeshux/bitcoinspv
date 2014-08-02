@@ -35,6 +35,9 @@
 //#define WASPV_TEST_MESSAGE_QUEUE          // bufferize received messages for synchronous peer requests
 //#define WASPV_TEST_DUMMY_TXS              // don't check transaction relevancy
 
+// required by CocoaLumberjack, define in client project
+extern int                      ddLogLevel;
+
 extern NSString *const          WSClientName;
 extern NSString *const          WSClientVersion;
 

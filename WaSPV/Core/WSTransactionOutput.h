@@ -27,7 +27,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
 #import "WSSized.h"
+
+@class WSScript;
+@class WSAddress;
 
 @interface WSTransactionOutput : NSObject <WSBufferEncoder, WSBufferDecoder, WSSized>
 

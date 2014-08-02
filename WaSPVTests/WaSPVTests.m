@@ -1,5 +1,5 @@
 //
-//  WSConfig.m
+//  WaSPVTests.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 05/07/14.

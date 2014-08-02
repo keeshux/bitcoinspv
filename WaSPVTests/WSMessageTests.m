@@ -25,12 +25,12 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+Extensions.h"
 #import <arpa/inet.h>
 
+#import "XCTestCase+WaSPV.h"
 #import "WSMessageFactory.h"
 #import "WSNetworkAddress.h"
+#import "WSConfig.h"
 #import "WSBlockLocator.h"
 #import "WSProtocolDeserializer.h"
 

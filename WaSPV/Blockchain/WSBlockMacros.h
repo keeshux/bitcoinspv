@@ -28,6 +28,9 @@
 #import <Foundation/Foundation.h>
 #import <openssl/bn.h>
 
+#import "WSHash256.h"
+#import "NSData+Binary.h"
+
 //
 // "Compact" is a way to represent a 256-bit number as 32-bit.
 //

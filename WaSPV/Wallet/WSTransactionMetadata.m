@@ -27,6 +27,9 @@
 
 #import "WSTransactionMetadata.h"
 #import "WSStorableBlock.h"
+#import "WSHash256.h"
+#import "WSBitcoin.h"
+#import "WSErrors.h"
 
 @interface WSTransactionMetadata ()
 

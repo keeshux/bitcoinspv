@@ -27,10 +27,12 @@
 
 #import <arpa/inet.h>
 #import <errno.h>
+#import "DDLog.h"
 
 #import "WSPeerGroup.h"
 #import "WSConnectionPool.h"
 #import "WSWallet.h"
+#import "WSHash256.h"
 #import "WSCheckpoint.h"
 #import "WSPeer.h"
 #import "WSBloomFilter.h"
@@ -40,6 +42,9 @@
 #import "WSTransaction.h"
 #import "WSBlockLocator.h"
 #import "WSInventory.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSPeerGroup () {
     BOOL _autosave;

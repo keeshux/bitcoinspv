@@ -26,6 +26,8 @@
 //
 
 #import "WSBlockLocator.h"
+#import "WSBitcoin.h"
+#import "WSErrors.h"
 
 @interface WSBlockLocator ()
 

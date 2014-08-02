@@ -27,6 +27,19 @@
 
 #import <Foundation/Foundation.h>
 
+//
+// Mnemonic code for HD wallets
+//
+// https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
+//
+
+extern NSString *const          WSBIP39WordsResource;
+extern NSString *const          WSBIP39WordsType;
+extern const CFStringRef        WSBIP39SaltPrefix;
+extern const NSUInteger         WSBIP39SaltPrefixLength;
+
+#pragma mark -
+
 @protocol WSBIP39 <NSObject>
 
 - (NSString *)generateRandomMnemonic;

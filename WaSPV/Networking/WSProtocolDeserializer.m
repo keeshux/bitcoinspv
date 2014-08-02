@@ -25,8 +25,14 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "DDLog.h"
+
 #import "WSProtocolDeserializer.h"
 #import "WSMessageFactory.h"
+#import "WSHash256.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
+#import "WSErrors.h"
 
 @interface WSProtocolDeserializer ()
 
