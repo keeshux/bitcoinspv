@@ -318,7 +318,6 @@
 		8C8ADFDD196786CA007787ED /* NSString+Binary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Binary.h"; sourceTree = "<group>"; };
 		8C8ADFDE196786CA007787ED /* NSString+Binary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Binary.m"; sourceTree = "<group>"; };
 		8C8FB7F7196776B400A07156 /* libWaSPV.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWaSPV.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		8C8FB7FB196776B600A07156 /* WaSPV-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WaSPV-Prefix.pch"; sourceTree = "<group>"; };
 		8C8FB804196776B600A07156 /* WaSPVTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WaSPVTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C8FB80D196776B700A07156 /* WaSPVTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WaSPVTests-Info.plist"; sourceTree = "<group>"; };
 		8C8FB80F196776B700A07156 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -735,14 +734,6 @@
 			path = WaSPV;
 			sourceTree = "<group>";
 		};
-		8C8FB7FA196776B600A07156 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				8C8FB7FB196776B600A07156 /* WaSPV-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		8C8FB80B196776B700A07156 /* WaSPVTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -804,7 +795,6 @@
 				8C8ADFB3196786CA007787ED /* Protocol */,
 				8C8ADFD2196786CA007787ED /* Utils */,
 				8C497053196EEEF800BD9D3B /* Wallet */,
-				8C8FB7FA196776B600A07156 /* Supporting Files */,
 				8C4DAF251987C1CA0002B111 /* WaSPV.h */,
 			);
 			path = Sources;
@@ -1500,6 +1490,7 @@
 				8CBB5B12198D0A1D006599DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
