@@ -22,6 +22,15 @@ Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5M
 
 ### Installation
 
+WaSPV depends on four well known libraries:
+
+* [OpenSSL](https://github.com/krzak/OpenSSL.git)
+* [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack.git)
+* [AutoCoding](https://github.com/nicklockwood/AutoCoding.git)
+* [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket.git)
+
+Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.org/) utility.
+
 #### Podfile
 
 First make sure you're deploying to iOS 7.x and above:
