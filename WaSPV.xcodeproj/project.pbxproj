@@ -22,10 +22,6 @@
 		8C40243E19840622008FDC5F /* WSTransactionInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C40243D19840622008FDC5F /* WSTransactionInput.m */; };
 		8C4024411984062E008FDC5F /* WSTransactionOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4024401984062E008FDC5F /* WSTransactionOutput.m */; };
 		8C40244419847BB2008FDC5F /* WSTransactionMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C40244319847BB2008FDC5F /* WSTransactionMetadata.m */; };
-		8C40244C198527D7008FDC5F /* WSBIP39Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C402448198527D7008FDC5F /* WSBIP39Words.txt */; };
-		8C40244D198527D7008FDC5F /* WSBIP39Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C402448198527D7008FDC5F /* WSBIP39Words.txt */; };
-		8C40244E198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */; };
-		8C40244F198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */; };
 		8C40245219853B54008FDC5F /* WSParametersFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C40245119853B54008FDC5F /* WSParametersFactory.m */; };
 		8C497056196EEEF800BD9D3B /* WSAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C497038196EEEF800BD9D3B /* WSAddress.m */; };
 		8C497057196EEEF800BD9D3B /* WSBloomFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C49703A196EEEF800BD9D3B /* WSBloomFilter.m */; };
@@ -123,6 +119,9 @@
 		8CAC9C92196FFA1000A2596E /* WSBlockStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAC9C91196FFA1000A2596E /* WSBlockStore.m */; };
 		8CAC9C98197003F500A2596E /* WSMemoryBlockStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAC9C97197003F500A2596E /* WSMemoryBlockStore.m */; };
 		8CAC9C9B1970098F00A2596E /* WSStorableBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAC9C9A1970098F00A2596E /* WSStorableBlock.m */; };
+		8CBB5B1C198D0C82006599DB /* WaSPV.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB5B06198D0A1D006599DB /* WaSPV.bundle */; };
+		8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C402448198527D7008FDC5F /* WSBIP39Words.txt */; };
+		8CBB5B1E198D0E7D006599DB /* WSCoreDataBlockStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */; };
 		8CBEABEA198118FC001512C2 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */; };
 		8CBF49FB19699F0B00FAFF64 /* WSMessageFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF49FA19699F0B00FAFF64 /* WSMessageFactory.m */; };
 		8CBF4A051969DF6600FAFF64 /* WSProtocolDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF4A041969DF6600FAFF64 /* WSProtocolDeserializer.m */; };
@@ -144,6 +143,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8C8FB7F6196776B400A07156;
 			remoteInfo = WaSPV;
+		};
+		8CBB5B18198D0C77006599DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C60057C1949EC9400248F04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8CBB5B05198D0A1D006599DB;
+			remoteInfo = WaSPVResources;
+		};
+		8CBB5B1A198D0C7C006599DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C60057C1949EC9400248F04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8CBB5B05198D0A1D006599DB;
+			remoteInfo = WaSPVResources;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -357,6 +370,9 @@
 		8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupTests.m; sourceTree = "<group>"; };
 		8CB6D2971979D18000783ADF /* WSPeerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerTests.m; sourceTree = "<group>"; };
 		8CB6D2981979D18000783ADF /* WSSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSSyncTests.m; sourceTree = "<group>"; };
+		8CBB5B06198D0A1D006599DB /* WaSPV.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WaSPV.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		8CBB5B13198D0AA8006599DB /* WaSPVResources-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "WaSPVResources-Info.plist"; sourceTree = "<group>"; };
 		8CBEABE8198118FC001512C2 /* WSPeerGroupNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroupNotifier.h; sourceTree = "<group>"; };
 		8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupNotifier.m; sourceTree = "<group>"; };
 		8CBF49F919699F0B00FAFF64 /* WSMessageFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageFactory.h; sourceTree = "<group>"; };
@@ -414,12 +430,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8CBB5B03198D0A1D006599DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		8C402447198527D7008FDC5F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CBB5B13198D0AA8006599DB /* WaSPVResources-Info.plist */,
 				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
 				8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */,
 			);
@@ -521,6 +545,7 @@
 				8C6005841949EC9400248F04 /* WaSPVDemo.app */,
 				8C8FB7F7196776B400A07156 /* libWaSPV.a */,
 				8C8FB804196776B600A07156 /* WaSPVTests.xctest */,
+				8CBB5B06198D0A1D006599DB /* WaSPV.bundle */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -534,6 +559,7 @@
 				8C60058D1949EC9400248F04 /* CoreData.framework */,
 				8C6005A51949EC9400248F04 /* XCTest.framework */,
 				35B1312A39704004A5AC7444 /* libPods.a */,
+				8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -709,19 +735,8 @@
 		8C8FB7F9196776B600A07156 /* WaSPV */ = {
 			isa = PBXGroup;
 			children = (
-				8C8ADF90196786CA007787ED /* BIPS */,
-				8C8ADF99196786CA007787ED /* Blockchain */,
-				8C497036196EEEF800BD9D3B /* Core */,
-				8C8ADFA3196786CA007787ED /* Global */,
-				8C49821A19708F28007CE061 /* Model */,
-				8CBF49FC1969DF0000FAFF64 /* Networking */,
-				8C8ADFAC196786CA007787ED /* Parameters */,
-				8C8ADFB3196786CA007787ED /* Protocol */,
+				8CBB5B01198D09FA006599DB /* Sources */,
 				8C402447198527D7008FDC5F /* Resources */,
-				8C8ADFD2196786CA007787ED /* Utils */,
-				8C497053196EEEF800BD9D3B /* Wallet */,
-				8C8FB7FA196776B600A07156 /* Supporting Files */,
-				8C4DAF251987C1CA0002B111 /* WaSPV.h */,
 			);
 			path = WaSPV;
 			sourceTree = "<group>";
@@ -782,6 +797,25 @@
 			path = Manual;
 			sourceTree = "<group>";
 		};
+		8CBB5B01198D09FA006599DB /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8C8ADF90196786CA007787ED /* BIPS */,
+				8C8ADF99196786CA007787ED /* Blockchain */,
+				8C497036196EEEF800BD9D3B /* Core */,
+				8C8ADFA3196786CA007787ED /* Global */,
+				8C49821A19708F28007CE061 /* Model */,
+				8CBF49FC1969DF0000FAFF64 /* Networking */,
+				8C8ADFAC196786CA007787ED /* Parameters */,
+				8C8ADFB3196786CA007787ED /* Protocol */,
+				8C8ADFD2196786CA007787ED /* Utils */,
+				8C497053196EEEF800BD9D3B /* Wallet */,
+				8C8FB7FA196776B600A07156 /* Supporting Files */,
+				8C4DAF251987C1CA0002B111 /* WaSPV.h */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		8CBF49FC1969DF0000FAFF64 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -817,6 +851,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				8CBB5B1B198D0C7C006599DB /* PBXTargetDependency */,
 			);
 			name = WaSPVDemo;
 			productName = Demo;
@@ -855,12 +890,30 @@
 			buildRules = (
 			);
 			dependencies = (
+				8CBB5B19198D0C77006599DB /* PBXTargetDependency */,
 				8C8FB809196776B700A07156 /* PBXTargetDependency */,
 			);
 			name = WaSPVTests;
 			productName = WaSPVTests;
 			productReference = 8C8FB804196776B600A07156 /* WaSPVTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8CBB5B05198D0A1D006599DB /* WaSPVResources */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8CBB5B10198D0A1D006599DB /* Build configuration list for PBXNativeTarget "WaSPVResources" */;
+			buildPhases = (
+				8CBB5B02198D0A1D006599DB /* Sources */,
+				8CBB5B03198D0A1D006599DB /* Frameworks */,
+				8CBB5B04198D0A1D006599DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WaSPVResources;
+			productName = WaSPVResources;
+			productReference = 8CBB5B06198D0A1D006599DB /* WaSPV.bundle */;
+			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -880,7 +933,7 @@
 						};
 					};
 					8C8FB803196776B600A07156 = {
-						TestTargetID = 8C6005831949EC9400248F04;
+						TestTargetID = 8C8FB7F6196776B400A07156;
 					};
 				};
 			};
@@ -898,6 +951,7 @@
 			projectRoot = "";
 			targets = (
 				8C8FB7F6196776B400A07156 /* WaSPV */,
+				8CBB5B05198D0A1D006599DB /* WaSPVResources */,
 				8C8FB803196776B600A07156 /* WaSPVTests */,
 				8C6005831949EC9400248F04 /* WaSPVDemo */,
 			);
@@ -909,7 +963,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C40244D198527D7008FDC5F /* WSBIP39Words.txt in Resources */,
 				8C6005941949EC9400248F04 /* InfoPlist.strings in Resources */,
 				8C60059F1949EC9400248F04 /* Images.xcassets in Resources */,
 			);
@@ -919,8 +972,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C40244C198527D7008FDC5F /* WSBIP39Words.txt in Resources */,
+				8CBB5B1C198D0C82006599DB /* WaSPV.bundle in Resources */,
 				8C8FB810196776B700A07156 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8CBB5B04198D0A1D006599DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1026,7 +1087,6 @@
 			files = (
 				8C60059A1949EC9400248F04 /* WSAppDelegate.m in Sources */,
 				8C6005961949EC9400248F04 /* main.m in Sources */,
-				8C40244F198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1130,7 +1190,6 @@
 				8C8FB838196776F300A07156 /* WSWalletTests.m in Sources */,
 				8C8FB82C196776F300A07156 /* WSBIP32Tests.m in Sources */,
 				8C7CC4AB19813F1D00FD5782 /* WSWalletSerializationTests.m in Sources */,
-				8C40244E198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld in Sources */,
 				8C8FB830196776F300A07156 /* WSBlockTests.m in Sources */,
 				8C196B65197EEA7D00D27CA1 /* WSPeerGroupTests.m in Sources */,
 				8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */,
@@ -1152,6 +1211,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8CBB5B02198D0A1D006599DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CBB5B1E198D0E7D006599DB /* WSCoreDataBlockStore.xcdatamodeld in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1159,6 +1226,16 @@
 			isa = PBXTargetDependency;
 			target = 8C8FB7F6196776B400A07156 /* WaSPV */;
 			targetProxy = 8C8FB808196776B700A07156 /* PBXContainerItemProxy */;
+		};
+		8CBB5B19198D0C77006599DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8CBB5B05198D0A1D006599DB /* WaSPVResources */;
+			targetProxy = 8CBB5B18198D0C77006599DB /* PBXContainerItemProxy */;
+		};
+		8CBB5B1B198D0C7C006599DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8CBB5B05198D0A1D006599DB /* WaSPVResources */;
+			targetProxy = 8CBB5B1A198D0C7C006599DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1358,6 +1435,37 @@
 			};
 			name = Release;
 		};
+		8CBB5B11198D0A1D006599DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "WaSPV/Resources/WaSPVResources-Info.plist";
+				PRODUCT_NAME = WaSPV;
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		8CBB5B12198D0A1D006599DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				INFOPLIST_FILE = "WaSPV/Resources/WaSPVResources-Info.plist";
+				PRODUCT_NAME = WaSPV;
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1396,6 +1504,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		8CBB5B10198D0A1D006599DB /* Build configuration list for PBXNativeTarget "WaSPVResources" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CBB5B11198D0A1D006599DB /* Debug */,
+				8CBB5B12198D0A1D006599DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 

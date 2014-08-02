@@ -38,8 +38,14 @@
 // required by CocoaLumberjack, define in client project
 extern int                      ddLogLevel;
 
+#pragma mark - Library
+
 extern NSString *const          WSClientName;
 extern NSString *const          WSClientVersion;
+
+NSBundle *WSClientBundle(Class clazz);
+
+#pragma mark - Local parameters
 
 extern const uint32_t           WSSeedGeneratorDefaultEntropyBits;
 

@@ -59,8 +59,10 @@
 - (instancetype)init
 {
     if ((self = [super init])) {
+        NSBundle *bundle = WSClientBundle([self class]);
+
         self.defaultEntropyLength = WSSeedGeneratorDefaultEntropyBits;
-        self.wordsPath = [[NSBundle bundleForClass:[self class]] pathForResource:WSBIP39WordsResource ofType:WSBIP39WordsType];
+        self.wordsPath = [bundle pathForResource:WSBIP39WordsResource ofType:WSBIP39WordsType];
     }
     return self;
 }

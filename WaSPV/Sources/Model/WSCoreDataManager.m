@@ -48,8 +48,7 @@
 {
     if ((self = [super init])) {
         self.path = path;
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSAssert(bundle, @"Nil model bundle");
+        NSBundle *bundle = WSClientBundle([self class]);
         self.model = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];
         if (!self.model) {
             return nil;

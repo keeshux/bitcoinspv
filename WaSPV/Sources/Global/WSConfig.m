@@ -27,8 +27,19 @@
 
 #import "WSConfig.h"
 
+#pragma mark - Library
+
 NSString *const         WSClientName                                = @"WaSPV";
 NSString *const         WSClientVersion                             = @"0.1";
+
+NSBundle *WSClientBundle(Class clazz)
+{
+    NSBundle *parentBundle = [NSBundle bundleForClass:clazz];
+    NSString *bundlePath = [parentBundle pathForResource:WSClientName ofType:@"bundle"];
+    return [NSBundle bundleWithPath:bundlePath];
+}
+
+#pragma mark - Local parameters
 
 const uint32_t          WSSeedGeneratorDefaultEntropyBits           = 128;
 
