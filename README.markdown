@@ -22,6 +22,18 @@ Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5M
 
 ### Installation
 
+#### Podfile
+
+First make sure you're deploying to iOS 7.x and above:
+
+    platform :ios, '7.0'
+
+then add the following line:
+
+    pod 'WaSPV', '~> 0.1'
+
+and run `pod install`.
+
 #### Imports
 
 WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the compiler will complain if you don't define it somewhere, e.g. in the application delegate:
