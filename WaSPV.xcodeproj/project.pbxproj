@@ -116,6 +116,7 @@
 		8CBB5B1C198D0C82006599DB /* WaSPV.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB5B06198D0A1D006599DB /* WaSPV.bundle */; };
 		8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C402448198527D7008FDC5F /* WSBIP39Words.txt */; };
 		8CBB5B1E198D0E7D006599DB /* WSCoreDataBlockStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */; };
+		8CBB63CA198D3115006599DB /* WSCoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBB63C9198D3115006599DB /* WSCoreDataManager.m */; };
 		8CBEABEA198118FC001512C2 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */; };
 		8CBF49FB19699F0B00FAFF64 /* WSMessageFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF49FA19699F0B00FAFF64 /* WSMessageFactory.m */; };
 		8CBF4A051969DF6600FAFF64 /* WSProtocolDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF4A041969DF6600FAFF64 /* WSProtocolDeserializer.m */; };
@@ -124,7 +125,6 @@
 		8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */; };
 		8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3EE9A196D912400FC48F1 /* WSReachability.m */; };
 		8CD3EEA2196DAB2D00FC48F1 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
-		8CDD9A191982FDC300720304 /* WSCoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A181982FDC300720304 /* WSCoreDataManager.m */; };
 		8CDD9A1E1983007900720304 /* WSBlockMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A1B1983007900720304 /* WSBlockMacros.m */; };
 		8CDD9A241983066300720304 /* WSTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A231983066300720304 /* WSTimerTests.m */; };
 		8CDE10F4196CE0C500A14493 /* WSPeerGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDE10F3196CE0C500A14493 /* WSPeerGroup.m */; };
@@ -366,6 +366,8 @@
 		8CBB5B06198D0A1D006599DB /* WaSPV.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WaSPV.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8CBB5B13198D0AA8006599DB /* WaSPVResources-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "WaSPVResources-Info.plist"; sourceTree = "<group>"; };
+		8CBB63C8198D3115006599DB /* WSCoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSCoreDataManager.h; sourceTree = "<group>"; };
+		8CBB63C9198D3115006599DB /* WSCoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCoreDataManager.m; sourceTree = "<group>"; };
 		8CBEABE8198118FC001512C2 /* WSPeerGroupNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroupNotifier.h; sourceTree = "<group>"; };
 		8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupNotifier.m; sourceTree = "<group>"; };
 		8CBF49F919699F0B00FAFF64 /* WSMessageFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageFactory.h; sourceTree = "<group>"; };
@@ -380,8 +382,6 @@
 		8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPartialMerkleTreeEntity.m; sourceTree = "<group>"; };
 		8CD3EE99196D912400FC48F1 /* WSReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSReachability.h; sourceTree = "<group>"; };
 		8CD3EE9A196D912400FC48F1 /* WSReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSReachability.m; sourceTree = "<group>"; };
-		8CDD9A171982FDC300720304 /* WSCoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSCoreDataManager.h; sourceTree = "<group>"; };
-		8CDD9A181982FDC300720304 /* WSCoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCoreDataManager.m; sourceTree = "<group>"; };
 		8CDD9A1A1983007900720304 /* WSBlockMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBlockMacros.h; sourceTree = "<group>"; };
 		8CDD9A1B1983007900720304 /* WSBlockMacros.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBlockMacros.m; sourceTree = "<group>"; };
 		8CDD9A231983066300720304 /* WSTimerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSTimerTests.m; sourceTree = "<group>"; };
@@ -502,8 +502,6 @@
 			children = (
 				8C49824E1970B316007CE061 /* WSBlockHeaderEntity.h */,
 				8C49824F1970B316007CE061 /* WSBlockHeaderEntity.m */,
-				8CDD9A171982FDC300720304 /* WSCoreDataManager.h */,
-				8CDD9A181982FDC300720304 /* WSCoreDataManager.m */,
 				8CCFB0271971D01900A6FF28 /* WSPartialMerkleTreeEntity.h */,
 				8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */,
 				8C4982561970B316007CE061 /* WSStorableBlockEntity.h */,
@@ -715,6 +713,8 @@
 				8C8ADFDC196786CA007787ED /* NSString+Base58.m */,
 				8C8ADFDD196786CA007787ED /* NSString+Binary.h */,
 				8C8ADFDE196786CA007787ED /* NSString+Binary.m */,
+				8CBB63C8198D3115006599DB /* WSCoreDataManager.h */,
+				8CBB63C9198D3115006599DB /* WSCoreDataManager.m */,
 				8C8890F2198952F400BB19CA /* WSGCDTimer.h */,
 				8C8890F3198952F400BB19CA /* WSGCDTimer.m */,
 				8C8890F4198952F400BB19CA /* WSIndentableDescription.h */,
@@ -1151,7 +1151,6 @@
 				8C49705D196EEEF800BD9D3B /* WSBlockLocator.m in Sources */,
 				8C196B5F197EE62900D27CA1 /* WSHDWallet.m in Sources */,
 				8C49705F196EEEF800BD9D3B /* WSPublicKey.m in Sources */,
-				8CDD9A191982FDC300720304 /* WSCoreDataManager.m in Sources */,
 				8C8AE00E196786CA007787ED /* WSMessageMerkleblock.m in Sources */,
 				8C8AE01C196786CA007787ED /* NSString+Binary.m in Sources */,
 				8C8ADFFC196786CA007787ED /* WSBIP37.m in Sources */,
@@ -1162,6 +1161,7 @@
 				8C8890F9198952F400BB19CA /* WSLogFormatter.m in Sources */,
 				8CDD9A1E1983007900720304 /* WSBlockMacros.m in Sources */,
 				8C777EE41971512800B19ED9 /* WSCoreDataBlockStore.m in Sources */,
+				8CBB63CA198D3115006599DB /* WSCoreDataManager.m in Sources */,
 				8C8ADFFF196786CA007787ED /* WSBlockChain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
