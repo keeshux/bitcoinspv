@@ -2,11 +2,9 @@
 
 WaSPV (read *wasvee*) is a native Bitcoin SPV ([Simplified Payment Verification](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients)) client library for iOS written in Objective-C. It conveniently supports Bloom filters ([BIP37](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki)) and hierarchical deterministic wallets ([BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)).
 
-## Donations
+WaSPV is still experimental and quite far from being production ready.
 
-WaSPV is *free* software, donations are extremely welcome.
-
-Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
+In other words: __you DO NOT want to use it in production environments today__.
 
 ## License
 
@@ -16,46 +14,32 @@ Basically those willing to use WaSPV for their software are forced to release th
 
 Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be great!
 
-## Release notes
+## Donations
 
-__Version 0.1__ - July 31, 2014
+WaSPV is *free* software, donations are extremely welcome.
 
-* Being the first minor release the library is experimental and quite far from being production ready. In other words: __you DO NOT want to use this version in production environments__.
-
-## Quick start
-
-### Dependencies
-
-First of all you'll need to satisfy the following dependencies:
-
-* [OpenSSL-Universal](https://github.com/krzak/OpenSSL.git)
-* [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack.git)
-* [AutoCoding](https://github.com/nicklockwood/AutoCoding.git)
-* [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket.git)
-
-#### Git
-
-Clone the above github repositories into local git submodules.
-
-#### CocoaPods
-
-Merge the [WaSPV Podfile](https://github.com/keeshux/WaSPV/blob/master/Podfile) dependencies into your podfile and run `pod update`. A podspec will soon be added to simplify the installation process.
+Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
 
 ### Installation
 
-The easy way is importing all files under the `WaSPV` directory into your project. Alternatively, you can embed the whole `WaSPV.xcodeproj` subproject and add `libWaSPV.a` to your project's "Build Phases > Link Binary With Libraries".
+#### Imports
 
-Please remember that the `WaSPV/Resources` subdirectory won't be compiled into the static library. In case you plan to use Core Data or the bundled [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) English word list for mnemonic generation you *must* manually add the `WaSPV/Resources` subdirectory to your targets.
+WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the compiler will complain if you don't define it somewhere, e.g. in the application delegate:
 
-The only import you generally need in your own sources is `#import "WaSPV.h"`.
+    #import "AppDelegate.h"
+
+    const int ddLogLevel = LOG_LEVEL_DEBUG;
+    ...
+
+All the imports are public but the one you generally need is `#import "WaSPV.h"`.
 
 ### Testing
 
-Most of the tests are automated, except those in the `WaSPVTests/Manual` subdirectory. You should disable them before testing the whole suite.
+The `WaSPVTests` target comes with a couple of automated tests. They don't completely test all the library features (especially the networking area), but they're certainly required to succeed. A single fail guarantees that something's broken.
 
 ### Basic usage
 
-Developers familiar with bitcoinj may recall some of the class names in the following tests.
+Developers familiar with bitcoinj may recall some of the class names in the following snippets:
 
 #### Create new wallet
 
@@ -79,6 +63,9 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
         WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
         [peerGroup startConnections];
         [peerGroup startBlockChainDownload];
+
+        // strongly retain peer group
+        self.peerGroup = peerGroup;
     }
 
 #### Restore existing wallet
@@ -102,6 +89,9 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
         WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
         [peerGroup startConnections];
         [peerGroup startBlockChainDownload];
+
+        // strongly retain peer group
+        self.peerGroup = peerGroup;
     }
 
 ### Network parameters
@@ -169,7 +159,6 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do:
 
-* Submit CocoaPods podspec.
 * Autosave wallet.
 * Calculate wallet transaction in/out amounts.
 * Disconnect peers on timeout (sync may get stuck).
