@@ -12,7 +12,13 @@ WaSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
 
 Basically those willing to use WaSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
 
-Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be great!
+Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be appreciated.
+
+## Contacts
+
+Twitter: [keeshux](https://twitter.com/keeshux)
+
+Website: [davidederosa.com](http://davidederosa.com)
 
 ## Donations
 
@@ -29,19 +35,17 @@ WaSPV depends on four well known libraries:
 * [AutoCoding](https://github.com/nicklockwood/AutoCoding.git)
 * [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket.git)
 
-Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.org/) utility.
+Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.org/) utility. I usually test the software on iOS 7 but everything *should* be fine on 6.x as well.
 
 #### Podfile
 
-First make sure you're deploying to iOS 7.x and above:
-
-    platform :ios, '7.0'
-
-then add the following line:
+Add the following line:
 
     pod 'WaSPV', '~> 0.1'
 
-and run `pod install`.
+and run on the terminal:
+
+    $ pod install
 
 #### Imports
 
