@@ -99,7 +99,7 @@
                                                                             outputs:outputs
                                                                            lockTime:lockTime];
 
-    WSHash256 *expectedTxId = WSHash256FromData(self.txIdData);
+    __unused WSHash256 *expectedTxId = WSHash256FromData(self.txIdData);
 
 #ifdef WASPV_TEST_NO_HASH_VALIDATIONS
     [transaction setValue:expectedTxId forKey:@"txId"];

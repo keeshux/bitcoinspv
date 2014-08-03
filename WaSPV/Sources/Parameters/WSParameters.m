@@ -58,7 +58,7 @@
 
 - (void)addCheckpoint:(WSCheckpoint *)checkpoint
 {
-    WSCheckpoint *lastCheckpoint = [self.checkpoints lastObject];
+    __unused WSCheckpoint *lastCheckpoint = [self.checkpoints lastObject];
     NSAssert(checkpoint.height > lastCheckpoint.height, @"Checkpoint is older than last checkpoint");
     
     [self.checkpoints addObject:checkpoint];
