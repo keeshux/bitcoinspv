@@ -7,4 +7,3 @@
 *.xcodeproj/project.xcworkspace
 *.xcodeproj/xcuserdata
 Pods
-WaSPVTests/Caches/*

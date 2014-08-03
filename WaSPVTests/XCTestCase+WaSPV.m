@@ -41,8 +41,14 @@ static volatile BOOL running;
 
 - (NSString *)mockPathForFile:(NSString *)file
 {
-#warning FIXME: make dynamic
-    return [@"/Users/rox/Projects/personal/waspv/WaSPVTests/Caches" stringByAppendingPathComponent:file];
+    NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *testDirectory = [caches stringByAppendingPathComponent:@"WaSPVTests"];
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath:testDirectory]) {
+        [fm createDirectoryAtPath:testDirectory withIntermediateDirectories:NO attributes:nil error:NULL];
+    }
+    return [testDirectory stringByAppendingPathComponent:file];
 }
 
 - (void)runForever
