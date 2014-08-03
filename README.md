@@ -180,6 +180,10 @@ Bitcoin structures are generally little-endian, an example consequence is that t
 
 That's why WaSPV wraps the encoding internals in the `WSBuffer` and `WSMutableBuffer` classes. With a buffer class you can safely read/write arbitrary bytes or basic structures like hashes, network addresses, inventories etc. without the hassle of protocol byte order.
 
+### Immutability
+
+WaSPV relies on the [Grand Central Dispatch](https://developer.apple.com/library/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html), meaning that most of the code is expected to run on multiple queues to achieve best performance. In an attempt to limit the overall complexity, I cut mutable objects usage to a minimum. The immutable approach dramatically simplifies critical sections and guarantees the integrity of serialized data for free. No Core Data entity is mutable, nor are blockchain-related structures in general. Think about it, altering an accepted block would even defeat the purpose of the protocol.
+
 ### Security
 
 Sensitive data are never serialized automatically so that clients will be able to save them by other, safer means. For example, transactions and addresses of a HD wallet can be safely written to a file, while the secret mnemonic deserves more attention. You may store it encrypted into the keychain, you may retrieve it encrypted from a service provider and decrypt it locally, you may even decide not to store it at all. In fact there's total freedom on how to preserve mnemonics security.
