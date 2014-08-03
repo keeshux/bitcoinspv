@@ -80,7 +80,7 @@
 
 - (WSSignedTransaction *)toSignedTransaction
 {
-    const uint32_t version = [self.version unsignedIntegerValue];
+    const uint32_t version = (uint32_t)[self.version unsignedIntegerValue];
 
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.inputs.count];
     for (WSTransactionInputEntity *entity in self.inputs) {
@@ -92,7 +92,7 @@
         [outputs addObject:[entity toOutput]];
     }
 
-    const uint32_t lockTime = [self.lockTime unsignedIntegerValue];
+    const uint32_t lockTime = (uint32_t)[self.lockTime unsignedIntegerValue];
     
     WSSignedTransaction *transaction = [[WSSignedTransaction alloc] initWithVersion:version
                                                                        signedInputs:signedInputs

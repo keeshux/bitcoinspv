@@ -102,7 +102,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
         BIGNUM priv;
         BN_CTX_start(ctx);
         BN_init(&priv);
-        BN_bin2bn(data.bytes, WSKeyLength, &priv);
+        BN_bin2bn(data.bytes, (int)WSKeyLength, &priv);
         
         if (EC_POINT_mul(group, pub, &priv, NULL, NULL, ctx)) {
             EC_KEY_set_private_key(self.key, &priv);

@@ -54,7 +54,7 @@
 
 - (WSPartialMerkleTree *)toPartialMerkleTree
 {
-    const uint32_t txCount = [self.txCount unsignedIntegerValue];
+    const uint32_t txCount = (uint32_t)[self.txCount unsignedIntegerValue];
 
     NSAssert((self.hashesData.length % WSHash256Length == 0), @"Corrupted hashesData, not multiple of %u", WSHash256Length);
 

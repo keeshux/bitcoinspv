@@ -182,7 +182,7 @@
     
     // checkpoint: payload is complete from here
     
-    const uint32_t payloadLength = self.builtPayload.length;
+    const uint32_t payloadLength = (uint32_t)self.builtPayload.length;
     WSHash256 *payloadHash256 = [self.builtPayload computeHash256];
     const uint32_t checksum = *(const uint32_t *)payloadHash256.bytes;
     if (checksum != expectedChecksum) {

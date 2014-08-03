@@ -99,7 +99,7 @@ static inline NSData *WSBlockDataFromWork(BIGNUM *work)
 
 static inline void WSBlockWorkFromData(BIGNUM *work, NSData *data)
 {
-    BN_bin2bn(data.bytes, data.length, work);
+    BN_bin2bn(data.bytes, (int)data.length, work);
 }
 
 NSData *WSBlockGetDifficultyFromBits(uint32_t bits);

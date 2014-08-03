@@ -59,7 +59,7 @@
     else {
         script = [[WSScript alloc] initWithBuffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];
     }
-    const uint32_t sequence = [self.sequence unsignedIntegerValue];
+    const uint32_t sequence = (uint32_t)[self.sequence unsignedIntegerValue];
 
     return [[WSSignedTransactionInput alloc] initWithOutpoint:outpoint script:script sequence:sequence];
 }

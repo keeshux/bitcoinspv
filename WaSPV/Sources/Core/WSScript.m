@@ -764,7 +764,7 @@
     
     WSScriptOpcode opcode;
     if (pushData.length < WSScriptOpcode_PUSHDATA1) {
-        opcode = pushData.length;
+        opcode = (WSScriptOpcode)pushData.length;
     }
     else {
         if (pushData.length < UINT8_MAX) {
@@ -839,20 +839,20 @@
     }
     switch (self.opcode) {
         case WSScriptOpcode_PUSHDATA1: {
-            [buffer appendUint8:self.pushData.length];
+            [buffer appendUint8:(uint8_t)self.pushData.length];
             break;
         }
         case WSScriptOpcode_PUSHDATA2: {
-            [buffer appendUint16:self.pushData.length];
+            [buffer appendUint16:(uint16_t)self.pushData.length];
             break;
         }
         case WSScriptOpcode_PUSHDATA4: {
-            [buffer appendUint32:self.pushData.length];
+            [buffer appendUint32:(uint32_t)self.pushData.length];
             break;
         }
         default: {
             if (self.pushData) {
-                [buffer appendUint8:self.pushData.length];
+                [buffer appendUint8:(uint8_t)self.pushData.length];
             }
             break;
         }

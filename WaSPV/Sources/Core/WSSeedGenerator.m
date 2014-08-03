@@ -150,10 +150,10 @@
     }
     
     const uint32_t n = (uint32_t)self.wordList.count;
-    const int count = (mnemWords.count * 11 + 7) / 8;
+    const NSUInteger count = (mnemWords.count * 11 + 7) / 8;
     
-    for (int i = 0; i < count; ++i) {
-        const int wi = i * 8 / 11;
+    for (NSUInteger i = 0; i < count; ++i) {
+        const NSUInteger wi = i * 8 / 11;
         x = (uint32_t)[self.wordList indexOfObject:mnemWords[wi]];
         
         if (wi + 1 < mnemWords.count) {

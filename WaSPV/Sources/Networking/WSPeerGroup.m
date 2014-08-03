@@ -79,7 +79,7 @@
 @property (nonatomic, strong) WSPeer *downloadPeer;
 @property (nonatomic, assign) BOOL didNotifyDownloadFinished;
 @property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
-@property (nonatomic, assign) uint32_t bloomFilterUpdateHeight;
+@property (nonatomic, assign) NSUInteger bloomFilterUpdateHeight;
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
 
 - (void)connect;
@@ -687,10 +687,10 @@
 
         if (self.wallet) {
             const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
-            const uint32_t retargetInterval = [WSCurrentParameters retargetInterval];
+            const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
 
             // increase fp rate as we approach current height
-            uint32_t filterRateGap = 0;
+            NSUInteger filterRateGap = 0;
             if (blocksLeft > 0) {
                 filterRateGap = MIN(blocksLeft, retargetInterval);
             }

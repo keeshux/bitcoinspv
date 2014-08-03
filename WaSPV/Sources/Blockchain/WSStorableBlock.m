@@ -91,7 +91,7 @@
         
         // start from own work
         NSData *workData = [header workData];
-        BN_bin2bn(workData.bytes, workData.length, self.work);
+        BN_bin2bn(workData.bytes, (int)workData.length, self.work);
         
         // accumulate previous block work (if any)
         if (previousBlock) {

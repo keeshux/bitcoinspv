@@ -208,11 +208,11 @@ NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d
     uint32_t i;
     BOOL h;
     if ([prime isEqualToString:@"'"]) {
-        i = [[string substringToIndex:lastIndex] integerValue];
+        i = (uint32_t)[[string substringToIndex:lastIndex] integerValue];
         h = YES;
     }
     else {
-        i = [string integerValue];
+        i = (uint32_t)[string integerValue];
         h = NO;
     }
     return [self nodeWithIndex:i hardened:h];

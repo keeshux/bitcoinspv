@@ -187,7 +187,7 @@ inline WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t service
 inline WSCheckpoint *WSCheckpointMake(NSUInteger step, NSString *blockIdHex, uint32_t timestamp, uint32_t bits)
 {
     // 2016 is retarget interval on main and test networks
-    return [[WSCheckpoint alloc] initWithHeight:(step * 2016) blockId:WSHash256FromHex(blockIdHex) timestamp:timestamp bits:bits];
+    return [[WSCheckpoint alloc] initWithHeight:(uint32_t)(step * 2016) blockId:WSHash256FromHex(blockIdHex) timestamp:timestamp bits:bits];
 }
 
 inline WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime)

@@ -59,7 +59,7 @@
 - (WSStorableBlock *)toStorableBlock
 {
     WSBlockHeader *header = [self.header toBlockHeader];
-    const uint32_t height = [self.height unsignedIntegerValue];
+    const uint32_t height = (uint32_t)[self.height unsignedIntegerValue];
 
     NSMutableOrderedSet *transactions = [[NSMutableOrderedSet alloc] initWithCapacity:self.transactions.count];
     for (WSTransactionEntity *entity in self.transactions) {

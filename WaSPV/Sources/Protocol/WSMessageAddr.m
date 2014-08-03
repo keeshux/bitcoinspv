@@ -79,7 +79,7 @@
 
     NSUInteger i = 0;
     for (WSNetworkAddress *address in self.addresses) {
-        const uint32_t timestamp = [self.timestamps[i] unsignedIntegerValue];
+        const uint32_t timestamp = (uint32_t)[self.timestamps[i] unsignedIntegerValue];
         [buffer appendUint32:timestamp];
         [buffer appendNetworkAddress:address];
         ++i;

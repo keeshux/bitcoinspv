@@ -151,7 +151,7 @@
         _allExternalAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:numberOfAddresses];
         _allInternalAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:numberOfAddresses];
         _allAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * numberOfAddresses)];
-        for (NSUInteger i = 0; i <= self.currentAccount; ++i) {
+        for (uint32_t i = 0; i <= self.currentAccount; ++i) {
             [self generateAddressesForAccount:i];
         }
         
@@ -228,12 +228,12 @@
 
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
-            return [_externalChain privateKeyForAccount:externalAccount];
+            return [_externalChain privateKeyForAccount:(uint32_t)externalAccount];
         }
 
         const NSUInteger internalAccount = [_allInternalAddresses indexOfObject:address];
         if (internalAccount != NSNotFound) {
-            return [_internalChain privateKeyForAccount:internalAccount];
+            return [_internalChain privateKeyForAccount:(uint32_t)internalAccount];
         }
 
         return nil;
@@ -247,12 +247,12 @@
     
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
-            return [_externalChain publicKeyForAccount:externalAccount];
+            return [_externalChain publicKeyForAccount:(uint32_t)externalAccount];
         }
         
         const NSUInteger internalAccount = [_allInternalAddresses indexOfObject:address];
         if (internalAccount != NSNotFound) {
-            return [_internalChain publicKeyForAccount:internalAccount];
+            return [_internalChain publicKeyForAccount:(uint32_t)internalAccount];
         }
         
         return nil;
@@ -541,7 +541,7 @@
             }
         }];
         
-        _currentAccount = accountOfFirstUnusedAddress;
+        _currentAccount = (uint32_t)accountOfFirstUnusedAddress;
         
         DDLogDebug(@"Used %u/%u receive addresses", numberOfUsedAddresses, _allExternalAddresses.count);
         DDLogDebug(@"Current account set to first unused account (%u)", _currentAccount);
@@ -565,7 +565,7 @@
         const NSUInteger firstGenAccount = _allExternalAddresses.count;
         const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + lookAhead; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
-            [self generateAddressesForAccount:i];
+            [self generateAddressesForAccount:(uint32_t)i];
         }
         
         const NSUInteger watchedCount = lastGenAccount - self.currentAccount;
@@ -610,7 +610,7 @@
 #if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
         
         // number of watched accounts is based on external chain
-        const uint32_t numberOfWatchedAddresses = _allExternalAddresses.count;
+        const uint32_t numberOfWatchedAddresses = (uint32_t)_allExternalAddresses.count;
         
         for (id<WSBIP32Keyring> chain in @[_externalChain, _internalChain]) {
             
