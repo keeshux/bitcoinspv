@@ -16,7 +16,7 @@ Nothing more is due as long as this rule of thumb is followed, still a note in t
 
 ## Contacts
 
-Twitter: [keeshux](https://twitter.com/keeshux)
+Twitter: [@keeshux](https://twitter.com/keeshux)
 
 Website: [davidederosa.com](http://davidederosa.com)
 
