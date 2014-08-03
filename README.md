@@ -62,7 +62,7 @@ All the imports are public but the one you generally need is `#import "WaSPV.h"`
 
 The `WaSPVTests` target comes with a couple of automated tests. They don't completely test all the library features (especially the networking area), but they're certainly required to succeed. A single fail guarantees that something's broken.
 
-Some tests write files on disk under `WaSPVTests` within the global simulator `Library/Caches` directory.
+Some tests write files on disk in the global `Library/Caches` of the iPhone Simulator. You can find them under the `WaSPVTests` subdirectory.
 
 ### Basic usage
 
