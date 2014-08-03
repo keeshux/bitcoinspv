@@ -26,7 +26,7 @@ WaSPV is *free* software, donations are extremely welcome.
 
 Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
 
-### Installation
+## Installation
 
 WaSPV depends on four well known libraries:
 
@@ -37,7 +37,7 @@ WaSPV depends on four well known libraries:
 
 Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.org/) utility. I usually test the software on iOS 7 but everything *should* be fine on 6.x as well.
 
-#### Podfile
+### Podfile
 
 Add the following line:
 
@@ -47,7 +47,7 @@ and run on the terminal:
 
     $ pod install
 
-#### Imports
+### Imports
 
 WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the compiler will complain if you don't define it somewhere, e.g. in the application delegate:
 
@@ -118,6 +118,8 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
         // strongly retain peer group
         self.peerGroup = peerGroup;
     }
+
+## Overview
 
 ### Network parameters
 
