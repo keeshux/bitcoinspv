@@ -152,25 +152,25 @@ __WARNING: switching to main network may cost you real money, make sure you know
 * Generate a random mnemonic.
 * Convert a mnemonic to binary data.
 * Convert binary data to a mnemonic.
-* Derive key data from mnemonic.
+* Derive key data from a mnemonic.
 
 However, mnemonics in WaSPV are usually wrapped in a `WSSeed` object that also contains the time the mnemonic was first created. Blockchain sync time can be dramatically faster by specifying such a time (called the "fast catch-up time") because blocks found before won't contain relevant transactions to our wallet and can be safely skipped.
 
 ### Hierarchical deterministic wallets
 
-HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class built from a `WSSeed` object and an optional integer gap limit.
+HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class and built from a `WSSeed` object with an optional integer gap limit (default is 5).
 
-It's worth noting that the seed mnemonic is a *very* sensitive information -it technically holds all your coins- and as such it's not serialized with the `[WSWallet saveToPath:]` method, you must store it elsewhere (e.g. in the keychain). The mnemonic will be required later to restore a serialized wallet with the `[WSHDWallet loadFromPath:mnemonic:]` method.
+It's worth noting that the seed mnemonic is a *very* sensitive information -it technically holds all your coins- and as such it's not serialized with the `[WSWallet saveToPath:]` method: this means you must store it elsewhere, e.g. in the keychain. The mnemonic will be vital to restore later a serialized wallet with the `[WSHDWallet loadFromPath:mnemonic:]` method.
 
 ### Block store
 
-Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There are currently two implementations: `WSMemoryBlockStore` and `WSCoreDataBlockStore`. The latter requires `WaSPV/Resources/WSCoreDataBlockStore.xcdatamodeld` to be explicitly added to your project target.
+Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There are currently two implementations: `WSMemoryBlockStore` and `WSCoreDataBlockStore`. Names are quite self-explanatory.
 
 ### Peer group
 
-The `WSPeerGroup` class hold the whole connection logic for the Bitcoin network and is also the main notification source. A group can simultaneously connect to several nodes, enforce the number of connected nodes and download the blockchain to a block store. A peer group can also forward the blocks and transactions it receives to a wallet.
+The `WSPeerGroup` class holds the whole logic for connecting to the Bitcoin network and is the main event notification source. A group can simultaneously connect to several nodes, enforce the number of connected nodes and download the blockchain to a block store. When built with a wallet it also forwards relevant blocks and transactions to the wallet. The wallet in turn registers them and internally updates its history, UTXOs, confirmations etc.
 
-Last but not least, the most important interaction with the network is clearly the ability of publishing transactions. Not surprisingly, this is done with the `publishTransaction:` method.
+Last but not least, the key interaction with the network is clearly the ability of publishing transactions. Not surprisingly, this is done with the `publishTransaction:` method.
 
 ## Insights
 
