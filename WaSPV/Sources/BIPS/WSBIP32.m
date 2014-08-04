@@ -44,7 +44,7 @@ const uint32_t          WSBIP32HardenedMask                     = 0x80000000;
 const NSUInteger        WSBIP32KeyLength                        = 78;
 
 static NSString *const  WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d+'?)*";
-static NSString *const  WSBIP32PrimeChar                        = @"'";
+static const unichar    WSBIP32PrimeChar                        = '\'';
 
 #pragma mark -
 
@@ -206,9 +206,8 @@ static NSString *const  WSBIP32PrimeChar                        = @"'";
         return nil;
     }
     
-    const NSUInteger lastIndex = [string length] - 1;
-    NSString *prime = [string substringFromIndex:lastIndex];
-    const BOOL hardened = [prime isEqualToString:WSBIP32PrimeChar];
+    const NSUInteger lastIndex = string.length - 1;
+    const BOOL hardened = ([string characterAtIndex:lastIndex] == WSBIP32PrimeChar);
     
     NSString *indexString;
     if (hardened) {
@@ -247,7 +246,12 @@ static NSString *const  WSBIP32PrimeChar                        = @"'";
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%d%@", self.index, (self.hardened ? WSBIP32PrimeChar : @"")];
+    if (self.hardened) {
+        return [NSString stringWithFormat:@"%u%c", self.index, WSBIP32PrimeChar];
+    }
+    else {
+        return [NSString stringWithFormat:@"%u", self.index];
+    }
 }
 
 @end
