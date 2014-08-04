@@ -42,7 +42,9 @@
 const char *            WSBIP32InitSeed                         = "Bitcoin seed";
 const uint32_t          WSBIP32HardenedMask                     = 0x80000000;
 const NSUInteger        WSBIP32KeyLength                        = 78;
-NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d+'?)*";
+
+static NSString *const  WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d+'?)*";
+static NSString *const  WSBIP32PrimeChar                        = @"'";
 
 #pragma mark -
 
@@ -206,7 +208,7 @@ NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d
     
     const NSUInteger lastIndex = [string length] - 1;
     NSString *prime = [string substringFromIndex:lastIndex];
-    const BOOL hardened = [prime isEqualToString:@"'"];
+    const BOOL hardened = [prime isEqualToString:WSBIP32PrimeChar];
     
     NSString *indexString;
     if (hardened) {
@@ -245,7 +247,7 @@ NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%d%@", self.index, self.hardened ? @"'" : @""];
+    return [NSString stringWithFormat:@"%d%@", self.index, (self.hardened ? WSBIP32PrimeChar : @"")];
 }
 
 @end
