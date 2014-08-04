@@ -195,27 +195,29 @@ NSString *const         WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d
     return nodes;
 }
 
+// WARNING: assumes correct format for efficiency, "[1-9]?[0-9]+'?" (e.g.: "12'")
 + (instancetype)nodeWithString:(NSString *)string
 {
-    WSExceptionCheckIllegal(string != nil, @"Nil string");
+    WSExceptionCheckIllegal(string.length > 0, @"Empty string");
+
     if ([string isEqualToString:@"m"]) {
         return nil;
     }
     
     const NSUInteger lastIndex = [string length] - 1;
     NSString *prime = [string substringFromIndex:lastIndex];
+    const BOOL hardened = [prime isEqualToString:@"'"];
     
-    uint32_t i;
-    BOOL h;
-    if ([prime isEqualToString:@"'"]) {
-        i = (uint32_t)[[string substringToIndex:lastIndex] integerValue];
-        h = YES;
+    NSString *indexString;
+    if (hardened) {
+        indexString = [string substringToIndex:lastIndex];
     }
     else {
-        i = (uint32_t)[string integerValue];
-        h = NO;
+        indexString = string;
     }
-    return [self nodeWithIndex:i hardened:h];
+    const uint32_t index = (uint32_t)[indexString integerValue];
+
+    return [self nodeWithIndex:index hardened:hardened];
 }
 
 + (instancetype)nodeWithChild:(uint32_t)child
