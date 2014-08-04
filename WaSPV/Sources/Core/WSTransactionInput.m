@@ -138,22 +138,13 @@
     
     WSScript *script = nil;
     if ([outpoint isCoinbase]) {
-        
-        //
-        // http://bitcoin.stackexchange.com/questions/20721/what-is-the-format-of-coinbase-transaction
-        //
-        // The txin's prevout script is an arbitrary byte array (it doesn't have to be a valid script,
-        // though this is commonly done anyway) of 2 to 100 bytes. It has to start with a correct
-        // push of the block height (see BIP34).
-        //
-        NSData *coinbaseData = [buffer dataAtOffset:offset length:scriptLength];
-        script = [WSCoinbaseScript scriptWithCoinbaseData:coinbaseData];
+        script = [[WSCoinbaseScript alloc] initWithBuffer:buffer from:offset available:scriptLength error:error];
     }
     else {
         script = [[WSScript alloc] initWithBuffer:buffer from:offset available:scriptLength error:error];
-        if (!script) {
-            return nil;
-        }
+    }
+    if (!script) {
+        return nil;
     }
     offset += scriptLength;
     

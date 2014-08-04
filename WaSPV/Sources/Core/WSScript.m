@@ -564,21 +564,7 @@
 
     WSBuffer *buffer = [[WSBuffer alloc] initWithData:coinbaseData];
 
-    if ((self = [super initWithBuffer:buffer from:0 available:buffer.length error:NULL])) {
-        if (self.chunks.count > 0) {
-            NSData *heightData = [self.chunks[0] pushData];
-            if (heightData.length <= sizeof(_blockHeight)) {
-                [heightData getBytes:&_blockHeight length:heightData.length];
-            }
-            else {
-                DDLogVerbose(@"Corrupted height in coinbase script (length: %u)", heightData.length);
-                self.blockHeight = WSBlockUnknownHeight;
-            }
-        }
-
-        self.coinbaseData = [coinbaseData copy];
-    }
-    return self;
+    return [self initWithBuffer:buffer from:0 available:buffer.length error:NULL];
 }
 
 - (BOOL)isPushDataOnly
@@ -690,9 +676,32 @@
 
 #pragma mark WSBufferDecoder
 
+//
+// http://bitcoin.stackexchange.com/questions/20721/what-is-the-format-of-coinbase-transaction
+//
+// The txin's prevout script is an arbitrary byte array (it doesn't have to be a valid script,
+// though this is commonly done anyway) of 2 to 100 bytes. It has to start with a correct
+// push of the block height (see BIP34).
+//
+// https://github.com/bitcoin/bips/blob/master/bip-0034.mediawiki
+//
 - (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    return [self initWithCoinbaseData:[buffer.data subdataWithRange:NSMakeRange(from, available)]];
+    if ((self = [super initWithBuffer:buffer from:from available:available error:error])) {
+        self.coinbaseData = [buffer.data subdataWithRange:NSMakeRange(from, available)];
+
+        if (self.chunks.count > 0) {
+            NSData *heightData = [self.chunks[0] pushData];
+            if (heightData.length <= sizeof(_blockHeight)) {
+                [heightData getBytes:&_blockHeight length:heightData.length];
+            }
+            else {
+                DDLogVerbose(@"Corrupted height in coinbase script (length: %u)", heightData.length);
+                self.blockHeight = WSBlockUnknownHeight;
+            }
+        }
+    }
+    return self;
 }
 
 #pragma mark WSSized
