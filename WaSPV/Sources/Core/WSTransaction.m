@@ -354,14 +354,16 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
         return nil;
     }
     
+    const WSTransactionSigHash hashFlags = WSTransactionSigHash_ALL;
+    
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.signableInputs.count];
     NSUInteger i = 0;
     for (WSSignableTransactionInput *input in self.signableInputs) {
         WSKey *key = keys[i];
-        WSBuffer *buffer = [self signableBufferForInput:input hashFlags:WSTransactionSigHash_ALL];
+        WSBuffer *buffer = [self signableBufferForInput:input hashFlags:hashFlags];
         WSHash256 *hash256 = [buffer computeHash256];
 
-        WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256 hashFlags:WSTransactionSigHash_ALL];
+        WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256 hashFlags:hashFlags];
         [signedInputs addObject:signedInput];
 
         ++i;
