@@ -357,10 +357,10 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.signableInputs.count];
     NSUInteger i = 0;
     for (WSSignableTransactionInput *input in self.signableInputs) {
-        WSBuffer *buffer = [self signableBufferForInput:input];
-
         WSKey *key = keys[i];
+        WSBuffer *buffer = [self signableBufferForInput:input];
         WSHash256 *hash256 = [buffer computeHash256];
+
         WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256];
         [signedInputs addObject:signedInput];
 
@@ -372,7 +372,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
 
 - (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput
 {
-    WSExceptionCheckIllegal(signableInput != nil, @"Nil signableInput");
+    NSAssert(signableInput != nil, @"Nil signableInput");
     NSAssert([self.signableInputs containsObject:signableInput], @"Transaction doesn't contain this input");
 
     WSMutableBuffer *buffer = [[WSMutableBuffer alloc] init];
