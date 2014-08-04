@@ -87,6 +87,9 @@
 {
     if ((self = [super initWithOriginalPayload:buffer])) {
         self.transaction = [[WSSignedTransaction alloc] initWithBuffer:buffer from:from available:available error:error];
+        if (!self.transaction) {
+            return nil;
+        }
     }
     return self;
 }

@@ -62,6 +62,9 @@
 {
     if ((self = [super initWithOriginalPayload:buffer])) {
         self.block = [[WSFilteredBlock alloc] initWithBuffer:buffer from:from available:available error:error];
+        if (!self.block) {
+            return nil;
+        }
     }
     return self;
 }
