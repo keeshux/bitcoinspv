@@ -29,6 +29,7 @@
 
 #import "WSBuffer.h"
 #import "WSSized.h"
+#import "WSBitcoin.h"
 
 @class WSHash256;
 @class WSScript;
@@ -78,6 +79,7 @@
 
 - (WSTransactionOutput *)previousOutput;
 - (uint64_t)value;
-- (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256;
+- (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256; // WSTransactionSigHash_ALL
+- (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256 hashFlags:(WSTransactionSigHash)hashFlags;
 
 @end

@@ -226,11 +226,17 @@
 
 - (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256
 {
+    return [self signedInputWithKey:key hash256:hash256 hashFlags:WSTransactionSigHash_ALL];
+}
+
+- (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256 hashFlags:(WSTransactionSigHash)hashFlags
+{
     WSExceptionCheckIllegal(key != nil, @"Nil key");
     WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
 
-    const uint8_t suffix = WSTransactionSigHash_ALL;
     NSMutableData *signature = [[key signatureForHash256:hash256] mutableCopy];
+
+    const uint8_t suffix = hashFlags;
     [signature appendBytes:&suffix length:1];
 
     return [[WSSignedTransactionInput alloc] initWithOutpoint:self.outpoint

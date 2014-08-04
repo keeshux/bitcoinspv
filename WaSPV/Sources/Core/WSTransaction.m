@@ -275,7 +275,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
 @property (nonatomic, strong) NSMutableOrderedSet *signableInputs;
 @property (nonatomic, strong) NSMutableOrderedSet *outputs;
 
-- (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput;
+- (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput hashFlags:(WSTransactionSigHash)hashFlags;
 
 @end
 
@@ -358,10 +358,10 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     NSUInteger i = 0;
     for (WSSignableTransactionInput *input in self.signableInputs) {
         WSKey *key = keys[i];
-        WSBuffer *buffer = [self signableBufferForInput:input];
+        WSBuffer *buffer = [self signableBufferForInput:input hashFlags:WSTransactionSigHash_ALL];
         WSHash256 *hash256 = [buffer computeHash256];
 
-        WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256];
+        WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256 hashFlags:WSTransactionSigHash_ALL];
         [signedInputs addObject:signedInput];
 
         ++i;
@@ -370,7 +370,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     return [[WSSignedTransaction alloc] initWithVersion:self.version signedInputs:signedInputs outputs:self.outputs lockTime:self.lockTime];
 }
 
-- (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput
+- (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput hashFlags:(WSTransactionSigHash)hashFlags
 {
     NSAssert(signableInput != nil, @"Nil signableInput");
     NSAssert([self.signableInputs containsObject:signableInput], @"Transaction doesn't contain this input");
@@ -402,7 +402,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     }
 
     [buffer appendUint32:self.lockTime];
-    [buffer appendUint32:WSTransactionSigHash_ALL];
+    [buffer appendUint32:hashFlags];
 
     return buffer;
 }
