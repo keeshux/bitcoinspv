@@ -39,6 +39,8 @@
 #import "NSString+Binary.h"
 #import "NSData+Base58.h"
 
+// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
+
 static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 @interface WSKey ()
@@ -246,11 +248,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 @end
 
-//
-// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
-//
 // HMAC-SHA256 DRBG, using no prediction resistance or personalization string and outputing 256bits
-//
 static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce)
 {
     NSMutableData *V = [[NSMutableData alloc] initWithCapacity:(CC_SHA256_DIGEST_LENGTH + 1 + entropy.length + nonce.length)];

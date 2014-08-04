@@ -38,6 +38,8 @@
 #import "NSData+Hash.h"
 #import "NSData+Binary.h"
 
+// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
+
 @interface WSPublicKey ()
 
 @property (nonatomic, strong) NSData *data;
