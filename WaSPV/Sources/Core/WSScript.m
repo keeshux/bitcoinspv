@@ -128,7 +128,7 @@
 
 - (WSAddress *)addressFromHash
 {
-    return WSAddressP2SHFromScript(self);
+    return WSAddressP2SHFromHash160([[self toBuffer] computeHash160]);
 }
 
 - (WSPublicKey *)publicKey

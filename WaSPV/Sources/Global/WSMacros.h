@@ -118,7 +118,6 @@ WSAddress *WSAddressFromString(NSString *string);
 WSAddress *WSAddressFromHex(NSString *hexString);
 WSAddress *WSAddressP2PKHFromHash160(NSData *hash160);
 WSAddress *WSAddressP2SHFromHash160(NSData *hash160);
-WSAddress *WSAddressP2SHFromScript(WSScript *script);
 
 WSInventory *WSInventoryTx(WSHash256 *hash);
 WSInventory *WSInventoryTxFromHex(NSString *hex);

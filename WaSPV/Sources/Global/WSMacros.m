@@ -144,11 +144,6 @@ inline WSAddress *WSAddressP2SHFromHash160(NSData *hash160)
     return [[WSAddress alloc] initWithVersion:[WSCurrentParameters scriptAddressVersion] hash160:hash160];
 }
 
-inline WSAddress *WSAddressP2SHFromScript(WSScript *script)
-{
-    return WSAddressP2SHFromHash160([[script toBuffer] computeHash160]);
-}
-
 inline WSInventory *WSInventoryTx(WSHash256 *hash)
 {
     return [[WSInventory alloc] initWithType:WSInventoryTypeTx hash:hash];
