@@ -75,7 +75,7 @@ typedef enum {
 } WSScriptOpcode;
 
 NSString *WSScriptOpcodeString(WSScriptOpcode opcode);
-NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode);
+NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 #pragma mark -
 

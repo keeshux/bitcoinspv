@@ -942,8 +942,8 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
 
 NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode)
 {
-    NSCAssert(((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16)),
-              @"Not an OP_1-16 opcode (%x)", opcode);
+    WSExceptionCheckIllegal((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16),
+                            @"Not an OP_1-16 opcode (%x)", opcode);
     
     return (opcode - WSScriptOpcode_OP_1 + 1);
 }
