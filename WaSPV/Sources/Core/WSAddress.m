@@ -48,7 +48,7 @@
 
 - (instancetype)initWithVersion:(uint8_t)version hash160:(NSData *)hash160
 {
-    WSExceptionCheckIllegal(hash160 != nil, @"Nil hash160");
+    WSExceptionCheckIllegal(hash160.length == WSHash160Length, @"Hash160 must be %u bytes long", WSHash160Length);
     WSExceptionCheckIllegal((version == [WSCurrentParameters publicKeyAddressVersion]) ||
                             (version == [WSCurrentParameters scriptAddressVersion]),
                              @"Invalid address version (%u)", version);
