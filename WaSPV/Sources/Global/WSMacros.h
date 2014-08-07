@@ -135,8 +135,11 @@ WSSeed *WSSeedMakeUnknown(NSString *mnemonic);
 WSSeed *WSSeedMakeNow(NSString *mnemonic);
 WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso); // yyyy/MM/dd
 
-NSString *WSNetworkHostFromUint32(uint32_t value);
-uint32_t WSNetworkUint32FromHost(NSString *host);
+NSString *WSNetworkHostFromIPv4(uint32_t ipv4);
+uint32_t WSNetworkIPv4FromHost(NSString *host);
+NSString *WSNetworkHostFromIPv6(NSData *ipv6);
+NSData *WSNetworkIPv6FromHost(NSString *host);
+
 NSData *WSNetworkIPv6FromIPv4(uint32_t ipv4);
 uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 

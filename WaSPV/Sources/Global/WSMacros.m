@@ -209,20 +209,38 @@ inline WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso)
 
 // assume uint32 already in network byte order
 
-inline NSString *WSNetworkHostFromUint32(uint32_t value)
+inline NSString *WSNetworkHostFromIPv4(uint32_t ipv4)
 {
-    const uint8_t a = value & 0xff;
-    const uint8_t b = (value >> 8) & 0xff;
-    const uint8_t c = (value >> 16) & 0xff;
-    const uint8_t d = (value >> 24) & 0xff;
+    const uint8_t a = ipv4 & 0xff;
+    const uint8_t b = (ipv4 >> 8) & 0xff;
+    const uint8_t c = (ipv4 >> 16) & 0xff;
+    const uint8_t d = (ipv4 >> 24) & 0xff;
     return [NSString stringWithFormat:@"%u.%u.%u.%u", a, b, c, d];
 }
 
-inline uint32_t WSNetworkUint32FromHost(NSString *host)
+inline uint32_t WSNetworkIPv4FromHost(NSString *host)
 {
     struct in_addr addr;
     inet_aton(host.UTF8String, &addr);
     return addr.s_addr;
+}
+
+inline NSString *WSNetworkHostFromIPv6(NSData *ipv6)
+{
+    NSString *hexAddress = [ipv6 hexString];
+    NSMutableArray *groups = [[NSMutableArray alloc] initWithCapacity:4];
+    for (NSUInteger i = 0; i < 32; i += 4) {
+        [groups addObject:[hexAddress substringWithRange:NSMakeRange(i, 4)]];
+    }
+    return [groups componentsJoinedByString:@":"];
+}
+
+inline NSData *WSNetworkIPv6FromHost(NSString *host)
+{
+    NSArray *groups = [host componentsSeparatedByString:@":"];
+    NSString *hexAddress = [groups componentsJoinedByString:@""];
+    
+    return [hexAddress dataFromHex];
 }
 
 inline NSData *WSNetworkIPv6FromIPv4(uint32_t ipv4)

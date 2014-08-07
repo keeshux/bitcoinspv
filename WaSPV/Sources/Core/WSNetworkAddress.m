@@ -72,15 +72,10 @@
 {
     if (!_host) {
         if (self.ipv4Address > 0) {
-            _host = WSNetworkHostFromUint32(self.ipv4Address);
+            _host = WSNetworkHostFromIPv4(self.ipv4Address);
         }
         else {
-            NSString *hexAddress = [self.ipv6Address hexString];
-            NSMutableArray *groups = [[NSMutableArray alloc] initWithCapacity:4];
-            for (NSUInteger i = 0; i < 32; i += 4) {
-                [groups addObject:[hexAddress substringWithRange:NSMakeRange(i, 4)]];
-            }
-            _host = [groups componentsJoinedByString:@":"];
+            _host = WSNetworkHostFromIPv6(self.ipv6Address);
         }
     }
     return _host;

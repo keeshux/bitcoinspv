@@ -141,40 +141,57 @@
         const uint32_t address = mrand48();
         addr.s_addr = address;
         NSString *host1 = [NSString stringWithUTF8String:inet_ntoa(addr)];
-        NSString *host2 = WSNetworkHostFromUint32(addr.s_addr);
+        NSString *host2 = WSNetworkHostFromIPv4(addr.s_addr);
 
         XCTAssertEqualObjects(host1, host2, @"Addresss -> Host");
 
         inet_aton(host1.UTF8String, &addr);
         const uint32_t address1 = addr.s_addr;
-        const uint32_t address2 = WSNetworkUint32FromHost(host2);
+        const uint32_t address2 = WSNetworkIPv4FromHost(host2);
 
         XCTAssertEqual(address1, address2, @"Host -> Address");
     }
 }
 
-- (void)testDataToIPv6
+- (void)testIPv4
+{
+    NSString *expIPv4Host = @"189.251.218.17";
+    const uint32_t expIPv4 = 0x11dafbbd;
+    
+    const uint32_t ipv4 = WSNetworkIPv4FromHost(expIPv4Host);
+    XCTAssertEqual(ipv4, expIPv4);
+    
+    NSString *ipv4Host = WSNetworkHostFromIPv4(ipv4);
+    XCTAssertEqualObjects(ipv4Host, expIPv4Host);
+}
+
+- (void)testIPv6
+{
+    NSString *expIPv6Host = @"0000:0000:0000:0000:0000:ffff:bdfb:da11";
+    NSString *expIPv6Hex = @"00000000000000000000ffffbdfbda11";
+
+    NSData *ipv6 = WSNetworkIPv6FromHost(expIPv6Host);
+    XCTAssertEqualObjects([ipv6 hexString], expIPv6Hex);
+
+    NSString *ipv6Host = WSNetworkHostFromIPv6(ipv6);
+    XCTAssertEqualObjects(ipv6Host, expIPv6Host);
+}
+
+- (void)testIPv6To4
 {
     NSString *ipv6Hex = @"00000000000000000000ffffbdfbda11";
     NSData *ipv6 = [ipv6Hex dataFromHex];
 
     const uint32_t ipv4 = WSNetworkIPv4FromIPv6(ipv6);
-    NSString *ipv4Host = WSNetworkHostFromUint32(ipv4);
+    NSString *ipv4Host = WSNetworkHostFromIPv4(ipv4);
     NSString *expIPv4Host = @"189.251.218.17";
-
     XCTAssertEqualObjects(ipv4Host, expIPv4Host);
-}
 
-- (void)testIPv6ToData
-{
-    NSString *ipv4Host = @"189.251.218.17";
-    const uint32_t ipv4 = WSNetworkUint32FromHost(ipv4Host);
+    const uint32_t revIPv4 = WSNetworkIPv4FromHost(ipv4Host);
 
-    NSData *ipv6 = WSNetworkIPv6FromIPv4(ipv4);
-    NSString *ipv6Hex = [ipv6 hexString];
-    NSString *expIPv6Hex = @"00000000000000000000ffffbdfbda11";
-    
-    XCTAssertEqualObjects(ipv6Hex, expIPv6Hex);
+    NSData *revIPv6 = WSNetworkIPv6FromIPv4(revIPv4);
+    NSString *revIPv6Hex = [revIPv6 hexString];
+    XCTAssertEqualObjects(revIPv6Hex, ipv6Hex);
 }
 
 @end

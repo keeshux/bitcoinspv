@@ -498,7 +498,7 @@
                     for (NSData *rawBytes in rawAddresses) {
                         struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
                         const uint32_t address = rawAddress->sin_addr.s_addr;
-                        NSString *host = WSNetworkHostFromUint32(address);
+                        NSString *host = WSNetworkHostFromIPv4(address);
 
                         if (host && ![self.inactiveHosts containsObject:host]) {
                             [hosts addObject:host];

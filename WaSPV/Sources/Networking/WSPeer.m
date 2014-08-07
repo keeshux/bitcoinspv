@@ -311,7 +311,7 @@
 - (uint32_t)remoteAddress
 {
     @synchronized (self) {
-        return WSNetworkUint32FromHost(_remoteHost);
+        return WSNetworkIPv4FromHost(_remoteHost);
     }
 }
 
