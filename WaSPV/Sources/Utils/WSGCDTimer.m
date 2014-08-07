@@ -58,22 +58,26 @@
     [self cancel];
 }
 
-- (void)startWithBlock:(dispatch_block_t)block
+- (BOOL)startWithBlock:(dispatch_block_t)block
 {
     WSExceptionCheckIllegal(block != NULL, @"NULL block");
 
     self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
-    if (self.timer) {
-        const int64_t nanoInterval = self.interval * NSEC_PER_SEC;
-        
-        dispatch_source_set_timer(self.timer,
-                                  dispatch_time(DISPATCH_TIME_NOW, nanoInterval),
-                                  nanoInterval,
-                                  (1ULL * NSEC_PER_SEC) / 10);
-
-        dispatch_source_set_event_handler(self.timer, block);
-        dispatch_resume(self.timer);
+    if (!self.timer) {
+        return NO;
     }
+
+    const int64_t nanoInterval = self.interval * NSEC_PER_SEC;
+    
+    dispatch_source_set_timer(self.timer,
+                              dispatch_time(DISPATCH_TIME_NOW, nanoInterval),
+                              nanoInterval,
+                              (1ULL * NSEC_PER_SEC) / 10);
+
+    dispatch_source_set_event_handler(self.timer, block);
+    dispatch_resume(self.timer);
+
+    return YES;
 }
 
 - (void)cancel

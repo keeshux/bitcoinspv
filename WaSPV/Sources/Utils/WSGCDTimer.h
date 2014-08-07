@@ -30,7 +30,7 @@
 @interface WSGCDTimer : NSObject
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue interval:(double)interval;
-- (void)startWithBlock:(dispatch_block_t)block;
+- (BOOL)startWithBlock:(dispatch_block_t)block;
 - (void)cancel;
 
 @end
