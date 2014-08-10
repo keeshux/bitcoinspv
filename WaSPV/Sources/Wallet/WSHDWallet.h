@@ -37,6 +37,7 @@
 
 - (instancetype)initWithSeed:(WSSeed *)seed;
 - (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
+- (WSSeed *)seed;
 - (NSUInteger)gapLimit;
 - (uint32_t)currentAccount;
 
