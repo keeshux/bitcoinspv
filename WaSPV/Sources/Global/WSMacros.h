@@ -133,7 +133,7 @@ WSCheckpoint *WSCheckpointMake(NSUInteger step, NSString *blockHash, uint32_t ti
 WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
 WSSeed *WSSeedMakeUnknown(NSString *mnemonic);
 WSSeed *WSSeedMakeNow(NSString *mnemonic);
-WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso); // yyyy/MM/dd
+WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso); // yyyy-MM-dd
 
 NSString *WSNetworkHostFromIPv4(uint32_t ipv4);
 uint32_t WSNetworkIPv4FromHost(NSString *host);
@@ -153,4 +153,4 @@ NSString *WSCurrentQueueLabel();
 uint32_t WSCurrentTimestamp();
 void WSTimestampSetCurrent(uint32_t timestamp);
 void WSTimestampUnsetCurrent();
-uint32_t WSTimestampFromISODate(NSString *iso); // yyyy/MM/dd
+uint32_t WSTimestampFromISODate(NSString *iso); // yyyy-MM-dd

@@ -111,7 +111,7 @@
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
 
     self.store = [self memoryStore];
-    const uint32_t timestamp = WSTimestampFromISODate(@"2013/08/29");
+    const uint32_t timestamp = WSTimestampFromISODate(@"2013-08-29");
     
     DDLogInfo(@"Catch-up: %u", timestamp);
 
@@ -190,14 +190,14 @@
     self.stopOnSync = YES;
     
     // = ?, headers should stop at #266668
-    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/04");
+    const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-04");
 //    const uint32_t timestamp = 0;
 
 //    // = 1401055200, headers should stop at #267965
-//    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/10");
+//    const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-10");
 
 //    // = 1405288800, headers should stop at #268578
-//    const uint32_t timestamp = WSTimestampFromISODate(@"2014/07/14");
+//    const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-14");
 
     DDLogInfo(@"Catch-up: %u", timestamp);
     
@@ -345,7 +345,7 @@
     
     self.store = [self persistentStore];
     self.stopOnSync = YES;
-    const uint32_t timestamp = WSTimestampFromISODate(@"2013/02/09");
+    const uint32_t timestamp = WSTimestampFromISODate(@"2013-02-09");
     
     DDLogInfo(@"Catch-up: %u", timestamp);
     

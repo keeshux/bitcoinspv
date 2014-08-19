@@ -359,8 +359,8 @@
 
 - (WSSeed *)newWalletSeed
 {
-    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014/06/02") - NSTimeIntervalSince1970;
-//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014/07/16") - NSTimeIntervalSince1970;
+    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-06-02") - NSTimeIntervalSince1970;
+//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = 0.0;
 
     return WSSeedMake(self.seedPhrase, creationTime);

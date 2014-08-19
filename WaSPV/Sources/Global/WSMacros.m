@@ -338,7 +338,7 @@ inline uint32_t WSTimestampFromISODate(NSString *iso)
     
     dispatch_once(&onceToken, ^{
         formatter = [[NSDateFormatter alloc] init];
-        formatter.dateFormat = @"yyyy/MM/dd";
+        formatter.dateFormat = @"yyyy-MM-dd";
     });
 
     return [[formatter dateFromString:iso] timeIntervalSince1970];
