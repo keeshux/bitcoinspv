@@ -171,6 +171,12 @@
     DDLogInfo(@"Wallet has %u transactions", txs.count);
     for (WSSignedTransaction *tx in txs) {
         DDLogInfo(@"%@", tx);
+        DDLogInfo(@"Sent:     %llu", [wallet sentValueByTransaction:tx]);
+        DDLogInfo(@"Received: %llu", [wallet receivedValueFromTransaction:tx]);
+        DDLogInfo(@"Internal: %u", [wallet isInternalTransaction:tx]);
+
+        DDLogInfo(@"Value:    %lld", [wallet valueForTransaction:tx]);
+        DDLogInfo(@"Fee:      %llu", [wallet feeForTransaction:tx]);
     }
 }
 

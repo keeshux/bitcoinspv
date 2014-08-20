@@ -69,8 +69,11 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 // history
 - (NSArray *)allTransactions; // recent first
 - (NSArray *)transactionsInRange:(NSRange)range;
-//- (uint64_t)amountReceivedFromTransaction:(WSSignedTransaction *)transaction;
-//- (uint64_t)amountSentByTransaction:(WSSignedTransaction *)transaction;
+- (uint64_t)receivedValueFromTransaction:(WSSignedTransaction *)transaction;
+- (uint64_t)sentValueByTransaction:(WSSignedTransaction *)transaction;
+- (int64_t)valueForTransaction:(WSSignedTransaction *)transaction;
+- (uint64_t)feeForTransaction:(WSSignedTransaction *)transaction;
+- (BOOL)isInternalTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)balance;
 - (WSTransactionMetadata *)metadataForTransactionId:(WSHash256 *)txId;
 

@@ -96,6 +96,7 @@
 
 - (void)setPath:(NSString *)path;
 
+- (WSTransactionOutput *)previousOutputFromInput:(WSSignedTransactionInput *)input;
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError *__autoreleasing *)error;
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo;
 
@@ -330,6 +331,94 @@
     }
 }
 
+- (uint64_t)receivedValueFromTransaction:(WSSignedTransaction *)transaction
+{
+    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+    
+    @synchronized (self) {
+        uint64_t value = 0;
+        for (WSTransactionOutput *output in transaction.outputs) {
+            if ([self.usedAddresses containsObject:output.address]) {
+                value += output.value;
+            }
+        }
+        return value;
+    }
+}
+
+- (uint64_t)sentValueByTransaction:(WSSignedTransaction *)transaction
+{
+    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+
+    @synchronized (self) {
+        uint64_t value = 0;
+        for (WSSignedTransactionInput *input in transaction.inputs) {
+            WSTransactionOutput *previousOutput = [self previousOutputFromInput:input];
+
+            if ([self.usedAddresses containsObject:previousOutput.address]) {
+                value += previousOutput.value;
+            }
+        }
+        return value;
+    }
+}
+
+- (int64_t)valueForTransaction:(WSSignedTransaction *)transaction
+{
+    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+
+    @synchronized (self) {
+        return [self receivedValueFromTransaction:transaction] - [self sentValueByTransaction:transaction];
+    }
+}
+
+- (uint64_t)feeForTransaction:(WSSignedTransaction *)transaction
+{
+    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+    
+    @synchronized (self) {
+        uint64_t fee = 0;
+
+        for (WSSignedTransactionInput *input in transaction.inputs) {
+            WSTransactionOutput *previousOutput = [self previousOutputFromInput:input];
+            
+            if (![self.usedAddresses containsObject:previousOutput.address]) {
+                return UINT64_MAX;
+            }
+            fee += previousOutput.value;
+        }
+
+        for (WSTransactionOutput *output in transaction.outputs) {
+            fee -= output.value;
+        }
+
+        return fee;
+    }
+}
+
+- (BOOL)isInternalTransaction:(WSSignedTransaction *)transaction
+{
+    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+
+    @synchronized (self) {
+        for (WSTransactionOutput *output in transaction.outputs) {
+            if (![self.usedAddresses containsObject:output.address]) {
+                return NO;
+            }
+        }
+
+        for (WSSignedTransactionInput *input in transaction.inputs) {
+            WSTransactionOutput *previousOutput = [self previousOutputFromInput:input];
+
+            if (![self.usedAddresses containsObject:previousOutput.address]) {
+                return NO;
+            }
+        }
+
+        return YES;
+    }
+}
+
 - (uint64_t)balance
 {
     @synchronized (self) {
@@ -347,6 +436,15 @@
 }
 
 #pragma mark Spending
+
+- (WSTransactionOutput *)previousOutputFromInput:(WSSignedTransactionInput *)input
+{
+    WSSignedTransaction *previousTx = _txsById[input.outpoint.txId];
+    if (!previousTx) {
+        return nil;
+    }
+    return [previousTx outputAtIndex:input.outpoint.index];
+}
 
 - (WSTransactionBuilder *)buildTransactionToAddress:(WSAddress *)address forValue:(uint64_t)value fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
