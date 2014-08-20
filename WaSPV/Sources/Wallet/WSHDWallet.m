@@ -514,6 +514,8 @@
 
 - (BOOL)saveToPath:(NSString *)path
 {
+    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    
     @synchronized (self) {
         if (![NSKeyedArchiver archiveRootObject:self toFile:path]) {
             return NO;
