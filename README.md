@@ -192,7 +192,6 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do:
 
-* Autosave wallet.
 * Calculate wallet transaction in/out amounts.
 * Disconnect peers on timeout (sync may get stuck).
 * Securely cleanse sensitive data from memory.
