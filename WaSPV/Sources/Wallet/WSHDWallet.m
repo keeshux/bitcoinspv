@@ -61,6 +61,8 @@
     NSMutableDictionary *_metadataByTxId;               // WSHash256 -> WSTransactionMetadata
 
     // transient
+    WSSeed *_seed;
+    NSString *_path;
     id<WSBIP32Keyring> _keyring;
     id<WSBIP32Keyring> _externalChain;
     id<WSBIP32Keyring> _internalChain;
@@ -91,6 +93,8 @@
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch;
 - (void)sortTransactions;
 - (void)recalculateSpendsAndBalance;
+
+- (void)setPath:(NSString *)path;
 
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError *__autoreleasing *)error;
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo;
@@ -124,6 +128,13 @@
     return self;
 }
 
+- (WSSeed *)seed
+{
+    @synchronized (self) {
+        return _seed;
+    }
+}
+
 - (NSUInteger)gapLimit
 {
     @synchronized (self) {
@@ -143,6 +154,7 @@
     @synchronized (self) {
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
         
+        _seed = seed;
         _keyring = [[WSHDKeyring alloc] initWithData:[seed derivedKeyData]];
         _externalChain = [_keyring chainForAccount:0 internal:NO];
         _internalChain = [_keyring chainForAccount:0 internal:YES];
@@ -493,10 +505,30 @@
 
 #pragma mark Serialization
 
+- (void)setPath:(NSString *)path
+{
+    @synchronized (self) {
+        _path = path;
+    }
+}
+
 - (BOOL)saveToPath:(NSString *)path
 {
     @synchronized (self) {
-        return [NSKeyedArchiver archiveRootObject:self toFile:path];
+        if (![NSKeyedArchiver archiveRootObject:self toFile:path]) {
+            return NO;
+        }
+        _path = path;
+        return YES;
+    }
+}
+
+- (BOOL)save
+{
+    WSExceptionCheckIllegal(_path != nil, @"No implicit path set, call saveToPath: first");
+    
+    @synchronized (self) {
+        return [self saveToPath:_path];
     }
 }
 
@@ -507,6 +539,8 @@
         if (![wallet isKindOfClass:[WSHDWallet class]]) {
             return nil;
         }
+        wallet.path = path;
+
         WSSeed *seed = WSSeedMake(mnemonic, wallet.creationTime);
         [wallet rebuildTransientStructuresWithSeed:seed];
         return wallet;
