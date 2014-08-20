@@ -125,6 +125,8 @@
     WSHDWallet *wallet = [self loadWalletFromCurrentPath];
     if (!wallet) {
         wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed]];
+        [wallet saveToPath:self.currentWalletPath];
+        wallet.shouldAutosave = YES;
     }
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
