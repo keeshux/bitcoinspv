@@ -769,6 +769,10 @@
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
+            if (self.shouldAutosave) {
+                [self save];
+            }
+
             [self notifyWithName:WSWalletDidRegisterTransactionNotification userInfo:@{WSWalletTransactionKey: transaction}];
         }
         
@@ -804,6 +808,10 @@
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
+            if (self.shouldAutosave) {
+                [self save];
+            }
+
             [self notifyWithName:WSWalletDidUnregisterTransactionNotification userInfo:@{WSWalletTransactionKey: transaction}];
         }
         
