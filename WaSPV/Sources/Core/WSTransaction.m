@@ -110,7 +110,9 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
 {
     NSMutableSet *addresses = [[NSMutableSet alloc] init];
     for (WSTransactionOutput *output in self.outputs) {
-        [addresses addObject:output.address];
+        if (output.address) {
+            [addresses addObject:output.address];
+        }
     }
     return addresses;
 }
