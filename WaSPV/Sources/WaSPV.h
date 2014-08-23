@@ -57,6 +57,7 @@
 #import "WSSeedGenerator.h"
 
 #import "WSHDWallet.h"
+#import "WSTransactionMetadata.h"
 
 #import "WSErrors.h"
 #import "WSMacros.h"
