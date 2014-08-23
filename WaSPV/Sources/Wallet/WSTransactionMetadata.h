@@ -34,10 +34,10 @@
 
 @interface WSTransactionMetadata : NSObject
 
-- (instancetype)initWithParentBlock:(WSStorableBlock *)block networkHeight:(NSUInteger)networkHeight;
+- (instancetype)initWithParentBlock:(WSStorableBlock *)block;
 - (instancetype)initWithNoParentBlock;
 - (WSHash256 *)parentBlockId;
 - (NSUInteger)height;
-- (NSUInteger)confirmations;
+- (NSUInteger)confirmationsAtNetworkHeight:(NSUInteger)networkHeight;
 
 @end

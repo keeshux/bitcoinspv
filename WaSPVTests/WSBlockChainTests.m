@@ -526,7 +526,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     for (WSSignedTransaction *tx in block.transactions) {
         [self.wallet registerTransaction:tx didGenerateNewAddresses:NULL];
     }
-    [self.wallet registerBlock:block networkHeight:blockChain.currentHeight];
+    [self.wallet registerBlock:block];
 
     DDLogInfo(@"Wallet transactions (%u): %@", self.wallet.allTransactions.count, self.wallet.allTransactions);
 }

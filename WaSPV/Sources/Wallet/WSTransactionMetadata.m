@@ -34,21 +34,19 @@
 @interface WSTransactionMetadata ()
 
 @property (nonatomic, strong) WSHash256 *parentBlockId;
-@property (nonatomic, assign) NSUInteger confirmations;
 @property (nonatomic, assign) NSUInteger height;
 
 @end
 
 @implementation WSTransactionMetadata
 
-- (instancetype)initWithParentBlock:(WSStorableBlock *)block networkHeight:(NSUInteger)networkHeight
+- (instancetype)initWithParentBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block != nil, @"Nil block");
     
     if ((self = [super init])) {
         self.parentBlockId = block.blockId;
         self.height = block.height;
-        self.confirmations = networkHeight - block.height + 1;
     }
     return self;
 }
@@ -58,9 +56,13 @@
     if ((self = [super init])) {
         self.parentBlockId = nil;
         self.height = WSBlockUnknownHeight;
-        self.confirmations = 0;
     }
     return self;
+}
+
+- (NSUInteger)confirmationsAtNetworkHeight:(NSUInteger)networkHeight
+{
+    return networkHeight - self.height + 1;
 }
 
 - (NSString *)description
@@ -68,8 +70,7 @@
     if (!self.parentBlockId) {
         return @"<unconfirmed>";
     }
-    return [NSString stringWithFormat:@"<+%u, #%u, %@>",
-            self.confirmations, self.height, self.parentBlockId];
+    return [NSString stringWithFormat:@"<#%u, %@>", self.height, self.parentBlockId];
 }
 
 @end

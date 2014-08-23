@@ -89,7 +89,7 @@
 //
 - (BOOL)registerTransaction:(WSSignedTransaction *)transaction didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses batch:(BOOL)batch;
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction batch:(BOOL)batch;
-- (NSDictionary *)registerBlock:(WSStorableBlock *)block networkHeight:(NSUInteger)networkHeight batch:(BOOL)batch;
+- (NSDictionary *)registerBlock:(WSStorableBlock *)block batch:(BOOL)batch;
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch;
 - (void)sortTransactions;
 - (void)recalculateSpendsAndBalance;
@@ -919,12 +919,12 @@
     }
 }
 
-- (NSDictionary *)registerBlock:(WSStorableBlock *)block networkHeight:(NSUInteger)networkHeight
+- (NSDictionary *)registerBlock:(WSStorableBlock *)block
 {
-    return [self registerBlock:block networkHeight:networkHeight batch:NO];
+    return [self registerBlock:block batch:NO];
 }
 
-- (NSDictionary *)registerBlock:(WSStorableBlock *)block networkHeight:(NSUInteger)networkHeight batch:(BOOL)batch
+- (NSDictionary *)registerBlock:(WSStorableBlock *)block batch:(BOOL)batch
 {
     NSMutableDictionary *updates = nil;
     
@@ -937,7 +937,7 @@
                 continue;
             }
             
-            metadata = [[WSTransactionMetadata alloc] initWithParentBlock:block networkHeight:networkHeight];
+            metadata = [[WSTransactionMetadata alloc] initWithParentBlock:block];
             _metadataByTxId[tx.txId] = metadata;
             
             if (!updates) {
@@ -993,8 +993,6 @@
         WSExceptionCheckIllegal(oldBlocks.count > 0, @"Empty oldBlocks");
         WSExceptionCheckIllegal(newBlocks.count > 0, @"Empty newBlocks");
         
-        WSStorableBlock *newHead = newBlocks[0];
-        
         if (didGenerateNewAddresses) {
             *didGenerateNewAddresses = NO;
         }
@@ -1016,7 +1014,7 @@
                 }
             }
             
-            [updates addEntriesFromDictionary:[self registerBlock:block networkHeight:newHead.height batch:YES]];
+            [updates addEntriesFromDictionary:[self registerBlock:block batch:YES]];
         }
         
         [self sortTransactions];

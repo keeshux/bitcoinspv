@@ -746,6 +746,13 @@
 
 #pragma mark Interaction
 
+- (NSUInteger)currentHeight
+{
+    @synchronized (self.queue) {
+        return self.blockChain.currentHeight;
+    }
+}
+
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction
 {
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
@@ -1133,7 +1140,7 @@
         didGenerateNewAddresses |= txDidGenerateNewAddresses;
     }
 
-    [self.wallet registerBlock:block networkHeight:lastBlockHeight];
+    [self.wallet registerBlock:block];
     
     // transactions should already exist in wallet, no new addresses should be generated
     if (didGenerateNewAddresses) {

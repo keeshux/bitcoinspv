@@ -68,6 +68,7 @@
 - (uint32_t)fastCatchUpTimestamp;
 
 // interaction
+- (NSUInteger)currentHeight;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
 
 @end
