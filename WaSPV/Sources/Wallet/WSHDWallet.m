@@ -947,6 +947,10 @@
         }
     
         if (!batch && updates) {
+            if (self.shouldAutosave) {
+                [self save];
+            }
+
             [self notifyWithName:WSWalletDidUpdateTransactionsMetadataNotification userInfo:@{WSWalletTransactionsMetadataKey: updates}];
         }
         return updates;
@@ -981,6 +985,10 @@
         }
     
         if (!batch && updates) {
+            if (self.shouldAutosave) {
+                [self save];
+            }
+
             [self notifyWithName:WSWalletDidUpdateTransactionsMetadataNotification userInfo:@{WSWalletTransactionsMetadataKey: updates}];
         }
         return updates;
@@ -1027,6 +1035,10 @@
         [updates addEntriesFromDictionary:unregisteredUpdates];
         
         if (updates.count > 0) {
+            if (self.shouldAutosave) {
+                [self save];
+            }
+
             [self notifyWithName:WSWalletDidUpdateTransactionsMetadataNotification userInfo:@{WSWalletTransactionsMetadataKey: updates}];
         }
     }
