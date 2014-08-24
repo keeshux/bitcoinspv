@@ -198,7 +198,7 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 * Establish cross-platform wallet format.
 * Support blockchain rescan.
 * Cope with [Core Data versioning](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreDataVersioning/Articles/Introduction.html).
-* Discard unpublished transactions.
+* Detect unpublished transactions.
 * Track known inventories.
 * Import [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) keys.
 * Support basic wallets with static keys.
