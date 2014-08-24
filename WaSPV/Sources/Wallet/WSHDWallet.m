@@ -62,7 +62,6 @@
 
     // transient (sensitive)
     WSSeed *_seed;
-    id<WSBIP32Keyring> _keyring;
     id<WSBIP32Keyring> _externalChain;
     id<WSBIP32Keyring> _internalChain;
 
@@ -95,6 +94,10 @@
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch;
 - (void)sortTransactions;
 - (void)recalculateSpendsAndBalance;
+
+// safe accessors ensure existence
+- (id<WSBIP32Keyring>)safeExternalChain;
+- (id<WSBIP32Keyring>)safeInternalChain;
 
 - (void)setPath:(NSString *)path;
 
@@ -185,8 +188,8 @@
 - (void)generateAddressesForAccount:(uint32_t)account
 {
     @synchronized (self) {
-        WSAddress *receiveAddress = [[_externalChain publicKeyForAccount:account] address];
-        WSAddress *changeAddress = [[_internalChain publicKeyForAccount:account] address];
+        WSAddress *receiveAddress = [[self.safeExternalChain publicKeyForAccount:account] address];
+        WSAddress *changeAddress = [[self.safeInternalChain publicKeyForAccount:account] address];
         
         [_allExternalAddresses addObject:receiveAddress];
         [_allInternalAddresses addObject:changeAddress];
@@ -198,7 +201,6 @@
 - (void)cleanTransientStructures
 {
     @synchronized (self) {
-        _keyring = nil;
         _externalChain = nil;
         _internalChain = nil;
         _allExternalAddresses = nil;
@@ -226,6 +228,22 @@
     }
 }
 
+- (id<WSBIP32Keyring>)safeExternalChain
+{
+    @synchronized (self) {
+        WSExceptionCheckIllegal(_externalChain != nil, @"External chain is missing, probably unloaded with unloadSensitiveData and never reloaded");
+        return _externalChain;
+    }
+}
+
+- (id<WSBIP32Keyring>)safeInternalChain
+{
+    @synchronized (self) {
+        WSExceptionCheckIllegal(_internalChain != nil, @"Internal chain is missing, probably unloaded with unloadSensitiveData and never reloaded");
+        return _internalChain;
+    }
+}
+
 #pragma mark Keys / Addresses
 
 - (NSSet *)usedAddresses
@@ -242,12 +260,12 @@
 
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
-            return [_externalChain privateKeyForAccount:(uint32_t)externalAccount];
+            return [self.safeExternalChain privateKeyForAccount:(uint32_t)externalAccount];
         }
 
         const NSUInteger internalAccount = [_allInternalAddresses indexOfObject:address];
         if (internalAccount != NSNotFound) {
-            return [_internalChain privateKeyForAccount:(uint32_t)internalAccount];
+            return [self.safeInternalChain privateKeyForAccount:(uint32_t)internalAccount];
         }
 
         return nil;
@@ -261,12 +279,12 @@
     
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
-            return [_externalChain publicKeyForAccount:(uint32_t)externalAccount];
+            return [self.safeExternalChain publicKeyForAccount:(uint32_t)externalAccount];
         }
         
         const NSUInteger internalAccount = [_allInternalAddresses indexOfObject:address];
         if (internalAccount != NSNotFound) {
-            return [_internalChain publicKeyForAccount:(uint32_t)internalAccount];
+            return [self.safeInternalChain publicKeyForAccount:(uint32_t)internalAccount];
         }
         
         return nil;
@@ -276,14 +294,14 @@
 - (WSAddress *)receiveAddress
 {
     @synchronized (self) {
-        return [[_externalChain publicKeyForAccount:self.currentAccount] address];
+        return [[self.safeExternalChain publicKeyForAccount:self.currentAccount] address];
     }
 }
 
 - (WSAddress *)changeAddress
 {
     @synchronized (self) {
-        return [[_internalChain publicKeyForAccount:self.currentAccount] address];
+        return [[self.safeInternalChain publicKeyForAccount:self.currentAccount] address];
     }
 }
 
@@ -657,9 +675,9 @@
     
     @synchronized (self) {
         _seed = seed;
-        _keyring = [[WSHDKeyring alloc] initWithData:[_seed derivedKeyData]];
-        _externalChain = [_keyring chainForAccount:0 internal:NO];
-        _internalChain = [_keyring chainForAccount:0 internal:YES];
+        WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithData:[_seed derivedKeyData]];
+        _externalChain = [keyring chainForAccount:0 internal:NO];
+        _internalChain = [keyring chainForAccount:0 internal:YES];
     }
 }
 
@@ -667,7 +685,6 @@
 {
     @synchronized (self) {
         _seed = nil;
-        _keyring = nil;
         _externalChain = nil;
         _internalChain = nil;
     }
@@ -772,7 +789,7 @@
         // number of watched accounts is based on external chain
         const uint32_t numberOfWatchedAddresses = (uint32_t)_allExternalAddresses.count;
         
-        for (id<WSBIP32Keyring> chain in @[_externalChain, _internalChain]) {
+        for (id<WSBIP32Keyring> chain in @[self.safeExternalChain, self.safeInternalChain]) {
             
             for (uint32_t account = 0; account < numberOfWatchedAddresses; ++account) {
                 WSPublicKey *pubKey = [chain publicKeyForAccount:account];
@@ -1164,13 +1181,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:name object:self userInfo:userInfo];
     });
-}
-
-- (void)checkSeedExistence
-{
-    @synchronized (self) {
-        WSExceptionCheckIllegal(_seed != nil, @"Seed is missing, probably unloaded with unloadSensitiveData");
-    }
 }
 
 #pragma mark WSIndentableDescription
