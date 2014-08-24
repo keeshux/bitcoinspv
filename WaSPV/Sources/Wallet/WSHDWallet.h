@@ -51,5 +51,7 @@
 // provide the mnemonic each time you reload a serialized wallet.
 //
 + (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic;
+- (void)loadSensitiveDataWithSeed:(WSSeed *)seed;
+- (void)unloadSensitiveData;
 
 @end

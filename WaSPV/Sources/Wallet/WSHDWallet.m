@@ -60,12 +60,14 @@
     NSMutableSet *_usedAddresses;                       // WSAddress
     NSMutableDictionary *_metadataByTxId;               // WSHash256 -> WSTransactionMetadata
 
-    // transient
+    // transient (sensitive)
     WSSeed *_seed;
-    NSString *_path;
     id<WSBIP32Keyring> _keyring;
     id<WSBIP32Keyring> _externalChain;
     id<WSBIP32Keyring> _internalChain;
+
+    // transient (not sensitive)
+    NSString *_path;
     NSMutableOrderedSet *_allExternalAddresses;         // WSAddress
     NSMutableOrderedSet *_allInternalAddresses;         // WSAddress
     NSMutableOrderedSet *_allAddresses;                 // WSAddress
@@ -152,13 +154,12 @@
 
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed
 {
+    NSAssert(seed, @"Nil seed");
+    
     @synchronized (self) {
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
         
-        _seed = seed;
-        _keyring = [[WSHDKeyring alloc] initWithData:[seed derivedKeyData]];
-        _externalChain = [_keyring chainForAccount:0 internal:NO];
-        _internalChain = [_keyring chainForAccount:0 internal:YES];
+        [self loadSensitiveDataWithSeed:seed];
         
         const NSUInteger numberOfAddresses = self.currentAccount + 1;
         _allExternalAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:numberOfAddresses];
@@ -634,6 +635,9 @@
 
 + (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic
 {
+    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
+
     @synchronized (self) {
         WSHDWallet *wallet = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
         if (![wallet isKindOfClass:[WSHDWallet class]]) {
@@ -644,6 +648,28 @@
         WSSeed *seed = WSSeedMake(mnemonic, wallet.creationTime);
         [wallet rebuildTransientStructuresWithSeed:seed];
         return wallet;
+    }
+}
+
+- (void)loadSensitiveDataWithSeed:(WSSeed *)seed
+{
+    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
+    
+    @synchronized (self) {
+        _seed = seed;
+        _keyring = [[WSHDKeyring alloc] initWithData:[_seed derivedKeyData]];
+        _externalChain = [_keyring chainForAccount:0 internal:NO];
+        _internalChain = [_keyring chainForAccount:0 internal:YES];
+    }
+}
+
+- (void)unloadSensitiveData
+{
+    @synchronized (self) {
+        _seed = nil;
+        _keyring = nil;
+        _externalChain = nil;
+        _internalChain = nil;
     }
 }
 
@@ -1138,6 +1164,13 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:name object:self userInfo:userInfo];
     });
+}
+
+- (void)checkSeedExistence
+{
+    @synchronized (self) {
+        WSExceptionCheckIllegal(_seed != nil, @"Seed is missing, probably unloaded with unloadSensitiveData");
+    }
 }
 
 #pragma mark WSIndentableDescription
