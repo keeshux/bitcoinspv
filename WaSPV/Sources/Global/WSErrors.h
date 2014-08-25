@@ -52,6 +52,10 @@ typedef enum {
     WSErrorCodeBIP39BadMnemonic
 } WSErrorCode;
 
+extern NSString *const          WSErrorMessageTypeKey;
+extern NSString *const          WSErrorFeeKey;
+extern NSString *const          WSErrorKeyIndexKey;
+
 #pragma mark - Macros
 
 void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);

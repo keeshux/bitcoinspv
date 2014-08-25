@@ -50,7 +50,7 @@
     NSString *className = [NSString stringWithFormat:@"WSMessage%@", [type capitalizedString]];
     Class clazz = NSClassFromString(className);
     if (!clazz) {
-        WSErrorSet(error, WSErrorCodeUnknownMessage, @"Unknown message '%@'", type);
+        WSErrorSetUserInfo(error, WSErrorCodeUnknownMessage, @{WSErrorMessageTypeKey: type}, @"Unknown message '%@'", type);
         return nil;
     }
     if (![clazz conformsToProtocol:@protocol(WSBufferDecoder)]) {

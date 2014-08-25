@@ -542,8 +542,8 @@
         }
         
         if (gathered < needed + effectiveFee) {
-            WSErrorSet(error, WSErrorCodeInsufficientFunds, @"Insufficient funds (%llu < %llu + fee(%llu))",
-                       gathered, needed, effectiveFee);
+            WSErrorSetUserInfo(error, WSErrorCodeInsufficientFunds, @{WSErrorFeeKey: @(effectiveFee)},
+                               @"Insufficient funds (%llu < %llu + fee(%llu))", gathered, needed, effectiveFee);
 
             return nil;
         }
@@ -608,8 +608,8 @@
             WSKey *key = [self privateKeyForAddress:input.address];
             if (!key) {
                 const NSUInteger index = keys.count;
-                WSErrorSet(error, WSErrorCodeSignature, @"Missing key for input #%u (address: %@)",
-                           index, input.address);
+                WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorKeyIndexKey: @(index)},
+                                   @"Missing key for input #%u (address: %@)", index, input.address);
 
                 return nil;
             }

@@ -36,6 +36,10 @@ NSString *const         WSExceptionUnsupported                      = @"Unsuppor
 
 NSString *const         WSErrorDomain                               = @"WaSPV";
 
+NSString *const         WSErrorMessageTypeKey                       = @"MessageType";
+NSString *const         WSErrorKeyIndexKey                          = @"KeyIndex";
+NSString *const         WSErrorFeeKey                               = @"Fee";
+
 #pragma mark - Macros
 
 #warning XXX: redundant, strange things happen forwarding varargs
