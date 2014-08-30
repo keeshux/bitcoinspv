@@ -58,25 +58,25 @@
     [super tearDown];
 }
 
-- (void)testKeyrings
-{
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed];
-
-    NSData *keyData = [self.seed derivedKeyData];
-    DDLogInfo(@"Key data: %@", [keyData hexString]);
-
-    id<WSBIP32Keyring> keyring = [wallet valueForKey:@"_keyring"];
-
-    NSString *eprivKey = [[keyring extendedPrivateKey] serializedKey];
-    NSString *expEprivKey = @"tprv8ZgxMBicQKsPez8DeWESxs1YB9fBFJsKVwp8qL5qHjZuesoQCJsPgmACeiJkRDJfya3QHGNVtN1Jk3g8bD8LbFCbQc96vG5mT9WjxfAho7L";
-    DDLogInfo(@"Private key: %@", eprivKey);
-    XCTAssertEqualObjects(eprivKey, expEprivKey);
-
-    NSString *epubKey = [[keyring extendedPublicKey] serializedKey];
-    NSString *expEpubKey = @"tpubD6NzVbkrYhZ4YTA1Y9u3NGfekBB7Qe4E5FQv7r88i1NJVN4AphgysFn4ppMvaYbecqrVzwBMRUVB2DbHAr2gRbntHF58pVVWep1uNUBkTvL";
-    DDLogInfo(@"Public key: %@", epubKey);
-    XCTAssertEqualObjects(epubKey, expEpubKey);
-}
+//- (void)testKeyrings
+//{
+//    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed];
+//
+//    NSData *keyData = [self.seed derivedKeyData];
+//    DDLogInfo(@"Key data: %@", [keyData hexString]);
+//
+//    id<WSBIP32Keyring> keyring = [wallet valueForKey:@"_keyring"];
+//
+//    NSString *eprivKey = [[keyring extendedPrivateKey] serializedKey];
+//    NSString *expEprivKey = @"tprv8ZgxMBicQKsPez8DeWESxs1YB9fBFJsKVwp8qL5qHjZuesoQCJsPgmACeiJkRDJfya3QHGNVtN1Jk3g8bD8LbFCbQc96vG5mT9WjxfAho7L";
+//    DDLogInfo(@"Private key: %@", eprivKey);
+//    XCTAssertEqualObjects(eprivKey, expEprivKey);
+//
+//    NSString *epubKey = [[keyring extendedPublicKey] serializedKey];
+//    NSString *expEpubKey = @"tpubD6NzVbkrYhZ4YTA1Y9u3NGfekBB7Qe4E5FQv7r88i1NJVN4AphgysFn4ppMvaYbecqrVzwBMRUVB2DbHAr2gRbntHF58pVVWep1uNUBkTvL";
+//    DDLogInfo(@"Public key: %@", epubKey);
+//    XCTAssertEqualObjects(epubKey, expEpubKey);
+//}
 
 - (void)testChain
 {
