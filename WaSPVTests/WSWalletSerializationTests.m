@@ -52,13 +52,9 @@
     self.path = [self mockPathForFile:@"WalletSerializationTests.wallet"];
 
     NSString *mnemonic = [self mockWalletMnemonic];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:self.path mnemonic:mnemonic];
-    if (!wallet) {
-        WSSeed *seed = WSSeedMakeNow(mnemonic);
-        wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:5];
-
-        [self saveWallet:wallet];
-    }
+    WSSeed *seed = WSSeedMakeNow(mnemonic);
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:5];
+    [self saveWallet:wallet];
 }
 
 - (void)tearDown
