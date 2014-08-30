@@ -861,7 +861,12 @@
         
         BOOL isRelevant = NO;
         
-#warning FIXME: inputs relevancy test relies on chronological transaction registration (unpredictable)
+        //
+        // inputs relevancy test relies on transaction order, and we know that if a transaction spends another
+        // one in the same block, the spending transaction always comes AFTER the input transaction
+        //
+        // http://bitcoin.stackexchange.com/questions/3870/what-order-do-transactions-appear-in-a-block-is-it-up-to-the-miner
+        //
         
         // relevant if inputs spend wallet transaction
         for (WSSignedTransactionInput *input in transaction.inputs) {

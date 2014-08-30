@@ -193,7 +193,6 @@ Sensitive data are never serialized automatically so that clients will be able t
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do:
 
 * Disconnect peers on timeout (sync may get stuck).
-* Fix transaction relevancy check.
 * Checkpoints tool and serialization.
 * Establish cross-platform wallet format.
 * Support blockchain rescan.
