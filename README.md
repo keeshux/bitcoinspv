@@ -108,7 +108,7 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
     - (void)restoreWallet
     {
-        WSSeed *seed = WSSeedMakeFromISODate(@"enter your bip39 mnemonic seed phrase", @"2014/02/28");
+        WSSeed *seed = WSSeedMakeFromISODate(@"enter your bip39 mnemonic seed phrase", @"2014-02-28");
 
         WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed];
 
