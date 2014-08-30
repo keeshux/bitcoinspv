@@ -875,7 +875,7 @@
     }
 
     if (outdatedIds.count > 0) {
-        DDLogDebug(@"Requesting outdated blocks with updated Bloom filter: %@", outdatedIds);
+        DDLogDebug(@"Requesting %u outdated blocks with updated Bloom filter: %@", outdatedIds.count, outdatedIds);
         [self sendGetdataMessageWithHashes:outdatedIds forInventoryType:WSInventoryTypeFilteredBlock];
     }
     else {
@@ -1045,13 +1045,12 @@
             WSHash256 *blockId = filteredBlock.header.blockId;
 
             [self.pendingBlockIds removeObject:blockId];
+            [self.processingBlockIds removeObject:blockId];
+
             if ([self.pendingBlockIds containsObject:blockId]) {
                 DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
                 return;
             }
-
-            // block is up-to-date and will be processed
-            [self.processingBlockIds removeObject:blockId];
         }
 
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
