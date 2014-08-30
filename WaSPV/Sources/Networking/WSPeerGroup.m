@@ -819,7 +819,7 @@
         // peer was accepted
         
         if (self.downloadPeer && (peer.lastBlockHeight <= self.downloadPeer.lastBlockHeight)) {
-            DDLogDebug(@"Peer %@ is not ahead current download peer, marked common (height: %u <= %u)",
+            DDLogDebug(@"Peer %@ is not ahead of current download peer, marked common (height: %u <= %u)",
                        peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
             if ([self isSynced]) {
