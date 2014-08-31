@@ -214,7 +214,7 @@
 
 - (BOOL)save
 {
-    [self.manager.context performBlockAndWait:^{
+    [self.manager.context performBlock:^{
         if ([self.manager.context save:NULL]) {
             DDLogInfo(@"Saved store to %@", self.manager.path);
         }
