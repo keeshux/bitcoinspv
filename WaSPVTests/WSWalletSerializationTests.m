@@ -143,7 +143,7 @@
 
 - (WSHDWallet *)loadWallet
 {
-    return [WSHDWallet loadFromPath:self.path mnemonic:[self mockWalletMnemonic] lookAhead:WALLET_LOOK_AHEAD];
+    return [WSHDWallet loadFromPath:self.path mnemonic:[self mockWalletMnemonic]];
 }
 
 - (WSHDWallet *)rehashWallet:(WSHDWallet *)wallet

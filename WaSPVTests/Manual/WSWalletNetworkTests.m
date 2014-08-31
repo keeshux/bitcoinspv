@@ -378,7 +378,7 @@
 
 - (WSHDWallet *)loadWalletFromCurrentPath
 {
-    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase lookAhead:WALLET_LOOK_AHEAD];
+    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase];
 }
 
 - (void)saveWallet:(id<WSWallet>)wallet
