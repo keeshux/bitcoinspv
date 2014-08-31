@@ -62,4 +62,4 @@ const double            WSPeerGroupBloomFilterFPRateRange           = 0.0004;
 
 const uint32_t          WSMessageVersionLocalhost                   = 0x0100007f;
 
-const NSUInteger        WSHDWalletDefaultGapLimit                   = 5;
+const NSUInteger        WSHDWalletDefaultLookAhead                  = 20;

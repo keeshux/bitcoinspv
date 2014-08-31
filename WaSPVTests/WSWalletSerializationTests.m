@@ -31,6 +31,8 @@
 #import "WSKey.h"
 #import "WSAddress.h"
 
+#define WALLET_LOOK_AHEAD           10
+
 @interface WSWalletSerializationTests : XCTestCase
 
 @property (nonatomic, strong) NSString *path;
@@ -53,7 +55,7 @@
 
     NSString *mnemonic = [self mockWalletMnemonic];
     WSSeed *seed = WSSeedMakeNow(mnemonic);
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:5];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed lookAhead:WALLET_LOOK_AHEAD];
     [self saveWallet:wallet];
 }
 
@@ -141,7 +143,7 @@
 
 - (WSHDWallet *)loadWallet
 {
-    return [WSHDWallet loadFromPath:self.path mnemonic:[self mockWalletMnemonic]];
+    return [WSHDWallet loadFromPath:self.path mnemonic:[self mockWalletMnemonic] lookAhead:WALLET_LOOK_AHEAD];
 }
 
 - (WSHDWallet *)rehashWallet:(WSHDWallet *)wallet

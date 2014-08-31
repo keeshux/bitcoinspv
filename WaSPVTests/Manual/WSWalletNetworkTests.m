@@ -37,6 +37,8 @@
 #import "WSTransaction.h"
 #import "WSStorableBlock.h"
 
+#define WALLET_LOOK_AHEAD           4
+
 @interface WSWalletNetworkTests : XCTestCase
 
 @property (nonatomic, copy) NSString *storeMainPath;
@@ -124,7 +126,7 @@
 
     WSHDWallet *wallet = [self loadWalletFromCurrentPath];
     if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed]];
+        wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed] lookAhead:WALLET_LOOK_AHEAD];
         [wallet saveToPath:self.currentWalletPath];
         wallet.shouldAutosave = YES;
     }
@@ -376,7 +378,7 @@
 
 - (WSHDWallet *)loadWalletFromCurrentPath
 {
-    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase];
+    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase lookAhead:WALLET_LOOK_AHEAD];
 }
 
 - (void)saveWallet:(id<WSWallet>)wallet

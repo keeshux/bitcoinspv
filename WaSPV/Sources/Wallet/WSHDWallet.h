@@ -38,9 +38,9 @@
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
 - (instancetype)initWithSeed:(WSSeed *)seed;
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
+- (instancetype)initWithSeed:(WSSeed *)seed lookAhead:(NSUInteger)lookAhead;
 - (WSSeed *)seed;
-- (NSUInteger)gapLimit;
+- (NSUInteger)lookAhead;
 - (uint32_t)currentAccount;
 
 //

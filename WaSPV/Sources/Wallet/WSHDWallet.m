@@ -52,7 +52,7 @@
     // essential backup data
     WSParametersType _parametersType;
     NSTimeInterval _creationTime;
-    NSUInteger _gapLimit;
+    NSUInteger _lookAhead;
 
     // serialized for convenience
     uint32_t _currentAccount;
@@ -79,6 +79,7 @@
 
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed;
 - (void)generateAddressesForAccount:(uint32_t)account;
+- (BOOL)generateAddressesForced:(BOOL)forced;
 - (void)cleanTransientStructures;
 
 //
@@ -111,18 +112,18 @@
 
 - (instancetype)initWithSeed:(WSSeed *)seed
 {
-    return [self initWithSeed:seed gapLimit:WSHDWalletDefaultGapLimit];
+    return [self initWithSeed:seed lookAhead:WSHDWalletDefaultLookAhead];
 }
 
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit
+- (instancetype)initWithSeed:(WSSeed *)seed lookAhead:(NSUInteger)lookAhead
 {
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
-    WSExceptionCheckIllegal(gapLimit > 0, @"Non-positive gapLimit");
+    WSExceptionCheckIllegal(lookAhead > 0, @"Non-positive lookAhead");
     
     if ((self = [self init])) {
         _parametersType = WSParametersGetCurrentType();
         _creationTime = seed.creationTime;
-        _gapLimit = gapLimit;
+        _lookAhead = lookAhead;
 
         _currentAccount = 0;
         _txs = [[NSMutableOrderedSet alloc] init];
@@ -141,10 +142,10 @@
     }
 }
 
-- (NSUInteger)gapLimit
+- (NSUInteger)lookAhead
 {
     @synchronized (self) {
-        return _gapLimit;
+        return _lookAhead;
     }
 }
 
@@ -178,7 +179,7 @@
         }
         
         [self recalculateSpendsAndBalance];
-        [self generateAddressesIfNeeded];
+        [self generateAddressesForced:YES];
         
         const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
         DDLogDebug(@"Rebuilt wallet transient structures in %.3fs", rebuildTime);
@@ -701,6 +702,11 @@
 
 - (BOOL)generateAddressesIfNeeded
 {
+    return [self generateAddressesForced:NO];
+}
+
+- (BOOL)generateAddressesForced:(BOOL)forced
+{
     @synchronized (self) {
         NSAssert(_allExternalAddresses.count > 0, @"Wallet must have at least 1 receive address");
         
@@ -724,32 +730,33 @@
         DDLogDebug(@"Current account set to first unused account (%u)", _currentAccount);
         
         const NSUInteger available = _allExternalAddresses.count - numberOfUsedAddresses;
-        if (available >= self.gapLimit) {
-            DDLogDebug(@"Still more available addresses than gap limit (%u >= %u), skipping generation",
-                       available, self.gapLimit);
-            
-            return NO;
+        if (forced) {
+            DDLogDebug(@"Forcing generation of %u look-ahead addresses", _lookAhead);
         }
-        
-        // generate more addresses than gap limit to avoid regenerating each time a new single address is used
-        const NSUInteger lookAhead = 2 * self.gapLimit;
-        
-        DDLogDebug(@"Available addresses under gap limit (%u < %u), reestablish look-ahead %u (2 * gap limit)",
-                   available, self.gapLimit, lookAhead);
+        else {
+            if (available > 0) {
+                DDLogDebug(@"Still %u available addresses, skipping generation", available);
+                return NO;
+            }
+            else {
+                DDLogDebug(@"All available addresses were used, reestablish look-ahead (%u)", _lookAhead);
+            }
+        }
         
         const NSTimeInterval generationStartTime = [NSDate timeIntervalSinceReferenceDate];
         
         const NSUInteger firstGenAccount = _allExternalAddresses.count;
-        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + lookAhead; // excluded
+        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + _lookAhead; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
             [self generateAddressesForAccount:(uint32_t)i];
         }
         
-        const NSUInteger watchedCount = lastGenAccount - self.currentAccount;
-        NSAssert(watchedCount == lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)", watchedCount, lookAhead);
+        const NSUInteger watchedCount = lastGenAccount - _currentAccount;
+        NSAssert(watchedCount == _lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)",
+                 watchedCount, _lookAhead);
         
         const NSTimeInterval generationTime = [NSDate timeIntervalSinceReferenceDate] - generationStartTime;
-        DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (available: %u)",
+        DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (watched: %u)",
                    generationTime, firstGenAccount, lastGenAccount - 1, watchedCount);
         
         return YES;
@@ -1221,7 +1228,7 @@
 {
     return @{@"_parametersType": [NSNumber class],
              @"_creationTime": [NSNumber class],
-             @"_gapLimit": [NSNumber class],
+             @"_lookAhead": [NSNumber class],
              @"_currentAccount": [NSNumber class],
              @"_txs": [NSMutableOrderedSet class],
              @"_usedAddresses": [NSMutableSet class],

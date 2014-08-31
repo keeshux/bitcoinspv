@@ -254,7 +254,7 @@
     WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];
     if (!wallet) {
         WSSeed *seed = WSSeedMake(mnemonic, 0.0);
-        wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:2];
+        wallet = [[WSHDWallet alloc] initWithSeed:seed lookAhead:4];
     }
 
     static dispatch_once_t onceToken;

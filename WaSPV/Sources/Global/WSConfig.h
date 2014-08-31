@@ -67,4 +67,4 @@ extern const double             WSPeerGroupBloomFilterFPRateRange;
 
 extern const uint32_t           WSMessageVersionLocalhost;
 
-extern const NSUInteger         WSHDWalletDefaultGapLimit;
+extern const NSUInteger         WSHDWalletDefaultLookAhead;

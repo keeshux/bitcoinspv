@@ -109,7 +109,7 @@
 
 - (void)testGeneration
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:25];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed lookAhead:50];
 
     NSArray *expReceives = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
                              @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
@@ -149,7 +149,7 @@
 
 - (void)testGenerationUsedAddresses
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:2];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed lookAhead:4];
     DDLogInfo(@"");
 
     NSMutableSet *usedAddresses = [wallet valueForKey:@"_usedAddresses"];
@@ -169,10 +169,11 @@
     
     [usedAddresses addObject:WSAddressFromString(@"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT")];
     [usedAddresses addObject:WSAddressFromString(@"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH")];
+    [usedAddresses addObject:WSAddressFromString(@"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo")];
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
     
-    [usedAddresses addObject:WSAddressFromString(@"n2Rne11pvJBtpVX7KkinPcSs5JJdpLPvaz")];
+    [usedAddresses addObject:WSAddressFromString(@"mgRQ4ga3qpfNd8zmNh47AvsCoFGs6VdhNs")];
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
 }
