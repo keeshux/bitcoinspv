@@ -868,8 +868,8 @@
 
     NSArray *outdatedIds = nil;
     @synchronized (self) {
-        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
-                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
+//        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
+//                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
 
         outdatedIds = [self.processingBlockIds array];
     }
@@ -1045,12 +1045,13 @@
             WSHash256 *blockId = filteredBlock.header.blockId;
 
             [self.pendingBlockIds removeObject:blockId];
-            [self.processingBlockIds removeObject:blockId];
 
             if ([self.pendingBlockIds containsObject:blockId]) {
                 DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
                 return;
             }
+
+            [self.processingBlockIds removeObject:blockId];
         }
 
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
