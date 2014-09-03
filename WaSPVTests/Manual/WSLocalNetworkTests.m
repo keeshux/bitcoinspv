@@ -316,7 +316,6 @@
     [wallet sortTransactions];
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
     DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
-    DDLogInfo(@"Current account: %u", wallet.currentAccount);
     DDLogInfo(@"Current receive address: %@", wallet.receiveAddress);
     DDLogInfo(@"Current change address: %@", wallet.changeAddress);
     DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);
