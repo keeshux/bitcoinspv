@@ -75,6 +75,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (uint64_t)feeForTransaction:(WSSignedTransaction *)transaction; // UINT64_MAX if spending any non-wallet input
 - (BOOL)isInternalTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)balance;
+- (uint64_t)confirmedBalance;
 - (WSTransactionMetadata *)metadataForTransactionId:(WSHash256 *)txId;
 
 // spending (fee = 0 for standard fee)

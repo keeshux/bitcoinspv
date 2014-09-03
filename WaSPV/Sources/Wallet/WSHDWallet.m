@@ -75,6 +75,7 @@
     NSOrderedSet *_unspentOutputs;                      // WSTransactionOutPoint
     NSSet *_invalidTxIds;                               // WSHash256
     uint64_t _balance;
+    uint64_t _confirmedBalance;
 }
 
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed;
@@ -443,6 +444,13 @@
 {
     @synchronized (self) {
         return _balance;
+    }
+}
+
+- (uint64_t)confirmedBalance
+{
+    @synchronized (self) {
+        return _confirmedBalance;
     }
 }
 
@@ -1167,20 +1175,33 @@
         [unspentOutputs minusSet:spentOutputs];
         
         uint64_t balance = 0;
+        uint64_t confirmedBalance = 0;
         for (WSTransactionOutPoint *outpoint in unspentOutputs) {
             WSSignedTransaction *tx = _txsById[outpoint.txId];
             WSTransactionOutput *output = [tx outputAtIndex:outpoint.index];
             
             balance += output.value;
+
+            WSTransactionMetadata *metadata = _metadataByTxId[tx.txId];
+            if (metadata.parentBlockId) {
+                confirmedBalance += output.value;
+            }
         }
         
         _invalidTxIds = invalidTxIds;
         _spentOutputs = spentOutputs;
         _unspentOutputs = unspentOutputs;
-        
+
+        BOOL shouldNotify = NO;
         if (balance != _balance) {
             _balance = balance;
-
+            shouldNotify = YES;
+        }
+        if (confirmedBalance != _confirmedBalance) {
+            _confirmedBalance = confirmedBalance;
+            shouldNotify = YES;
+        }
+        if (shouldNotify) {
             [self notifyWithName:WSWalletDidUpdateBalanceNotification userInfo:nil];
         }
     }
