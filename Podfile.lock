@@ -1,16 +1,12 @@
 PODS:
   - AutoCoding (2.2)
   - CocoaAsyncSocket (7.3.5)
-  - CocoaLumberjack (1.9.1):
-    - CocoaLumberjack/CLI
-    - CocoaLumberjack/Core
+  - CocoaLumberjack (1.9.2):
     - CocoaLumberjack/Extensions
-  - CocoaLumberjack/CLI (1.9.1):
+  - CocoaLumberjack/Core (1.9.2)
+  - CocoaLumberjack/Extensions (1.9.2):
     - CocoaLumberjack/Core
-  - CocoaLumberjack/Core (1.9.1)
-  - CocoaLumberjack/Extensions (1.9.1):
-    - CocoaLumberjack/Core
-  - OpenSSL-Universal (1.0.1.h)
+  - OpenSSL-Universal (1.0.1.i)
 
 DEPENDENCIES:
   - AutoCoding (~> 2.2)
@@ -21,7 +17,7 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AutoCoding: 2a15d57acf78912b72cc3b3a472e614b2f112a18
   CocoaAsyncSocket: 45bdbbc1c0a5ed0640ff4c42af325ba43a2f099a
-  CocoaLumberjack: 94accd5749f5c5d15134c8d50f34a973aed8ef69
-  OpenSSL-Universal: 9c112508615ed33bb35f730eed820e93175a9dec
+  CocoaLumberjack: 205769c032b5fef85b92472046bcc8b7e7c8a817
+  OpenSSL-Universal: 47c29b0c3e5b781ac74276a662c4fbe78ea5d4d8
 
-COCOAPODS: 0.32.1
+COCOAPODS: 0.33.1
