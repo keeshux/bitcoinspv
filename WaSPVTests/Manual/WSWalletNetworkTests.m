@@ -98,7 +98,7 @@
         
         DDLogInfo(@"Balance: %llu", [wallet balance]);
     }];
-    [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateReceiveAddressNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateAddressesNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         id<WSWallet> wallet = note.object;
         
         DDLogInfo(@"New receive address: %@", [wallet receiveAddress]);
@@ -164,7 +164,6 @@
     DDLogInfo(@"Balance: %llu", wallet.balance);
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
     DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
-    DDLogInfo(@"Current account: %u", wallet.currentAccount);
     DDLogInfo(@"Current receive address: %@", wallet.receiveAddress);
     DDLogInfo(@"Current change address: %@", wallet.changeAddress);
     DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);

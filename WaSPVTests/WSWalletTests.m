@@ -164,6 +164,7 @@
     [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
     [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
     [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+    [usedAddresses addObject:WSAddressFromString(@"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT")];
     XCTAssertFalse([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
     

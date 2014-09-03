@@ -41,7 +41,6 @@
 - (instancetype)initWithSeed:(WSSeed *)seed lookAhead:(NSUInteger)lookAhead;
 - (WSSeed *)seed;
 - (NSUInteger)lookAhead;
-- (uint32_t)currentAccount;
 
 //
 // WARNING: mnemonic is NOT serialized and MUST be saved elsewhere

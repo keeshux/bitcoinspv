@@ -30,7 +30,7 @@
 NSString *const WSWalletDidRegisterTransactionNotification          = @"WSWalletDidRegisterTransactionNotification";
 NSString *const WSWalletDidUnregisterTransactionNotification        = @"WSWalletDidUnregisterTransactionNotification";
 NSString *const WSWalletDidUpdateBalanceNotification                = @"WSWalletDidUpdateBalanceNotification";
-NSString *const WSWalletDidUpdateReceiveAddressNotification         = @"WSWalletDidUpdateReceiveAddressNotification";
+NSString *const WSWalletDidUpdateAddressesNotification              = @"WSWalletDidUpdateAddressesNotification";
 NSString *const WSWalletDidUpdateTransactionsMetadataNotification   = @"WSWalletDidUpdateTransactionsMetadataNotification";
 
 NSString *const WSWalletTransactionKey                              = @"Transaction";

@@ -55,9 +55,12 @@
     NSUInteger _lookAhead;
 
     // serialized for convenience
-    uint32_t _currentAccount;
     NSMutableOrderedSet *_txs;                          // WSSignedTransaction
+    NSMutableOrderedSet *_allExternalAddresses;         // WSAddress
+    NSMutableOrderedSet *_allInternalAddresses;         // WSAddress
     NSMutableSet *_usedAddresses;                       // WSAddress
+    uint32_t _currentExternalAccount;
+    uint32_t _currentInternalAccount;
     NSMutableDictionary *_metadataByTxId;               // WSHash256 -> WSTransactionMetadata
 
     // transient (sensitive)
@@ -67,9 +70,6 @@
 
     // transient (not sensitive)
     NSString *_path;
-    NSMutableOrderedSet *_allExternalAddresses;         // WSAddress
-    NSMutableOrderedSet *_allInternalAddresses;         // WSAddress
-    NSMutableOrderedSet *_allAddresses;                 // WSAddress
     NSMutableDictionary *_txsById;                      // WSHash256 -> WSSignedTransaction
     NSSet *_spentOutputs;                               // WSTransactionOutPoint
     NSOrderedSet *_unspentOutputs;                      // WSTransactionOutPoint
@@ -79,9 +79,9 @@
 }
 
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed;
-- (void)generateAddressesForAccount:(uint32_t)account;
 - (BOOL)generateAddressesForced:(BOOL)forced;
-- (void)cleanTransientStructures;
+- (BOOL)generateAddressesForInternalChain:(BOOL)internal forced:(BOOL)forced;
+//- (void)cleanTransientStructures;
 
 //
 // if (batch == YES)
@@ -126,11 +126,14 @@
         _creationTime = seed.creationTime;
         _lookAhead = lookAhead;
 
-        _currentAccount = 0;
         _txs = [[NSMutableOrderedSet alloc] init];
+        _allExternalAddresses = [[NSMutableOrderedSet alloc] init];
+        _allInternalAddresses = [[NSMutableOrderedSet alloc] init];
         _usedAddresses = [[NSMutableSet alloc] init];
+        _currentExternalAccount = 0;
+        _currentInternalAccount = 0;
         _metadataByTxId = [[NSMutableDictionary alloc] init];
-
+        
         [self rebuildTransientStructuresWithSeed:seed];
     }
     return self;
@@ -150,13 +153,6 @@
     }
 }
 
-- (uint32_t)currentAccount
-{
-    @synchronized (self) {
-        return _currentAccount;
-    }
-}
-
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed
 {
     NSAssert(seed, @"Nil seed");
@@ -165,14 +161,6 @@
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
         
         [self loadSensitiveDataWithSeed:seed];
-        
-        const NSUInteger numberOfAddresses = self.currentAccount + 1;
-        _allExternalAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:numberOfAddresses];
-        _allInternalAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:numberOfAddresses];
-        _allAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * numberOfAddresses)];
-        for (uint32_t i = 0; i <= self.currentAccount; ++i) {
-            [self generateAddressesForAccount:i];
-        }
         
         _txsById = [[NSMutableDictionary alloc] initWithCapacity:_txs.count];
         for (WSSignedTransaction *tx in _txs) {
@@ -187,34 +175,19 @@
     }
 }
 
-- (void)generateAddressesForAccount:(uint32_t)account
-{
-    @synchronized (self) {
-        WSAddress *receiveAddress = [[self.safeExternalChain publicKeyForAccount:account] address];
-        WSAddress *changeAddress = [[self.safeInternalChain publicKeyForAccount:account] address];
-        
-        [_allExternalAddresses addObject:receiveAddress];
-        [_allInternalAddresses addObject:changeAddress];
-        [_allAddresses addObject:receiveAddress];
-        [_allAddresses addObject:changeAddress];
-    }
-}
-
-- (void)cleanTransientStructures
-{
-    @synchronized (self) {
-        _externalChain = nil;
-        _internalChain = nil;
-        _allExternalAddresses = nil;
-        _allInternalAddresses = nil;
-        _allAddresses = nil;
-        _txsById = nil;
-        _spentOutputs = nil;
-        _unspentOutputs = nil;
-        _invalidTxIds = nil;
-        _balance = 0;
-    }
-}
+//- (void)cleanTransientStructures
+//{
+//    @synchronized (self) {
+//        _externalChain = nil;
+//        _internalChain = nil;
+//        _txsById = nil;
+//        _spentOutputs = nil;
+//        _unspentOutputs = nil;
+//        _invalidTxIds = nil;
+//        _balance = 0;
+//        _confirmedBalance = 0;
+//    }
+//}
 
 - (NSString *)description
 {
@@ -296,14 +269,14 @@
 - (WSAddress *)receiveAddress
 {
     @synchronized (self) {
-        return [[self.safeExternalChain publicKeyForAccount:self.currentAccount] address];
+        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] address];
     }
 }
 
 - (WSAddress *)changeAddress
 {
     @synchronized (self) {
-        return [[self.safeInternalChain publicKeyForAccount:self.currentAccount] address];
+        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] address];
     }
 }
 
@@ -716,12 +689,37 @@
 - (BOOL)generateAddressesForced:(BOOL)forced
 {
     @synchronized (self) {
-        NSAssert(_allExternalAddresses.count > 0, @"Wallet must have at least 1 receive address");
+        BOOL didGenerate = [self generateAddressesForInternalChain:NO forced:forced];
+        didGenerate |= [self generateAddressesForInternalChain:YES forced:forced];
+
+        return didGenerate;
+    }
+}
+
+- (BOOL)generateAddressesForInternalChain:(BOOL)internal forced:(BOOL)forced
+{
+    @synchronized (self) {
+        id<WSBIP32Keyring> targetChain = nil;
+        NSMutableOrderedSet *targetAddresses = nil;
+        uint32_t *currentAccount = NULL;
+
+        if (internal) {
+            targetChain = self.safeInternalChain;
+            targetAddresses = _allInternalAddresses;
+            currentAccount = &_currentInternalAccount;
+        }
+        else {
+            targetChain = self.safeExternalChain;
+            targetAddresses = _allExternalAddresses;
+            currentAccount = &_currentExternalAccount;
+        }
+
+//        NSAssert(targetAddresses.count > 0, @"Wallet must have at least 1 account");
         
-        __block NSUInteger accountOfFirstUnusedAddress = _allExternalAddresses.count;
+        __block NSUInteger accountOfFirstUnusedAddress = targetAddresses.count;
         __block NSUInteger numberOfUsedAddresses = 0;
         
-        [_allExternalAddresses enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [targetAddresses enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             WSAddress *address = obj;
             if ([self.usedAddresses containsObject:address]) {
                 numberOfUsedAddresses = idx + 1;
@@ -732,12 +730,12 @@
             }
         }];
         
-        _currentAccount = (uint32_t)accountOfFirstUnusedAddress;
+        *currentAccount = (uint32_t)accountOfFirstUnusedAddress;
         
-        DDLogDebug(@"Used %u/%u receive addresses", numberOfUsedAddresses, _allExternalAddresses.count);
-        DDLogDebug(@"Current account set to first unused account (%u)", _currentAccount);
+        DDLogDebug(@"Used %u/%u accounts", numberOfUsedAddresses, targetAddresses.count);
+        DDLogDebug(@"Current account set to first unused account (%u)", *currentAccount);
         
-        const NSUInteger available = _allExternalAddresses.count - numberOfUsedAddresses;
+        const NSUInteger available = targetAddresses.count - numberOfUsedAddresses;
         if (forced) {
             DDLogDebug(@"Forcing generation of %u look-ahead addresses", _lookAhead);
         }
@@ -753,19 +751,20 @@
         
         const NSTimeInterval generationStartTime = [NSDate timeIntervalSinceReferenceDate];
         
-        const NSUInteger firstGenAccount = _allExternalAddresses.count;
+        const NSUInteger firstGenAccount = targetAddresses.count;
         const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + _lookAhead; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
-            [self generateAddressesForAccount:(uint32_t)i];
+            WSAddress *address = [[targetChain publicKeyForAccount:i] address];
+            [targetAddresses addObject:address];
         }
         
-        const NSUInteger watchedCount = lastGenAccount - _currentAccount;
+        const NSUInteger watchedCount = lastGenAccount - *currentAccount;
         NSAssert(watchedCount == _lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)",
                  watchedCount, _lookAhead);
         
         const NSTimeInterval generationTime = [NSDate timeIntervalSinceReferenceDate] - generationStartTime;
         DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (watched: %u)",
-                   generationTime, firstGenAccount, lastGenAccount - 1, watchedCount);
+                   generationTime, firstGenAccount, lastGenAccount, watchedCount);
         
         return YES;
     }
@@ -913,6 +912,21 @@
     return [self registerTransaction:transaction didGenerateNewAddresses:didGenerateNewAddresses batch:NO];
 }
 
+- (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction
+{
+    return [self unregisterTransaction:transaction batch:NO];
+}
+
+- (NSDictionary *)registerBlock:(WSStorableBlock *)block
+{
+    return [self registerBlock:block batch:NO];
+}
+
+- (NSDictionary *)unregisterBlock:(WSStorableBlock *)block
+{
+    return [self unregisterBlock:block batch:NO];
+}
+
 - (BOOL)registerTransaction:(WSSignedTransaction *)transaction didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses batch:(BOOL)batch
 {
     @synchronized (self) {
@@ -939,22 +953,19 @@
             [self notifyWithName:WSWalletDidRegisterTransactionNotification userInfo:@{WSWalletTransactionKey: transaction}];
         }
         
-        const uint32_t previousAccount = self.currentAccount;
+        const uint32_t previousExternalAccount = _currentExternalAccount;
+        const uint32_t previousInternalAccount = _currentInternalAccount;
+
         const BOOL didGenerate = [self generateAddressesIfNeeded];
         if (didGenerateNewAddresses) {
             *didGenerateNewAddresses = didGenerate;
         }
-        if (!batch && (self.currentAccount != previousAccount)) {
-            [self notifyWithName:WSWalletDidUpdateReceiveAddressNotification userInfo:nil];
+        if (!batch && ((_currentExternalAccount != previousExternalAccount) || (_currentInternalAccount != previousInternalAccount))) {
+            [self notifyWithName:WSWalletDidUpdateAddressesNotification userInfo:nil];
         }
         
         return YES;
     }
-}
-
-- (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction
-{
-    return [self unregisterTransaction:transaction batch:NO];
 }
 
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction batch:(BOOL)batch
@@ -980,11 +991,6 @@
         
         return YES;
     }
-}
-
-- (NSDictionary *)registerBlock:(WSStorableBlock *)block
-{
-    return [self registerBlock:block batch:NO];
 }
 
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block batch:(BOOL)batch
@@ -1018,11 +1024,6 @@
         }
         return updates;
     }
-}
-
-- (NSDictionary *)unregisterBlock:(WSStorableBlock *)block
-{
-    return [self unregisterBlock:block batch:NO];
 }
 
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch
@@ -1250,9 +1251,12 @@
     return @{@"_parametersType": [NSNumber class],
              @"_creationTime": [NSNumber class],
              @"_lookAhead": [NSNumber class],
-             @"_currentAccount": [NSNumber class],
              @"_txs": [NSMutableOrderedSet class],
+             @"_allExternalAddresses": [NSMutableOrderedSet class],
+             @"_allInternalAddresses": [NSMutableOrderedSet class],
              @"_usedAddresses": [NSMutableSet class],
+             @"_currentExternalAccount": [NSNumber class],
+             @"_currentInternalAccount": [NSNumber class],
              @"_metadataByTxId": [NSMutableDictionary class]};
 }
 
