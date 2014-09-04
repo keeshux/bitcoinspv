@@ -37,7 +37,7 @@
 #import "WSTransaction.h"
 #import "WSStorableBlock.h"
 
-#define WALLET_LOOK_AHEAD           4
+#define WALLET_LOOK_AHEAD           20
 
 @interface WSWalletNetworkTests : XCTestCase
 
@@ -166,6 +166,7 @@
     DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
     DDLogInfo(@"Current receive address: %@", wallet.receiveAddress);
     DDLogInfo(@"Current change address: %@", wallet.changeAddress);
+    DDLogInfo(@"Watched receive addresses: %@", wallet.watchedReceiveAddresses);
     DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);
     
     NSArray *txs = wallet.allTransactions;

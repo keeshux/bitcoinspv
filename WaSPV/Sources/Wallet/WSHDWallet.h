@@ -42,6 +42,8 @@
 - (WSSeed *)seed;
 - (NSUInteger)lookAhead;
 
+- (NSArray *)watchedReceiveAddresses; // WSAddress
+
 //
 // WARNING: mnemonic is NOT serialized and MUST be saved elsewhere
 //

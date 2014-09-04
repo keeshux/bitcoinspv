@@ -304,6 +304,14 @@
     }
 }
 
+- (NSArray *)watchedReceiveAddresses
+{
+    @synchronized (self) {
+        NSArray *addresses = [_allExternalAddresses array];
+        return [addresses subarrayWithRange:NSMakeRange(_currentExternalAccount, addresses.count - _currentExternalAccount)];
+    }
+}
+
 #pragma mark History
 
 - (NSArray *)allTransactions
