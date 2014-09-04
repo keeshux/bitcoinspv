@@ -190,19 +190,18 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 ## Known issues
 
-WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do:
+WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
 
 * Disconnect peers on timeout (sync may get stuck).
 * Checkpoints tool and serialization.
-* Establish cross-platform wallet format.
-* Support blockchain rescan.
-* Cope with [Core Data versioning](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreDataVersioning/Articles/Introduction.html).
 * Detect unpublished transactions.
-* Track known inventories.
-* Import [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) keys.
-* Support basic wallets with static keys.
-* Improve addresses generation time.
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
+* Cope with [Core Data versioning](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreDataVersioning/Articles/Introduction.html).
+* Track known inventories and "seen by # peers" informations.
+* Support blockchain rescan.
+* Import [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) keys.
+* Improve addresses generation time.
+* Support basic wallets with static keys.
 * Full multiSig support.
 
 ## Disclaimer

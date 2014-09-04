@@ -55,12 +55,12 @@
     NSUInteger _lookAhead;
 
     // serialized for convenience
-    NSMutableOrderedSet *_txs;                          // WSSignedTransaction
     NSMutableOrderedSet *_allExternalAddresses;         // WSAddress
     NSMutableOrderedSet *_allInternalAddresses;         // WSAddress
-    NSMutableSet *_usedAddresses;                       // WSAddress
     uint32_t _currentExternalAccount;
     uint32_t _currentInternalAccount;
+    NSMutableOrderedSet *_txs;                          // WSSignedTransaction
+    NSMutableSet *_usedAddresses;                       // WSAddress
     NSMutableDictionary *_metadataByTxId;               // WSHash256 -> WSTransactionMetadata
 
     // transient (sensitive)
@@ -126,12 +126,12 @@
         _creationTime = seed.creationTime;
         _lookAhead = lookAhead;
 
-        _txs = [[NSMutableOrderedSet alloc] init];
         _allExternalAddresses = [[NSMutableOrderedSet alloc] init];
         _allInternalAddresses = [[NSMutableOrderedSet alloc] init];
-        _usedAddresses = [[NSMutableSet alloc] init];
         _currentExternalAccount = 0;
         _currentInternalAccount = 0;
+        _txs = [[NSMutableOrderedSet alloc] init];
+        _usedAddresses = [[NSMutableSet alloc] init];
         _metadataByTxId = [[NSMutableDictionary alloc] init];
         
         [self rebuildTransientStructuresWithSeed:seed];
@@ -269,14 +269,14 @@
 - (WSAddress *)receiveAddress
 {
     @synchronized (self) {
-        return [[self.safeExternalChain publicChainForAccount:_currentExternalAccount internal:NO] address];
+        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] address];
     }
 }
 
 - (WSAddress *)changeAddress
 {
     @synchronized (self) {
-        return [[self.safeExternalChain publicChainForAccount:_currentInternalAccount internal:YES] address];
+        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] address];
     }
 }
 
@@ -294,13 +294,11 @@
     }
 }
 
-- (NSOrderedSet *)allAddresses
+- (NSArray *)watchedReceiveAddresses
 {
     @synchronized (self) {
-        NSMutableOrderedSet *allAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:(_allExternalAddresses.count + _allInternalAddresses.count)];
-        [allAddresses unionOrderedSet:_allExternalAddresses];
-        [allAddresses unionOrderedSet:_allInternalAddresses];
-        return allAddresses;
+        NSArray *addresses = [_allExternalAddresses array];
+        return [addresses subarrayWithRange:NSMakeRange(_currentExternalAccount, addresses.count - _currentExternalAccount)];
     }
 }
 
@@ -777,11 +775,11 @@
         
 #if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
         
-        NSUInteger capacity = 2 * self.allAddresses.count;
+        NSUInteger capacity = 2 * (_allExternalAddresses.count + _allInternalAddresses.count);
         
 #elif (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT)
         
-        NSUInteger capacity = _allAddresses.count + _unspentOutputs.count;
+        NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutputs.count;
         
 #else
         
@@ -801,9 +799,12 @@
 #if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
         
         // number of watched accounts is based on external chain
-        const uint32_t numberOfWatchedAddresses = (uint32_t)_allExternalAddresses.count;
+        NSArray *chains = @[self.safeExternalChain, self.safeInternalChain];
+        NSArray *counts = @[@(_allExternalAddresses.count), @(_allInternalAddresses.count)];
         
-        for (id<WSBIP32Keyring> chain in @[self.safeExternalChain, self.safeInternalChain]) {
+        for (NSUInteger i = 0; i < 2; ++i) {
+            id<WSBIP32Keyring> chain = chains[i];
+            const uint32_t numberOfWatchedAddresses = [counts[i] unsignedIntegerValue];
             
             for (uint32_t account = 0; account < numberOfWatchedAddresses; ++account) {
                 WSPublicKey *pubKey = [chain publicKeyForAccount:account];
@@ -820,7 +821,10 @@
 #elif (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT)
         
         // add addresses to watch for any tx receiveing money to the wallet
-        for (WSAddress *address in _allAddresses) {
+        for (WSAddress *address in _allExternalAddresses) {
+            [filter insertAddress:address];
+        }
+        for (WSAddress *address in _allInternalAddresses) {
             [filter insertAddress:address];
         }
         
@@ -896,7 +900,12 @@
             
             // relevant if outputs contain at least one wallet address
             NSMutableOrderedSet *walletReceivingAddresses = [NSMutableOrderedSet orderedSetWithSet:txOutputAddresses];
-            [walletReceivingAddresses intersectOrderedSet:self.allAddresses];
+
+#warning TODO: wallet, optimize this
+            NSMutableOrderedSet *allAddresses = [_allExternalAddresses mutableCopy];
+            [allAddresses unionOrderedSet:_allInternalAddresses];
+            [walletReceivingAddresses intersectOrderedSet:allAddresses];
+
             if (walletReceivingAddresses.count > 0) {
                 isRelevant = YES;
                 [receivingAddresses addObjectsFromArray:[walletReceivingAddresses array]];
@@ -1166,7 +1175,9 @@
             // own outputs are unspent outputs
             uint32_t index = 0;
             for (WSTransactionOutput *output in tx.outputs) {
-                if ([self.allAddresses containsObject:output.address]) {
+                if ([_allExternalAddresses containsObject:output.address] ||
+                    [_allInternalAddresses containsObject:output.address]) {
+
                     [unspentOutputs addObject:[WSTransactionOutPoint outpointWithTxId:tx.txId index:index]];
                 }
                 ++index;
@@ -1251,12 +1262,12 @@
     return @{@"_parametersType": [NSNumber class],
              @"_creationTime": [NSNumber class],
              @"_lookAhead": [NSNumber class],
-             @"_txs": [NSMutableOrderedSet class],
              @"_allExternalAddresses": [NSMutableOrderedSet class],
              @"_allInternalAddresses": [NSMutableOrderedSet class],
-             @"_usedAddresses": [NSMutableSet class],
              @"_currentExternalAccount": [NSNumber class],
              @"_currentInternalAccount": [NSNumber class],
+             @"_txs": [NSMutableOrderedSet class],
+             @"_usedAddresses": [NSMutableSet class],
              @"_metadataByTxId": [NSMutableDictionary class]};
 }
 
