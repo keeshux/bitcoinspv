@@ -62,7 +62,6 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (WSAddress *)changeAddress;
 - (NSOrderedSet *)allReceiveAddresses;      // WSAddress
 - (NSOrderedSet *)allChangeAddresses;       // WSAddress
-- (NSOrderedSet *)allAddresses;             // WSAddress
 - (WSKey *)privateKeyForAddress:(WSAddress *)address;
 - (WSPublicKey *)publicKeyForAddress:(WSAddress *)address;
 

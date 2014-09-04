@@ -66,26 +66,27 @@
 
 - (void)testGenerate
 {
-    NSArray *expAddresses = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
-                              @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
-                              @"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH",
-                              @"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo",
-                              @"mzAgd2YqsvuwN442rtrwsfT9poi8fQLheN",
-                              @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR",
-                              @"n2Rne11pvJBtpVX7KkinPcSs5JJdpLPvaz",
-                              @"mgRQ4ga3qpfNd8zmNh47AvsCoFGs6VdhNs",
-                              @"mtiLfBPihhjXywbS2zuncePvbT1CJbSykH",
-                              @"mv8RPQsf4XMh9RBBvCe1GaeCKXQSXAgj8y",
-                              @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9",
-                              @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT",
-                              @"mkW2kGUwWQmVLEhmhjXZEPpHqhXreYemh1",
-                              @"mzaFzmxd4wGSPrKGPPSJJRtEF9M2fd48EK",
-                              @"n2ih2Xu5KBXjbQWr5Ny3R1F6wYtm9CpfkK",
-                              @"mj8QJdeGp42s5ZPTmMVNhjZ73x81RaeBSC",
-                              @"mneJie5MKSomH65cFAy8RcedTUXbTCUHwm",
-                              @"miRebhcEsR9TJEnsCtS98bd41sjucyD1aP",
-                              @"mypd5z33oeNqHvkWE6ZVoxCd5aChYNeVk4",
-                              @"n4NvC9f4TEMDu6B23DE27fJnxkpddmoEGa"];
+    NSArray *expReceiveAddresses = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
+                                     @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
+                                     @"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH",
+                                     @"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo",
+                                     @"mzAgd2YqsvuwN442rtrwsfT9poi8fQLheN",
+                                     @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR",
+                                     @"n2Rne11pvJBtpVX7KkinPcSs5JJdpLPvaz",
+                                     @"mgRQ4ga3qpfNd8zmNh47AvsCoFGs6VdhNs",
+                                     @"mtiLfBPihhjXywbS2zuncePvbT1CJbSykH",
+                                     @"mv8RPQsf4XMh9RBBvCe1GaeCKXQSXAgj8y"];
+    
+    NSArray *expChangeAddresses = @[@"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9",
+                                    @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT",
+                                    @"mkW2kGUwWQmVLEhmhjXZEPpHqhXreYemh1",
+                                    @"mzaFzmxd4wGSPrKGPPSJJRtEF9M2fd48EK",
+                                    @"n2ih2Xu5KBXjbQWr5Ny3R1F6wYtm9CpfkK",
+                                    @"mj8QJdeGp42s5ZPTmMVNhjZ73x81RaeBSC",
+                                    @"mneJie5MKSomH65cFAy8RcedTUXbTCUHwm",
+                                    @"miRebhcEsR9TJEnsCtS98bd41sjucyD1aP",
+                                    @"mypd5z33oeNqHvkWE6ZVoxCd5aChYNeVk4",
+                                    @"n4NvC9f4TEMDu6B23DE27fJnxkpddmoEGa"];
 
     NSMutableArray *addresses = nil;
     
@@ -93,20 +94,34 @@
     [wallet generateAddressesIfNeeded];
 
     addresses = [[NSMutableArray alloc] init];
-    for (WSAddress *address in wallet.allAddresses) {
+    for (WSAddress *address in wallet.allReceiveAddresses) {
         [addresses addObject:address.encoded];
     }
-    DDLogInfo(@"Addresses (%d): %@", addresses.count, addresses);
-    XCTAssertEqualObjects(addresses, expAddresses);
+    DDLogInfo(@"Receive (%d): %@", addresses.count, addresses);
+    XCTAssertEqualObjects(addresses, expReceiveAddresses);
+
+    addresses = [[NSMutableArray alloc] init];
+    for (WSAddress *address in wallet.allChangeAddresses) {
+        [addresses addObject:address.encoded];
+    }
+    DDLogInfo(@"Change (%d): %@", addresses.count, addresses);
+    XCTAssertEqualObjects(addresses, expChangeAddresses);
 
     wallet = [self rehashWallet:wallet];
     
     addresses = [[NSMutableArray alloc] init];
-    for (WSAddress *address in wallet.allAddresses) {
+    for (WSAddress *address in wallet.allReceiveAddresses) {
         [addresses addObject:address.encoded];
     }
-    DDLogInfo(@"Deserialized addresses (%d): %@", addresses.count, addresses);
-    XCTAssertEqualObjects(addresses, expAddresses);
+    DDLogInfo(@"Deserialized receive (%d): %@", addresses.count, addresses);
+    XCTAssertEqualObjects(addresses, expReceiveAddresses);
+
+    addresses = [[NSMutableArray alloc] init];
+    for (WSAddress *address in wallet.allChangeAddresses) {
+        [addresses addObject:address.encoded];
+    }
+    DDLogInfo(@"Deserialized change (%d): %@", addresses.count, addresses);
+    XCTAssertEqualObjects(addresses, expChangeAddresses);
 }
 
 - (void)testAddressPrivateKey
