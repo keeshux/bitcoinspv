@@ -64,6 +64,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (NSOrderedSet *)allChangeAddresses;       // WSAddress
 - (WSKey *)privateKeyForAddress:(WSAddress *)address;
 - (WSPublicKey *)publicKeyForAddress:(WSAddress *)address;
+- (BOOL)isWalletAddress:(WSAddress *)address;
 
 // history
 - (NSArray *)allTransactions; // recent first

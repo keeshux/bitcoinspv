@@ -71,8 +71,8 @@
     // transient (not sensitive)
     NSString *_path;
     NSMutableDictionary *_txsById;                      // WSHash256 -> WSSignedTransaction
-    NSSet *_spentOutputs;                               // WSTransactionOutPoint
-    NSOrderedSet *_unspentOutputs;                      // WSTransactionOutPoint
+    NSSet *_spentOutpoints;                             // WSTransactionOutPoint
+    NSOrderedSet *_unspentOutpoints;                    // WSTransactionOutPoint
     NSSet *_invalidTxIds;                               // WSHash256
     uint64_t _balance;
     uint64_t _confirmedBalance;
@@ -302,6 +302,13 @@
     }
 }
 
+- (BOOL)isWalletAddress:(WSAddress *)address
+{
+    @synchronized (self) {
+        return ([_allExternalAddresses containsObject:address] || [_allInternalAddresses containsObject:address]);
+    }
+}
+
 #pragma mark History
 
 - (NSArray *)allTransactions
@@ -503,7 +510,7 @@
         uint64_t gathered = 0;
         uint64_t effectiveFee = 0;
 
-        for (WSTransactionOutPoint *utxo in _unspentOutputs) {
+        for (WSTransactionOutPoint *utxo in _unspentOutpoints) {
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
             
@@ -554,7 +561,7 @@
         WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
         uint64_t gathered = 0;
 
-        for (WSTransactionOutPoint *utxo in _unspentOutputs) {
+        for (WSTransactionOutPoint *utxo in _unspentOutpoints) {
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
             
@@ -1149,46 +1156,45 @@
 - (void)recalculateSpendsAndBalance
 {
     @synchronized (self) {
-        NSMutableSet *spentOutputs = [[NSMutableSet alloc] init];
-        NSMutableOrderedSet *unspentOutputs = [[NSMutableOrderedSet alloc] init];
+        NSMutableSet *spentOutpoints = [[NSMutableSet alloc] init];
+        NSMutableOrderedSet *unspentOutpoints = [[NSMutableOrderedSet alloc] init];
         NSMutableSet *invalidTxIds = [[NSMutableSet alloc] init];
         
         for (WSSignedTransaction *tx in [_txs reverseObjectEnumerator]) {
-            NSMutableSet *spentTxOutputs = [[NSMutableSet alloc] init];
+            NSMutableSet *spentTxOutpoints = [[NSMutableSet alloc] init];
             
             // inputs are spent outputs
             for (WSSignedTransactionInput *input in tx.inputs) {
-                [spentTxOutputs addObject:input.outpoint];
+                [spentTxOutpoints addObject:input.outpoint];
             }
             
             // if tx is unconfirmed, invalidate on (double-spent input OR input from invalid tx output)
             WSTransactionMetadata *metadata = _metadataByTxId[tx.txId];
             if (!metadata.parentBlockId &&
-                ([spentTxOutputs intersectsSet:spentOutputs] || [tx.inputTxIds intersectsSet:invalidTxIds])) {
+                ([spentTxOutpoints intersectsSet:spentOutpoints] || [tx.inputTxIds intersectsSet:invalidTxIds])) {
                 
                 [invalidTxIds addObject:tx.txId];
                 continue;
             }
             
-            [spentOutputs unionSet:spentTxOutputs];
+            [spentOutpoints unionSet:spentTxOutpoints];
             
             // own outputs are unspent outputs
             uint32_t index = 0;
             for (WSTransactionOutput *output in tx.outputs) {
-                if ([_allExternalAddresses containsObject:output.address] ||
-                    [_allInternalAddresses containsObject:output.address]) {
-
-                    [unspentOutputs addObject:[WSTransactionOutPoint outpointWithTxId:tx.txId index:index]];
+                WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithTxId:tx.txId index:index];
+                if ([self isWalletAddress:output.address] && ![spentOutpoints containsObject:outpoint]) {
+                    [unspentOutpoints addObject:outpoint];
                 }
                 ++index;
             }
         }
         
-        [unspentOutputs minusSet:spentOutputs];
+        [unspentOutpoints minusSet:spentOutpoints];
         
         uint64_t balance = 0;
         uint64_t confirmedBalance = 0;
-        for (WSTransactionOutPoint *outpoint in unspentOutputs) {
+        for (WSTransactionOutPoint *outpoint in unspentOutpoints) {
             WSSignedTransaction *tx = _txsById[outpoint.txId];
             WSTransactionOutput *output = [tx outputAtIndex:outpoint.index];
             
@@ -1201,8 +1207,8 @@
         }
         
         _invalidTxIds = invalidTxIds;
-        _spentOutputs = spentOutputs;
-        _unspentOutputs = unspentOutputs;
+        _spentOutpoints = spentOutpoints;
+        _unspentOutpoints = unspentOutpoints;
 
         BOOL shouldNotify = NO;
         if (balance != _balance) {
