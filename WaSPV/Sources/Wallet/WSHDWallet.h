@@ -38,9 +38,9 @@
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
 - (instancetype)initWithSeed:(WSSeed *)seed;
-- (instancetype)initWithSeed:(WSSeed *)seed lookAhead:(NSUInteger)lookAhead;
+- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
 - (WSSeed *)seed;
-- (NSUInteger)lookAhead;
+- (NSUInteger)gapLimit;
 
 - (NSArray *)watchedReceiveAddresses; // WSAddress
 

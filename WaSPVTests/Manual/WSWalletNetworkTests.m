@@ -37,7 +37,7 @@
 #import "WSTransaction.h"
 #import "WSStorableBlock.h"
 
-#define WALLET_LOOK_AHEAD           20
+#define WALLET_GAP_LIMIT            10
 
 @interface WSWalletNetworkTests : XCTestCase
 
@@ -126,7 +126,7 @@
 
     WSHDWallet *wallet = [self loadWalletFromCurrentPath];
     if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed] lookAhead:WALLET_LOOK_AHEAD];
+        wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed] gapLimit:WALLET_GAP_LIMIT];
         [wallet saveToPath:self.currentWalletPath];
         wallet.shouldAutosave = YES;
     }

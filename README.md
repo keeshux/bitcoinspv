@@ -158,7 +158,7 @@ However, mnemonics in WaSPV are usually wrapped in a `WSSeed` object that also c
 
 ### Hierarchical deterministic wallets
 
-HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class and built from a `WSSeed` object with an optional number of look-ahead addresses (default is 20). The look-ahead makes sync more efficient because it prevents Bloom filter from being reloaded each time a transaction consumes a new receive address.
+HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class and built from a `WSSeed` object with an optional gap limit (default is 10). An additional set of look-ahead addresses is also pregenerated internally to prevent Bloom filter from being reloaded each time a transaction consumes a new address.
 
 It's worth noting that the seed mnemonic is a *very* sensitive information -it technically holds all your coins- and as such it's not serialized with the `[WSWallet saveToPath:]` method: this means you must store it elsewhere, e.g. in the keychain. The mnemonic will be vital to restore later a serialized wallet with the `[WSHDWallet loadFromPath:mnemonic:]` method.
 

@@ -109,7 +109,7 @@
 
 - (void)testGeneration
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed lookAhead:50];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:25];
 
     NSArray *expReceives = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
                              @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
@@ -149,7 +149,7 @@
 
 - (void)testGenerationUsedAddresses
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed lookAhead:4];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:2];
     DDLogInfo(@"");
 
     NSMutableSet *usedAddresses = [wallet valueForKey:@"_usedAddresses"];

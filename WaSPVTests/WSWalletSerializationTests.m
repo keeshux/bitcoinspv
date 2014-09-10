@@ -31,7 +31,7 @@
 #import "WSKey.h"
 #import "WSAddress.h"
 
-#define WALLET_LOOK_AHEAD           10
+#define WALLET_GAP_LIMIT            5
 
 @interface WSWalletSerializationTests : XCTestCase
 
@@ -55,7 +55,7 @@
 
     NSString *mnemonic = [self mockWalletMnemonic];
     WSSeed *seed = WSSeedMakeNow(mnemonic);
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed lookAhead:WALLET_LOOK_AHEAD];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:WALLET_GAP_LIMIT];
     [self saveWallet:wallet];
 }
 

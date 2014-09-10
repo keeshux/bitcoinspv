@@ -52,7 +52,7 @@
     // essential backup data
     WSParametersType _parametersType;
     NSTimeInterval _creationTime;
-    NSUInteger _lookAhead;
+    NSUInteger _gapLimit;
 
     // serialized for convenience
     NSMutableOrderedSet *_allExternalAddresses;         // WSAddress
@@ -113,18 +113,18 @@
 
 - (instancetype)initWithSeed:(WSSeed *)seed
 {
-    return [self initWithSeed:seed lookAhead:WSHDWalletDefaultLookAhead];
+    return [self initWithSeed:seed gapLimit:WSHDWalletDefaultGapLimit];
 }
 
-- (instancetype)initWithSeed:(WSSeed *)seed lookAhead:(NSUInteger)lookAhead
+- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit
 {
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
-    WSExceptionCheckIllegal(lookAhead > 0, @"Non-positive lookAhead");
+    WSExceptionCheckIllegal(gapLimit > 0, @"Non-positive gapLimit");
     
     if ((self = [self init])) {
         _parametersType = WSParametersGetCurrentType();
         _creationTime = seed.creationTime;
-        _lookAhead = lookAhead;
+        _gapLimit = gapLimit;
 
         _allExternalAddresses = [[NSMutableOrderedSet alloc] init];
         _allInternalAddresses = [[NSMutableOrderedSet alloc] init];
@@ -146,10 +146,10 @@
     }
 }
 
-- (NSUInteger)lookAhead
+- (NSUInteger)gapLimit
 {
     @synchronized (self) {
-        return _lookAhead;
+        return _gapLimit;
     }
 }
 
@@ -740,32 +740,38 @@
         DDLogDebug(@"Used %u/%u accounts", numberOfUsedAddresses, targetAddresses.count);
         DDLogDebug(@"Current account set to first unused account (%u)", *currentAccount);
         
-        const NSUInteger available = targetAddresses.count - numberOfUsedAddresses;
+        // generate more addresses than gap limit to avoid regenerating each time a new single address is used
+        const NSUInteger lookAhead = 2 * _gapLimit;
+
         if (forced) {
-            DDLogDebug(@"Forcing generation of %u look-ahead addresses", _lookAhead);
+            DDLogDebug(@"Forcing generation of %u look-ahead addresses (2 * gap limit)", lookAhead);
         }
         else {
-            if (available > 0) {
-                DDLogDebug(@"Still %u available addresses, skipping generation", available);
+            const NSUInteger available = targetAddresses.count - numberOfUsedAddresses;
+            if (available >= _gapLimit) {
+                DDLogDebug(@"Still more available addresses than gap limit (%u >= %u), skipping generation",
+                           available, _gapLimit);
+
                 return NO;
             }
             else {
-                DDLogDebug(@"All available addresses were used, reestablish look-ahead (%u)", _lookAhead);
+                DDLogDebug(@"All available addresses were used, reestablish look-ahead (2 * gap limit = %u)",
+                           lookAhead);
             }
         }
         
         const NSTimeInterval generationStartTime = [NSDate timeIntervalSinceReferenceDate];
         
         const NSUInteger firstGenAccount = targetAddresses.count;
-        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + _lookAhead; // excluded
+        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + lookAhead; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
             WSAddress *address = [[targetChain publicKeyForAccount:i] address];
             [targetAddresses addObject:address];
         }
         
         const NSUInteger watchedCount = lastGenAccount - *currentAccount;
-        NSAssert(watchedCount == _lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)",
-                 watchedCount, _lookAhead);
+        NSAssert(watchedCount == lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)",
+                 watchedCount, lookAhead);
         
         const NSTimeInterval generationTime = [NSDate timeIntervalSinceReferenceDate] - generationStartTime;
         DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (watched: %u)",
@@ -1267,7 +1273,7 @@
 {
     return @{@"_parametersType": [NSNumber class],
              @"_creationTime": [NSNumber class],
-             @"_lookAhead": [NSNumber class],
+             @"_gapLimit": [NSNumber class],
              @"_allExternalAddresses": [NSMutableOrderedSet class],
              @"_allInternalAddresses": [NSMutableOrderedSet class],
              @"_currentExternalAccount": [NSNumber class],
