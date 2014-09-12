@@ -109,6 +109,7 @@
 @property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
 @property (nonatomic, strong) NSMutableOrderedSet *currentFilteredTransactions;
+@property (nonatomic, assign) NSUInteger filteredBlockCount;
 
 // protocol
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions;
@@ -494,12 +495,29 @@
         }
     }
 
+    BOOL shouldRebuildBloomFilter = NO;
+
     @synchronized (self) {
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
+
+        DDLogDebug(@"%@ Filtered %u blocks so far (limit: %u)", self, _filteredBlockCount, WSPeerMaxFilteredBlockCount);
+        
+        if (_filteredBlockCount >= WSPeerMaxFilteredBlockCount) {
+            DDLogDebug(@"%@ Bloom filter is outdated after %u blocks, rebuilding now", self, _filteredBlockCount);
+            shouldRebuildBloomFilter = YES;
+        }
+        else {
+            DDLogDebug(@"%@ Bloom filter doesn't need a rebuild, filtered count still below limit", self);
+            _filteredBlockCount += blockHashes.count;
+        }
     }
 
     dispatch_async(self.connectionQueue, ^{
+        if (shouldRebuildBloomFilter) {
+            [self.delegate peerDidRequestRebuiltFilter:self];
+        }
+
         [self unsafeSendMessage:[WSMessageGetdata messageWithInventories:inventories]];
         if (willRequestFilteredBlocks) {
             [self unsafeSendMessage:[WSMessagePing message]];
@@ -592,6 +610,9 @@
     WSExceptionCheckIllegal(filter != nil, @"Nil filter");
 
     dispatch_async(self.connectionQueue, ^{
+        @synchronized (self) {
+            _filteredBlockCount = 0;
+        }
         [self unsafeSendMessage:[WSMessageFilterload messageWithFilter:filter]];
     });
 }

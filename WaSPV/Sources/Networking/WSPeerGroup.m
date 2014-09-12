@@ -181,6 +181,9 @@
         self.keepDownloading = NO;
         self.downloadPeer = nil;
         self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
+#if WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT
+        self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
+#endif
         self.bloomFilterUpdateHeight = 0;
         [self rebuildBloomFilter];
         
@@ -1084,6 +1087,11 @@
     DDLogDebug(@"Received Bloom filter rebuild request from %@", peer);
 
     @synchronized (self.queue) {
+        if (self.bloomFilterParameters.flags == WSBIP37FlagsUpdateNone) {
+            DDLogDebug(@"Bloom filter is static and doesn't need a rebuild (flags: UPDATE_NONE)");
+            return;
+        }
+        
         [self rebuildBloomFilter];
         [peer sendFilterloadMessageWithFilter:self.bloomFilter];
     }

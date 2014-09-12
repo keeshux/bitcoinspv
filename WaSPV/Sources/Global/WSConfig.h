@@ -56,6 +56,7 @@ extern const NSTimeInterval     WSPeerWriteTimeout;
 extern const uint32_t           WSPeerProtocol;
 extern const uint32_t           WSPeerMinProtocol;
 extern const NSUInteger         WSPeerEnabledServices;
+extern const NSUInteger         WSPeerMaxFilteredBlockCount;
 
 extern const NSUInteger         WSPeerGroupMaxConnections;
 extern const NSUInteger         WSPeerGroupMaxConnectionFailures;
