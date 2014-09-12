@@ -792,7 +792,7 @@
         
 #elif (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT)
         
-        NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutputs.count;
+        NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutpoints.count;
         
 #else
         
@@ -842,7 +842,7 @@
         }
         
         // add unspent outputs to watch for any tx sending money from the wallet
-        for (WSTransactionOutPoint *unspent in _unspentOutputs) {
+        for (WSTransactionOutPoint *unspent in _unspentOutpoints) {
             [filter insertUnspent:unspent];
         }
         
