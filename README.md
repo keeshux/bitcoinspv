@@ -24,7 +24,7 @@ Website: [davidederosa.com](http://davidederosa.com)
 
 WaSPV is *free* software, donations are extremely welcome.
 
-Address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
+Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
 
 ## Installation
 
