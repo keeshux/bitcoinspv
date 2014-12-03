@@ -765,7 +765,7 @@
         const NSUInteger firstGenAccount = targetAddresses.count;
         const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + lookAhead; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
-            WSAddress *address = [[targetChain publicKeyForAccount:i] address];
+            WSAddress *address = [[targetChain publicKeyForAccount:(uint32_t)i] address];
             [targetAddresses addObject:address];
         }
         
