@@ -240,7 +240,7 @@
 {
     NSUInteger localM, localN;
     if (![self isPay2MultiSigWithM:&localM N:&localN]) {
-        return NO;
+        return nil;
     }
     
     NSMutableArray *pubKeys = [[NSMutableArray alloc] initWithCapacity:localN];
