@@ -499,6 +499,9 @@
 
                 @synchronized (self.queue) {
                     for (NSData *rawBytes in rawAddresses) {
+                        if (rawBytes.length != sizeof(struct sockaddr_in)) {
+                            continue;
+                        }
                         struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
                         const uint32_t address = rawAddress->sin_addr.s_addr;
                         NSString *host = WSNetworkHostFromIPv4(address);
@@ -509,7 +512,7 @@
                     }
                 }
 
-                DDLogDebug(@"Retained %u resolved addresses (pruned known from inactive)", rawAddresses.count);
+                DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
 
                 //
                 // IMPORTANT: trigger callback even with empty hosts, function caller
