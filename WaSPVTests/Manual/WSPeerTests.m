@@ -75,7 +75,7 @@
     struct hostent *entries = gethostbyname(dnsSeed.UTF8String);
     XCTAssertTrue((entries != NULL) && (entries->h_length > 0), @"Peer lookup failed");
     
-    for (int i = 0; i < entries->h_length; ++i) {
+    for (int i = 0; entries->h_addr_list[i]; ++i) {
         struct in_addr *addressPtr = (struct in_addr *)entries->h_addr_list[i];
         NSString *host = [NSString stringWithUTF8String:inet_ntoa(*addressPtr)];
         DDLogInfo(@"\t%@", host);
