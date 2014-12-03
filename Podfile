@@ -1,3 +1,6 @@
+source 'https://github.com/CocoaPods/Specs.git'
+link_with 'WaSPVTests', 'WaSPVDemo'
+
 pod 'OpenSSL-Universal', '~> 1.0.1.h'
 pod 'CocoaLumberjack', '~> 1.9.0'
 pod 'AutoCoding', '~> 2.2'
