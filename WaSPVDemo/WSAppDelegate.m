@@ -223,8 +223,8 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 - (void)printWallet
 {
     DDLogInfo(@"Balance: %llu", self.wallet.balance);
-    DDLogInfo(@"Addresses: %@", self.wallet.allAddresses);
-    DDLogInfo(@"Current address: %@", self.wallet.receiveAddress);
+    DDLogInfo(@"Receive addresses: %@", self.wallet.allReceiveAddresses);
+    DDLogInfo(@"Current receive address: %@", self.wallet.receiveAddress);
     DDLogInfo(@"Transactions: %@", self.wallet.allTransactions);
 }
 
