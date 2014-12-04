@@ -46,7 +46,7 @@
 @property (nonatomic, assign) volatile BOOL stopOnSync;
 
 - (id<WSBlockStore>)memoryStore;
-- (id<WSBlockStore>)persistentStore;
+- (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating;
 
 @end
 
@@ -152,11 +152,11 @@
 - (void)testPersistentStoredHeads
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
-    self.store = [self persistentStore];
+    self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Test: %@", self.store.head);
 
     WSParametersSetCurrentType(WSParametersTypeMain);
-    self.store = [self persistentStore];
+    self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Main: %@", self.store.head);
 }
 
@@ -178,14 +178,12 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
     
-    //    // WARNING: check this, clears all blockchain store!
-    //    [self.currentManager truncate];
-    
-    self.store = [self persistentStore];
+    // WARNING: check this, may clear all blockchain store!
+    self.store = [self persistentStoreTruncating:YES];
     self.stopOnSync = YES;
     
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool];
-    peerGroup.maxConnections = 5;
+    peerGroup.maxConnections = 1;
     [peerGroup startConnections];
     [peerGroup startBlockChainDownload];
     
@@ -196,12 +194,10 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
     
-//    // WARNING: check this, clears all blockchain store!
-//    [self.currentManager truncate];
-    
-    self.store = [self persistentStore];
+    // WARNING: check this, may clear all blockchain store!
+    self.store = [self persistentStoreTruncating:NO];
     self.stopOnSync = YES;
-    
+
     // = ?, headers should stop at #266668
     const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-04");
 //    const uint32_t timestamp = 0;
@@ -246,7 +242,7 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
 
-    self.store = [self persistentStore];
+    self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Head: %@", [self.store head]);
 }
 
@@ -254,7 +250,7 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
     
-    self.store = [self persistentStore];
+    self.store = [self persistentStoreTruncating:NO];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.store];
     DDLogInfo(@"Chain: %@", [chain descriptionWithMaxBlocks:50]);
 }
@@ -263,7 +259,7 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
     
-    self.store = [self persistentStore];
+    self.store = [self persistentStoreTruncating:NO];
     
     WSHash256 *blockId = WSHash256FromHex(@"0000000000006a4ac43153c23121f95ce7cced8e18abcf6ece0235e6435472f5");
     WSStorableBlock *block = [self.store blockForId:blockId];
@@ -281,7 +277,7 @@
 //{
 //    WSParametersSetCurrentType(WSParametersTypeTestnet3);
 //
-//    self.store = [self persistentStore];
+//    self.store = [self persistentStoreTruncating:NO];
 //
 //    // considering:
 //    //
@@ -353,15 +349,13 @@
 
 - (void)privateTestPersistentWithFCU
 {
-//    // WARNING: check this, clears all blockchain store!
-//    [self.currentManager truncate];
-    
-    self.store = [self persistentStore];
+    // WARNING: check this, may clear all blockchain store!
+    self.store = [self persistentStoreTruncating:NO];
     self.stopOnSync = YES;
+
     const uint32_t timestamp = WSTimestampFromISODate(@"2013-02-09");
-    
     DDLogInfo(@"Catch-up: %u", timestamp);
-    
+
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
@@ -372,7 +366,8 @@
 
 - (void)privateTestPersistentStoredWork
 {
-    self.store = [self persistentStore];
+    // WARNING: check this, may clear all blockchain store!
+    self.store = [self persistentStoreTruncating:NO];
     
     DDLogInfo(@"Head: %@", self.store.head);
     
@@ -402,7 +397,7 @@
     return [[WSMemoryBlockStore alloc] initWithGenesisBlock];
 }
 
-- (id<WSBlockStore>)persistentStore
+- (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating
 {
     NSString *path = nil;
     if (WSParametersGetCurrentType() == WSParametersTypeMain) {
@@ -412,6 +407,9 @@
         path = self.testPath;
     }
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
+    if (truncating) {
+        [manager truncate];
+    }
     return [[WSCoreDataBlockStore alloc] initWithManager:manager];
 }
 
