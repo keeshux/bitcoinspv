@@ -69,6 +69,7 @@
     if ((self = [super init])) {
         self.store = blockStore;
         self.orphans = [[NSMutableDictionary alloc] init];
+        self.pruneAtTransitions = YES;
 
         //
         // test networks (testnet3/regtest) validates blocks in
@@ -209,7 +210,9 @@
         [self.store setHead:newHead];
 
 #warning XXX: is this really safe?
-        [self pruneBlocksIfAtTransition];
+        if (self.pruneAtTransitions) {
+            [self pruneBlocksIfAtTransition];
+        }
 
         [self.delegate blockChain:self didAddNewBlock:newHead];
 
