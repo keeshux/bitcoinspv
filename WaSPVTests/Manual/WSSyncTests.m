@@ -106,6 +106,19 @@
     [super tearDown];
 }
 
+- (void)testMemory
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    self.store = [self memoryStore];
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool];
+    peerGroup.maxConnections = 1;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    [self runForever];
+}
+
 - (void)testMemoryWithFCU
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
