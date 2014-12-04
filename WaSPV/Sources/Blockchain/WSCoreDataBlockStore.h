@@ -36,5 +36,6 @@
 @interface WSCoreDataBlockStore : NSObject <WSBlockStore>
 
 - (instancetype)initWithManager:(WSCoreDataManager *)manager;
+- (WSCoreDataManager *)manager;
 
 @end
