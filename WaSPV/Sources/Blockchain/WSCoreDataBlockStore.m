@@ -87,7 +87,7 @@
                 [headEntity copyFromStorableBlock:self.head];
             }
             else {
-                WSStorableBlockEntity *headEntity = blockEntities[0];
+                WSStorableBlockEntity *headEntity = [blockEntities firstObject];
                 self.head = [headEntity toStorableBlock];
 
                 for (WSStorableBlockEntity *blockEntity in blockEntities) {
