@@ -66,6 +66,7 @@
 
     self.pool = [[WSConnectionPool alloc] init];
     self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
+    self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin;
     DDLogInfo(@"Bloom filter parameters: %@", self.bloomFilterParameters);
 
     NSString *dnsSeed = [WSCurrentParameters dnsSeeds][0];
@@ -85,7 +86,9 @@
         [addresses addObject:host];
     }
 
-    self.peer = [self.pool openConnectionToPeerHost:addresses[mrand48() % addresses.count]];
+    NSString *address = addresses[mrand48() % addresses.count];
+//    NSString *address = @"54.173.19.184";
+    self.peer = [self.pool openConnectionToPeerHost:address];
 }
 
 - (void)tearDown
