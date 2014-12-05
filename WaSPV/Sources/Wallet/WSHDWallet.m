@@ -828,6 +828,8 @@
 
 - (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
 {
+    WSExceptionCheckIllegal(bloomFilter != nil, @"Nil bloomFilter");
+    
     @synchronized (self) {
         NSArray *chains = @[self.safeExternalChain, self.safeInternalChain];
         NSArray *counts = @[@(_allExternalAddresses.count), @(_allInternalAddresses.count)];
