@@ -32,6 +32,7 @@
 #import "WSPeerGroup.h"
 #import "WSConnectionPool.h"
 #import "WSWallet.h"
+#import "WSHDWallet.h"
 #import "WSHash256.h"
 #import "WSCheckpoint.h"
 #import "WSPeer.h"
@@ -93,7 +94,7 @@
 
 - (void)loadFilterAndStartDownload;
 - (void)rebuildBloomFilter;
-- (void)rebuildAndSendBloomFilter;
+- (BOOL)maybeRebuildAndSendBloomFilter;
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
@@ -727,10 +728,27 @@
     }
 }
 
-- (void)rebuildAndSendBloomFilter
+- (BOOL)maybeRebuildAndSendBloomFilter
 {
     @synchronized (self.queue) {
-        DDLogDebug(@"Rebuilding Bloom filter");
+        DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
+                   self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+        
+        if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
+            DDLogDebug(@"Wallet is still covered by current Bloom filter, not rebuilding");
+            return NO;
+        }
+        
+        DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, rebuilding now");
+
+        if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
+            WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
+
+            DDLogDebug(@"HD wallet: generating %u look-ahead addresses", hdWallet.gapLimit);
+            [hdWallet generateAddressesWithLookAhead:hdWallet.gapLimit];
+            DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
+        }
+
         [self rebuildBloomFilter];
         
         if (![self isSynced]) {
@@ -743,6 +761,7 @@
                 [peer sendFilterloadMessageWithFilter:self.bloomFilter];
             }
         }
+        return YES;
     }
 }
 
@@ -1151,11 +1170,11 @@
     
     // transactions should already exist in wallet, no new addresses should be generated
     if (didGenerateNewAddresses) {
-        DDLogWarn(@"Block registering triggered (unexpected) new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
-                  self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+        DDLogWarn(@"Block registration triggered (unexpected) new addresses generation");
         
-        [self rebuildAndSendBloomFilter];
-        [peer requestOutdatedBlocks];
+        if ([self maybeRebuildAndSendBloomFilter]) {
+            [peer requestOutdatedBlocks];
+        }
     }
 }
 
@@ -1174,11 +1193,11 @@
     }
     
     if (didGenerateNewAddresses) {
-        DDLogDebug(@"Last transaction triggered new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
-                   self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+        DDLogDebug(@"Last transaction triggered new addresses generation");
         
-        [self rebuildAndSendBloomFilter];
-        [peer requestOutdatedBlocks];
+        if ([self maybeRebuildAndSendBloomFilter]) {
+            [peer requestOutdatedBlocks];
+        }
     }
 }
 
@@ -1216,11 +1235,11 @@
     [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
     
     if (didGenerateNewAddresses) {
-        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
-                  self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
 
-        [self rebuildAndSendBloomFilter];
-        [peer requestOutdatedBlocks];
+        if ([self maybeRebuildAndSendBloomFilter]) {
+            [peer requestOutdatedBlocks];
+        }
     }
 }
 
