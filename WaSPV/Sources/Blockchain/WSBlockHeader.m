@@ -95,7 +95,7 @@
     if (![self isComplete]) {
         return nil;
     }
-    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:(WSBlockHeaderLength - 1)];
+    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:(WSBlockHeaderSize - 1)];
     [buffer appendUint32:self.version];
     [buffer appendHash256:self.previousBlockId];
     [buffer appendHash256:self.merkleRoot];
@@ -251,7 +251,7 @@
 
 - (WSBuffer *)toBuffer
 {
-    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:WSBlockHeaderLength];
+    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:WSBlockHeaderSize];
     [self appendToMutableBuffer:buffer];
     return buffer;
 }
@@ -260,8 +260,8 @@
 
 - (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if (available < WSBlockHeaderLength) {
-        WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderLength);
+    if (available < WSBlockHeaderSize) {
+        WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);
         return nil;
     }
     NSUInteger offset = from;

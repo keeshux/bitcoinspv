@@ -56,9 +56,9 @@ const NSUInteger        WSInventoryLength                       = 36;
 
 #pragma mark - Blocks
 
-const NSUInteger        WSBlockHeaderLength                     = 81;
-const NSUInteger        WSBlockMaxLength                        = 1 * 1000 * 1000;
-const NSUInteger        WSFilteredBlockBaseLength               = (WSBlockHeaderLength - 1 + 4);
+const NSUInteger        WSBlockHeaderSize                       = 81;
+const NSUInteger        WSBlockMaxSize                          = 1 * 1000 * 1000;
+const NSUInteger        WSFilteredBlockBaseSize                 = (WSBlockHeaderSize - 1 + 4);
 const uint32_t          WSBlockAllowedTimeDrift                 = 2 * WSDatesOneHour;   // the furthest in the future a block is allowed to be timestamped
 
 #pragma mark - Transactions
