@@ -99,13 +99,18 @@
 
 - (BOOL)truncateWithError:(NSError *__autoreleasing *)error
 {
-    if (![self.coordinator removePersistentStore:self.store error:error]) {
-        return NO;
+    NSError *localError;
+    const BOOL result = ([self.coordinator removePersistentStore:self.store error:&localError] &&
+                         [[NSFileManager defaultManager] removeItemAtPath:self.path error:&localError] &&
+                         [self createPersistentStoreWithError:&localError]);
+    
+    if (!result) {
+        DDLogError(@"Core Data error while truncating store (%@)", localError);
+        if (error) {
+            *error = localError;
+        }
     }
-    if (![[NSFileManager defaultManager] removeItemAtPath:self.path error:error]) {
-        return NO;
-    }
-    return [self createPersistentStoreWithError:error];
+    return result;
 }
 
 @end
