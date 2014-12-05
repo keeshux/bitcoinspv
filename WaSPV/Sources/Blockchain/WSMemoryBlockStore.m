@@ -51,20 +51,14 @@
 
 - (instancetype)init
 {
-    if ((self = [super init])) {
-        self.blocks = [[NSMutableDictionary alloc] init];
-        self.txIdsToBlocks = [[NSMutableDictionary alloc] init];
-    }
-    return self;
+    WSExceptionRaiseUnsupported(@"Use initWithGenesisBlock");
+    return nil;
 }
 
 - (instancetype)initWithGenesisBlock
 {
-    if ((self = [self init])) {
-        WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
-        WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
-        [self putBlock:block];
-        self.head = block;
+    if ((self = [super init])) {
+        [self truncate];
     }
     return self;
 }
@@ -151,6 +145,17 @@
 - (BOOL)save
 {
     return YES;
+}
+
+- (void)truncate
+{
+    self.blocks = [[NSMutableDictionary alloc] init];
+    self.txIdsToBlocks = [[NSMutableDictionary alloc] init];
+    
+    WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
+    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
+    [self putBlock:block];
+    self.head = block;
 }
 
 @end

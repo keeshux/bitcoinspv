@@ -48,5 +48,6 @@
 - (WSStorableBlock *)head;
 - (void)setHead:(WSStorableBlock *)head;
 - (BOOL)save;
+- (void)truncate;
 
 @end

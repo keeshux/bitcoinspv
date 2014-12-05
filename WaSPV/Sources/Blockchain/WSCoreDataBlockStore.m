@@ -50,12 +50,19 @@
 @property (nonatomic, strong) NSMutableDictionary *cachedBlockEntities;         // NSData -> WSStorableBlockEntity
 @property (nonatomic, strong) NSMutableDictionary *cachedTxIdsToBlockEntities;  // NSData -> WSStorableBlockEntity
 
+- (void)unsafeInsertGenesisBlock;
 - (WSStorableBlockEntity *)unsafeBlockEntityForIdData:(NSData *)blockIdData;
 - (WSTransactionEntity *)unsafeTransactionEntityForIdData:(NSData *)txIdData;
 
 @end
 
 @implementation WSCoreDataBlockStore
+
+- (instancetype)init
+{
+    WSExceptionRaiseUnsupported(@"Use initWithManager:");
+    return nil;
+}
 
 - (instancetype)initWithManager:(WSCoreDataManager *)manager
 {
@@ -80,11 +87,7 @@
             }
 
             if (blockEntities.count == 0) {
-                WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
-                self.head = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
-
-                WSStorableBlockEntity *headEntity = [[WSStorableBlockEntity alloc] initWithContext:self.manager.context];
-                [headEntity copyFromStorableBlock:self.head];
+                [self unsafeInsertGenesisBlock];
             }
             else {
                 WSStorableBlockEntity *headEntity = [blockEntities firstObject];
@@ -225,7 +228,30 @@
     return YES;
 }
 
+- (void)truncate
+{
+    DDLogInfo(@"Truncating store at %@", self.manager.path);
+
+    [self.manager truncate];
+
+    self.cachedBlockEntities = [[NSMutableDictionary alloc] init];
+    self.cachedTxIdsToBlockEntities = [[NSMutableDictionary alloc] init];
+
+    [self.manager.context performBlockAndWait:^{
+        [self unsafeInsertGenesisBlock];
+    }];
+}
+
 #pragma mark Helpers
+
+- (void)unsafeInsertGenesisBlock
+{
+    WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
+    self.head = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
+    
+    WSStorableBlockEntity *headEntity = [[WSStorableBlockEntity alloc] initWithContext:self.manager.context];
+    [headEntity copyFromStorableBlock:self.head];
+}
 
 - (WSStorableBlockEntity *)unsafeBlockEntityForIdData:(NSData *)blockIdData
 {
