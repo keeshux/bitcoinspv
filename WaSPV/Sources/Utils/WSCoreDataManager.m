@@ -94,9 +94,18 @@
 
 - (void)truncate
 {
-    [self.coordinator removePersistentStore:self.store error:NULL];
-    [[NSFileManager defaultManager] removeItemAtPath:self.path error:NULL];
-    [self createPersistentStoreWithError:NULL];
+    [self truncateWithError:NULL];
+}
+
+- (BOOL)truncateWithError:(NSError *__autoreleasing *)error
+{
+    if (![self.coordinator removePersistentStore:self.store error:error]) {
+        return NO;
+    }
+    if (![[NSFileManager defaultManager] removeItemAtPath:self.path error:error]) {
+        return NO;
+    }
+    return [self createPersistentStoreWithError:error];
 }
 
 @end

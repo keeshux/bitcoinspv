@@ -34,6 +34,7 @@
 - (NSString *)path;
 - (NSManagedObjectContext *)context;
 - (void)truncate;
+- (BOOL)truncateWithError:(NSError **)error;
 
 @end
 
