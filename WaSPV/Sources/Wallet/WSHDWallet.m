@@ -1029,7 +1029,12 @@
     @synchronized (self) {
         WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
         
-        if (_txsById[transaction.txId] || ![self isRelevantTransaction:transaction savingReceivingAddresses:_usedAddresses]) {
+        if (_txsById[transaction.txId]) {
+            DDLogDebug(@"Ignored wallet transaction %@ (already registered)", transaction.txId);
+            return NO;
+        }
+        if (![self isRelevantTransaction:transaction savingReceivingAddresses:_usedAddresses]) {
+            DDLogDebug(@"Ignored wallet transaction %@ (not relevant)", transaction.txId);
             return NO;
         }
         if (didGenerateNewAddresses) {
@@ -1312,6 +1317,7 @@
         DDLogDebug(@"Removing %u wallet transactions", _txs.count);
         
         [_txs removeAllObjects];
+        [_txsById removeAllObjects];
         [_usedAddresses removeAllObjects];
         [_metadataByTxId removeAllObjects];
         

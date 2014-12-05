@@ -44,6 +44,7 @@ typedef enum {
     WSErrorCodeConnectionTimeout,
     WSErrorCodePeerTimeout,
     WSErrorCodeSync,
+    WSErrorCodeRescan,
     WSErrorCodeSignature,
     WSErrorCodeInvalidPartialMerkleTree,
     WSErrorCodeInvalidBlock,

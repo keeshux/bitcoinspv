@@ -30,6 +30,7 @@
 #import "DDLog.h"
 
 #import "WSPeerGroup.h"
+#import "WSBlockStore.h"
 #import "WSConnectionPool.h"
 #import "WSWallet.h"
 #import "WSHDWallet.h"
@@ -60,6 +61,7 @@
 }
 
 @property (nonatomic, strong) WSPeerGroupNotifier *notifier;
+@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSConnectionPool *pool;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
@@ -146,9 +148,10 @@
     
     if ((self = [super init])) {
         self.notifier = [[WSPeerGroupNotifier alloc] initWithPeerGroup:self];
+        self.store = store;
         self.pool = pool;
         self.pool.connectionTimeout = WSPeerConnectTimeout;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:store];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         if (wallet) {
             self.wallet = wallet;
             self.fastCatchUpTimestamp = [self.wallet earliestKeyTimestamp];
@@ -765,6 +768,18 @@
     }
 }
 
+- (BOOL)rescan
+{
+    @synchronized (self.queue) {
+        if (!self.isConnected) {
+            DDLogVerbose(@"Ignoring call because not connected");
+            return NO;
+        }
+        [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeRescan, @"Preparing for rescan")];
+        return YES;
+    }
+}
+
 #pragma mark Interaction
 
 - (NSUInteger)currentHeight
@@ -914,6 +929,24 @@
             if (self.downloadPeer) {
                 DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
                 
+                if (error.code == WSErrorCodeRescan) {
+                    DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+
+                    [self.store truncate];
+                    [self.wallet removeAllTransactions];
+
+                    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+                    NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+                    for (WSPeer *peer in self.pendingPeers) {
+                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                    }
+                    for (WSPeer *peer in self.connectedPeers) {
+                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                    }
+
+                    DDLogDebug(@"Rescan, truncate complete");
+                }
+
                 // restart sync on new download peer
                 if (self.keepDownloading && ![self isSynced]) {
                     [self loadFilterAndStartDownload];

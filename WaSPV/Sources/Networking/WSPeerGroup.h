@@ -66,6 +66,7 @@
 - (BOOL)isDownloading;
 - (BOOL)isSynced;
 - (uint32_t)fastCatchUpTimestamp;
+- (BOOL)rescan;
 
 // interaction
 - (NSUInteger)currentHeight;

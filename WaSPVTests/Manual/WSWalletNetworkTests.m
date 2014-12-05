@@ -169,6 +169,33 @@
     [self runForever];
 }
 
+- (void)testRescan
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    
+    self.currentStore = [self networkStore];
+    self.currentWalletPath = [self networkWalletPath];
+    self.stopOnSync = YES;
+    
+    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    if (!wallet) {
+        wallet = [[WSHDWallet alloc] initWithSeed:[self newWalletSeed] gapLimit:WALLET_GAP_LIMIT];
+        [wallet saveToPath:self.currentWalletPath];
+        wallet.shouldAutosave = YES;
+    }
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
+    peerGroup.maxConnections = 3;
+    peerGroup.shouldDisconnectOnEnterBackground = YES;
+    peerGroup.shouldReconnectOnBecomeActive = YES;
+    [peerGroup startConnections];
+    [peerGroup startBlockChainDownload];
+    
+    [peerGroup performSelector:@selector(rescan) withObject:nil afterDelay:20.0];
+    
+    [self runForever];
+}
+
 - (void)testChain
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
@@ -395,11 +422,11 @@
 
 - (WSSeed *)newWalletSeed
 {
-    // spam blocks around #205000 on testnet + dropped blocks analysis
-    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-01-01") - NSTimeIntervalSince1970;
+//    // spam blocks around #205000 on testnet + dropped blocks analysis
+//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-01-01") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = 1393813869 - NSTimeIntervalSince1970;
 
-//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-06-02") - NSTimeIntervalSince1970;
+    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-06-02") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = 0.0;
 

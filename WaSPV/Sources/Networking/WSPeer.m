@@ -908,6 +908,15 @@
     }
 }
 
+- (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain
+{
+    WSExceptionCheckIllegal(blockChain != nil, @"Nil blockChain");
+    
+    @synchronized (self) {
+        self.blockChain = blockChain;
+    }
+}
+
 #pragma mark Sync automation (group queue)
 
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers

@@ -198,7 +198,6 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
 * Cope with [Core Data versioning](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreDataVersioning/Articles/Introduction.html).
 * Track known inventories and "seen by # peers" informations.
-* Support blockchain rescan.
 * Import [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) keys.
 * Implement payment protocol as described by [BIP70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki), [BIP71](https://github.com/bitcoin/bips/blob/master/bip-0071.mediawiki), [BIP72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki) and [BIP73](https://github.com/bitcoin/bips/blob/master/bip-0073.mediawiki).
 * Improve addresses generation time.

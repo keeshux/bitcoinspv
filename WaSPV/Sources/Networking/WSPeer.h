@@ -118,6 +118,7 @@ typedef enum {
 - (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
 - (NSUInteger)numberOfBlocksLeft;
 - (void)requestOutdatedBlocks;
+- (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
 
 // for testing, needs WASPV_TEST_MESSAGE_QUEUE to work
 - (id<WSMessage>)dequeueMessageSynchronouslyWithTimeout:(NSUInteger)timeout;
