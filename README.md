@@ -203,7 +203,6 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 * Improve addresses generation time.
 * Offline transactions.
 * Support basic wallets with static keys.
-* Switch to the new [headers-first](https://github.com/bitcoin/bitcoin/pull/4468) sync process.
 * Full multiSig support.
 
 ## Disclaimer
