@@ -50,7 +50,7 @@ const NSTimeInterval    WSPeerWriteTimeout                          = 30.0;
 const uint32_t          WSPeerProtocol                              = 70002;
 const uint32_t          WSPeerMinProtocol                           = 70001;    // SPV mode required
 const NSUInteger        WSPeerEnabledServices                       = 0;        // we don't provide full blocks to remote nodes
-const NSUInteger        WSPeerMaxFilteredBlockCount                 = 1000;
+const NSUInteger        WSPeerMaxFilteredBlockCount                 = 500;
 
 const NSUInteger        WSPeerGroupMaxConnections                   = 3;
 const NSUInteger        WSPeerGroupMaxConnectionFailures            = 20;
