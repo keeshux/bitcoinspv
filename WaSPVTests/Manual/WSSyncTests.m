@@ -33,7 +33,6 @@
 #import "WSMemoryBlockStore.h"
 #import "WSCoreDataBlockStore.h"
 #import "WSStorableBlock.h"
-#import "WSCheckpoint.h"
 #import "WSBlockChain.h"
 #import "WSTransaction.h"
 

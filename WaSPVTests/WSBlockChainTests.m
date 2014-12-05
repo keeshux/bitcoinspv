@@ -32,7 +32,6 @@
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSBlockLocator.h"
-#import "WSCheckpoint.h"
 #import "WSConnectionPool.h"
 #import "WSCoreDataManager.h"
 #import "WSCoreDataBlockStore.h"
@@ -75,9 +74,17 @@ static WSBlockHeader *WSMakeDummyHeader(WSHash256 *blockId, WSHash256 *previousB
     BN_free(&bnTarget);
     BN_free(&bnWork);
 
-    WSCheckpoint *cp = [[WSCheckpoint alloc] initWithHeight:WSBlockUnknownHeight blockId:blockId timestamp:WSCurrentTimestamp() bits:bits];
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithVersion:2
+                                                   previousBlockId:previousBlockId
+                                                        merkleRoot:WSHash256Zero()
+                                                         timestamp:WSCurrentTimestamp()
+                                                              bits:bits
+                                                             nonce:0];
+    
+    // hack id for testing
+    [header setValue:blockId forKey:@"blockId"];
 
-    return [[WSBlockHeader alloc] initWithCheckpoint:cp previousBlockId:previousBlockId];
+    return header;
 }
 
 static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)

@@ -35,7 +35,6 @@
 #import "WSWallet.h"
 #import "WSHDWallet.h"
 #import "WSHash256.h"
-#import "WSCheckpoint.h"
 #import "WSPeer.h"
 #import "WSBloomFilter.h"
 #import "WSBlockHeader.h"

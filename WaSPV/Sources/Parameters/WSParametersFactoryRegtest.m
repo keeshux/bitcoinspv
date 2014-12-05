@@ -84,4 +84,9 @@
     return self;
 }
 
+- (WSParametersType)parametersType
+{
+    return WSParametersTypeRegtest;
+}
+
 @end

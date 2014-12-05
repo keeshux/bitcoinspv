@@ -77,20 +77,7 @@
 
         parameters.genesisBlock = [[WSFilteredBlock alloc] initWithHeader:genesisHeader partialMerkleTree:genesisPMT];
         
-#warning TODO: checkpoints, will soon be loaded from file
-        [parameters addCheckpoint:WSCheckpointMake( 10, @"000000001cf5440e7c9ae69f655759b17a32aad141896defd55bb895b7cfc44e", 1345001466, 0x1c4d1756)];
-        [parameters addCheckpoint:WSCheckpointMake( 20, @"000000008011f56b8c92ff27fb502df5723171c5374673670ef0eee3696aee6d", 1355980158, 0x1d00ffff)];
-        [parameters addCheckpoint:WSCheckpointMake( 30, @"00000000130f90cda6a43048a58788c0a5c75fa3c32d38f788458eb8f6952cee", 1363746033, 0x1c1eca8a)];
-        [parameters addCheckpoint:WSCheckpointMake( 40, @"00000000002d0a8b51a9c028918db3068f976e3373d586f08201a4449619731c", 1369042673, 0x1c011c48)];
-        [parameters addCheckpoint:WSCheckpointMake( 50, @"0000000000a33112f86f3f7b0aa590cb4949b84c2d9c673e9e303257b3be9000", 1376543922, 0x1c00d907)];
-        [parameters addCheckpoint:WSCheckpointMake( 60, @"00000000003367e56e7f08fdd13b85bbb31c5bace2f8ca2b0000904d84960d0c", 1382025703, 0x1c00df4c)];
-        [parameters addCheckpoint:WSCheckpointMake( 70, @"0000000007da2f551c3acd00e34cc389a4c6b6b3fad0e4e67907ad4c7ed6ab9f", 1384495076, 0x1c0ffff0)];
-        [parameters addCheckpoint:WSCheckpointMake( 80, @"0000000001d1b79a1aec5702aaa39bad593980dfe26799697085206ef9513486", 1388980370, 0x1c03fffc)];
-        [parameters addCheckpoint:WSCheckpointMake( 90, @"00000000002bb4563a0ec21dc4136b37dcd1b9d577a75a695c8dd0b861e1307e", 1392304311, 0x1b336ce6)];
-        [parameters addCheckpoint:WSCheckpointMake(100, @"0000000000376bb71314321c45de3015fe958543afcbada242a3b1b072498e38", 1393813869, 0x1b602ac0)];
-        [parameters addCheckpoint:WSCheckpointMake(110, @"0000000000093e3a0660bb313153bebc7c05adf4565c8c6b0ef0686d42f1b9ac", 1397425127, 0x1b0ffff0)];
-        [parameters addCheckpoint:WSCheckpointMake(120, @"000000000003eb193d52322049b8c0886038f0cbd2ee1e6df0aecc37b2626ce4", 1399756709, 0x1b05540d)];
-        [parameters addCheckpoint:WSCheckpointMake(130, @"0000000000002b8cb23efac26d7329bcc12b0112a5b84dbcb087d686ca8d48a7", 1402523480, 0x1b0244e6)];
+        [parameters loadCheckpointsWithNetworkName:WSParametersTypeString(self.parametersType)];
 
         [parameters addDnsSeed:@"testnet-seed.bitcoin.petertodd.org"];
         [parameters addDnsSeed:@"testnet-seed.bluematt.me"];
@@ -99,6 +86,11 @@
         self.parameters = parameters;
     }
     return self;
+}
+
+- (WSParametersType)parametersType
+{
+    return WSParametersTypeTestnet3;
 }
 
 @end

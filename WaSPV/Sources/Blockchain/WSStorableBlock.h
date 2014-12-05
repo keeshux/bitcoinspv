@@ -32,7 +32,6 @@
 @class WSHash256;
 @class WSBlockHeader;
 @class WSFilteredBlock;
-@class WSCheckpoint;
 @class WSBlockChain;
 @protocol WSTransaction;
 
@@ -43,7 +42,6 @@
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions;
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height;
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height work:(NSData *)work;
-- (instancetype)initWithCheckpoint:(WSCheckpoint *)checkpoint inChain:(WSBlockChain *)chain;
 
 - (WSBlockHeader *)header;
 - (uint32_t)height;
@@ -56,6 +54,7 @@
 - (BOOL)isTransitionBlock;
 - (BOOL)hasMoreWorkThanBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)buildNextBlockFromHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions;
+- (WSStorableBlock *)buildNextBlockFromCheckpoint:(WSStorableBlock *)checkpoint;
 
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain;
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock **)lastPreviousBlock;

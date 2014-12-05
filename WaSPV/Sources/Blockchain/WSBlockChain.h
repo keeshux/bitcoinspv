@@ -35,7 +35,6 @@
 @class WSBlockHeader;
 @class WSFilteredBlock;
 @class WSBlockLocator;
-@class WSCheckpoint;
 
 #pragma mark -
 
@@ -64,8 +63,8 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError **)error;
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions error:(NSError **)error;
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError **)error;
-- (BOOL)isBehindCheckpoint:(WSCheckpoint *)checkpoint;
-- (WSStorableBlock *)addCheckpoint:(WSCheckpoint *)checkpoint error:(NSError **)error;
+- (BOOL)isBehindBlock:(WSStorableBlock *)block;
+- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
 - (BOOL)save;
 
 - (NSString *)descriptionWithMaxBlocks:(NSUInteger)maxBlocks;

@@ -29,17 +29,18 @@
 
 #import "WSParameters.h"
 
-@protocol WSParametersFactory <NSObject>
-
-- (id<WSParameters>)parameters;
-
-@end
-
 typedef enum {
     WSParametersTypeMain = 1,
     WSParametersTypeTestnet3,
     WSParametersTypeRegtest
 } WSParametersType;
+
+@protocol WSParametersFactory <NSObject>
+
+- (id<WSParameters>)parameters;
+- (WSParametersType)parametersType;
+
+@end
 
 NSString *WSParametersTypeString(WSParametersType type);
 

@@ -47,6 +47,9 @@ NSBundle *WSClientBundle(Class clazz);
 
 #pragma mark - Local parameters
 
+extern NSString *const          WSParametersCheckpointsNameFormat;
+extern NSString *const          WSParametersCheckpointsFileType;
+
 extern const uint32_t           WSSeedGeneratorDefaultEntropyBits;
 
 extern const uint32_t           WSBlockUnknownHeight;

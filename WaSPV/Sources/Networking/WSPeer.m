@@ -35,7 +35,6 @@
 #import "WSFilteredBlock.h"
 #import "WSStorableBlock.h"
 #import "WSBlockChain.h"
-#import "WSCheckpoint.h"
 #import "WSBlockLocator.h"
 #import "WSInventory.h"
 #import "WSTransaction.h"
@@ -826,10 +825,10 @@
         self.currentFilteredBlock = nil;
         self.currentFilteredTransactions = nil;
         
-        WSCheckpoint *checkpoint = [WSCurrentParameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
+        WSStorableBlock *checkpoint = [WSCurrentParameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
         if (checkpoint) {
             DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
-                       self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.timestamp]);
+                       self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
             
             [self.blockChain addCheckpoint:checkpoint error:NULL];
         }

@@ -29,7 +29,7 @@
 
 @class WSHash256;
 @class WSFilteredBlock;
-@class WSCheckpoint;
+@class WSStorableBlock;
 
 #pragma mark -
 
@@ -51,7 +51,7 @@
 - (WSFilteredBlock *)genesisBlock;
 - (WSHash256 *)genesisBlockId;
 - (NSArray *)checkpoints;
-- (WSCheckpoint *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp;
+- (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp;
 - (NSArray *)dnsSeeds;
 
 @end
@@ -75,7 +75,7 @@
 @property (nonatomic, assign) uint32_t retargetInterval;
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 
-- (void)addCheckpoint:(WSCheckpoint *)checkpoint;
+- (void)loadCheckpointsWithNetworkName:(NSString *)networkName;
 - (void)addDnsSeed:(NSString *)dnsSeed;
 
 @end

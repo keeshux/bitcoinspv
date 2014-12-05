@@ -39,7 +39,6 @@
 @class WSNetworkAddress;
 @class WSSeed;
 @class WSPeer;
-@class WSCheckpoint;
 @class WSScript;
 @class WSSignedTransaction;
 @protocol WSMessage;
@@ -127,8 +126,6 @@ WSInventory *WSInventoryFilteredBlock(WSHash256 *hash);
 WSInventory *WSInventoryFilteredBlockFromHex(NSString *hex);
 
 WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t services);
-
-WSCheckpoint *WSCheckpointMake(NSUInteger step, NSString *blockHash, uint32_t timestamp, uint32_t bits);
 
 WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
 WSSeed *WSSeedMakeUnknown(NSString *mnemonic);

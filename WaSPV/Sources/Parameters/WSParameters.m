@@ -30,13 +30,16 @@
 #import "WSParameters.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
-#import "WSCheckpoint.h"
+#import "WSStorableBlock.h"
+#import "WSConfig.h"
+#import "WSMacros.h"
 #import "WSBlockMacros.h"
+#import "WSErrors.h"
 
 @interface WSMutableParameters ()
 
 @property (nonatomic, strong) NSMutableArray *dnsSeeds;
-@property (nonatomic, strong) NSMutableArray *checkpoints;
+@property (nonatomic, strong) NSArray *checkpoints;
 
 @end
 
@@ -46,7 +49,7 @@
 {
     if ((self = [super init])) {
         self.dnsSeeds = [[NSMutableArray alloc] init];
-        self.checkpoints = [[NSMutableArray alloc] init];
+        self.checkpoints = nil;
     }
     return self;
 }
@@ -56,35 +59,41 @@
     return self.genesisBlock.header.blockId;
 }
 
-- (void)addCheckpoint:(WSCheckpoint *)checkpoint
+- (void)loadCheckpointsWithNetworkName:(NSString *)networkName
 {
-    __unused WSCheckpoint *lastCheckpoint = [self.checkpoints lastObject];
-    NSAssert(checkpoint.height > lastCheckpoint.height, @"Checkpoint is older than last checkpoint");
+    WSExceptionCheckIllegal(networkName != nil, @"Nil networkName");
     
-    [self.checkpoints addObject:checkpoint];
+    NSBundle *bundle = WSClientBundle([self class]);
+    NSString *filename = [NSString stringWithFormat:WSParametersCheckpointsNameFormat, networkName];
+    NSString *path = [bundle pathForResource:filename ofType:WSParametersCheckpointsFileType];
+
+    self.checkpoints = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
+
+    [self.checkpoints enumerateObjectsUsingBlock:^(WSStorableBlock *cp, NSUInteger idx, BOOL *stop) {
+        if (idx > 0) {
+            WSStorableBlock *previousCp = self.checkpoints[idx - 1];
+            NSAssert(cp.height > previousCp.height, @"Checkpoint is older than last checkpoint");
+        }
+    }];
 }
 
-- (WSCheckpoint *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp
+- (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp
 {
     if (self.checkpoints.count == 0) {
         return nil;
     }
     
     // NOTE: assumes checkpoints are sorted by timestamp
-    WSCheckpoint *lastCheckpoint = nil;
-    for (WSCheckpoint *cp in [self.checkpoints reverseObjectEnumerator]) {
-        if (cp.timestamp <= timestamp) {
+    WSStorableBlock *lastCheckpoint = nil;
+    for (WSStorableBlock *cp in [self.checkpoints reverseObjectEnumerator]) {
+        if (cp.header.timestamp <= timestamp) {
             lastCheckpoint = cp;
             break;
         }
     }
     if (!lastCheckpoint) {
         WSFilteredBlock *genesisBlock = self.genesisBlock;
-        
-        lastCheckpoint = [[WSCheckpoint alloc] initWithHeight:0
-                                                      blockId:genesisBlock.header.blockId
-                                                    timestamp:genesisBlock.header.timestamp
-                                                         bits:genesisBlock.header.bits];
+        lastCheckpoint = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil];
     }
     
     return lastCheckpoint;

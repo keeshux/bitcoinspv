@@ -41,6 +41,9 @@ NSBundle *WSClientBundle(Class clazz)
 
 #pragma mark - Local parameters
 
+NSString *const         WSParametersCheckpointsNameFormat           = @"WaSPV-%@";
+NSString *const         WSParametersCheckpointsFileType             = @"checkpoints";
+
 const uint32_t          WSSeedGeneratorDefaultEntropyBits           = 128;
 
 const uint32_t          WSBlockUnknownHeight                        = UINT32_MAX;

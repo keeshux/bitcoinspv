@@ -29,7 +29,6 @@
 
 #import "WSBlockHeader.h"
 #import "WSBlockMacros.h"
-#import "WSCheckpoint.h"
 #import "WSBitcoin.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
@@ -68,33 +67,13 @@
     return self;
 }
 
-- (instancetype)initWithCheckpoint:(WSCheckpoint *)checkpoint previousBlockId:(WSHash256 *)previousBlockId
-{
-    if ((self = [self initWithVersion:0 previousBlockId:previousBlockId merkleRoot:nil timestamp:checkpoint.timestamp bits:checkpoint.bits nonce:0])) {
-        self.blockId = checkpoint.blockId;
-    }
-    return self;
-}
-
 - (uint32_t)txCount
 {
     return 0;
 }
 
-- (BOOL)isComplete
-{
-    return ((self.version > 0) &&
-            self.previousBlockId &&
-            self.merkleRoot &&
-            (self.timestamp > 0) &&
-            (self.bits > 0));
-}
-
 - (WSHash256 *)computeBlockId
 {
-    if (![self isComplete]) {
-        return nil;
-    }
     WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:(WSBlockHeaderSize - 1)];
     [buffer appendUint32:self.version];
     [buffer appendHash256:self.previousBlockId];

@@ -32,7 +32,6 @@
 #import "WSBlockStore.h"
 #import "WSStorableBlock.h"
 #import "WSBlockHeader.h"
-#import "WSCheckpoint.h"
 #import "WSBlockLocator.h"
 #import "WSConfig.h"
 #import "WSMacros.h"
@@ -196,10 +195,7 @@
         WSStorableBlock *newHead = [self.head buildNextBlockFromHeader:header transactions:transactions];
         
         if (self.doValidate) {
-            if (![header isComplete]) {
-                DDLogVerbose(@"Skip validation on incomplete header (built from checkpoint)");
-            }
-            else if (![newHead validateTargetInChain:self error:error]) {
+            if (![newHead validateTargetInChain:self error:error]) {
                 DDLogDebug(@"Block %@ is invalid", header.blockId);
                 return nil;
             }
@@ -359,21 +355,21 @@
     return chain;
 }
 
-- (BOOL)isBehindCheckpoint:(WSCheckpoint *)checkpoint
+- (BOOL)isBehindBlock:(WSStorableBlock *)block
 {
-    WSExceptionCheckIllegal(checkpoint != nil, @"Nil checkpoint");
+    WSExceptionCheckIllegal(block != nil, @"Nil block");
 
-    return (self.currentHeight < checkpoint.height);
+    return (self.currentHeight < block.height);
 }
 
-- (WSStorableBlock *)addCheckpoint:(WSCheckpoint *)checkpoint error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(checkpoint != nil, @"Nil checkpoint");
     
-    if (![self isBehindCheckpoint:checkpoint]) {
+    if (![self isBehindBlock:checkpoint]) {
         return nil;
     }
-    WSStorableBlock *block = [[WSStorableBlock alloc] initWithCheckpoint:checkpoint inChain:self];
+    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:checkpoint.header transactions:nil height:checkpoint.height work:checkpoint.workData];
     [self.store putBlock:block];
     [self.store setHead:block];
     return block;

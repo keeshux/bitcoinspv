@@ -32,7 +32,6 @@
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
-#import "WSCheckpoint.h"
 #import "WSBlockChain.h"
 #import "WSBlockMacros.h"
 #import "WSBitcoin.h"
@@ -105,15 +104,6 @@
         }
     }
     return self;
-}
-
-#warning TODO: remove WSCheckpoint class and [WSBlockHeader isComplete] method, only deal with complete headers
-- (instancetype)initWithCheckpoint:(WSCheckpoint *)checkpoint inChain:(WSBlockChain *)chain
-{
-    WSBlockHeader *header = [[WSBlockHeader alloc] initWithCheckpoint:checkpoint previousBlockId:chain.head.previousBlockId];
-    NSAssert(![header isComplete], @"How can a checkpoint produce a complete header?");
-    
-    return [self initWithHeader:header transactions:nil height:checkpoint.height];
 }
 
 - (void)dealloc

@@ -35,7 +35,6 @@
 #import "WSStorableBlock.h"
 #import "WSConnectionPool.h"
 #import "WSPeerGroup.h"
-#import "WSCheckpoint.h"
 
 @interface WSCoreDataStoreTests : XCTestCase
 
@@ -138,14 +137,24 @@
     DDLogInfo(@"Chain (begin): %@", chain);
 
     NSError *error;
+    
+    // height = 1
 
-    WSCheckpoint *checkpoint = [[WSCheckpoint alloc] initWithHeight:266642
-                                                            blockId:WSHash256FromHex(@"000000000000a7b4391d74a020b8d26d6fb843763756a125a1cccb357602d75b")
-                                                          timestamp:0
-                                                               bits:0x1d00ffff];
-
+    WSBlockHeader *checkpointHeader = [[WSBlockHeader alloc] initWithVersion:2
+                                                             previousBlockId:WSHash256FromHex(@"000000000000cee828ea1d5b5ad7e6c8739c5e74656a72887fe55d7b7befc6cb")
+                                                                  merkleRoot:WSHash256FromHex(@"868a616f05ea5fca111875e2fdce0ea1bb43e41ed88fea7f626cc70b7d0de98a")
+                                                                   timestamp:1404410452
+                                                                        bits:0x1b013164
+                                                                       nonce:2617465643];
+    DDLogInfo(@"Checkpoint: %@", checkpointHeader);
+    XCTAssertEqualObjects(checkpointHeader.blockId, WSHash256FromHex(@"000000000000a7b4391d74a020b8d26d6fb843763756a125a1cccb357602d75b"));
+    
+    WSStorableBlock *checkpoint = [[WSStorableBlock alloc] initWithHeader:checkpointHeader transactions:nil height:266642];
     XCTAssertTrue([chain addCheckpoint:checkpoint error:&error]);
-    XCTAssertEqualObjects(chain.head.workString, @"4295032833");
+    XCTAssertEqual(chain.currentHeight, 266642);
+    XCTAssertEqualObjects(chain.head.workString, @"235952213784977");
+    
+    // height = 266642
     
     WSFilteredBlock *block = WSFilteredBlockFromHex(@"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f");
     DDLogInfo(@"Filtered block: %@", block);
@@ -155,7 +164,9 @@
 
     XCTAssertTrue([chain addBlockWithHeader:block.header transactions:[NSOrderedSet orderedSetWithObject:tx] reorganizeBlock:NULL error:&error], @"Unable to add block %@: %@", block.header.blockId, error);
     XCTAssertEqual(chain.currentHeight, 266643);
-    XCTAssertEqualObjects(chain.head.workString, @"235956508817810");
+    XCTAssertEqualObjects(chain.head.workString, @"471904427569954");
+
+    // height = 266643
 
     DDLogInfo(@"Chain (end): %@", chain);
     [store save];

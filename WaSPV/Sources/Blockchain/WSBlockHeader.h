@@ -30,8 +30,6 @@
 #import "WSBuffer.h"
 #import "WSIndentableDescription.h"
 
-@class WSCheckpoint;
-
 @interface WSBlockHeader : NSObject <NSCopying, WSBufferEncoder, WSBufferDecoder, WSIndentableDescription>
 
 - (instancetype)initWithVersion:(uint32_t)version
@@ -41,9 +39,6 @@
                            bits:(uint32_t)bits
                           nonce:(uint32_t)nonce;
 
-// WARNING: isComplete fails after this, cannot compute block id
-- (instancetype)initWithCheckpoint:(WSCheckpoint *)checkpoint previousBlockId:(WSHash256 *)previousBlockId;
-
 - (uint32_t)version;
 - (WSHash256 *)previousBlockId;
 - (WSHash256 *)merkleRoot;
@@ -52,7 +47,6 @@
 - (uint32_t)nonce;
 - (uint32_t)txCount;
 
-- (BOOL)isComplete;
 - (WSHash256 *)blockId;
 - (NSData *)difficultyData;
 - (NSString *)difficultyString;

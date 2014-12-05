@@ -80,11 +80,6 @@
     [header setValue:expectedBlockId forKey:@"blockId"];
 #else
     
-#warning XXX: header from WSCheckpoint (remove class ASAP) have no blockId, fix manually
-    if (!header.blockId) {
-        [header setValue:expectedBlockId forKey:@"blockId"];
-    }
-
     NSAssert([header.blockId isEqual:expectedBlockId], @"Corrupted id while deserializing WSBlockHeader (%@ != %@): %@",
              header.blockId, expectedBlockId, [[header toBuffer] hexString]);
 #endif
