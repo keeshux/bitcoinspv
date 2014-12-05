@@ -75,7 +75,7 @@
 @property (nonatomic, assign) uint32_t retargetInterval;
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 
-- (void)loadCheckpointsWithNetworkName:(NSString *)networkName;
+- (void)loadCheckpointsFromHex:(NSString *)hex;
 - (void)addDnsSeed:(NSString *)dnsSeed;
 
 @end

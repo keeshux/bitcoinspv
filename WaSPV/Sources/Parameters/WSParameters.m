@@ -59,22 +59,32 @@
     return self.genesisBlock.header.blockId;
 }
 
-- (void)loadCheckpointsWithNetworkName:(NSString *)networkName
+- (void)loadCheckpointsFromHex:(NSString *)hex
 {
-    WSExceptionCheckIllegal(networkName != nil, @"Nil networkName");
+    WSExceptionCheckIllegal(hex != nil, @"Nil hex");
     
-    NSBundle *bundle = WSClientBundle([self class]);
-    NSString *filename = [NSString stringWithFormat:WSParametersCheckpointsNameFormat, networkName];
-    NSString *path = [bundle pathForResource:filename ofType:WSParametersCheckpointsFileType];
+    WSBuffer *buffer = WSBufferFromHex(hex);
 
-    self.checkpoints = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
+    NSMutableArray *checkpoints = [[NSMutableArray alloc] initWithCapacity:100];
+    NSUInteger offset = 0;
+    while (offset < buffer.length) {
+        WSStorableBlock *block = [[WSStorableBlock alloc] initWithBuffer:buffer
+                                                                    from:offset
+                                                               available:(buffer.length - offset)
+                                                                   error:NULL];
+        [checkpoints addObject:block];
+        offset += [block estimatedSize];
+    }
+    NSAssert(offset == buffer.length, @"Malformed checkpoints file (consumed bytes: %u != %u)", offset, buffer.length);
 
-    [self.checkpoints enumerateObjectsUsingBlock:^(WSStorableBlock *cp, NSUInteger idx, BOOL *stop) {
+    [checkpoints enumerateObjectsUsingBlock:^(WSStorableBlock *cp, NSUInteger idx, BOOL *stop) {
         if (idx > 0) {
-            WSStorableBlock *previousCp = self.checkpoints[idx - 1];
+            WSStorableBlock *previousCp = checkpoints[idx - 1];
             NSAssert(cp.height > previousCp.height, @"Checkpoint is older than last checkpoint");
         }
     }];
+
+    self.checkpoints = checkpoints;
 }
 
 - (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp

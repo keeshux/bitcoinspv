@@ -22,18 +22,18 @@
     [super setUp];
 
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    NSMutableArray *checkpoints = [[NSMutableArray alloc] init];
+    WSMutableBuffer *checkpoints = [[WSMutableBuffer alloc] initWithCapacity:(128 * 1024)];
 
     [nc addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
         
         if (block.height % (10 * [WSCurrentParameters retargetInterval]) == 0) {
             DDLogInfo(@"Checkpoint at #%u: %@", block.height, block);
-            [checkpoints addObject:block];
+            [block appendToMutableBuffer:checkpoints];
         }
     }];
     [nc addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        [NSKeyedArchiver archiveRootObject:checkpoints toFile:[self filename]];
+        [checkpoints.data writeToFile:[self filename] atomically:YES];
     }];
 }
 
@@ -78,7 +78,7 @@
     WSMemoryBlockStore *store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store];
 //    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:1386098130];
-//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:WSTimestampFromISODate(@"2014-12-03")];
+//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:WSTimestampFromISODate(@"2014-08-03")];
     peerGroup.maxConnections = 5;
     peerGroup.headersOnly = YES;
     [peerGroup startBlockChainDownload];
@@ -89,15 +89,26 @@
 
 - (void)privateTestDeserialize
 {
-    NSArray *checkpoints = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filename]];
-    for (WSStorableBlock *block in checkpoints) {
+    NSData *checkpointsData = [NSData dataWithContentsOfFile:[self filename]];
+    WSBuffer *checkpoints = [[WSBuffer alloc] initWithData:checkpointsData];
+
+    DDLogInfo(@"Embeddable hex: %@", [checkpoints hexString]);
+    DDLogInfo(@"Size: %u", checkpoints.length);
+
+    NSUInteger offset = 0;
+    while (offset < checkpoints.length) {
+        WSStorableBlock *block = [[WSStorableBlock alloc] initWithBuffer:checkpoints from:offset available:(checkpoints.length - offset) error:NULL];
         DDLogInfo(@"%@", block);
+        offset += [block estimatedSize];
     }
+    XCTAssertEqual(offset, checkpoints.length);
 }
 
 - (NSString *)filename
 {
-    return [self mockPathForFile:[NSString stringWithFormat:@"WaSPV-%@.checkpoints", WSParametersGetCurrentTypeString()]];
+    NSString *filename = [self mockPathForFile:[NSString stringWithFormat:@"WaSPV-%@.checkpoints", WSParametersGetCurrentTypeString()]];
+    DDLogInfo(@"File: %@", filename);
+    return filename;
 }
 
 @end
