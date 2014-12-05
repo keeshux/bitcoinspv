@@ -338,8 +338,7 @@
 + (NSDictionary *)codableProperties
 {
     return @{@"header": [NSObject class],
-             @"height": [NSNumber class],
-             @"work": [NSObject class]};
+             @"height": [NSNumber class]};
 }
 
 @end
