@@ -280,9 +280,9 @@
 
 - (void)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
 {
-    NSUInteger connectedOrphansCount;
+    NSMutableArray *connectedOrphanIds = [[NSMutableArray alloc] init];
     do {
-        connectedOrphansCount = 0;
+        [connectedOrphanIds removeAllObjects];
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
@@ -295,17 +295,19 @@
 
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
-            [self addBlockWithHeader:orphan.header transactions:orphan.transactions reorganizeBlock:reorganizeBlock connectOrphans:NO error:NULL];
+            WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header transactions:orphan.transactions reorganizeBlock:reorganizeBlock connectOrphans:NO error:NULL];
+            if (connectedOrphan) {
+                [connectedOrphanIds addObject:connectedOrphan.blockId];
+            }
 
             // remove from original
             [self.orphans removeObjectForKey:orphan.blockId];
-            ++connectedOrphansCount;
         }
         
-        if (connectedOrphansCount > 0) {
-            DDLogDebug(@"Connected %u orphan blocks", connectedOrphansCount);
+        if (connectedOrphanIds.count > 0) {
+            DDLogDebug(@"Connected %u orphan blocks: %@", connectedOrphanIds.count, connectedOrphanIds);
         }
-    } while (connectedOrphansCount > 0);
+    } while (connectedOrphanIds.count > 0);
 }
 
 - (void)pruneBlocksIfAtTransition
