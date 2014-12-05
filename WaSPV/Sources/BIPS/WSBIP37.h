@@ -40,7 +40,7 @@
 
 #pragma mark -
 
-extern const uint32_t           WSBIP37MaxFilterLength;
+extern const uint32_t           WSBIP37MaxFilterSize;
 extern const uint32_t           WSBIP37MaxHashFunctions;
 extern const uint32_t           WSBIP37HashMultiplier;
 

@@ -30,7 +30,7 @@
 #import "WSMacros.h"
 #import "WSErrors.h"
 
-const uint32_t          WSBIP37MaxFilterLength                  = 36000;
+const uint32_t          WSBIP37MaxFilterSize                    = 36000;
 const uint32_t          WSBIP37MaxHashFunctions                 = 50;
 const uint32_t          WSBIP37HashMultiplier                   = 0xfba4c795;
 
@@ -112,8 +112,8 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
         if (size < 1) {
             size = 1;
         }
-        else if (size > WSBIP37MaxFilterLength) {
-            size = WSBIP37MaxFilterLength;
+        else if (size > WSBIP37MaxFilterSize) {
+            size = WSBIP37MaxFilterSize;
         }
         
         uint32_t hashFunctions = size * 8.0 / capacity * M_LN2;
