@@ -60,8 +60,6 @@
 //        parameters.maxRetargetTimespan          = parameters.retargetTimespan * 4;
 //        parameters.retargetSpacing              = 10 * WSDatesOneMinute;
         parameters.retargetInterval             = 10000;
-        parameters.forkBlockHeight              = 0;
-        parameters.forkBlockTimestamp           = 1296688602;
         
         WSBlockHeader *genesisHeader = [[WSBlockHeader alloc] initWithVersion:1
                                                               previousBlockId:WSHash256Zero()

@@ -325,7 +325,7 @@
 - (void)setFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
     @synchronized (self.queue) {
-        _fastCatchUpTimestamp = MAX(fastCatchUpTimestamp, [WSCurrentParameters forkBlockTimestamp]);
+        _fastCatchUpTimestamp = fastCatchUpTimestamp;
     }
 }
 

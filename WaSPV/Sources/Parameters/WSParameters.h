@@ -48,8 +48,6 @@
 - (uint32_t)maxRetargetTimespan;
 - (uint32_t)retargetSpacing;
 - (uint32_t)retargetInterval;
-- (uint32_t)forkBlockHeight;
-- (uint32_t)forkBlockTimestamp;
 - (WSFilteredBlock *)genesisBlock;
 - (WSHash256 *)genesisBlockId;
 - (NSArray *)checkpoints;
@@ -75,8 +73,6 @@
 @property (nonatomic, assign) uint32_t minRetargetTimespan;
 @property (nonatomic, assign) uint32_t maxRetargetTimespan;
 @property (nonatomic, assign) uint32_t retargetInterval;
-@property (nonatomic, assign) uint32_t forkBlockHeight;
-@property (nonatomic, assign) uint32_t forkBlockTimestamp;
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 
 - (void)addCheckpoint:(WSCheckpoint *)checkpoint;
