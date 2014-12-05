@@ -96,7 +96,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
         WSSignedTransactionInput *input = [[WSSignedTransactionInput alloc] initWithOutpoint:outpoint script:script];
         WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:100000 script:script];
 
-        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithSignedInputs:[NSOrderedSet orderedSetWithObject:input] outputs:[NSOrderedSet orderedSetWithObject:output]];
+        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithSignedInputs:[NSOrderedSet orderedSetWithObject:input] outputs:[NSOrderedSet orderedSetWithObject:output] error:NULL];
         [tx setValue:txId forKey:@"txId"];
         [txs addObject:tx];
     }
