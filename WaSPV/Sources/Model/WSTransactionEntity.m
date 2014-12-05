@@ -97,7 +97,8 @@
     WSSignedTransaction *transaction = [[WSSignedTransaction alloc] initWithVersion:version
                                                                        signedInputs:signedInputs
                                                                             outputs:outputs
-                                                                           lockTime:lockTime];
+                                                                           lockTime:lockTime
+                                                                              error:NULL];
 
     __unused WSHash256 *expectedTxId = WSHash256FromData(self.txIdData);
 

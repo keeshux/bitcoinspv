@@ -56,15 +56,16 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
 
 @implementation WSSignedTransaction
 
-- (instancetype)initWithSignedInputs:(NSOrderedSet *)inputs outputs:(NSOrderedSet *)outputs
+- (instancetype)initWithSignedInputs:(NSOrderedSet *)inputs outputs:(NSOrderedSet *)outputs error:(NSError *__autoreleasing *)error
 {
-    return [self initWithVersion:WSTransactionVersion signedInputs:inputs outputs:outputs lockTime:WSTransactionDefaultLockTime];
+    return [self initWithVersion:WSTransactionVersion signedInputs:inputs outputs:outputs lockTime:WSTransactionDefaultLockTime error:error];
 }
 
 - (instancetype)initWithVersion:(uint32_t)version
                    signedInputs:(NSOrderedSet *)inputs      // WSSignedTransactionInput
                         outputs:(NSOrderedSet *)outputs     // WSTransactionOutput
                        lockTime:(uint32_t)lockTime
+                          error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(inputs.count > 0, @"Empty inputs");
     WSExceptionCheckIllegal(outputs.count > 0, @"Empty outputs");
@@ -240,7 +241,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     
     const uint32_t lockTime = [buffer uint32AtOffset:offset];
 
-    return [self initWithVersion:version signedInputs:inputs outputs:outputs lockTime:lockTime];
+    return [self initWithVersion:version signedInputs:inputs outputs:outputs lockTime:lockTime error:error];
 }
 
 #pragma mark WSSized
@@ -371,7 +372,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
         ++i;
     }
     
-    return [[WSSignedTransaction alloc] initWithVersion:self.version signedInputs:signedInputs outputs:self.outputs lockTime:self.lockTime];
+    return [[WSSignedTransaction alloc] initWithVersion:self.version signedInputs:signedInputs outputs:self.outputs lockTime:self.lockTime error:error];
 }
 
 - (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput hashFlags:(WSTransactionSigHash)hashFlags

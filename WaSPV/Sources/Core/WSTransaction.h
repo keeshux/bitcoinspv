@@ -55,11 +55,12 @@
 
 @interface WSSignedTransaction : NSObject <WSTransaction, WSBufferEncoder, WSBufferDecoder, WSSized, WSIndentableDescription>
 
-- (instancetype)initWithSignedInputs:(NSOrderedSet *)inputs outputs:(NSOrderedSet *)outputs;
+- (instancetype)initWithSignedInputs:(NSOrderedSet *)inputs outputs:(NSOrderedSet *)outputs error:(NSError **)error;
 - (instancetype)initWithVersion:(uint32_t)version
                    signedInputs:(NSOrderedSet *)inputs      // WSSignedTransactionInput
                         outputs:(NSOrderedSet *)outputs     // WSTransactionOutput
-                       lockTime:(uint32_t)lockTime;
+                       lockTime:(uint32_t)lockTime
+                          error:(NSError **)error;
 
 - (NSUInteger)size;
 - (WSSignedTransactionInput *)signedInputAtIndex:(uint32_t)index;
