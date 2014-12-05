@@ -501,14 +501,16 @@
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        DDLogDebug(@"%@ Filtered %u blocks so far (limit: %u)", self, _filteredBlockCount, WSPeerMaxFilteredBlockCount);
+        DDLogDebug(@"%@ Filtered %u blocks so far", self, _filteredBlockCount);
         
         if (_filteredBlockCount + blockHashes.count >= WSPeerMaxFilteredBlockCount) {
-            DDLogDebug(@"%@ Bloom filter is outdated after %u blocks, rebuilding now", self, _filteredBlockCount);
+            DDLogDebug(@"%@ Bloom filter will degradate after %u blocks (%u + %u >= %u), refreshing now", self,
+                       blockHashes.count, _filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
+
             shouldRebuildBloomFilter = YES;
         }
         else {
-            DDLogDebug(@"%@ Bloom filter doesn't need a rebuild, filtered count still below limit", self);
+            DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
             _filteredBlockCount += blockHashes.count;
         }
     }
