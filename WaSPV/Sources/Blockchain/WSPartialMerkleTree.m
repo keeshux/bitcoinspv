@@ -77,7 +77,7 @@
     
     // check for excessively high numbers of transactions
     // 60 is the lower bound for the size of a serialized CTransaction
-    WSExceptionCheckIllegal(txCount <= WSBlockMaxLength / 60, @"txCount is too high (%u)", txCount);
+    WSExceptionCheckIllegal(txCount <= WSBlockMaxSize / 60, @"txCount is too high (%u)", txCount);
     
     // there can never be more hashes provided than one for every txid
     WSExceptionCheckIllegal(hashes.count <= txCount, @"More hashes than transactions (%u > %u)", hashes.count, txCount);

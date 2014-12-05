@@ -98,8 +98,8 @@
 
 - (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if (available < WSFilteredBlockBaseLength) {
-        WSErrorSetNotEnoughBytes(error, [self class], available, WSFilteredBlockBaseLength);
+    if (available < WSFilteredBlockBaseSize) {
+        WSErrorSetNotEnoughBytes(error, [self class], available, WSFilteredBlockBaseSize);
         return nil;
     }
     NSUInteger offset = from;
@@ -111,7 +111,7 @@
 
     // txCount is always 0 in headers (var_int of 1 byte), go back
     // searching for it because in filtered blocks txCount is != 0 instead
-    offset += WSBlockHeaderLength - sizeof(uint8_t);
+    offset += WSBlockHeaderSize - sizeof(uint8_t);
 
     WSPartialMerkleTree *partialMerkleTree = [[WSPartialMerkleTree alloc] initWithBuffer:buffer from:offset available:(available - offset + from) error:error];
     if (!partialMerkleTree) {

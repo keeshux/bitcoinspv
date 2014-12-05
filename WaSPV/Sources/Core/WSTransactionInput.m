@@ -127,11 +127,11 @@
     NSUInteger offset = from;
     NSUInteger varIntLength;
     
-    WSTransactionOutPoint *outpoint = [[WSTransactionOutPoint alloc] initWithBuffer:buffer from:offset available:WSTransactionOutPointLength error:error];
+    WSTransactionOutPoint *outpoint = [[WSTransactionOutPoint alloc] initWithBuffer:buffer from:offset available:WSTransactionOutPointSize error:error];
     if (!outpoint) {
         return nil;
     }
-    offset += WSTransactionOutPointLength;
+    offset += WSTransactionOutPointSize;
     
     const NSUInteger scriptLength = (NSUInteger)[buffer varIntAtOffset:offset length:&varIntLength];
     offset += varIntLength;

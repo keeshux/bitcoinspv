@@ -77,7 +77,7 @@
         }
         offset += varIntLength;
 
-        const NSUInteger expectedLength = varIntLength + count * WSBlockHeaderLength;
+        const NSUInteger expectedLength = varIntLength + count * WSBlockHeaderSize;
         if (available < expectedLength) {
             WSErrorSetNotEnoughBytes(error, [self class], available, expectedLength);
             return nil;
@@ -93,7 +93,7 @@
                 return nil;
             }
             [headers addObject:header];
-            offset += WSBlockHeaderLength;
+            offset += WSBlockHeaderSize;
         }
         self.headers = headers;
     }

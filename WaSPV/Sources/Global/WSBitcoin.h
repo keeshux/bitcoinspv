@@ -54,9 +54,9 @@ extern const NSUInteger         WSInventoryLength;
 #pragma mark - Blocks
 
 extern const uint32_t           WSBlockUnknownHeight;
-extern const NSUInteger         WSBlockHeaderLength;
-extern const NSUInteger         WSBlockMaxLength;
-extern const NSUInteger         WSFilteredBlockBaseLength;
+extern const NSUInteger         WSBlockHeaderSize;
+extern const NSUInteger         WSBlockMaxSize;
+extern const NSUInteger         WSFilteredBlockBaseSize;
 extern const uint32_t           WSBlockAllowedTimeDrift;
 
 #pragma mark - Transactions
@@ -70,9 +70,9 @@ extern const uint64_t           WSTransactionRelayFeePerUnit;
 
 uint64_t WSTransactionStandardRelayFee(NSUInteger txSize);
 
-extern const NSUInteger         WSTransactionInputTypicalLength;
-extern const NSUInteger         WSTransactionOutputTypicalLength;
-extern const NSUInteger         WSTransactionOutPointLength;
+extern const NSUInteger         WSTransactionInputTypicalSize;
+extern const NSUInteger         WSTransactionOutputTypicalSize;
+extern const NSUInteger         WSTransactionOutPointSize;
 extern const uint64_t           WSTransactionMinOutValue;
 extern const NSUInteger         WSTransactionCoinbaseInputIndex;
 

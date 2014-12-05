@@ -429,11 +429,11 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     
     size += WSBufferVarIntSize(inputs.count);
     if (simulatingSignatures) {
-        size += inputs.count * WSTransactionInputTypicalLength;
+        size += inputs.count * WSTransactionInputTypicalSize;
     }
     else {
         for (id<WSTransactionInput> input in inputs) {
-            size += WSTransactionOutPointLength;
+            size += WSTransactionOutPointSize;
             const NSUInteger scriptSize = [input.script estimatedSize];
             size += WSBufferVarIntSize(scriptSize);
             size += scriptSize;
@@ -443,7 +443,7 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     
     size += WSBufferVarIntSize(outputs.count);
     if (simulatingSignatures) {
-        size += outputs.count * WSTransactionOutputTypicalLength;
+        size += outputs.count * WSTransactionOutputTypicalSize;
     }
     else {
         for (WSTransactionOutput *output in outputs) {

@@ -56,7 +56,7 @@
         self.txId = txId;
         self.index = index;
         
-        WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:WSTransactionOutPointLength];
+        WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:WSTransactionOutPointSize];
         [self appendToMutableBuffer:buffer];
         self.buffer = buffer;
     }
@@ -124,8 +124,8 @@
 
 - (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if (available < WSTransactionOutPointLength) {
-        WSErrorSetNotEnoughBytes(error, [self class], available, WSTransactionOutPointLength);
+    if (available < WSTransactionOutPointSize) {
+        WSErrorSetNotEnoughBytes(error, [self class], available, WSTransactionOutPointSize);
         return nil;
     }
     

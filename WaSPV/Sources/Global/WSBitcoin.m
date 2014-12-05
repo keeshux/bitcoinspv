@@ -91,10 +91,10 @@ uint64_t WSTransactionStandardRelayFee(NSUInteger txSize)
 // so dust is a txout less than 546 satoshis
 // with default minRelayTxFee.
 //
-const NSUInteger        WSTransactionInputTypicalLength         = 148;
-const NSUInteger        WSTransactionOutputTypicalLength        = 34;
-const NSUInteger        WSTransactionOutPointLength             = 36;
-const uint64_t          WSTransactionMinOutValue                = WSTransactionRelayFeePerUnit * 3 * (WSTransactionInputTypicalLength + WSTransactionOutputTypicalLength) / WSTransactionSizeUnit; // no txout can be below this amount (or it won't relay)
+const NSUInteger        WSTransactionInputTypicalSize           = 148;
+const NSUInteger        WSTransactionOutputTypicalSize          = 34;
+const NSUInteger        WSTransactionOutPointSize               = 36;
+const uint64_t          WSTransactionMinOutValue                = WSTransactionRelayFeePerUnit * 3 * (WSTransactionInputTypicalSize + WSTransactionOutputTypicalSize) / WSTransactionSizeUnit; // no txout can be below this amount (or it won't relay)
 const NSUInteger        WSTransactionCoinbaseInputIndex         = 0xffffffff;
 
 const uint64_t          WSTransactionMaxSize                    = 100000;   // no tx can be larger than this size in bytes
@@ -104,5 +104,5 @@ const uint64_t          WSTransactionFreeMinPriority            = 57600000; // t
 NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger numberOfOutputs)
 {
     // version + locktime + ins/outs
-    return (8 + numberOfInputs * WSTransactionInputTypicalLength + numberOfOutputs * WSTransactionOutputTypicalLength);
+    return (8 + numberOfInputs * WSTransactionInputTypicalSize + numberOfOutputs * WSTransactionOutputTypicalSize);
 }
