@@ -192,6 +192,7 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
 
+* Disconnect peers on timeout (sync may stall).
 * Checkpoints tool and serialization.
 * Detect unpublished transactions.
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
@@ -204,7 +205,6 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 * Offline transactions.
 * Support basic wallets with static keys.
 * Switch to the new [headers-first](https://github.com/bitcoin/bitcoin/pull/4468) sync process.
-* Disconnect peers on timeout (sync may stall).
 * Full multiSig support.
 
 ## Disclaimer
