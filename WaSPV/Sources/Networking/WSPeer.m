@@ -503,7 +503,7 @@
 
         DDLogDebug(@"%@ Filtered %u blocks so far (limit: %u)", self, _filteredBlockCount, WSPeerMaxFilteredBlockCount);
         
-        if (_filteredBlockCount >= WSPeerMaxFilteredBlockCount) {
+        if (_filteredBlockCount + blockHashes.count >= WSPeerMaxFilteredBlockCount) {
             DDLogDebug(@"%@ Bloom filter is outdated after %u blocks, rebuilding now", self, _filteredBlockCount);
             shouldRebuildBloomFilter = YES;
         }
