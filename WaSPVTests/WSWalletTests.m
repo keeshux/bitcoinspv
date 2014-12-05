@@ -174,7 +174,7 @@
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
     
-    [usedAddresses addObject:WSAddressFromString(@"mgRQ4ga3qpfNd8zmNh47AvsCoFGs6VdhNs")];
+    [usedAddresses addObject:WSAddressFromString(@"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR")];
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
 }
