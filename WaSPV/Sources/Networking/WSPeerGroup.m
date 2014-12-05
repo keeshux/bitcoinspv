@@ -187,7 +187,6 @@
 #if WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT
         self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
 #endif
-        [self rebuildBloomFilter];
         
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
@@ -355,6 +354,8 @@
             DDLogVerbose(@"Ignoring call because already started");
             return NO;
         }
+
+        [self rebuildBloomFilter];
 
         self.keepConnected = YES;
         [self connect];
@@ -720,8 +721,8 @@
             DDLogDebug(@"Bloom filter updated in %.3fs (falsePositiveRate: %f)",
                        rebuildTime, self.bloomFilterParameters.falsePositiveRate);
         }
-#warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
         else {
+#warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
             if (!self.bloomFilter) {
                 self.bloomFilter = [[WSMutableBloomFilter alloc] initWithFullMatch];
 
