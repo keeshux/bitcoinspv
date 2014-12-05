@@ -781,25 +781,16 @@
     }
 }
 
+#if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
+
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
 {
     @synchronized (self) {
         WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
         
-#if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
-        
         NSUInteger capacity = 2 * (_allExternalAddresses.count + _allInternalAddresses.count);
         
-#elif (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT)
-        
-        NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutpoints.count;
-        
-#else
-        
-        return [[WSBloomFilter alloc] initWithFullMatch];
-        
-#endif
-        
+        // heuristic
         if (capacity < 200) {
             capacity *= 1.5;
         }
@@ -808,8 +799,6 @@
         }
         
         WSMutableBloomFilter *filter = [[WSMutableBloomFilter alloc] initWithParameters:parameters capacity:capacity];
-        
-#if (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_PUBKEYS)
         
         // number of watched accounts is based on external chain
         NSArray *chains = @[self.safeExternalChain, self.safeInternalChain];
@@ -831,7 +820,53 @@
             }
         }
         
+        return filter;
+    }
+}
+
+- (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
+{
+    @synchronized (self) {
+        NSArray *chains = @[self.safeExternalChain, self.safeInternalChain];
+        NSArray *counts = @[@(_allExternalAddresses.count), @(_allInternalAddresses.count)];
+        
+        for (NSUInteger i = 0; i < 2; ++i) {
+            id<WSBIP32Keyring> chain = chains[i];
+            const uint32_t numberOfWatchedAddresses = [counts[i] unsignedIntegerValue];
+            
+            for (uint32_t account = 0; account < numberOfWatchedAddresses; ++account) {
+                WSPublicKey *pubKey = [chain publicKeyForAccount:account];
+                
+                if (![bloomFilter containsData:[pubKey encodedData]]) {
+                    return NO;
+                }
+                if (![bloomFilter containsData:[pubKey hash160]]) {
+                    return NO;
+                }
+            }
+        }
+    }
+    return YES;
+}
+
 #elif (WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT)
+
+- (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
+{
+    @synchronized (self) {
+        WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+        
+        NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutpoints.count;
+        
+        // heuristic
+        if (capacity < 200) {
+            capacity *= 1.5;
+        }
+        else {
+            capacity += 100;
+        }
+        
+        WSMutableBloomFilter *filter = [[WSMutableBloomFilter alloc] initWithParameters:parameters capacity:capacity];
         
         // add addresses to watch for any tx receiveing money to the wallet
         for (WSAddress *address in _allExternalAddresses) {
@@ -846,11 +881,47 @@
             [filter insertUnspent:unspent];
         }
         
-#endif
-        
         return filter;
     }
 }
+
+- (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
+{
+    for (WSAddress *address in _allExternalAddresses) {
+        if (![bloomFilter containsAddress:address]) {
+            return NO;
+        }
+    }
+    for (WSAddress *address in _allInternalAddresses) {
+        if (![bloomFilter containsAddress:address]) {
+            return NO;
+        }
+    }
+    for (WSTransactionOutPoint *unspent in _unspentOutpoints) {
+        if (![bloomFilter containsUnspent:unspent]) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+#else
+
+- (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
+{
+    @synchronized (self) {
+        WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+        
+        return [[WSBloomFilter alloc] initWithFullMatch];
+    }
+}
+
+- (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
+{
+    return YES;
+}
+
+#endif
 
 - (BOOL)isRelevantTransaction:(WSSignedTransaction *)transaction
 {
