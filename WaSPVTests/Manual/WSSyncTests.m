@@ -407,10 +407,11 @@
         path = self.testPath;
     }
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
     if (truncating) {
-        [manager truncate];
+        [store truncate];
     }
-    return [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    return store;
 }
 
 @end

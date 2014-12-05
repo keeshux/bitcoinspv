@@ -244,11 +244,11 @@
 
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:storePath error:NULL];
 
-    // WARNING: reset state
-    [manager truncate];
     [[NSFileManager defaultManager] removeItemAtPath:walletPath error:NULL];
 
     id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    // WARNING: reset state
+    [store truncate];
 
     NSString *mnemonic = [self mockWalletMnemonic];
     WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];

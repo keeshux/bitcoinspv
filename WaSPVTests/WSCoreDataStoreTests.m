@@ -72,16 +72,14 @@
 
 - (void)testGenesis
 {
-    [self.manager truncate];
     id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
+    [store truncate];
 
     XCTAssertEqualObjects(store.head.blockId, [WSCurrentParameters genesisBlockId]);
 }
 
 - (void)testAddHeaders
 {
-    [self.manager truncate];
-
     // from height #1
     NSArray *headers = @[@"0100000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea330900000000bac8b0fa927c0ac8234287e33c5f74d38d354820e24756ad709d7038fc5f31f020e7494dffff001d03e4b67200",
                          @"0100000006128e87be8b1b4dea47a7247d5528d2702c96826c7a648497e773b800000000e241352e3bec0a95a6217e10c3abb54adfa05abb12c126695595580fb92e222032e7494dffff001d00d2353400",
@@ -106,6 +104,8 @@
 
     id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
 //    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    [store truncate];
+
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
 
     for (NSString *hex in headers) {
@@ -131,10 +131,12 @@
 
 - (void)testAddBlockWithTxs
 {
-    [self.manager truncate];
-    
     id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
+    [store truncate];
+
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
+    DDLogInfo(@"Chain (begin): %@", chain);
+
     NSError *error;
 
     WSCheckpoint *checkpoint = [[WSCheckpoint alloc] initWithHeight:266642
@@ -155,7 +157,7 @@
     XCTAssertEqual(chain.currentHeight, 266643);
     XCTAssertEqualObjects(chain.head.workString, @"235956508817810");
 
-    DDLogInfo(@"Chain: %@", chain);
+    DDLogInfo(@"Chain (end): %@", chain);
     [store save];
 }
 
@@ -170,7 +172,7 @@
 //- (void)testAddFilteredBlock
 //{
 //    // WARNING
-//    [self.manager truncate];
+//    [self.store truncate];
 //
 //    NSString *hex = @"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f";
 //    
