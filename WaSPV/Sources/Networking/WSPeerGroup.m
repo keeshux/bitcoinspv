@@ -79,7 +79,6 @@
 @property (nonatomic, strong) WSPeer *downloadPeer;
 @property (nonatomic, assign) BOOL didNotifyDownloadFinished;
 @property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
-@property (nonatomic, assign) NSUInteger bloomFilterUpdateHeight;
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
 
 - (void)connect;
@@ -184,7 +183,6 @@
 #if WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT
         self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
 #endif
-        self.bloomFilterUpdateHeight = 0;
         [self rebuildBloomFilter];
         
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -689,8 +687,6 @@
 - (void)rebuildBloomFilter
 {
     @synchronized (self.queue) {
-        self.bloomFilterUpdateHeight = self.blockChain.currentHeight;
-
         if (self.wallet) {
             const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
             const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
@@ -717,15 +713,15 @@
             self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
 
             const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-            DDLogDebug(@"Bloom filter updated in %.3fs (height: %u, falsePositiveRate: %f)",
-                       rebuildTime, self.bloomFilterUpdateHeight, self.bloomFilterParameters.falsePositiveRate);
+            DDLogDebug(@"Bloom filter updated in %.3fs (falsePositiveRate: %f)",
+                       rebuildTime, self.bloomFilterParameters.falsePositiveRate);
         }
 #warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
         else {
             if (!self.bloomFilter) {
                 self.bloomFilter = [[WSMutableBloomFilter alloc] initWithFullMatch];
 
-                DDLogDebug(@"Full-match Bloom filter set (height: %u)", self.bloomFilterUpdateHeight);
+                DDLogDebug(@"Full-match Bloom filter set");
             }
         }
     }
