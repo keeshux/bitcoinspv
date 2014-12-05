@@ -48,6 +48,7 @@
 
 @property (nonatomic, strong) dispatch_queue_t groupQueue;
 @property (nonatomic, strong) WSBlockChain *blockChain;
+@property (nonatomic, assign) BOOL headersOnly;
 
 @end
 
@@ -55,16 +56,17 @@
 
 - (instancetype)init
 {
-    return [self initWithGroupQueue:dispatch_get_main_queue() blockChain:nil];
+    return [self initWithGroupQueue:dispatch_get_main_queue() blockChain:nil headersOnly:NO];
 }
 
-- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue blockChain:(WSBlockChain *)blockChain
+- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue blockChain:(WSBlockChain *)blockChain headersOnly:(BOOL)headersOnly
 {
     WSExceptionCheckIllegal(groupQueue != NULL, @"NULL groupQueue");
 
     if ((self = [super init])) {
         self.groupQueue = groupQueue;
         self.blockChain = blockChain;
+        self.headersOnly = headersOnly;
         self.port = [WSCurrentParameters peerPort];
     }
     return self;
@@ -103,6 +105,7 @@
 
 // sync status (shared by WSPeerGroup, guarded by self.groupQueue)
 @property (nonatomic, strong) WSBlockChain *blockChain;
+@property (nonatomic, assign) BOOL headersOnly;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
 @property (nonatomic, assign) BOOL isDownloadPeer;
@@ -167,6 +170,7 @@
 
         self.groupQueue = parameters.groupQueue;
         self.blockChain = parameters.blockChain;
+        self.headersOnly = parameters.headersOnly;
 
         _peerStatus = WSPeerStatusDisconnected;
         _remoteHost = host;
@@ -501,17 +505,19 @@
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
-        
-        if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
-            DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
-                       blockHashes.count, _filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
+        if (!self.headersOnly) {
+            DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
+            
+            if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
+                DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
+                           blockHashes.count, _filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
 
-            shouldRebuildBloomFilter = YES;
-        }
-        else {
-            DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
-            _filteredBlockCount += blockHashes.count;
+                shouldRebuildBloomFilter = YES;
+            }
+            else {
+                DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
+                _filteredBlockCount += blockHashes.count;
+            }
         }
     }
 
@@ -833,7 +839,7 @@
         
         WSBlockLocator *locator = [self.blockChain currentLocator];
 
-        if (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp) {
+        if (self.headersOnly || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
             [self requestHeadersWithLocator:locator];
         }
         else {
@@ -943,7 +949,7 @@
             }
             
             // we won't cross fast catch-up, request more headers
-            if (lastHeaderBeforeFCU == lastHeader) {
+            if (self.headersOnly || (lastHeaderBeforeFCU == lastHeader)) {
                 WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
                 [self requestHeadersWithLocator:locator];
             }
@@ -1006,7 +1012,7 @@
         for (WSBlockHeader *header in headers) {
             
             // download peer should stop requesting headers when fast catch-up reached
-            if (self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
+            if (!self.headersOnly && self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
                 break;
             }
             

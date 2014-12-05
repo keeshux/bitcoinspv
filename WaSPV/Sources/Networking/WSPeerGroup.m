@@ -169,6 +169,7 @@
         self.autosave = YES;
         self.shouldReconnectOnBecomeActive = NO;
         self.shouldDisconnectOnEnterBackground = NO;
+        self.headersOnly = NO;
         self.peerHosts = nil;
         self.maxConnections = WSPeerGroupMaxConnections;
         self.maxConnectionFailures = WSPeerGroupMaxConnectionFailures;
@@ -556,7 +557,10 @@
 {
     NSAssert(host, @"Nil host");
     
-    WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue blockChain:self.blockChain];
+    WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue
+                                                                     blockChain:self.blockChain
+                                                                    headersOnly:self.headersOnly];
+
     WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:parameters];
     peer.relayTransactionsInVersion = (self.wallet == nil);
     peer.delegate = self;
@@ -643,8 +647,10 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
-        DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
-        [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+        if (!self.headersOnly) {
+            DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
+            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+        }
 
         const NSUInteger fromHeight = self.blockChain.currentHeight;
         const NSUInteger toHeight = fromHeight + [self.downloadPeer numberOfBlocksLeft];
@@ -692,6 +698,10 @@
 - (void)rebuildBloomFilter
 {
     @synchronized (self.queue) {
+        if (self.headersOnly) {
+            return;
+        }
+        
         if (self.wallet) {
             const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
             const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
@@ -755,16 +765,19 @@
 
         [self rebuildBloomFilter];
         
-        if (![self isSynced]) {
-            DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
-            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
-        }
-        else {
-            for (WSPeer *peer in self.connectedPeers) {
-                DDLogDebug(@"Synced, loading rebuilt Bloom filter for peer %@", peer);
-                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+        if (!self.headersOnly) {
+            if (![self isSynced]) {
+                DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
+                [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+            }
+            else {
+                for (WSPeer *peer in self.connectedPeers) {
+                    DDLogDebug(@"Synced, loading rebuilt Bloom filter for peer %@", peer);
+                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+                }
             }
         }
+        
         return YES;
     }
 }
@@ -860,8 +873,10 @@
                        peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
             if ([self isSynced]) {
-                DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
-                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+                if (!self.headersOnly) {
+                    DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
+                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+                }
                 DDLogDebug(@"Requesting mempool from common peer %@", peer);
                 [peer sendMempoolMessage];
             }
@@ -1163,7 +1178,7 @@
 
         if (isDownloadFinished) {
             for (WSPeer *peer in self.connectedPeers) {
-                if (peer != self.downloadPeer) {
+                if (!self.headersOnly && (peer != self.downloadPeer)) {
                     DDLogDebug(@"Loading Bloom filter for peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }

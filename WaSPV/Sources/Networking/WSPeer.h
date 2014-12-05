@@ -54,9 +54,13 @@ typedef enum {
 @property (nonatomic, assign) uint16_t port; // default network port
 
 - (instancetype)init;
-- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue blockChain:(WSBlockChain *)blockChain;
+- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
+                        blockChain:(WSBlockChain *)blockChain
+                       headersOnly:(BOOL)headersOnly;
+
 - (dispatch_queue_t)groupQueue;
 - (WSBlockChain *)blockChain;
+- (BOOL)headersOnly;
 
 @end
 
