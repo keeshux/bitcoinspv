@@ -97,6 +97,9 @@ const NSUInteger        WSTransactionOutPointSize               = 36;
 const uint64_t          WSTransactionMinOutValue                = WSTransactionRelayFeePerUnit * 3 * (WSTransactionInputTypicalSize + WSTransactionOutputTypicalSize) / WSTransactionSizeUnit; // no txout can be below this amount (or it won't relay)
 const NSUInteger        WSTransactionCoinbaseInputIndex         = 0xffffffff;
 
+//
+// See: https://gist.github.com/gavinandresen/2961409
+//
 const uint64_t          WSTransactionMaxSize                    = 100000;   // no tx can be larger than this size in bytes
 const uint64_t          WSTransactionFreeMaxSize                = 1000;     // tx must not be larger than this size in bytes without a fee
 const uint64_t          WSTransactionFreeMinPriority            = 57600000; // tx must not have a priority below this value without a fee
