@@ -82,7 +82,7 @@
                                                                 NSInferMappingModelAutomaticallyOption:@(YES)}
                                                         error:&localError];
 
-    if (localError) {
+    if (!self.store) {
         DDLogError(@"Core Data error initializing persistent coordinator (%@)", localError);
         if (error) {
             *error = localError;
