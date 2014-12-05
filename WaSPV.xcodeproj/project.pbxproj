@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E5E9E5B1A32547300A63C80 /* WaSPV-Main.checkpoints in Resources */ = {isa = PBXBuildFile; fileRef = 0E5E9E591A32546F00A63C80 /* WaSPV-Main.checkpoints */; };
+		0E5E9E5C1A32547300A63C80 /* WaSPV-Testnet3.checkpoints in Resources */ = {isa = PBXBuildFile; fileRef = 0E5E9E5A1A32546F00A63C80 /* WaSPV-Testnet3.checkpoints */; };
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		736A51E1C14C158F812053C8 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
@@ -176,6 +178,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E5E9E591A32546F00A63C80 /* WaSPV-Main.checkpoints */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "WaSPV-Main.checkpoints"; sourceTree = "<group>"; };
+		0E5E9E5A1A32546F00A63C80 /* WaSPV-Testnet3.checkpoints */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "WaSPV-Testnet3.checkpoints"; sourceTree = "<group>"; };
 		324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		35B1312A39704004A5AC7444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+WaSPV.h"; sourceTree = "<group>"; };
@@ -447,6 +451,8 @@
 		8C402447198527D7008FDC5F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0E5E9E591A32546F00A63C80 /* WaSPV-Main.checkpoints */,
+				0E5E9E5A1A32546F00A63C80 /* WaSPV-Testnet3.checkpoints */,
 				8CBB5B13198D0AA8006599DB /* WaSPVResources-Info.plist */,
 				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
 				8C40244A198527D7008FDC5F /* WSCoreDataBlockStore.xcdatamodeld */,
@@ -987,6 +993,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E5E9E5C1A32547300A63C80 /* WaSPV-Testnet3.checkpoints in Resources */,
+				0E5E9E5B1A32547300A63C80 /* WaSPV-Main.checkpoints in Resources */,
 				8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
