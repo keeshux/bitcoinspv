@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSBuffer.h"
+#import "WSSized.h"
 #import "WSIndentableDescription.h"
 
 @class WSHash256;
@@ -37,7 +39,7 @@
 
 #pragma mark -
 
-@interface WSStorableBlock : NSObject <WSIndentableDescription>
+@interface WSStorableBlock : NSObject <WSBufferEncoder, WSBufferDecoder, WSSized, WSIndentableDescription>
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions;
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height;

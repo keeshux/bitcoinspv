@@ -295,6 +295,56 @@
     return [self descriptionWithIndent:0];
 }
 
+#pragma mark WSBufferEncoder
+
+- (void)appendToMutableBuffer:(WSMutableBuffer *)buffer
+{
+    [self.header appendToMutableBuffer:buffer];
+    [buffer appendUint32:self.height];
+    [buffer appendVarData:self.workData];
+}
+
+- (WSBuffer *)toBuffer
+{
+    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:[self estimatedSize]];
+    [self appendToMutableBuffer:buffer];
+    return buffer;
+}
+
+#pragma mark WSBufferDecoder
+
+- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+{
+    if (available < WSBlockHeaderSize) {
+        WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);
+        return nil;
+    }
+    NSUInteger offset = from;
+    
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithBuffer:buffer from:offset available:available error:error];
+    if (!header) {
+        return nil;
+    }
+    
+    offset += WSBlockHeaderSize;
+
+    const NSUInteger height = [buffer uint32AtOffset:offset];
+    offset += sizeof(uint32_t);
+    NSData *workData = [buffer varDataAtOffset:offset length:NULL];
+    
+    return [self initWithHeader:header transactions:nil height:height work:workData];
+}
+
+#pragma mark WSSized
+
+- (NSUInteger)estimatedSize
+{
+    const NSUInteger workLength = BN_num_bytes(self.work);
+    const NSUInteger workLengthLength = WSBufferVarIntSize(workLength);
+    
+    return WSBlockHeaderSize + sizeof(uint32_t) + workLengthLength + workLength;
+}
+
 #pragma mark WSIndentableDescription
 
 - (NSString *)descriptionWithIndent:(NSUInteger)indent
