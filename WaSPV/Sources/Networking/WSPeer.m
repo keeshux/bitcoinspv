@@ -501,7 +501,7 @@
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        DDLogDebug(@"%@ Filtered %u blocks so far", self, _filteredBlockCount);
+        DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
         
         if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
             DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
@@ -896,6 +896,8 @@
 
         outdatedIds = [self.processingBlockIds array];
     }
+    
+#warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
 
     if (outdatedIds.count > 0) {
         DDLogDebug(@"Requesting %u outdated blocks with updated Bloom filter: %@", outdatedIds.count, outdatedIds);
