@@ -1151,7 +1151,8 @@
     
     // transactions should already exist in wallet, no new addresses should be generated
     if (didGenerateNewAddresses) {
-        DDLogWarn(@"Block registering triggered (unexpected) new addresses generation, Bloom filter is outdated");
+        DDLogWarn(@"Block registering triggered (unexpected) new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
+                  self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
         
         [self rebuildAndSendBloomFilter];
         [peer requestOutdatedBlocks];
@@ -1173,7 +1174,8 @@
     }
     
     if (didGenerateNewAddresses) {
-        DDLogDebug(@"Last transaction triggered new addresses generation, Bloom filter is outdated");
+        DDLogDebug(@"Last transaction triggered new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
+                   self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
         
         [self rebuildAndSendBloomFilter];
         [peer requestOutdatedBlocks];
@@ -1214,7 +1216,8 @@
     [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
     
     if (didGenerateNewAddresses) {
-        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation, Bloom filter is outdated");
+        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation, Bloom filter is outdated (height: %u, receive: %u, change: %u)",
+                  self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
 
         [self rebuildAndSendBloomFilter];
         [peer requestOutdatedBlocks];
