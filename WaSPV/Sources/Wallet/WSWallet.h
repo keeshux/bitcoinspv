@@ -101,6 +101,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (NSOrderedSet *)allReceiveAddresses;
 - (NSOrderedSet *)allChangeAddresses;
 - (BOOL)generateAddressesIfNeeded;
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead;
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters;
 - (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter;
 - (BOOL)isRelevantTransaction:(WSSignedTransaction *)transaction;

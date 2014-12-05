@@ -79,8 +79,8 @@
 }
 
 - (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed;
-- (BOOL)generateAddressesForced:(BOOL)forced;
-- (BOOL)generateAddressesForInternalChain:(BOOL)internal forced:(BOOL)forced;
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead forced:(BOOL)forced;
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead internal:(BOOL)internal forced:(BOOL)forced;
 //- (void)cleanTransientStructures;
 
 //
@@ -168,7 +168,7 @@
         }
         
         [self recalculateSpendsAndBalance];
-        [self generateAddressesForced:YES];
+        [self generateAddressesWithLookAhead:_gapLimit forced:YES];
         
         const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
         DDLogDebug(@"Rebuilt wallet transient structures in %.3fs", rebuildTime);
@@ -688,20 +688,25 @@
 
 - (BOOL)generateAddressesIfNeeded
 {
-    return [self generateAddressesForced:NO];
+    return [self generateAddressesWithLookAhead:0 forced:NO];
 }
 
-- (BOOL)generateAddressesForced:(BOOL)forced
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead
+{
+    return [self generateAddressesWithLookAhead:lookAhead forced:NO];
+}
+
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead forced:(BOOL)forced
 {
     @synchronized (self) {
-        BOOL didGenerate = [self generateAddressesForInternalChain:NO forced:forced];
-        didGenerate |= [self generateAddressesForInternalChain:YES forced:forced];
+        BOOL didGenerate = [self generateAddressesWithLookAhead:lookAhead internal:NO forced:forced];
+        didGenerate |= [self generateAddressesWithLookAhead:lookAhead internal:YES forced:forced];
 
         return didGenerate;
     }
 }
 
-- (BOOL)generateAddressesForInternalChain:(BOOL)internal forced:(BOOL)forced
+- (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead internal:(BOOL)internal forced:(BOOL)forced
 {
     @synchronized (self) {
         id<WSBIP32Keyring> targetChain = nil;
@@ -740,38 +745,35 @@
         DDLogDebug(@"Used %u/%u accounts", numberOfUsedAddresses, targetAddresses.count);
         DDLogDebug(@"Current account set to first unused account (%u)", *currentAccount);
         
-        // generate more addresses than gap limit to avoid regenerating each time a new single address is used
-        const NSUInteger lookAhead = 2 * _gapLimit;
-
+        const NSUInteger watchedCount = _gapLimit + lookAhead;
         if (forced) {
-            DDLogDebug(@"Forcing generation of %u look-ahead addresses (2 * gap limit)", lookAhead);
+            DDLogDebug(@"Forcing generation of %u watched addresses", watchedCount);
         }
         else {
             const NSUInteger available = targetAddresses.count - numberOfUsedAddresses;
-            if (available >= _gapLimit) {
-                DDLogDebug(@"Still more available addresses than gap limit (%u >= %u), skipping generation",
-                           available, _gapLimit);
+            if (available >= watchedCount) {
+                DDLogDebug(@"Still more available addresses than watched (%u >= %u), skipping generation",
+                           available, watchedCount);
 
                 return NO;
             }
             else {
-                DDLogDebug(@"All available addresses were used, reestablish look-ahead (2 * gap limit = %u)",
-                           lookAhead);
+                DDLogDebug(@"All available addresses were used, reestablish watched addresses (%u)", watchedCount);
             }
         }
         
         const NSTimeInterval generationStartTime = [NSDate timeIntervalSinceReferenceDate];
         
         const NSUInteger firstGenAccount = targetAddresses.count;
-        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + lookAhead; // excluded
+        const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + watchedCount; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
             WSAddress *address = [[targetChain publicKeyForAccount:(uint32_t)i] address];
             [targetAddresses addObject:address];
         }
         
-        const NSUInteger watchedCount = lastGenAccount - *currentAccount;
-        NSAssert(watchedCount == lookAhead, @"Number of watched addresses must be equal to look-ahead (%u != %u)",
-                 watchedCount, lookAhead);
+        const NSUInteger expectedWatchedCount = lastGenAccount - *currentAccount;
+        NSAssert(expectedWatchedCount == watchedCount, @"Number of watched addresses must be equal to gap limit plus look-ahead (%u != %u)",
+                 expectedWatchedCount, watchedCount);
         
         const NSTimeInterval generationTime = [NSDate timeIntervalSinceReferenceDate] - generationStartTime;
         DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (watched: %u)",
@@ -836,7 +838,7 @@
             
             for (uint32_t account = 0; account < numberOfWatchedAddresses; ++account) {
                 WSPublicKey *pubKey = [chain publicKeyForAccount:account];
-                
+
                 if (![bloomFilter containsData:[pubKey encodedData]]) {
                     return NO;
                 }
