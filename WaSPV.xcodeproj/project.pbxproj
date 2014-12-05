@@ -177,6 +177,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0E5E9E591A32546F00A63C80 /* WaSPV-Main.checkpoints */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "WaSPV-Main.checkpoints"; sourceTree = "<group>"; };
 		0E5E9E5A1A32546F00A63C80 /* WaSPV-Testnet3.checkpoints */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "WaSPV-Testnet3.checkpoints"; sourceTree = "<group>"; };
 		324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -784,6 +785,7 @@
 		8CB6D2931979D18000783ADF /* Manual */ = {
 			isa = PBXGroup;
 			children = (
+				0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */,
 				8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */,
 				8C0EB60A197D7A01004DBBC6 /* WSLocalNetworkTests.m */,
 				8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */,
