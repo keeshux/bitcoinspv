@@ -1306,6 +1306,22 @@
     }
 }
 
+- (void)removeAllTransactions
+{
+    @synchronized (self) {
+        DDLogDebug(@"Removing %u wallet transactions", _txs.count);
+        
+        [_txs removeAllObjects];
+        [_usedAddresses removeAllObjects];
+        [_metadataByTxId removeAllObjects];
+        
+        [self recalculateSpendsAndBalance];
+
+        NSAssert(self.allTransactions.count == 0, @"Expected zero transactions");
+        NSAssert(_balance == 0LL, @"Expected zero balance after forgetting all transactions");
+    }
+}
+
 #pragma mark Utils
 
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo

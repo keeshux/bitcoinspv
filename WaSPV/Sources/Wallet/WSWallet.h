@@ -111,5 +111,6 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block;
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block;
 - (void)reorganizeWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses;
+- (void)removeAllTransactions;
 
 @end
