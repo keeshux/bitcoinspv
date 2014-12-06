@@ -83,6 +83,7 @@
 @property (nonatomic, assign) BOOL didNotifyDownloadFinished;
 @property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
+@property (nonatomic, assign) double observedFalsePositiveRate;
 
 - (void)connect;
 - (void)disconnect;
@@ -96,6 +97,7 @@
 
 - (void)loadFilterAndStartDownload;
 - (void)resetBloomFilter;
+- (void)reloadBloomFilter;
 - (BOOL)maybeResetAndSendBloomFilter;
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
@@ -361,8 +363,6 @@
             DDLogVerbose(@"Ignoring call because already started");
             return NO;
         }
-
-        [self resetBloomFilter];
 
         self.keepConnected = YES;
         [self connect];
@@ -653,6 +653,8 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
+        [self resetBloomFilter];
+        
         if (!self.headersOnly) {
             DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
             [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
@@ -728,6 +730,7 @@
         }
 
         self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateDelta;
+        self.observedFalsePositiveRate = self.bloomFilterParameters.falsePositiveRate;
 
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
         self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
@@ -744,15 +747,8 @@
         if (self.headersOnly || !self.wallet) {
             return;
         }
-    
-        self.bloomFilterParameters.falsePositiveRate = MAX(WSPeerGroupBloomFilterFPRateMin, [self.bloomFilter estimatedFalsePositiveRate]);
 
-        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
-        self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
-        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-        
-        DDLogDebug(@"Bloom filter reloaded in %.3fs (false positive rate: %f)",
-                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+        self.observedFalsePositiveRate = [self.bloomFilter estimatedFalsePositiveRate];
     }
 }
 
