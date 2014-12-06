@@ -33,7 +33,7 @@
         }
     }];
     [nc addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        [checkpoints.data writeToFile:[self filename] atomically:YES];
+        [self privateTestFinishSerializeCheckpoints:checkpoints];
     }];
 }
 
@@ -85,6 +85,13 @@
     [peerGroup startConnections];
     
     [self runForever];
+}
+
+- (void)privateTestFinishSerializeCheckpoints:(WSBuffer *)checkpoints
+{
+    [checkpoints.data writeToFile:[self filename] atomically:YES];
+
+    DDLogInfo(@"Embeddable hex: %@", [checkpoints hexString]);
 }
 
 - (void)privateTestDeserialize
