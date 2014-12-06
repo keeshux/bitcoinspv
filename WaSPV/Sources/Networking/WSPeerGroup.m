@@ -1089,6 +1089,34 @@
         return;
     }
 
+    //
+    // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRPeerManager.m
+    //
+    // low-pass filter in [BRPeerManager peer:relayedBlock:]
+    //
+    @synchronized (self.queue) {
+        if ((peer == self.downloadPeer) && (transactions.count > 0)) {
+            const double oldRate = self.observedFalsePositiveRate;
+            self.observedFalsePositiveRate = (self.observedFalsePositiveRate *
+                                              (1.0 - self.bloomFilterLowPassRatio * filteredBlock.partialMerkleTree.txCount / self.bloomFilterTxsPerBlock) +
+                                              self.bloomFilterLowPassRatio * transactions.count / self.bloomFilterTxsPerBlock);
+            
+            DDLogVerbose(@"Observed false positive rate at #%u: %f * (1.0 - %.2f * %u / %u) + %.2f * %u / %u = %f",
+                         self.blockChain.currentHeight, oldRate,
+                         self.bloomFilterLowPassRatio, filteredBlock.partialMerkleTree.txCount, self.bloomFilterTxsPerBlock,
+                         self.bloomFilterLowPassRatio, transactions.count, self.bloomFilterTxsPerBlock,
+                         self.observedFalsePositiveRate);
+            
+            if (self.observedFalsePositiveRate > self.bloomFilterObservedRateMax) {
+                [self.pool closeConnectionForProcessor:self.downloadPeer
+                                                 error:WSErrorMake(WSErrorCodeSync, @"Too many false positives (%f > %f) in the %u-%u range (%u blocks), disconnecting",
+                                                                   self.observedFalsePositiveRate, self.bloomFilterObservedRateMax,
+                                                                   self.observedFilterHeight, self.currentHeight,
+                                                                   self.currentHeight - self.observedFilterHeight)];
+            }
+        }
+    }
+    
     [self handleAddedBlock:block fromPeer:peer];
 }
 
