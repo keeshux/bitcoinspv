@@ -29,7 +29,7 @@
 
 #define WASPV_WALLET_FILTER_PUBKEYS         1 // bitcoinj approach
 #define WASPV_WALLET_FILTER_UNSPENT         2 // BreadWallet approach
-#define WASPV_WALLET_FILTER                 WASPV_WALLET_FILTER_PUBKEYS
+#define WASPV_WALLET_FILTER                 WASPV_WALLET_FILTER_UNSPENT
 
 //#define WASPV_TEST_NO_HASH_VALIDATIONS    // skip some checks for testing (e.g. hashed block id, tx id, ...)
 //#define WASPV_TEST_MESSAGE_QUEUE          // bufferize received messages for synchronous peer requests
