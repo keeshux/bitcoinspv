@@ -56,7 +56,6 @@
 - (BOOL)isTransitionBlock;
 - (BOOL)hasMoreWorkThanBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)buildNextBlockFromHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions;
-- (WSStorableBlock *)buildNextBlockFromCheckpoint:(WSStorableBlock *)checkpoint;
 
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain;
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock **)lastPreviousBlock;
