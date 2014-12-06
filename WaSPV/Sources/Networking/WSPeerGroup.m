@@ -189,6 +189,12 @@
         self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
 #endif
         
+#warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
+        if (!self.wallet) {
+            self.bloomFilter = [[WSMutableBloomFilter alloc] initWithFullMatch];
+            DDLogDebug(@"No wallet provided, full-match Bloom filter set");
+        }
+
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [nc addObserver:self selector:@selector(applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -698,47 +704,55 @@
 - (void)resetBloomFilter
 {
     @synchronized (self.queue) {
-        if (self.headersOnly) {
+        if (self.headersOnly || !self.wallet) {
             return;
         }
         
-        if (self.wallet) {
-            const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
-            const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
+        const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
+        const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
 
-            // increase fp rate as we approach current height
-            NSUInteger filterRateGap = 0;
-            if (blocksLeft > 0) {
-                filterRateGap = MIN(blocksLeft, retargetInterval);
-            }
-            
-            //
-            // 0.0 if (left blocks >= retarget)
-            // 0.x if (left blocks < retarget)
-            // 1.0 if (left blocks == 0, i.e. blockchain synced)
-            //
-            double fpRateIncrease = 0.0;
-            if ([self isSynced]) {
-                fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
-            }
-
-            self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateRange;
-
-            const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
-            self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
-            const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-
-            DDLogDebug(@"Bloom filter reset in %.3fs (false positive rate: %f)",
-                       rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+        // increase fp rate as we approach current height
+        NSUInteger filterRateGap = 0;
+        if (blocksLeft > 0) {
+            filterRateGap = MIN(blocksLeft, retargetInterval);
         }
-        else {
-#warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
-            if (!self.bloomFilter) {
-                self.bloomFilter = [[WSMutableBloomFilter alloc] initWithFullMatch];
-
-                DDLogDebug(@"Full-match Bloom filter set");
-            }
+        
+        //
+        // 0.0 if (left blocks >= retarget)
+        // 0.x if (left blocks < retarget)
+        // 1.0 if (left blocks == 0, i.e. blockchain synced)
+        //
+        double fpRateIncrease = 0.0;
+        if ([self isSynced]) {
+            fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
         }
+
+        self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateRange;
+
+        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+        self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
+        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+
+        DDLogDebug(@"Bloom filter reset in %.3fs (false positive rate: %f)",
+                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+    }
+}
+
+- (void)reloadBloomFilter
+{
+    @synchronized (self.queue) {
+        if (self.headersOnly || !self.wallet) {
+            return;
+        }
+    
+        self.bloomFilterParameters.falsePositiveRate = MAX(WSPeerGroupBloomFilterFPRateMin, [self.bloomFilter estimatedFalsePositiveRate]);
+
+        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+        self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
+        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+        
+        DDLogDebug(@"Bloom filter reloaded in %.3fs (false positive rate: %f)",
+                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
     }
 }
 
@@ -1158,8 +1172,8 @@
             DDLogDebug(@"Bloom filter is static and doesn't need a reload (flags: UPDATE_NONE)");
             return;
         }
-        
-        [self resetBloomFilter];
+
+        [self reloadBloomFilter];
         [peer sendFilterloadMessageWithFilter:self.bloomFilter];
     }
 }
