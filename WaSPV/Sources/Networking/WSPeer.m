@@ -498,7 +498,7 @@
         }
     }
 
-    BOOL shouldRebuildBloomFilter = NO;
+    BOOL shouldReloadBloomFilter = NO;
 
     @synchronized (self) {
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
@@ -511,7 +511,7 @@
                 DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
                            blockHashes.count, _filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
 
-                shouldRebuildBloomFilter = YES;
+                shouldReloadBloomFilter = YES;
             }
             else {
                 DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
@@ -521,8 +521,8 @@
     }
 
     dispatch_async(self.connectionQueue, ^{
-        if (shouldRebuildBloomFilter) {
-            [self.delegate peerDidRequestRebuiltFilter:self];
+        if (shouldReloadBloomFilter) {
+            [self.delegate peerDidRequestFilterReload:self];
         }
 
         [self unsafeSendMessage:[WSMessageGetdata messageWithInventories:inventories]];

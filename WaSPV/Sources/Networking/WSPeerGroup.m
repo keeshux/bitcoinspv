@@ -39,6 +39,7 @@
 #import "WSBloomFilter.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
+#import "WSPartialMerkleTree.h"
 #import "WSStorableBlock.h"
 #import "WSTransaction.h"
 #import "WSBlockLocator.h"
@@ -94,8 +95,8 @@
 - (void)reinsertInactiveHostWithLowestPriority:(NSString *)host;
 
 - (void)loadFilterAndStartDownload;
-- (void)rebuildBloomFilter;
-- (BOOL)maybeRebuildAndSendBloomFilter;
+- (void)resetBloomFilter;
+- (BOOL)maybeResetAndSendBloomFilter;
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
@@ -355,7 +356,7 @@
             return NO;
         }
 
-        [self rebuildBloomFilter];
+        [self resetBloomFilter];
 
         self.keepConnected = YES;
         [self connect];
@@ -694,7 +695,7 @@
     }
 }
 
-- (void)rebuildBloomFilter
+- (void)resetBloomFilter
 {
     @synchronized (self.queue) {
         if (self.headersOnly) {
@@ -725,9 +726,9 @@
 
             const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
             self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
-
             const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-            DDLogDebug(@"Bloom filter updated in %.3fs (falsePositiveRate: %f)",
+
+            DDLogDebug(@"Bloom filter reset in %.3fs (false positive rate: %f)",
                        rebuildTime, self.bloomFilterParameters.falsePositiveRate);
         }
         else {
@@ -741,18 +742,18 @@
     }
 }
 
-- (BOOL)maybeRebuildAndSendBloomFilter
+- (BOOL)maybeResetAndSendBloomFilter
 {
     @synchronized (self.queue) {
         DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
                    self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
         
         if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
-            DDLogDebug(@"Wallet is still covered by current Bloom filter, not rebuilding");
+            DDLogDebug(@"Wallet is still covered by current Bloom filter, not resetting");
             return NO;
         }
         
-        DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, rebuilding now");
+        DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, resetting now");
 
         if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
             WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
@@ -762,7 +763,7 @@
             DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
         }
 
-        [self rebuildBloomFilter];
+        [self resetBloomFilter];
         
         if (!self.headersOnly) {
             if (![self isSynced]) {
@@ -1148,17 +1149,17 @@
 #warning TODO: handle reject message
 }
 
-- (void)peerDidRequestRebuiltFilter:(WSPeer *)peer
+- (void)peerDidRequestFilterReload:(WSPeer *)peer
 {
-    DDLogDebug(@"Received Bloom filter rebuild request from %@", peer);
+    DDLogDebug(@"Received Bloom filter reload request from %@", peer);
 
     @synchronized (self.queue) {
         if (self.bloomFilterParameters.flags == WSBIP37FlagsUpdateNone) {
-            DDLogDebug(@"Bloom filter is static and doesn't need a rebuild (flags: UPDATE_NONE)");
+            DDLogDebug(@"Bloom filter is static and doesn't need a reload (flags: UPDATE_NONE)");
             return;
         }
         
-        [self rebuildBloomFilter];
+        [self resetBloomFilter];
         [peer sendFilterloadMessageWithFilter:self.bloomFilter];
     }
 }
@@ -1220,7 +1221,7 @@
     if (didGenerateNewAddresses) {
         DDLogWarn(@"Block registration triggered (unexpected) new addresses generation");
         
-        if ([self maybeRebuildAndSendBloomFilter]) {
+        if ([self maybeResetAndSendBloomFilter]) {
             [peer requestOutdatedBlocks];
         }
     }
@@ -1243,7 +1244,7 @@
     if (didGenerateNewAddresses) {
         DDLogDebug(@"Last transaction triggered new addresses generation");
         
-        if ([self maybeRebuildAndSendBloomFilter]) {
+        if ([self maybeResetAndSendBloomFilter]) {
             [peer requestOutdatedBlocks];
         }
     }
@@ -1285,7 +1286,7 @@
     if (didGenerateNewAddresses) {
         DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
 
-        if ([self maybeRebuildAndSendBloomFilter]) {
+        if ([self maybeResetAndSendBloomFilter]) {
             [peer requestOutdatedBlocks];
         }
     }

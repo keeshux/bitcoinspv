@@ -142,7 +142,7 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didReceivePongMesage:(WSMessagePong *)pong;
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message;
-- (void)peerDidRequestRebuiltFilter:(WSPeer *)peer;
+- (void)peerDidRequestFilterReload:(WSPeer *)peer;
 
 @end
 
