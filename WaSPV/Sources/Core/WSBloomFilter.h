@@ -44,6 +44,7 @@
 - (BOOL)containsPublicKey:(WSPublicKey *)pubKey;
 - (BOOL)containsAddress:(WSAddress *)address;
 - (BOOL)containsUnspent:(WSTransactionOutPoint *)unspent;
+- (double)estimatedFalsePositiveRate;
 
 @end
 

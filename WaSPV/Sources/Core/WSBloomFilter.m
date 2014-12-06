@@ -82,6 +82,11 @@
     return [self.filter containsData:[[unspent toBuffer] data]];
 }
 
+- (double)estimatedFalsePositiveRate
+{
+    return [self.filter estimatedFalsePositiveRate];
+}
+
 - (NSString *)description
 {
     return [self.filter description];
