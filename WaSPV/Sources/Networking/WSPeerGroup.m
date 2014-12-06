@@ -1085,7 +1085,7 @@
 
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
 {
-    DDLogDebug(@"Received transaction from %@: %@", peer, transaction);
+    DDLogVerbose(@"Received transaction from %@: %@", peer, transaction);
     
     [self handleReceivedTransaction:transaction fromPeer:peer];
 }
