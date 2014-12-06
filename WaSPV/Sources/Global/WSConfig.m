@@ -61,8 +61,11 @@ const NSTimeInterval    WSPeerGroupReconnectionDelay                = 10.0;
 const NSTimeInterval    WSPeerGroupPingInterval                     = 5.0;
 const NSTimeInterval    WSPeerGroupCommunicationTimeout             = 3.0;
 
-const double            WSPeerGroupBloomFilterFPRateMin             = 0.0001;
-const double            WSPeerGroupBloomFilterFPRateDelta           = 0.0004;
+const double            WSPeerGroupDefaultBFRateMin                 = 0.0001;
+const double            WSPeerGroupDefaultBFRateDelta               = 0.0004;
+const double            WSPeerGroupDefaultBFObservedRateMax         = 10.0 * (WSPeerGroupDefaultBFRateMin + WSPeerGroupDefaultBFRateDelta);
+const double            WSPeerGroupDefaultBFLowPassRatio            = 0.01;     // 1%
+const NSUInteger        WSPeerGroupDefaultBFTxsPerBlock             = 600;
 
 const uint32_t          WSMessageVersionLocalhost                   = 0x0100007f;
 

@@ -83,6 +83,7 @@
 @property (nonatomic, assign) BOOL didNotifyDownloadFinished;
 @property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
+@property (nonatomic, assign) NSUInteger observedFilterHeight;
 @property (nonatomic, assign) double observedFalsePositiveRate;
 
 - (void)connect;
@@ -176,7 +177,13 @@
         self.maxConnections = WSPeerGroupMaxConnections;
         self.maxConnectionFailures = WSPeerGroupMaxConnectionFailures;
         self.reconnectionDelayOnFailure = WSPeerGroupReconnectionDelay;
-        
+
+        self.bloomFilterRateMin = WSPeerGroupDefaultBFRateMin;
+        self.bloomFilterRateDelta = WSPeerGroupDefaultBFRateDelta;
+        self.bloomFilterObservedRateMax = WSPeerGroupDefaultBFObservedRateMax;
+        self.bloomFilterLowPassRatio = WSPeerGroupDefaultBFLowPassRatio;
+        self.bloomFilterTxsPerBlock = WSPeerGroupDefaultBFTxsPerBlock;
+
         self.keepConnected = NO;
         self.connectionFailures = 0;
         self.inactiveHosts = [[NSMutableOrderedSet alloc] init];
@@ -729,7 +736,8 @@
             fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
         }
 
-        self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateDelta;
+        self.bloomFilterParameters.falsePositiveRate = self.bloomFilterRateMin + fpRateIncrease * self.bloomFilterRateDelta;
+        self.observedFilterHeight = self.currentHeight;
         self.observedFalsePositiveRate = self.bloomFilterParameters.falsePositiveRate;
 
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
@@ -748,6 +756,7 @@
             return;
         }
 
+        self.observedFilterHeight = self.currentHeight;
         self.observedFalsePositiveRate = [self.bloomFilter estimatedFalsePositiveRate];
     }
 }
