@@ -1030,11 +1030,11 @@
         WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
         
         if (_txsById[transaction.txId]) {
-            DDLogDebug(@"Ignored wallet transaction %@ (already registered)", transaction.txId);
+            DDLogVerbose(@"Ignored wallet transaction %@ (already registered)", transaction.txId);
             return NO;
         }
         if (![self isRelevantTransaction:transaction savingReceivingAddresses:_usedAddresses]) {
-            DDLogDebug(@"Ignored wallet transaction %@ (not relevant)", transaction.txId);
+            DDLogVerbose(@"Ignored wallet transaction %@ (not relevant)", transaction.txId);
             return NO;
         }
         if (didGenerateNewAddresses) {
