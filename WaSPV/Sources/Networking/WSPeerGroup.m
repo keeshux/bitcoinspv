@@ -174,9 +174,9 @@
         self.shouldDisconnectOnEnterBackground = NO;
         self.headersOnly = NO;
         self.peerHosts = nil;
-        self.maxConnections = WSPeerGroupMaxConnections;
-        self.maxConnectionFailures = WSPeerGroupMaxConnectionFailures;
-        self.reconnectionDelayOnFailure = WSPeerGroupReconnectionDelay;
+        self.maxConnections = WSPeerGroupDefaultMaxConnections;
+        self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
+        self.reconnectionDelayOnFailure = WSPeerGroupDefaultReconnectionDelay;
 
         self.bloomFilterRateMin = WSPeerGroupDefaultBFRateMin;
         self.bloomFilterRateDelta = WSPeerGroupDefaultBFRateDelta;

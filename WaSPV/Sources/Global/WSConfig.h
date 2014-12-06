@@ -61,11 +61,11 @@ extern const uint32_t           WSPeerMinProtocol;
 extern const NSUInteger         WSPeerEnabledServices;
 extern const NSUInteger         WSPeerMaxFilteredBlockCount;
 
-extern const NSUInteger         WSPeerGroupMaxConnections;
-extern const NSUInteger         WSPeerGroupMaxConnectionFailures;
-extern const NSTimeInterval     WSPeerGroupReconnectionDelay;
-extern const NSTimeInterval     WSPeerGroupPingInterval;
-extern const NSTimeInterval     WSPeerGroupCommunicationTimeout;
+extern const NSUInteger         WSPeerGroupDefaultMaxConnections;
+extern const NSUInteger         WSPeerGroupDefaultMaxConnectionFailures;
+extern const NSTimeInterval     WSPeerGroupDefaultReconnectionDelay;
+//extern const NSTimeInterval     WSPeerGroupDefaultPingInterval;
+//extern const NSTimeInterval     WSPeerGroupDefaultCommunicationTimeout;
 
 extern const double             WSPeerGroupDefaultBFRateMin;
 extern const double             WSPeerGroupDefaultBFRateDelta;

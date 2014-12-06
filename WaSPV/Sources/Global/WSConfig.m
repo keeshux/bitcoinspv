@@ -55,11 +55,11 @@ const uint32_t          WSPeerMinProtocol                           = 70001;    
 const NSUInteger        WSPeerEnabledServices                       = 0;        // we don't provide full blocks to remote nodes
 const NSUInteger        WSPeerMaxFilteredBlockCount                 = 2000;
 
-const NSUInteger        WSPeerGroupMaxConnections                   = 3;
-const NSUInteger        WSPeerGroupMaxConnectionFailures            = 20;
-const NSTimeInterval    WSPeerGroupReconnectionDelay                = 10.0;
-const NSTimeInterval    WSPeerGroupPingInterval                     = 5.0;
-const NSTimeInterval    WSPeerGroupCommunicationTimeout             = 3.0;
+const NSUInteger        WSPeerGroupDefaultMaxConnections            = 3;
+const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures     = 20;
+const NSTimeInterval    WSPeerGroupDefaultReconnectionDelay         = 10.0;
+//const NSTimeInterval    WSPeerGroupDefaultPingInterval              = 5.0;
+//const NSTimeInterval    WSPeerGroupDefaultCommunicationTimeout      = 3.0;
 
 const double            WSPeerGroupDefaultBFRateMin                 = 0.0001;
 const double            WSPeerGroupDefaultBFRateDelta               = 0.0004;
