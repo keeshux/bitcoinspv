@@ -208,6 +208,6 @@ The developer takes no responsibility for lost money or any damage due to WaSPV 
 
 ## Credits
 
-* [bitcoinj](http://bitcoinj.github.io/) - The reference Bitcoin library for Java.
+* [bitcoinj](http://bitcoinj.github.io/) - The most popular Bitcoin library for Java.
 * [breadwallet](https://github.com/voisine/breadwallet) - An open source Bitcoin wallet for iOS.
 * [bip32.org](http://bip32.org) - Deterministic wallets for JavaScript.
