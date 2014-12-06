@@ -727,7 +727,7 @@
             fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
         }
 
-        self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateRange;
+        self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin + fpRateIncrease * WSPeerGroupBloomFilterFPRateDelta;
 
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
         self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];

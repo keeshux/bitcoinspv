@@ -67,7 +67,7 @@ extern const NSTimeInterval     WSPeerGroupReconnectionDelay;
 extern const NSTimeInterval     WSPeerGroupPingInterval;
 extern const NSTimeInterval     WSPeerGroupCommunicationTimeout;
 extern const double             WSPeerGroupBloomFilterFPRateMin;
-extern const double             WSPeerGroupBloomFilterFPRateRange;
+extern const double             WSPeerGroupBloomFilterFPRateDelta;
 
 extern const uint32_t           WSMessageVersionLocalhost;
 

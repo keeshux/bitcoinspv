@@ -62,7 +62,7 @@ const NSTimeInterval    WSPeerGroupPingInterval                     = 5.0;
 const NSTimeInterval    WSPeerGroupCommunicationTimeout             = 3.0;
 
 const double            WSPeerGroupBloomFilterFPRateMin             = 0.0001;
-const double            WSPeerGroupBloomFilterFPRateRange           = 0.0004;
+const double            WSPeerGroupBloomFilterFPRateDelta           = 0.0004;
 
 const uint32_t          WSMessageVersionLocalhost                   = 0x0100007f;
 
