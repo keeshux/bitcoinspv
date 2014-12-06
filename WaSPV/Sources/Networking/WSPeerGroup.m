@@ -49,7 +49,6 @@
 #import "WSErrors.h"
 
 @interface WSPeerGroup () {
-    BOOL _autosave;
     BOOL _shouldReconnectOnBecomeActive;
     BOOL _shouldDisconnectOnEnterBackground;
     NSArray *_peerHosts;
@@ -169,7 +168,6 @@
         self.reachability.delegate = self;
         self.reachability.delegateQueue = self.queue;
         
-        self.autosave = YES;
         self.shouldReconnectOnBecomeActive = NO;
         self.shouldDisconnectOnEnterBackground = NO;
         self.headersOnly = NO;
@@ -221,20 +219,6 @@
 }
 
 #pragma mark Properties
-
-- (BOOL)autosave
-{
-    @synchronized (self.queue) {
-        return _autosave;
-    }
-}
-
-- (void)setAutosave:(BOOL)autosave
-{
-    @synchronized (self.queue) {
-        _autosave = autosave;
-    }
-}
 
 - (BOOL)shouldReconnectOnBecomeActive
 {

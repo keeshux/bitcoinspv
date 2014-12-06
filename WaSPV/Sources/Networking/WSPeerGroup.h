@@ -38,7 +38,6 @@
 
 @interface WSPeerGroup : NSObject <WSPeerDelegate, WSReachabilityDelegate>
 
-@property (nonatomic, assign) BOOL autosave;                                // YES
 @property (nonatomic, assign) BOOL shouldReconnectOnBecomeActive;           // NO
 @property (nonatomic, assign) BOOL shouldDisconnectOnEnterBackground;       // NO
 @property (nonatomic, assign) BOOL headersOnly;                             // NO
