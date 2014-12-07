@@ -88,6 +88,8 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     //
     // https://api.biteasy.com/testnet/v1/addresses/muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG/unspent-outputs
     
+    DDLogVerbose(@"Sweeping %@ funds into %@", fromAddress, toAddress);
+
     [self fetchUnspentInputsForAddress:fromAddress page:1 handler:^(WSSignableTransactionInput *input) {
         [builder addSignableInput:input];
     } completion:^{
