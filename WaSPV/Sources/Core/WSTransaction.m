@@ -312,6 +312,20 @@
     [_outputs addObject:output];
 }
 
+- (void)addWipeOutputAddressWithStandardFee:(WSAddress *)address
+{
+    [self addWipeOutputAddress:address fee:0];
+}
+
+- (void)addWipeOutputAddress:(WSAddress *)address fee:(uint64_t)fee
+{
+    const uint64_t effectiveFee = (fee ? : [self standardFeeWithExtraOutputs:1]);
+    const uint64_t outputValue = [self inputValue] - effectiveFee;
+    
+    WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:outputValue address:address];
+    [self addOutput:output];
+}
+
 - (uint64_t)inputValue
 {
     uint64_t value = 0;

@@ -36,6 +36,7 @@
 @class WSSignedTransactionInput;
 @class WSSignableTransactionInput;
 @class WSTransactionOutput;
+@class WSAddress;
 
 #pragma mark -
 
@@ -92,6 +93,10 @@
 - (uint64_t)standardFee;
 - (uint64_t)standardFeeWithExtraOutputs:(NSUInteger)numberOfOutputs;
 - (uint64_t)standardFeeWithExtraBytes:(NSUInteger)numberOfBytes;
+
+// fee = 0 for standard fee
+- (void)addWipeOutputAddressWithStandardFee:(WSAddress *)address;
+- (void)addWipeOutputAddress:(WSAddress *)address fee:(uint64_t)fee;
 
 - (WSSignedTransaction *)signedTransactionWithInputKeys:(NSOrderedSet *)keys error:(NSError **)error;
 
