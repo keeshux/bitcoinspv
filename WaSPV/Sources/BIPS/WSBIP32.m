@@ -86,7 +86,7 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
                         keyData:(NSData *)keyData
 {
     WSExceptionCheckIllegal(chainData != nil, @"Nil chainData");
-    WSExceptionCheckIllegal(chainData != nil, @"Nil keyData");
+    WSExceptionCheckIllegal(keyData != nil, @"Nil keyData");
 
     if ((self = [super init])) {
         self.version = version;
