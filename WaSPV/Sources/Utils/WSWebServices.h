@@ -30,7 +30,7 @@
 @interface WSWebServices : NSObject
 
 + (instancetype)sharedInstance;
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(id))success failure:(void (^)(NSError *))failure;
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(id))success failure:(void (^)(NSError *))failure;
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure;
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure;
 
 @end

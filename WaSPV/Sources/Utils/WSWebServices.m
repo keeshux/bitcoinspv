@@ -42,33 +42,49 @@
     return instance;
 }
 
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(id))success failure:(void (^)(NSError *))failure
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
 {
     [self asynchronousRequestWithBaseURL:baseURL path:path timeout:WSWebServicesDefaultTimeout success:success failure:failure];
 }
 
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(id))success failure:(void (^)(NSError *))failure
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
 {
     NSURL *url = [NSURL URLWithString:path relativeToURL:baseURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
-    
+
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError) {
             DDLogDebug(@"Connection error from %@: %@", request, connectionError);
-            failure(connectionError);
+            failure(0, connectionError);
             return;
         }
         
+        int statusCode = 0;
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            statusCode = httpResponse.statusCode;
+            DDLogDebug(@"Response status %u from %@", statusCode, request);
+            
+            if (statusCode >= 400) {
+                failure(statusCode, nil);
+                return;
+            }
+        }
+        
+        if (ddLogLevel == LOG_LEVEL_VERBOSE) {
+            DDLogVerbose(@"Response string from %@: %@", request, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
+
         NSError *error = nil;
         id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         if (!json) {
             DDLogDebug(@"Malformed JSON from %@: %@", request, error);
-            failure(error);
+            failure(statusCode, error);
         }
 
         DDLogDebug(@"Returned JSON from %@ (%u bytes)", request, data.length);
         DDLogVerbose(@"%@", json);
-        success(json);
+        success(statusCode, json);
     }];
 }
 
