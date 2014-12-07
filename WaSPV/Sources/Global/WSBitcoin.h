@@ -38,9 +38,11 @@
 extern const char               WSBase58Alphabet[];
 
 extern const NSUInteger         WSKeyLength;
+extern const NSUInteger         WSKeyEncodedUncompressedLength;
+extern const NSUInteger         WSKeyEncodedCompressedLength;
 extern const uint8_t            WSKeySignaturePrefix;
-extern const NSUInteger         WSPublicKeyCompressedLength;
 extern const NSUInteger         WSPublicKeyUncompressedLength;
+extern const NSUInteger         WSPublicKeyCompressedLength;
 
 BOOL WSKeyIsValidData(NSData *data);
 BOOL WSPublicKeyIsValidData(NSData *data);

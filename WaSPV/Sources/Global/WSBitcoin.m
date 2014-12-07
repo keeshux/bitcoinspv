@@ -36,9 +36,11 @@
 const char              WSBase58Alphabet[]                      = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 const NSUInteger        WSKeyLength                             = 32;
+const NSUInteger        WSKeyEncodedUncompressedLength          = 33;
+const NSUInteger        WSKeyEncodedCompressedLength            = 34;
 const uint8_t           WSKeySignaturePrefix                    = 0x30;
-const NSUInteger        WSPublicKeyCompressedLength             = 33;
 const NSUInteger        WSPublicKeyUncompressedLength           = 65;
+const NSUInteger        WSPublicKeyCompressedLength             = 33;
 
 BOOL WSKeyIsValidData(NSData *data)
 {
@@ -47,8 +49,8 @@ BOOL WSKeyIsValidData(NSData *data)
 
 BOOL WSPublicKeyIsValidData(NSData *data)
 {
-    return ((data.length == WSPublicKeyCompressedLength) ||
-            (data.length == WSPublicKeyUncompressedLength));
+    return ((data.length == WSPublicKeyUncompressedLength) ||
+            (data.length == WSPublicKeyCompressedLength));
 }
 
 const NSUInteger        WSHash160Length                         = 160 / 8; // 20

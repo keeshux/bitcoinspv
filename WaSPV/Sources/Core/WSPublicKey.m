@@ -68,7 +68,8 @@
 
 - (instancetype)initWithData:(NSData *)data
 {
-    WSExceptionCheckIllegal(WSPublicKeyIsValidData(data), @"Incorrect public key data");
+    WSExceptionCheckIllegal(WSPublicKeyIsValidData(data), @"Incorrect public key data (length: %u != %u | %u)",
+                            data.length, WSPublicKeyUncompressedLength, WSPublicKeyCompressedLength);
 
     if ((self = [super init])) {
         self.key = EC_KEY_new_by_curve_name(NID_secp256k1);

@@ -70,19 +70,25 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
     NSData *encodedData = [[wif hexFromBase58Check] dataFromHex];
     uint8_t version = *(const uint8_t *)encodedData.bytes;
-    if (version != [WSCurrentParameters privateKeyVersion]) {
-        return nil;
-    }
-    NSData *data = [encodedData subdataWithRange:NSMakeRange(1, encodedData.length - 2)];
-    WSExceptionCheckIllegal(data.length == WSKeyLength, @"Incorrect private key length from WIF (%u != %u)",
-                            data.length, WSKeyLength);
-    
-    return [[self alloc] initWithData:data compressed:YES];
+
+    WSExceptionCheckIllegal(version == [WSCurrentParameters privateKeyVersion],
+                            @"Incorrect private key version (%x != %x)",
+                            version, [WSCurrentParameters privateKeyVersion]);
+
+    WSExceptionCheckIllegal((encodedData.length == WSKeyEncodedCompressedLength) || (encodedData.length == WSKeyEncodedUncompressedLength),
+                            @"Incorrect WIF key length (%u = %u | %u)",
+                            encodedData.length, WSKeyEncodedCompressedLength, WSKeyEncodedUncompressedLength);
+
+    NSData *data = [encodedData subdataWithRange:NSMakeRange(1, WSKeyLength)];
+    const BOOL compressed = (encodedData.length == WSKeyEncodedCompressedLength);
+
+    return [[self alloc] initWithData:data compressed:compressed];
 }
 
 - (instancetype)initWithData:(NSData *)data compressed:(BOOL)compressed
 {
-    WSExceptionCheckIllegal(WSKeyIsValidData(data), @"Incorrect private key data");
+    WSExceptionCheckIllegal(WSKeyIsValidData(data), @"Incorrect private key data (length: %u != %u)",
+                            data.length, WSKeyLength);
     
     if ((self = [super init])) {
         self.key = EC_KEY_new_by_curve_name(NID_secp256k1);
@@ -138,7 +144,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     const BIGNUM *priv = EC_KEY_get0_private_key(self.key);
     NSMutableData *data = [[NSMutableData alloc] initWithCapacity:(WSKeyLength + 2)];
 
-    uint8_t version = [WSCurrentParameters privateKeyVersion];
+    const uint8_t version = [WSCurrentParameters privateKeyVersion];
     [data appendBytes:&version length:1];
 
     data.length = WSKeyLength + 1;
