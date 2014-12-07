@@ -95,8 +95,8 @@
 - (uint64_t)standardFeeWithExtraBytes:(NSUInteger)numberOfBytes;
 
 // fee = 0 for standard fee
-- (void)addSweepOutputAddressWithStandardFee:(WSAddress *)address;
-- (void)addSweepOutputAddress:(WSAddress *)address fee:(uint64_t)fee;
+- (BOOL)addSweepOutputAddressWithStandardFee:(WSAddress *)address;
+- (BOOL)addSweepOutputAddress:(WSAddress *)address fee:(uint64_t)fee;
 
 // map keys by address
 - (WSSignedTransaction *)signedTransactionWithInputKeys:(NSDictionary *)keys error:(NSError **)error;
