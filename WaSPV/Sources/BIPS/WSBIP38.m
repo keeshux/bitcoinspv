@@ -38,6 +38,10 @@
 #import "NSData+Base58.h"
 #import "NSData+Hash.h"
 
+#warning TODO: clean up adapted code
+
+// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey%2BBIP38.m
+
 #define rotl(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
 
 // encoding (39 bytes)
@@ -325,7 +329,7 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 @end
 
-#pragma mark Algorithms
+#pragma mark -
 
 // salsa20/8 stream cypher: http://cr.yp.to/snuffle.html
 static void salsa20_8(uint32_t b[16])
