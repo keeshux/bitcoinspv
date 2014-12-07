@@ -41,7 +41,7 @@
 #import "WSErrors.h"
 
 static NSString *const         WSWebUtilsBiteasyBaseURLFormat           = @"https://api.biteasy.com/%@/v1/";
-static const NSTimeInterval    WSWebUtilsBiteasyYieldInterval           = 1;
+static const NSTimeInterval    WSWebUtilsBiteasyYieldInterval           = 1.0;
 static NSString *const         WSWebUtilsBiteasyUnspentFormat           = @"addresses/%@/unspent-outputs?page=%u&per_page=%u";
 static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
 
