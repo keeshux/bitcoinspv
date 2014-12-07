@@ -7,6 +7,7 @@
 //
 
 #import "XCTestCase+WaSPV.h"
+#import "WaSPV.h"
 #import "WSBIP38.h"
 
 @interface WSBIP38Tests : XCTestCase
@@ -93,7 +94,7 @@
         XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
 
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
+        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
@@ -128,12 +129,96 @@
         XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
 
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
+        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
         XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+    }
+}
+
+- (void)testVectorECUncompressed
+{
+    NSArray *passphrases = @[@"TestingOneTwoThree",
+                             @"Satoshi"];
+//    NSArray *passphraseCodes = @[@"passphrasepxFy57B9v8HtUsszJYKReoNDV6VHjUSGt8EVJmux9n1J3Ltf1gRxyDGXqnf9qm",
+//                                 @"passphraseoRDGAXTWzbp72eVbtUDdn1rwpgPUGjNZEc6CGBo8i5EC1FPW8wcnLdq4ThKzAS"];
+    NSArray *encrypted = @[@"6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX",
+                           @"6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd"];
+    NSArray *addresses = @[@"1PE6TQi6HTVNz5DLwB1LcpMBALubfuN2z2",
+                           @"1CqzrtZC6mXSAhoxtFwVjz8LtwLJjDYU3V"];
+    NSArray *decryptedWIFs = @[@"5K4caxezwjGCGfnoPTZ8tMcJBLB7Jvyjv4xxeacadhq8nLisLR2",
+                               @"5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH"];
+    NSArray *decryptedHexes = @[@"A43A940577F4E97F5C4D39EB14FF083A98187C64EA7C99EF7CE460833959A519",
+                                @"C2C8036DF268F498099350718C4A3EF3984D2BE84618C2650F5171DCC5EB660A"];
+    
+    WSKey *key;
+    WSBIP38Key *bip38Key;
+    
+    for (NSUInteger i = 0; i < passphrases.count; ++i) {
+        bip38Key = [[WSBIP38Key alloc] initWithEncrypted:encrypted[i]];
+        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
+        
+        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
+        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        
+        key = [WSKey keyWithWIF:decryptedWIFs[i]];
+        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        
+//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:YES];
+//        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
+//        
+//        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
+//        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+//        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+//        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+    }
+}
+
+- (void)testVectorECUncompressedLotSequence
+{
+    NSArray *passphrases = @[@"MOLON LABE",
+                             @"ΜΟΛΩΝ ΛΑΒΕ"];
+//    NSArray *passphraseCodes = @[@"passphraseaB8feaLQDENqCgr4gKZpmf4VoaT6qdjJNJiv7fsKvjqavcJxvuR1hy25aTu5sX",
+//                                 @"passphrased3z9rQJHSyBkNBwTRPkUGNVEVrUAcfAXDyRU1V28ie6hNFbqDwbFBvsTK7yWVK"];
+    NSArray *encrypted = @[@"6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j",
+                           @"6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH"];
+    NSArray *addresses = @[@"1Jscj8ALrYu2y9TD8NrpvDBugPedmbj4Yh",
+                           @"1Lurmih3KruL4xDB5FmHof38yawNtP9oGf"];
+    NSArray *decryptedWIFs = @[@"5JLdxTtcTHcfYcmJsNVy1v2PMDx432JPoYcBTVVRHpPaxUrdtf8",
+                               @"5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D"];
+    NSArray *decryptedHexes = @[@"44EA95AFBF138356A05EA32110DFD627232D0F2991AD221187BE356F19FA8190",
+                                @"CA2759AA4ADB0F96C414F36ABEB8DB59342985BE9FA50FAAC228C8E7D90E3006"];
+    
+    WSKey *key;
+    WSBIP38Key *bip38Key;
+    
+    for (NSUInteger i = 0; i < passphrases.count; ++i) {
+        bip38Key = [[WSBIP38Key alloc] initWithEncrypted:encrypted[i]];
+        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
+        
+        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
+        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        
+        key = [WSKey keyWithWIF:decryptedWIFs[i]];
+        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        
+//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:YES];
+//        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
+//
+//        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
+//        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+//        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+//        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
     }
 }
 

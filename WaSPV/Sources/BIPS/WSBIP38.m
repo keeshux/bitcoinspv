@@ -161,8 +161,7 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
         [encryptedData appendData:encryptedHalf2];
     }
     else {
-#warning FIXME: currently unsupported EC-multiplied encryption
-
+#warning TODO: unsupported EC-multiplied encryption
         WSExceptionRaiseUnsupported(@"Unsupported EC-multiplied encryption");
     }
 
