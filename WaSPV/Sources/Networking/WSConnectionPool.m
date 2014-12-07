@@ -220,7 +220,7 @@
 {
     NSAssert(handler, @"Nil handler");
     
-    if (![self.handlersByIdentifier objectForKey:handler.identifier]) {
+    if (!self.handlersByIdentifier[handler.identifier]) {
         DDLogVerbose(@"Removing nonexistent handler (%@)", handler);
         return;
     }

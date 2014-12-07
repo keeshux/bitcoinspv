@@ -814,7 +814,7 @@
         if (![self isConnected]) {
             return NO;
         }
-        if ([self.publishedTransactions objectForKey:transaction.txId]) {
+        if (self.publishedTransactions[transaction.txId]) {
             return NO;
         }
         self.publishedTransactions[transaction.txId] = transaction;
@@ -1333,7 +1333,7 @@
 {
     @synchronized (self.queue) {
         BOOL isPublished = NO;
-        if ([self.publishedTransactions objectForKey:transaction.txId]) {
+        if (self.publishedTransactions[transaction.txId]) {
             [self.publishedTransactions removeObjectForKey:transaction.txId];
             isPublished = YES;
             
