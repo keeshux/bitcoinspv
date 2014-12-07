@@ -252,6 +252,23 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, self.key) == 1);
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    WSKey *key = object;
+    return ([key.data isEqualToData:self.data] && ([key isCompressed] == [self isCompressed]));
+}
+
+- (NSUInteger)hash
+{
+    return [self.data hash];
+}
+
 - (NSString *)description
 {
     return [self WIF];

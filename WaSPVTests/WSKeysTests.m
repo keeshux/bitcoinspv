@@ -80,6 +80,9 @@
     XCTAssertTrue([testKeyCompressed isCompressed]);
     XCTAssertFalse([testKeyUncompressed isCompressed]);
 
+    XCTAssertEqualObjects(keyCOM, testKeyCompressed);
+    XCTAssertEqualObjects(keyUC, testKeyUncompressed);
+    
     XCTAssertEqualObjects(testKeyCompressed.data, keyCOM.data);
     XCTAssertEqualObjects(testKeyCompressed.data, keyUC.data);
     XCTAssertEqualObjects(testKeyCompressed.encodedData, keyCOM.encodedData);
