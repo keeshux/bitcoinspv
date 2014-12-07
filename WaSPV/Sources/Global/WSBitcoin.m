@@ -83,7 +83,9 @@ uint64_t WSTransactionStandardRelayFee(NSUInteger txSize)
 }
 
 //
-// Taken from: https://github.com/bitcoin/bitcoin/blob/master/src/core.h
+// 12/07/2014
+//
+// Taken from: https://github.com/bitcoin/bitcoin/blob/master/src/primitives/transaction.h#L137
 //
 // "Dust" is defined in terms of CTransaction::minRelayTxFee,
 // which has units satoshis-per-kilobyte.
