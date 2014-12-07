@@ -66,7 +66,8 @@
             failure(error);
         }
 
-        DDLogDebug(@"Returned JSON from %@: %@", request, json);
+        DDLogDebug(@"Returned JSON from %@ (%u bytes)", request, data.length);
+        DDLogVerbose(@"%@", json);
         success(json);
     }];
 }
