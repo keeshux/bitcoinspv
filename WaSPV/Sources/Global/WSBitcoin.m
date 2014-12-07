@@ -110,7 +110,7 @@ const uint64_t          WSTransactionFreeMinPriority            = 57600000; // t
 NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger numberOfOutputs)
 {
     // version + locktime + ins/outs
-    return (8 + numberOfInputs * WSTransactionInputTypicalSize + numberOfOutputs * WSTransactionOutputTypicalSize);
+    return (sizeof(uint32_t) + sizeof(uint32_t) + numberOfInputs * WSTransactionInputTypicalSize + numberOfOutputs * WSTransactionOutputTypicalSize);
 }
 
 NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures)
