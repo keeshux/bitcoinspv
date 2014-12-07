@@ -38,6 +38,8 @@
 #import "WSHash256.h"
 #import "WSBuffer.h"
 
+#import "WSKey.h"
+#import "WSPublicKey.h"
 #import "WSScript.h"
 #import "WSAddress.h"
 #import "WSTransaction.h"
