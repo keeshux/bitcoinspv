@@ -13,6 +13,7 @@
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
 		0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */; };
+		0EF696801A351742006E027C /* WSBIP21.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967F1A351742006E027C /* WSBIP21.m */; };
 		736A51E1C14C158F812053C8 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 		8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */; };
 		8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */; };
@@ -188,6 +189,8 @@
 		0EF696781A34DC57006E027C /* WSBIP38.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP38.h; sourceTree = "<group>"; };
 		0EF696791A34DC57006E027C /* WSBIP38.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP38.m; sourceTree = "<group>"; };
 		0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP38Tests.m; sourceTree = "<group>"; };
+		0EF6967E1A351742006E027C /* WSBIP21.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP21.h; sourceTree = "<group>"; };
+		0EF6967F1A351742006E027C /* WSBIP21.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21.m; sourceTree = "<group>"; };
 		324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		35B1312A39704004A5AC7444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+WaSPV.h"; sourceTree = "<group>"; };
@@ -612,6 +615,8 @@
 		8C8ADF90196786CA007787ED /* BIPS */ = {
 			isa = PBXGroup;
 			children = (
+				0EF6967E1A351742006E027C /* WSBIP21.h */,
+				0EF6967F1A351742006E027C /* WSBIP21.m */,
 				8C8ADF93196786CA007787ED /* WSBIP32.h */,
 				8C8ADF94196786CA007787ED /* WSBIP32.m */,
 				8C8ADF95196786CA007787ED /* WSBIP37.h */,
@@ -1201,6 +1206,7 @@
 				8C196B5F197EE62900D27CA1 /* WSHDWallet.m in Sources */,
 				8C49705F196EEEF800BD9D3B /* WSPublicKey.m in Sources */,
 				8C8AE00E196786CA007787ED /* WSMessageMerkleblock.m in Sources */,
+				0EF696801A351742006E027C /* WSBIP21.m in Sources */,
 				8C8AE01C196786CA007787ED /* NSString+Binary.m in Sources */,
 				8C8ADFFC196786CA007787ED /* WSBIP37.m in Sources */,
 				8C8AE014196786CA007787ED /* WSMessageVersion.m in Sources */,
