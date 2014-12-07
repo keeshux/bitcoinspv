@@ -26,6 +26,9 @@
 //
 
 #import "WSBitcoin.h"
+#import "WSTransactionInput.h"
+#import "WSTransactionOutput.h"
+#import "WSScript.h"
 
 //
 // https://en.bitcoin.it/wiki/Base58Check#Base58_symbol_chart
@@ -108,4 +111,42 @@ NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger number
 {
     // version + locktime + ins/outs
     return (8 + numberOfInputs * WSTransactionInputTypicalSize + numberOfOutputs * WSTransactionOutputTypicalSize);
+}
+
+NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures)
+{
+    NSUInteger size = 0;
+    
+    size += sizeof(uint32_t); // version
+    
+    size += WSBufferVarIntSize(inputs.count);
+    if (simulatingSignatures) {
+        size += inputs.count * WSTransactionInputTypicalSize;
+    }
+    else {
+        for (id<WSTransactionInput> input in inputs) {
+            size += WSTransactionOutPointSize;
+            const NSUInteger scriptSize = [input.script estimatedSize];
+            size += WSBufferVarIntSize(scriptSize);
+            size += scriptSize;
+            size += sizeof(uint32_t); // sequence
+        }
+    }
+    
+    size += WSBufferVarIntSize(outputs.count);
+    if (simulatingSignatures) {
+        size += outputs.count * WSTransactionOutputTypicalSize;
+    }
+    else {
+        for (WSTransactionOutput *output in outputs) {
+            size += sizeof(uint64_t); // value
+            const NSUInteger scriptSize = [output.script estimatedSize];
+            size += WSBufferVarIntSize(scriptSize);
+            size += scriptSize;
+        }
+    }
+    
+    size += sizeof(uint32_t); // lockTime
+    
+    return size;
 }

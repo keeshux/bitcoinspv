@@ -81,6 +81,7 @@ extern const uint64_t           WSTransactionFreeMaxSize;
 extern const uint64_t           WSTransactionFreeMinPriority;
 
 NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger numberOfOutputs);
+NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures);
 
 typedef enum {
     WSTransactionSigHash_ALL            = 0x00000001U
