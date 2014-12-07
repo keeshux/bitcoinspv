@@ -29,17 +29,34 @@
 
 #import "WSKey.h"
 
+// WARNING: BIP38 is described for main network only
+
 extern const NSUInteger WSBIP38KeyLength;
-extern const NSUInteger WSBIP38KeyNonECPrefix;
-extern const NSUInteger WSBIP38KeyECPrefix;
+extern const NSUInteger WSBIP38KeyHeaderLength;
+
+extern const NSUInteger WSBIP38KeyPrefixNonEC;
+extern const NSUInteger WSBIP38KeyPrefixEC;
+
+extern const NSUInteger WSBIP38KeyFlagsNonEC;
+extern const NSUInteger WSBIP38KeyFlagsCompressed;
+extern const NSUInteger WSBIP38KeyFlagsLotSequence;
+extern const NSUInteger WSBIP38KeyFlagsInvalid;
 
 @interface WSBIP38Key : NSObject
 
 - (instancetype)initWithEncrypted:(NSString *)encrypted;
-- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase;
+- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase; // ec = NO
+//- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec;
+
 - (NSString *)encrypted;
 - (NSData *)encryptedData;
+- (uint16_t)prefix;
+- (uint8_t)flags;
+- (uint32_t)addressHash;
 - (BOOL)isEC;
+- (BOOL)isCompressed;
+
+- (WSKey *)decryptedKeyWithPassphrase:(NSString *)passphrase;
 
 @end
 
@@ -47,6 +64,6 @@ extern const NSUInteger WSBIP38KeyECPrefix;
 
 @interface WSKey (BIP38)
 
-- (instancetype)initWithBIP38Key:(WSBIP38Key *)key passphrase:(NSString *)passphrase;
+- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase;
 
 @end
