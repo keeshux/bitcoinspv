@@ -72,7 +72,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     uint8_t version = *(const uint8_t *)encodedData.bytes;
 
     WSExceptionCheckIllegal(version == [WSCurrentParameters privateKeyVersion],
-                            @"Incorrect private key version (%x != %x)",
+                            @"Unrecognized private key version (%x != %x)",
                             version, [WSCurrentParameters privateKeyVersion]);
 
     WSExceptionCheckIllegal((encodedData.length == WSKeyEncodedCompressedLength) || (encodedData.length == WSKeyEncodedUncompressedLength),

@@ -51,7 +51,7 @@
     WSExceptionCheckIllegal(hash160.length == WSHash160Length, @"Hash160 must be %u bytes long", WSHash160Length);
     WSExceptionCheckIllegal((version == [WSCurrentParameters publicKeyAddressVersion]) ||
                             (version == [WSCurrentParameters scriptAddressVersion]),
-                             @"Invalid address version (%u)", version);
+                             @"Unrecognized address version (%u)", version);
 
     if ((self = [super init])) {
         self.version = version;
