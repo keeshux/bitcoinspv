@@ -1,8 +1,8 @@
 //
-//  WaSPV.h
+//  WSWebUtils.h
 //  WaSPV
 //
-//  Created by Davide De Rosa on 29/07/14.
+//  Created by Davide De Rosa on 07/12/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -26,39 +26,19 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDLog.h"
 
-#import "WSBitcoin.h"
+@class WSKey;
+@class WSAddress;
+@class WSSignedTransaction;
 
-#import "WSParameters.h"
-#import "WSParametersFactoryMain.h"
-#import "WSParametersFactoryTestnet3.h"
-#import "WSParametersFactoryRegtest.h"
+@interface WSWebUtils : NSObject
 
-#import "WSHash256.h"
-#import "WSBuffer.h"
++ (instancetype)sharedInstance;
 
-#import "WSScript.h"
-#import "WSAddress.h"
-#import "WSTransaction.h"
-#import "WSTransactionInput.h"
-#import "WSTransactionOutput.h"
-#import "WSTransactionOutPoint.h"
+- (void)buildSweepTransactionFromKey:(WSKey *)fromKey
+                           toAddress:(WSAddress *)toAddress
+                                 fee:(uint64_t)fee
+                             success:(void (^)(WSSignedTransaction *))success
+                             failure:(void (^)(NSError *))failure;
 
-#import "WSBlockStore.h"
-#import "WSMemoryBlockStore.h"
-#import "WSCoreDataBlockStore.h"
-#import "WSCoreDataManager.h"
-#import "WSBlockHeader.h"
-#import "WSStorableBlock.h"
-
-#import "WSPeerGroup.h"
-#import "WSSeed.h"
-#import "WSSeedGenerator.h"
-
-#import "WSHDWallet.h"
-#import "WSTransactionMetadata.h"
-
-#import "WSErrors.h"
-#import "WSMacros.h"
-#import "WSWebUtils.h"
+@end
