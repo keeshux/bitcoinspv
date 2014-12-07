@@ -52,9 +52,11 @@
     NSURL *url = [NSURL URLWithString:path relativeToURL:baseURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
 
+    DDLogDebug(@"%@ -> Sending request", request.URL);
+
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (connectionError) {
-            DDLogDebug(@"Connection error from %@: %@", request, connectionError);
+            DDLogDebug(@"%@ -> Connection error: %@", request.URL, connectionError);
             failure(0, connectionError);
             return;
         }
@@ -63,26 +65,24 @@
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             statusCode = httpResponse.statusCode;
-            DDLogDebug(@"Response status %u from %@", statusCode, request);
-            
-            if (statusCode >= 400) {
-                failure(statusCode, nil);
-                return;
-            }
+            DDLogDebug(@"%@ -> Status %u", request.URL, statusCode);
         }
-        
         if (ddLogLevel == LOG_LEVEL_VERBOSE) {
-            DDLogVerbose(@"Response string from %@: %@", request, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            DDLogVerbose(@"%@ -> Response string: %@", request.URL, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
+        if (statusCode >= 400) {
+            failure(statusCode, nil);
+            return;
         }
 
         NSError *error = nil;
         id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         if (!json) {
-            DDLogDebug(@"Malformed JSON from %@: %@", request, error);
+            DDLogDebug(@"%@ -> Malformed JSON: %@", request.URL, error);
             failure(statusCode, error);
         }
 
-        DDLogDebug(@"Returned JSON from %@ (%u bytes)", request, data.length);
+        DDLogDebug(@"%@ -> JSON (%u bytes)", request.URL, data.length);
         DDLogVerbose(@"%@", json);
         success(statusCode, json);
     }];
