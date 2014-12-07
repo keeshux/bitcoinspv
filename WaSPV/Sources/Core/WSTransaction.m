@@ -364,16 +364,10 @@
     return WSTransactionStandardRelayFee([self estimatedSize] + numberOfBytes);
 }
 
-- (WSSignedTransaction *)signedTransactionWithInputKeys:(NSOrderedSet *)keys error:(NSError *__autoreleasing *)error
+- (WSSignedTransaction *)signedTransactionWithInputKeys:(NSDictionary *)keys error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(keys.count > 0, @"Empty keys");
 
-    if (keys.count != self.signableInputs.count) {
-        WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Keys count does not match inputs count (%u != %u)",
-                   keys.count, self.signableInputs.count);
-
-        return nil;
-    }
     if ((self.signableInputs.count == 0) || (self.outputs.count == 0)) {
         WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Empty inputs or outputs");
         return nil;
@@ -382,16 +376,21 @@
     const WSTransactionSigHash hashFlags = WSTransactionSigHash_ALL;
     
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.signableInputs.count];
-    NSUInteger i = 0;
     for (WSSignableTransactionInput *input in self.signableInputs) {
-        WSKey *key = keys[i];
+        WSAddress *inputAddress = input.previousOutput.address;
+        WSKey *key = keys[inputAddress];
+        if (!key) {
+            WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorInputAddressKey: inputAddress},
+                               @"Missing key for input address %@", inputAddress);
+
+            return nil;
+        }
+
         WSBuffer *buffer = [self signableBufferForInput:input hashFlags:hashFlags];
         WSHash256 *hash256 = [buffer computeHash256];
 
         WSSignedTransactionInput *signedInput = [input signedInputWithKey:key hash256:hash256 hashFlags:hashFlags];
         [signedInputs addObject:signedInput];
-
-        ++i;
     }
     
     return [[WSSignedTransaction alloc] initWithVersion:self.version signedInputs:signedInputs outputs:self.outputs lockTime:self.lockTime error:error];

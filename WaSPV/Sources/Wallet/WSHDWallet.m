@@ -38,6 +38,7 @@
 #import "WSTransaction.h"
 #import "WSBloomFilter.h"
 #import "WSPublicKey.h"
+#import "WSAddress.h"
 #import "WSScript.h"
 #import "WSStorableBlock.h"
 #import "WSTransactionMetadata.h"
@@ -589,18 +590,18 @@
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError *__autoreleasing *)error
 {
     @synchronized (self) {
-        NSMutableOrderedSet *keys = [[NSMutableOrderedSet alloc] initWithCapacity:builder.signableInputs.count];
+        NSMutableDictionary *keys = [[NSMutableDictionary alloc] initWithCapacity:builder.signableInputs.count];
 
         for (WSSignableTransactionInput *input in builder.signableInputs) {
             WSKey *key = [self privateKeyForAddress:input.address];
             if (!key) {
                 const NSUInteger index = keys.count;
-                WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorKeyIndexKey: @(index)},
-                                   @"Missing key for input #%u (address: %@)", index, input.address);
+                WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorInputAddressKey: input.address},
+                                   @"Missing key for input address %@", index, input.address);
 
                 return nil;
             }
-            [keys addObject:key];
+            keys[input.address] = key;
         }
         
         return [builder signedTransactionWithInputKeys:keys error:error];

@@ -98,6 +98,7 @@
 - (void)addWipeOutputAddressWithStandardFee:(WSAddress *)address;
 - (void)addWipeOutputAddress:(WSAddress *)address fee:(uint64_t)fee;
 
-- (WSSignedTransaction *)signedTransactionWithInputKeys:(NSOrderedSet *)keys error:(NSError **)error;
+// map keys by address
+- (WSSignedTransaction *)signedTransactionWithInputKeys:(NSDictionary *)keys error:(NSError **)error;
 
 @end

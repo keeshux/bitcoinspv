@@ -37,7 +37,7 @@ NSString *const         WSExceptionUnsupported                      = @"Unsuppor
 NSString *const         WSErrorDomain                               = @"WaSPV";
 
 NSString *const         WSErrorMessageTypeKey                       = @"MessageType";
-NSString *const         WSErrorKeyIndexKey                          = @"KeyIndex";
+NSString *const         WSErrorInputAddressKey                      = @"InputAddress";
 NSString *const         WSErrorFeeKey                               = @"Fee";
 
 #pragma mark - Macros

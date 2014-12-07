@@ -55,7 +55,7 @@ typedef enum {
 
 extern NSString *const          WSErrorMessageTypeKey;
 extern NSString *const          WSErrorFeeKey;
-extern NSString *const          WSErrorKeyIndexKey;
+extern NSString *const          WSErrorInputAddressKey;
 
 #pragma mark - Macros
 

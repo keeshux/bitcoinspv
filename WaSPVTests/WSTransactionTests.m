@@ -312,7 +312,7 @@
     //
 
     NSError *error;
-    NSOrderedSet *inputKeys = [[NSOrderedSet alloc] initWithArray:@[inputKey]];
+    NSDictionary *inputKeys = @{inputKey.address: inputKey};
     WSSignedTransaction *tx = [builder signedTransactionWithInputKeys:inputKeys error:&error];
     XCTAssertNotNil(tx, @"Unable to sign transaction: %@", error);
 
