@@ -51,7 +51,7 @@
 
 - (BOOL)isCoinbase;
 - (BOOL)isSigned;
-- (WSAddress *)address;
+- (WSAddress *)address; // XXX: unreliable for signed inputs
 
 @end
 
