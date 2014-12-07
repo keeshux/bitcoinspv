@@ -39,6 +39,7 @@
 + (instancetype)keyWithData:(NSData *)data compressed:(BOOL)compressed;
 + (instancetype)keyWithWIF:(NSString *)wif;
 - (NSData *)data;
+- (BOOL)isCompressed;
 - (NSData *)encodedData;
 - (NSString *)WIF;
 - (WSPublicKey *)publicKey;

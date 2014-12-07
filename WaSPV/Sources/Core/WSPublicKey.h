@@ -38,6 +38,7 @@
 + (instancetype)publicKeyWithPrivateData:(NSData *)data;
 + (instancetype)publicKeyWithPrivateData:(NSData *)data compressed:(BOOL)compressed;
 - (NSData *)data;
+- (BOOL)isCompressed;
 - (NSData *)encodedData;
 - (NSData *)hash160;
 - (WSAddress *)address;

@@ -90,6 +90,11 @@
     }
 }
 
+- (BOOL)isCompressed
+{
+    return (self.data.length == WSPublicKeyCompressedLength);
+}
+
 - (NSData *)encodedData
 {
     if (!EC_KEY_check_key(_key)) {

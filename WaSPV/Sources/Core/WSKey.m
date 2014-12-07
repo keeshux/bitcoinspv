@@ -124,7 +124,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
         BN_CTX_free(ctx);
 
         self.data = [data copy];
-}
+    }
     return self;
 }
 
@@ -133,6 +133,11 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     if (self.key) {
         EC_KEY_free(self.key);
     }
+}
+
+- (BOOL)isCompressed
+{
+    return (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED);
 }
 
 - (NSData *)encodedData
@@ -149,7 +154,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
     data.length = WSKeyLength + 1;
     BN_bn2bin(priv, (unsigned char *)data.mutableBytes + data.length - BN_num_bytes(priv));
-    if (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED) {
+    if ([self isCompressed]) {
         [data appendBytes:"\x01" length:1];
     }
     
