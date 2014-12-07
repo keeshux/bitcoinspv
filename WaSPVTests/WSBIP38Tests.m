@@ -93,7 +93,8 @@
         XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
 
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
+//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
+        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
@@ -128,7 +129,8 @@
         XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
 
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
+//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
+        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
