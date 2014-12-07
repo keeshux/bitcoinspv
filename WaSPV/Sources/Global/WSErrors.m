@@ -116,6 +116,11 @@ void WSErrorSetUserInfo(NSError **error, WSErrorCode code, NSDictionary *userInf
             description = [[NSString alloc] initWithFormat:format arguments:args];
             va_end(args);
         }
+        if (description) {
+            NSMutableDictionary *descUserInfo = [userInfo mutableCopy];
+            descUserInfo[NSLocalizedDescriptionKey] = description;
+            userInfo = descUserInfo;
+        }
         *error = [NSError errorWithDomain:WSErrorDomain code:code userInfo:userInfo];
     }
 }
