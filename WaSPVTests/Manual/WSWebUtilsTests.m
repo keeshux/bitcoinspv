@@ -62,4 +62,19 @@
     [self runForSeconds:5.0];
 }
 
+- (void)testSweepBIP38
+{
+    WSBIP38Key *bip38Key = WSBIP38KeyFromString(@"6PYLdaRqCvj77isRyypqsX2kZyPvM6ESG2LXbm7bXwNYfDbd1Q5KuYqvtZ"); // cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo
+    WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
+    NSString *passphrase = @"foobar";
+    
+    [[WSWebUtils sharedInstance] buildSweepTransactionFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 success:^(WSSignedTransaction *transaction) {
+        DDLogDebug(@"Transaction: %@", transaction);
+    } failure:^(NSError *error) {
+        DDLogError(@"Error building transaction: %@", error);
+    }];
+    
+    [self runForSeconds:5.0];
+}
+
 @end

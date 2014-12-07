@@ -30,6 +30,7 @@
 #import "WSWebUtils.h"
 #import "WSJSONClient.h"
 #import "WSKey.h"
+#import "WSBIP38.h"
 #import "WSAddress.h"
 #import "WSTransactionInput.h"
 #import "WSTransactionOutPoint.h"
@@ -116,6 +117,22 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
         success(transaction);
 
     } failure:failure];
+}
+
+- (void)buildSweepTransactionFromBIP38Key:(WSBIP38Key *)fromBIP38Key
+                               passphrase:(NSString *)passphrase
+                                toAddress:(WSAddress *)toAddress
+                                      fee:(uint64_t)fee
+                                  success:(void (^)(WSSignedTransaction *))success
+                                  failure:(void (^)(NSError *))failure
+{
+    WSExceptionCheckIllegal(fromBIP38Key != nil, @"Nil fromBIP38Key");
+    WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
+    WSExceptionCheckIllegal(success != nil, @"Nil success");
+    WSExceptionCheckIllegal(failure != nil, @"Nil failure");
+
+    WSKey *fromKey = [fromBIP38Key decryptedKeyWithPassphrase:passphrase];
+    [self buildSweepTransactionFromKey:fromKey toAddress:toAddress fee:fee success:success failure:failure];
 }
 
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address

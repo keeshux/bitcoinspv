@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 @class WSKey;
+@class WSBIP38Key;
 @class WSAddress;
 @class WSSignedTransaction;
 
@@ -40,5 +41,12 @@
                                  fee:(uint64_t)fee
                              success:(void (^)(WSSignedTransaction *))success
                              failure:(void (^)(NSError *))failure;
+
+- (void)buildSweepTransactionFromBIP38Key:(WSBIP38Key *)fromBIP38Key
+                               passphrase:(NSString *)passphrase
+                                toAddress:(WSAddress *)toAddress
+                                      fee:(uint64_t)fee
+                                  success:(void (^)(WSSignedTransaction *))success
+                                  failure:(void (^)(NSError *))failure;
 
 @end
