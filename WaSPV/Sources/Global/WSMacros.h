@@ -34,6 +34,7 @@
 @class WSMutableBuffer;
 @class WSKey;
 @class WSPublicKey;
+@class WSBIP38Key;
 @class WSAddress;
 @class WSInventory;
 @class WSNetworkAddress;
@@ -112,6 +113,8 @@ WSMutableBuffer *WSMutableBufferFromHex(NSString *hex);
 WSKey *WSKeyFromHex(NSString *hex);
 WSKey *WSKeyFromWIF(NSString *wif);
 WSPublicKey *WSPublicKeyFromHex(NSString *hex);
+
+WSBIP38Key *WSBIP38KeyFromString(NSString *string);
 
 WSAddress *WSAddressFromString(NSString *string);
 WSAddress *WSAddressFromHex(NSString *hexString);

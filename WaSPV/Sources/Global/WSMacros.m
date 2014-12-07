@@ -32,6 +32,7 @@
 #import "WSHash256.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSBIP38.h"
 #import "WSAddress.h"
 #import "WSScript.h"
 #import "WSInventory.h"
@@ -121,6 +122,11 @@ inline WSKey *WSKeyFromWIF(NSString *wif)
 inline WSPublicKey *WSPublicKeyFromHex(NSString *hex)
 {
     return [WSPublicKey publicKeyWithData:[hex dataFromHex]];
+}
+
+inline WSBIP38Key *WSBIP38KeyFromString(NSString *string)
+{
+    return [[WSBIP38Key alloc] initWithEncrypted:string];
 }
 
 inline WSAddress *WSAddressFromString(NSString *string)
