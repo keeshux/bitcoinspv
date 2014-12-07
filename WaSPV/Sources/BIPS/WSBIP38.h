@@ -29,7 +29,7 @@
 
 #import "WSKey.h"
 
-// WARNING: BIP38 is described for main network only
+// WARNING: BIP38 makes no network distinction
 
 extern const NSUInteger WSBIP38KeyLength;
 extern const NSUInteger WSBIP38KeyHeaderLength;
