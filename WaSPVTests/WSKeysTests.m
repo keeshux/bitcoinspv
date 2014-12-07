@@ -64,29 +64,32 @@
     DDLogInfo(@"Uncompressed: %@ (%u bytes)", [uncompressedData hexString], uncompressedData.length);
 
     WSKey *keyCOM = WSKeyFromWIF(compressed);
+    XCTAssertTrue([keyCOM isCompressed]);
     NSData *encodedCOM = [keyCOM encodedData];
     DDLogInfo(@"Key (compressed)  : %@ (%u bytes)", [encodedCOM hexString], encodedCOM.length);
     XCTAssertEqualObjects(keyCOM.data, privateData);
 
     WSKey *keyUC = WSKeyFromWIF(uncompressed);
+    XCTAssertFalse([keyUC isCompressed]);
     NSData *encodedUC = [keyUC encodedData];
     DDLogInfo(@"Key (uncompressed): %@ (%u bytes)", [encodedUC hexString], encodedUC.length);
     XCTAssertEqualObjects(keyUC.data, privateData);
 
-    // add isEqual: to WSKey and WSPublicKey on .data
-
-    WSKey *testKeyUncompressed = [WSKey keyWithData:privateData compressed:NO];
     WSKey *testKeyCompressed = [WSKey keyWithData:privateData compressed:YES];
+    WSKey *testKeyUncompressed = [WSKey keyWithData:privateData compressed:NO];
+    XCTAssertTrue([testKeyCompressed isCompressed]);
+    XCTAssertFalse([testKeyUncompressed isCompressed]);
+
+    XCTAssertEqualObjects(testKeyCompressed.data, keyCOM.data);
+    XCTAssertEqualObjects(testKeyCompressed.data, keyUC.data);
+    XCTAssertEqualObjects(testKeyCompressed.encodedData, keyCOM.encodedData);
 
     XCTAssertEqualObjects(testKeyUncompressed.data, keyCOM.data);
     XCTAssertEqualObjects(testKeyUncompressed.data, keyUC.data);
-    XCTAssertEqualObjects(testKeyCompressed.data, keyCOM.data);
-    XCTAssertEqualObjects(testKeyCompressed.data, keyUC.data);
+    XCTAssertEqualObjects(testKeyUncompressed.encodedData, keyUC.encodedData);
 
-    XCTAssertEqualObjects(testKeyCompressed.encodedData, keyCOM.encodedData);
     XCTAssertNotEqualObjects(testKeyCompressed.encodedData, keyUC.encodedData);
     XCTAssertNotEqualObjects(testKeyUncompressed.encodedData, keyCOM.encodedData);
-    XCTAssertEqualObjects(testKeyUncompressed.encodedData, keyUC.encodedData);
 }
 
 - (void)testPrivateFromWIF
