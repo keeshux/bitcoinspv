@@ -46,6 +46,49 @@
     [super tearDown];
 }
 
+- (void)testWIF
+{
+    WSParametersSetCurrentType(WSParametersTypeMain);
+    
+    NSString *hex = @"B365D41461E4961337A4F407F70B7A61FA8C1BE90175215F1FADF65D0623E116";
+    NSString *compressed = @"L3ESHJjRLKEwxydy2smiZMPkTWfXfRThRKKwaDqcdm2jRVwu3si3";
+    NSString *uncompressed = @"5KBJ4EzBx8JfHJpLwoPpUin2gzUJpg5EgwuKi4Mz1dFtkiHwdTj";
+
+    NSData *privateData = [hex dataFromHex];
+    DDLogInfo(@"Decoded: %@ (%u bytes)", [privateData hexString], privateData.length);
+    
+    NSData *compressedData = [compressed dataFromBase58Check];
+    DDLogInfo(@"Compressed  : %@ (%u bytes)", [compressedData hexString], compressedData.length);
+
+    NSData *uncompressedData = [uncompressed dataFromBase58Check];
+    DDLogInfo(@"Uncompressed: %@ (%u bytes)", [uncompressedData hexString], uncompressedData.length);
+
+    WSKey *keyCOM = WSKeyFromWIF(compressed);
+    NSData *encodedCOM = [keyCOM encodedData];
+    DDLogInfo(@"Key (compressed)  : %@ (%u bytes)", [encodedCOM hexString], encodedCOM.length);
+    XCTAssertEqualObjects(keyCOM.data, privateData);
+
+    WSKey *keyUC = WSKeyFromWIF(uncompressed);
+    NSData *encodedUC = [keyUC encodedData];
+    DDLogInfo(@"Key (uncompressed): %@ (%u bytes)", [encodedUC hexString], encodedUC.length);
+    XCTAssertEqualObjects(keyUC.data, privateData);
+
+    // add isEqual: to WSKey and WSPublicKey on .data
+
+    WSKey *testKeyUncompressed = [WSKey keyWithData:privateData compressed:NO];
+    WSKey *testKeyCompressed = [WSKey keyWithData:privateData compressed:YES];
+
+    XCTAssertEqualObjects(testKeyUncompressed.data, keyCOM.data);
+    XCTAssertEqualObjects(testKeyUncompressed.data, keyUC.data);
+    XCTAssertEqualObjects(testKeyCompressed.data, keyCOM.data);
+    XCTAssertEqualObjects(testKeyCompressed.data, keyUC.data);
+
+    XCTAssertEqualObjects(testKeyCompressed.encodedData, keyCOM.encodedData);
+    XCTAssertNotEqualObjects(testKeyCompressed.encodedData, keyUC.encodedData);
+    XCTAssertNotEqualObjects(testKeyUncompressed.encodedData, keyCOM.encodedData);
+    XCTAssertEqualObjects(testKeyUncompressed.encodedData, keyUC.encodedData);
+}
+
 - (void)testPrivateFromWIF
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
