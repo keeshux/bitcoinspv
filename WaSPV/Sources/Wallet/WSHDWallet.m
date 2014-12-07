@@ -521,7 +521,7 @@
             gathered += input.value;
             
             // add change bytes added below
-            const uint64_t standardFee = [builder standardFeeWithExtraBytes:WSTransactionOutputTypicalSize];
+            const uint64_t standardFee = [builder standardFeeWithExtraOutputs:1];
             effectiveFee = MAX(fee, standardFee);
             if ((gathered == needed + effectiveFee) || (gathered >= needed + effectiveFee + WSTransactionMinOutValue)) {
                 break;

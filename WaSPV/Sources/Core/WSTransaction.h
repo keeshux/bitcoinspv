@@ -90,6 +90,7 @@
 - (uint64_t)outputValue;
 - (uint64_t)fee;
 - (uint64_t)standardFee;
+- (uint64_t)standardFeeWithExtraOutputs:(NSUInteger)numberOfOutputs;
 - (uint64_t)standardFeeWithExtraBytes:(NSUInteger)numberOfBytes;
 
 - (WSSignedTransaction *)signedTransactionWithInputKeys:(NSOrderedSet *)keys error:(NSError **)error;

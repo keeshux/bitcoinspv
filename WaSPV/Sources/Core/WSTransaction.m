@@ -342,6 +342,11 @@ static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet 
     return [self standardFeeWithExtraBytes:0];
 }
 
+- (uint64_t)standardFeeWithExtraOutputs:(NSUInteger)numberOfOutputs
+{
+    return [self standardFeeWithExtraBytes:(numberOfOutputs * WSTransactionOutputTypicalSize)];
+}
+
 - (uint64_t)standardFeeWithExtraBytes:(NSUInteger)numberOfBytes
 {
     return WSTransactionStandardRelayFee([self estimatedSize] + numberOfBytes);
