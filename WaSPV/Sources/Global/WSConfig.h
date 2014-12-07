@@ -73,3 +73,5 @@ extern const NSUInteger         WSPeerGroupDefaultBFTxsPerBlock;
 extern const uint32_t           WSMessageVersionLocalhost;
 
 extern const NSUInteger         WSHDWalletDefaultGapLimit;
+
+extern const NSTimeInterval     WSWebServicesDefaultTimeout;

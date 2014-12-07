@@ -67,3 +67,5 @@ const NSUInteger        WSPeerGroupDefaultBFTxsPerBlock             = 600;
 const uint32_t          WSMessageVersionLocalhost                   = 0x0100007f;
 
 const NSUInteger        WSHDWalletDefaultGapLimit                   = 10;
+
+const NSTimeInterval    WSWebServicesDefaultTimeout                 = 10.0;
