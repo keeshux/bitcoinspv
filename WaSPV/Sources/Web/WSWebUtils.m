@@ -124,6 +124,12 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                           completion:(void (^)())completion
                              failure:(void (^)(NSError *))failure
 {
+    NSAssert(address != nil, @"Nil address");
+    NSAssert(page > 0, @"Non positive page");
+    NSAssert(handler, @"NULL handler");
+    NSAssert(completion, @"NULL completion");
+    NSAssert(failure, @"NULL failure");
+    
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyBaseURLFormat, [self networkName]]];
     NSString *path = [NSString stringWithFormat:WSWebUtilsBiteasyUnspentFormat, address, page, WSWebUtilsBiteasyUnspentPerPage];
     
