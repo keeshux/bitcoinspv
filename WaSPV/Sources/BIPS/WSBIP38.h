@@ -29,9 +29,17 @@
 
 #import "WSKey.h"
 
+extern const NSUInteger WSBIP38KeyLength;
+extern const NSUInteger WSBIP38KeyNonECPrefix;
+extern const NSUInteger WSBIP38KeyECPrefix;
+
 @interface WSBIP38Key : NSObject
 
+- (instancetype)initWithEncrypted:(NSString *)encrypted;
 - (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase;
+- (NSString *)encrypted;
+- (NSData *)encryptedData;
+- (BOOL)isEC;
 
 @end
 

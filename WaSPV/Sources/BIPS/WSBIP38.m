@@ -26,15 +26,58 @@
 //
 
 #import "WSBIP38.h"
+#import "WSErrors.h"
+#import "NSString+Base58.h"
+#import "NSData+Base58.h"
+
+const NSUInteger                WSBIP38KeyLength            = 39;
+const NSUInteger                WSBIP38KeyNonECPrefix       = 0x0142;
+const NSUInteger                WSBIP38KeyECPrefix          = 0x0143;
+
+@interface WSBIP38Key ()
+
+@property (nonatomic, assign) BOOL isEC;
+@property (nonatomic, copy) NSData *encryptedData;
+
+@end
 
 @implementation WSBIP38Key
 
+- (instancetype)initWithEncrypted:(NSString *)encrypted
+{
+    WSExceptionCheckIllegal(encrypted != nil, @"Nil encrypted");
+
+    NSData *encryptedData = [encrypted dataFromBase58Check];
+    WSExceptionCheckIllegal(encryptedData.length == WSBIP38KeyLength,
+                            @"Incorrect BIP38 key length (%u != %u)",
+                            encryptedData.length, WSBIP38KeyLength);
+    
+    const uint16_t prefix = CFSwapInt16BigToHost(*(const uint16_t *)encryptedData.bytes);
+    WSExceptionCheckIllegal((prefix == WSBIP38KeyNonECPrefix) || (prefix == WSBIP38KeyECPrefix),
+                            @"Illegal BIP38 key prefix (%x != %x | %x)",
+                            prefix, WSBIP38KeyNonECPrefix, WSBIP38KeyECPrefix);
+
+    if ((self = [super init])) {
+        self.encryptedData = encryptedData;
+        self.isEC = (prefix == WSBIP38KeyECPrefix);
+    }
+    return self;
+}
+
 - (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase
 {
+    WSExceptionCheckIllegal(key != nil, @"Nil key");
+    WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
+
     if ((self = [super init])) {
 #warning TODO: BIP38 encryption
     }
     return self;
+}
+
+- (NSString *)encrypted
+{
+    return [self.encryptedData base58CheckString];
 }
 
 @end
@@ -45,6 +88,9 @@
 
 - (instancetype)initWithBIP38Key:(WSBIP38Key *)key passphrase:(NSString *)passphrase
 {
+    WSExceptionCheckIllegal(key != nil, @"Nil key");
+    WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
+
     if ((self = [super init])) {
 #warning TODO: BIP38 decryption
     }
