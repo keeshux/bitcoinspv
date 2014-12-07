@@ -8,7 +8,6 @@
 
 #import "XCTestCase+WaSPV.h"
 #import "WaSPV.h"
-#import "WSBIP38.h"
 
 @interface WSBIP38Tests : XCTestCase
 

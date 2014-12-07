@@ -40,6 +40,7 @@
 
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSBIP38.h"
 #import "WSScript.h"
 #import "WSAddress.h"
 #import "WSTransaction.h"
