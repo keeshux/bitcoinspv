@@ -82,7 +82,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (WSTransactionBuilder *)buildTransactionToAddress:(WSAddress *)address forValue:(uint64_t)value fee:(uint64_t)fee error:(NSError **)error;
 - (WSTransactionBuilder *)buildTransactionToAddresses:(NSArray *)addresses forValues:(NSArray *)values fee:(uint64_t)fee error:(NSError **)error; // NSNumber, WSAddress
 - (WSTransactionBuilder *)buildTransactionWithOutputs:(NSOrderedSet *)outputs fee:(uint64_t)fee error:(NSError **)error;
-- (WSTransactionBuilder *)buildWipeTransactionToAddress:(WSAddress *)address fee:(uint64_t)fee error:(NSError **)error;
+- (WSTransactionBuilder *)buildSweepTransactionToAddress:(WSAddress *)address fee:(uint64_t)fee error:(NSError **)error;
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError **)error;
 
 // serialization (sensitive data should be excluded and saved by other means)

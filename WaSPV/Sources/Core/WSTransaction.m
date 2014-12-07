@@ -312,12 +312,12 @@
     [_outputs addObject:output];
 }
 
-- (void)addWipeOutputAddressWithStandardFee:(WSAddress *)address
+- (void)addSweepOutputAddressWithStandardFee:(WSAddress *)address
 {
-    [self addWipeOutputAddress:address fee:0];
+    [self addSweepOutputAddress:address fee:0];
 }
 
-- (void)addWipeOutputAddress:(WSAddress *)address fee:(uint64_t)fee
+- (void)addSweepOutputAddress:(WSAddress *)address fee:(uint64_t)fee
 {
     const uint64_t effectiveFee = (fee ? : [self standardFeeWithExtraOutputs:1]);
     const uint64_t outputValue = [self inputValue] - effectiveFee;

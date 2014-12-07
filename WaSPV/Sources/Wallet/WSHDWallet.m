@@ -549,7 +549,7 @@
     }
 }
 
-- (WSTransactionBuilder *)buildWipeTransactionToAddress:(WSAddress *)address fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
+- (WSTransactionBuilder *)buildSweepTransactionToAddress:(WSAddress *)address fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
     @synchronized (self) {
         WSExceptionCheckIllegal(address != nil, @"Nil address");
