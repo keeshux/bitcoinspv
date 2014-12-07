@@ -74,4 +74,4 @@ extern const uint32_t           WSMessageVersionLocalhost;
 
 extern const NSUInteger         WSHDWalletDefaultGapLimit;
 
-extern const NSTimeInterval     WSWebServicesDefaultTimeout;
+extern const NSTimeInterval     WSJSONClientDefaultTimeout;

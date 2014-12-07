@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
-		0ED738031A3476F700669C07 /* WSWebServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738021A3476F700669C07 /* WSWebServices.m */; };
+		0ED738031A3476F700669C07 /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738021A3476F700669C07 /* WSJSONClient.m */; };
 		736A51E1C14C158F812053C8 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 		8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */; };
 		8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */; };
@@ -177,8 +177,8 @@
 
 /* Begin PBXFileReference section */
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
-		0ED738011A3476F700669C07 /* WSWebServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebServices.h; sourceTree = "<group>"; };
-		0ED738021A3476F700669C07 /* WSWebServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebServices.m; sourceTree = "<group>"; };
+		0ED738011A3476F700669C07 /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
+		0ED738021A3476F700669C07 /* WSJSONClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSJSONClient.m; sourceTree = "<group>"; };
 		324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		35B1312A39704004A5AC7444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+WaSPV.h"; sourceTree = "<group>"; };
@@ -728,11 +728,11 @@
 				8C8890F2198952F400BB19CA /* WSGCDTimer.h */,
 				8C8890F3198952F400BB19CA /* WSGCDTimer.m */,
 				8C8890F4198952F400BB19CA /* WSIndentableDescription.h */,
+				0ED738011A3476F700669C07 /* WSJSONClient.h */,
+				0ED738021A3476F700669C07 /* WSJSONClient.m */,
 				8C8890F5198952F400BB19CA /* WSLogFormatter.h */,
 				8C8890F6198952F400BB19CA /* WSLogFormatter.m */,
 				8C8890F7198952F400BB19CA /* WSSized.h */,
-				0ED738011A3476F700669C07 /* WSWebServices.h */,
-				0ED738021A3476F700669C07 /* WSWebServices.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1115,7 +1115,7 @@
 				8C9D4461196C10C300E4C31C /* WSMessageGetblocks.m in Sources */,
 				8C8890F8198952F400BB19CA /* WSGCDTimer.m in Sources */,
 				8C8AE008196786CA007787ED /* WSMessage.m in Sources */,
-				0ED738031A3476F700669C07 /* WSWebServices.m in Sources */,
+				0ED738031A3476F700669C07 /* WSJSONClient.m in Sources */,
 				8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */,
 				8C40245219853B54008FDC5F /* WSParametersFactory.m in Sources */,
 				8C4024411984062E008FDC5F /* WSTransactionOutput.m in Sources */,

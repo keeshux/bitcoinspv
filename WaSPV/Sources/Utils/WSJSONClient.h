@@ -1,5 +1,5 @@
 //
-//  WSWebServices.h
+//  WSJSONClient.h
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/12/14.
@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface WSWebServices : NSObject
+@interface WSJSONClient : NSObject
 
 + (instancetype)sharedInstance;
 - (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure;

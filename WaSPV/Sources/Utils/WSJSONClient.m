@@ -1,5 +1,5 @@
 //
-//  WSWebServices.m
+//  WSJSONClient.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/12/14.
@@ -27,14 +27,14 @@
 
 #import "DDLog.h"
 
-#import "WSWebServices.h"
+#import "WSJSONClient.h"
 #import "WSConfig.h"
 
-@implementation WSWebServices
+@implementation WSJSONClient
 
 + (instancetype)sharedInstance
 {
-    static WSWebServices *instance;
+    static WSJSONClient *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[self alloc] init];
@@ -44,7 +44,7 @@
 
 - (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
 {
-    [self asynchronousRequestWithBaseURL:baseURL path:path timeout:WSWebServicesDefaultTimeout success:success failure:failure];
+    [self asynchronousRequestWithBaseURL:baseURL path:path timeout:WSJSONClientDefaultTimeout success:success failure:failure];
 }
 
 - (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
