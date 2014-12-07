@@ -39,8 +39,6 @@
 #import "WSMacros.h"
 #import "WSErrors.h"
 
-static NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures);
-
 @interface WSSignedTransaction ()
 
 @property (nonatomic, assign) uint32_t version;
