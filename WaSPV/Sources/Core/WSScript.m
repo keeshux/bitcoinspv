@@ -638,7 +638,7 @@
         return NO;
     }
     WSCoinbaseScript *script = object;
-    return [script.coinbaseData isEqualToData:script.coinbaseData];
+    return [script.coinbaseData isEqualToData:self.coinbaseData];
 }
 
 - (NSUInteger)hash
