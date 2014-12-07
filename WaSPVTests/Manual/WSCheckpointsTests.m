@@ -25,9 +25,7 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <UIKit/UIKit.h>
 #import "XCTestCase+WaSPV.h"
-
 #import "WaSPV.h"
 
 @interface WSCheckpointsTests : XCTestCase
