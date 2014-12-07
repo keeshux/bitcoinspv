@@ -184,7 +184,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
             completion();
         }
     } failure:^(int statusCode, NSError *error) {
-        failure(error);
+        failure(error ? : WSErrorMake(WSErrorCodeNetworking, @"HTTP %u", statusCode));
     }];
 }
 
