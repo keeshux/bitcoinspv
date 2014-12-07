@@ -111,54 +111,60 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 {
     WSExceptionCheckIllegal(key != nil, @"Nil key");
     WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
-    
-#warning FIXME: currently ignoring ec parameter (consider: ec = NO)
 
-    const uint16_t prefix = CFSwapInt16HostToBig(WSBIP38KeyPrefixNonEC);
-    uint8_t flags = WSBIP38KeyFlagsNonEC;
+    NSMutableData *encryptedData = [[NSMutableData alloc] initWithCapacity:WSBIP38KeyLength];
 
-    NSData *password = normalize_passphrase(passphrase);
-    WSAddress *address = [key address];
-    NSData *addressData = [address.encoded dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *salt = [[addressData hash256] subdataWithRange:NSMakeRange(0, 4)];
+    if (!ec) {
+        const uint16_t prefix = CFSwapInt16HostToBig(WSBIP38KeyPrefixNonEC);
+        uint8_t flags = WSBIP38KeyFlagsNonEC;
 
-    NSData *derivedData = scrypt(password, salt, WSBIP38KeyScryptN, WSBIP38KeyScryptR, WSBIP38KeyScryptP, WSBIP38KeyScryptLength);
-    const uint64_t *derivedBytes1 = (const uint64_t *)derivedData.bytes;
-    const uint64_t *derivedBytes2 = &derivedBytes1[4];
+        NSData *password = normalize_passphrase(passphrase);
+        WSAddress *address = [key address];
+        NSData *addressData = [address.encoded dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *salt = [[addressData hash256] subdataWithRange:NSMakeRange(0, 4)];
 
-    //
-    // encryptedData1 = AES256Encrypt(secret[ 0...15] xor derivedData1[ 0...15], derivedData2)
-    // encryptedData2 = AES256Encrypt(secret[16...31] xor derivedData1[16...31], derivedData2)
-    //
-    
-    NSMutableData *secret = [[NSMutableData alloc] initWithLength:WSBIP38KeySecretLength];
-    for (size_t i = 0; i < secret.length / sizeof(uint64_t); ++i) {
-        ((uint64_t *)secret.mutableBytes)[i] = ((const uint64_t *)(const uint8_t *)key.data.bytes)[i] ^ derivedBytes1[i];
+        NSData *derivedData = scrypt(password, salt, WSBIP38KeyScryptN, WSBIP38KeyScryptR, WSBIP38KeyScryptP, WSBIP38KeyScryptLength);
+        const uint64_t *derivedBytes1 = (const uint64_t *)derivedData.bytes;
+        const uint64_t *derivedBytes2 = &derivedBytes1[4];
+
+        //
+        // encryptedData1 = AES256Encrypt(secret[ 0...15] xor derivedData1[ 0...15], derivedData2)
+        // encryptedData2 = AES256Encrypt(secret[16...31] xor derivedData1[16...31], derivedData2)
+        //
+        
+        NSMutableData *secret = [[NSMutableData alloc] initWithLength:WSBIP38KeySecretLength];
+        for (size_t i = 0; i < secret.length / sizeof(uint64_t); ++i) {
+            ((uint64_t *)secret.mutableBytes)[i] = ((const uint64_t *)(const uint8_t *)key.data.bytes)[i] ^ derivedBytes1[i];
+        }
+        
+        const NSUInteger secretLength = WSBIP38KeySecretLength;
+        const NSUInteger halfSecretLength = WSBIP38KeySecretLength / 2;
+        size_t moved;
+
+        NSMutableData *encryptedHalf1 = [[NSMutableData alloc] initWithLength:halfSecretLength];
+        NSMutableData *encryptedHalf2 = [[NSMutableData alloc] initWithLength:halfSecretLength];
+
+        CCCrypt(kCCEncrypt, kCCAlgorithmAES, kCCOptionECBMode, derivedBytes2, secretLength, NULL,
+                secret.bytes, halfSecretLength, encryptedHalf1.mutableBytes, halfSecretLength, &moved);
+
+        CCCrypt(kCCEncrypt, kCCAlgorithmAES, kCCOptionECBMode, derivedBytes2, secretLength, NULL,
+                (const uint8_t *)secret.bytes + halfSecretLength, halfSecretLength, encryptedHalf2.mutableBytes, halfSecretLength, &moved);
+        
+        if ([key isCompressed]) {
+            flags |= WSBIP38KeyFlagsCompressed;
+        }
+        
+        [encryptedData appendBytes:&prefix length:sizeof(prefix)];
+        [encryptedData appendBytes:&flags length:sizeof(flags)];
+        [encryptedData appendData:salt];
+        [encryptedData appendData:encryptedHalf1];
+        [encryptedData appendData:encryptedHalf2];
     }
-    
-    const NSUInteger secretLength = WSBIP38KeySecretLength;
-    const NSUInteger halfSecretLength = WSBIP38KeySecretLength / 2;
-    size_t moved;
+    else {
+#warning FIXME: currently unsupported EC-multiplied encryption
 
-    NSMutableData *encryptedHalf1 = [[NSMutableData alloc] initWithLength:halfSecretLength];
-    NSMutableData *encryptedHalf2 = [[NSMutableData alloc] initWithLength:halfSecretLength];
-
-    CCCrypt(kCCEncrypt, kCCAlgorithmAES, kCCOptionECBMode, derivedBytes2, secretLength, NULL,
-            secret.bytes, halfSecretLength, encryptedHalf1.mutableBytes, halfSecretLength, &moved);
-
-    CCCrypt(kCCEncrypt, kCCAlgorithmAES, kCCOptionECBMode, derivedBytes2, secretLength, NULL,
-            (const uint8_t *)secret.bytes + halfSecretLength, halfSecretLength, encryptedHalf2.mutableBytes, halfSecretLength, &moved);
-    
-    if ([key isCompressed]) {
-        flags |= WSBIP38KeyFlagsCompressed;
+        WSExceptionRaiseUnsupported(@"Unsupported EC-multiplied encryption");
     }
-    
-    NSMutableData *encryptedData = [[NSMutableData alloc] init];
-    [encryptedData appendBytes:&prefix length:sizeof(prefix)];
-    [encryptedData appendBytes:&flags length:sizeof(flags)];
-    [encryptedData appendData:salt];
-    [encryptedData appendData:encryptedHalf1];
-    [encryptedData appendData:encryptedHalf2];
 
     if ((self = [super init])) {
         self.encryptedData = encryptedData;
@@ -308,9 +314,14 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 - (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase
 {
+    return [self encryptedBIP38KeyWithPassphrase:passphrase ec:NO];
+}
+
+- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase ec:(BOOL)ec
+{
     WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
 
-    return [[WSBIP38Key alloc] initWithKey:self passphrase:passphrase];
+    return [[WSBIP38Key alloc] initWithKey:self passphrase:passphrase ec:ec];
 }
 
 @end
