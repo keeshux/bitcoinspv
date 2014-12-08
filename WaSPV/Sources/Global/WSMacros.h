@@ -43,6 +43,7 @@
 @class WSSignedTransaction;
 @protocol WSMessage;
 @class WSBlockHeader;
+@class WSBlock;
 @class WSPartialMerkleTree;
 @class WSFilteredBlock;
 @class WSBIP21URL;
@@ -145,6 +146,7 @@ uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 WSScript *WSScriptFromHex(NSString *hex);
 WSSignedTransaction *WSTransactionFromHex(NSString *hex);
 WSBlockHeader *WSBlockHeaderFromHex(NSString *hex);
+WSBlock *WSBlockFromHex(NSString *hex);
 WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
 WSFilteredBlock *WSFilteredBlockFromHex(NSString *hex);
 

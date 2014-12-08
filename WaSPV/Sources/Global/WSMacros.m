@@ -37,6 +37,7 @@
 #import "WSInventory.h"
 #import "WSNetworkAddress.h"
 #import "WSBlockHeader.h"
+#import "WSBlock.h"
 #import "WSSeed.h"
 #import "WSPeer.h"
 #import "WSScript.h"
@@ -278,6 +279,13 @@ inline WSBlockHeader *WSBlockHeaderFromHex(NSString *hex)
     WSBuffer *buffer = WSBufferFromHex(hex);
     
     return [[WSBlockHeader alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+inline WSBlock *WSBlockFromHex(NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSBlock alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
 }
 
 inline WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex)
