@@ -99,6 +99,8 @@
 - (void)resetBloomFilter;
 - (void)reloadBloomFilter;
 - (BOOL)maybeResetAndSendBloomFilter;
+- (BOOL)shouldDownloadBlocks;
+- (BOOL)needsBloomFiltering;
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
@@ -556,7 +558,6 @@
                                                                       hasWallet:(self.wallet != nil)];
 
     WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:parameters];
-    peer.relayTransactionsInVersion = (self.wallet == nil);
     peer.delegate = self;
     @synchronized (self.queue) {
         [self.pendingPeers addObject:peer];
@@ -641,19 +642,17 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
-        if (self.wallet) {
+        if ([self needsBloomFiltering]) {
             [self resetBloomFilter];
             
-            if (!self.headersOnly) {
-                DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
-                [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
-            }
+            DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
+            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
         }
-        else if (self.headersOnly) {
-            DDLogDebug(@"No wallet provided, downloading block headers");
+        else if ([self shouldDownloadBlocks]) {
+            DDLogDebug(@"No wallet provided, downloading full blocks");
         }
         else {
-            DDLogDebug(@"No wallet provided, downloading full blocks");
+            DDLogDebug(@"No wallet provided, downloading block headers");
         }
 
         const NSUInteger fromHeight = self.blockChain.currentHeight;
@@ -702,7 +701,7 @@
 - (void)resetBloomFilter
 {
     @synchronized (self.queue) {
-        if (self.headersOnly || !self.wallet) {
+        if (![self needsBloomFiltering]) {
             return;
         }
         
@@ -741,7 +740,7 @@
 - (void)reloadBloomFilter
 {
     @synchronized (self.queue) {
-        if (self.headersOnly || !self.wallet) {
+        if (![self needsBloomFiltering]) {
             return;
         }
 
@@ -753,7 +752,7 @@
 - (BOOL)maybeResetAndSendBloomFilter
 {
     @synchronized (self.queue) {
-        if (!self.wallet) {
+        if (![self needsBloomFiltering]) {
             return NO;
         }
         
@@ -777,7 +776,7 @@
 
         [self resetBloomFilter];
         
-        if (!self.headersOnly) {
+        if ([self needsBloomFiltering]) {
             if (![self isSynced]) {
                 DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
                 [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
@@ -804,6 +803,16 @@
         [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeRescan, @"Preparing for rescan")];
         return YES;
     }
+}
+
+- (BOOL)shouldDownloadBlocks
+{
+    return ((self.wallet != nil) || !self.headersOnly);
+}
+
+- (BOOL)needsBloomFiltering
+{
+    return (self.wallet != nil);
 }
 
 #pragma mark Interaction
@@ -885,7 +894,7 @@
                        peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
             if ([self isSynced]) {
-                if (self.wallet && !self.headersOnly) {
+                if ([self.downloadPeer needsBloomFiltering]) {
                     DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }
@@ -1225,7 +1234,7 @@
 
         if (isDownloadFinished) {
             for (WSPeer *peer in self.connectedPeers) {
-                if (self.wallet && !self.headersOnly && (peer != self.downloadPeer)) {
+                if ([self.downloadPeer needsBloomFiltering] && (peer != self.downloadPeer)) {
                     DDLogDebug(@"Loading Bloom filter for peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }

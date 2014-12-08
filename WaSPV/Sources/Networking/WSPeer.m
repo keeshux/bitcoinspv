@@ -147,6 +147,8 @@
 - (void)beginFilteredBlock:(WSFilteredBlock *)filteredBlock;
 - (BOOL)addTransactionToCurrentFilteredBlock:(WSSignedTransaction *)transaction outdated:(BOOL *)outdated;
 - (void)endCurrentFilteredBlock;
+- (BOOL)shouldDownloadBlocks;
+- (BOOL)needsBloomFiltering;
 
 // utils
 - (void)unsafeSendMessage:(id<WSMessage>)message;
@@ -167,7 +169,6 @@
     WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     
     if ((self = [super init])) {
-        self.relayTransactionsInVersion = YES;
         self.writeTimeout = WSPeerWriteTimeout;
 #ifdef WASPV_TEST_MESSAGE_QUEUE
         self.messageQueueCondition = [[NSCondition alloc] init];
@@ -258,7 +259,7 @@
     DDLogDebug(@"%@ Connection opened", self);
 
     self.deserializer = [[WSProtocolDeserializer alloc] initWithPeer:self];
-    [self sendVersionMessageWithRelayTransactions:(uint8_t)self.relayTransactionsInVersion];
+    [self sendVersionMessageWithRelayTransactions:(uint8_t)!self.hasWallet];
 }
 
 - (void)processData:(NSData *)data
@@ -512,7 +513,7 @@
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        if (self.hasWallet && !self.headersOnly) {
+        if ([self needsBloomFiltering]) {
             DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
             
             if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
@@ -736,7 +737,7 @@
     
     for (WSInventory *inv in message.inventories) {
         if ([inv isBlockInventory]) {
-            if (self.hasWallet) {
+            if ([self needsBloomFiltering]) {
                 [requestInventories addObject:WSInventoryFilteredBlock(inv.inventoryHash)];
             }
             else {
@@ -862,7 +863,7 @@
         
         WSBlockLocator *locator = [self.blockChain currentLocator];
 
-        if (self.headersOnly || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
+        if (![self shouldDownloadBlocks] || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
             [self requestHeadersWithLocator:locator];
         }
         else {
@@ -972,7 +973,7 @@
             }
             
             // we won't cross fast catch-up, request more headers
-            if (self.headersOnly || (lastHeaderBeforeFCU == lastHeader)) {
+            if (![self shouldDownloadBlocks] || (lastHeaderBeforeFCU == lastHeader)) {
                 WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
                 [self requestHeadersWithLocator:locator];
             }
@@ -1035,7 +1036,7 @@
         for (WSBlockHeader *header in headers) {
             
             // download peer should stop requesting headers when fast catch-up reached
-            if (!self.headersOnly && self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
+            if ([self shouldDownloadBlocks] && self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
                 break;
             }
             
@@ -1119,6 +1120,16 @@
 
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
     }
+}
+
+- (BOOL)shouldDownloadBlocks
+{
+    return (self.hasWallet || !self.headersOnly);
+}
+
+- (BOOL)needsBloomFiltering
+{
+    return self.hasWallet;
 }
 
 #pragma mark Utils (unsafe)

@@ -62,6 +62,7 @@ typedef enum {
 - (dispatch_queue_t)groupQueue;
 - (WSBlockChain *)blockChain;
 - (BOOL)headersOnly;
+- (BOOL)hasWallet;
 
 @end
 
@@ -82,7 +83,6 @@ typedef enum {
 
 @interface WSPeer : NSObject <WSConnectionProcessor>
 
-@property (atomic, assign) BOOL relayTransactionsInVersion; // set BEFORE connecting
 @property (atomic, assign) NSTimeInterval writeTimeout;
 @property (atomic, weak) id<WSPeerDelegate> delegate;
 
@@ -124,6 +124,8 @@ typedef enum {
 - (NSUInteger)numberOfBlocksLeft;
 - (void)requestOutdatedBlocks;
 - (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
+- (BOOL)shouldDownloadBlocks;
+- (BOOL)needsBloomFiltering;
 
 // for testing, needs WASPV_TEST_MESSAGE_QUEUE to work
 - (id<WSMessage>)dequeueMessageSynchronouslyWithTimeout:(NSUInteger)timeout;
