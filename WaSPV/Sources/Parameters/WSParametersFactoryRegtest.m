@@ -51,7 +51,6 @@
         parameters.scriptAddressVersion         = 0xc4;
         parameters.privateKeyVersion            = 0xef;
         parameters.peerPort                     = 18444;
-#warning TODO: what are bip32 magics on regtest?
 //        parameters.bip32PublicKeyVersion        = 0x0488b21e; // "xpub"
 //        parameters.bip32PrivateKeyVersion       = 0x0488ade4; // "xprv"
         parameters.maxProofOfWork               = 0x1d00ffff;
