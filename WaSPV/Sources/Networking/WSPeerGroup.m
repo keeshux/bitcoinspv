@@ -49,13 +49,6 @@
 #import "WSErrors.h"
 
 @interface WSPeerGroup () {
-    BOOL _shouldReconnectOnBecomeActive;
-    BOOL _shouldDisconnectOnEnterBackground;
-    NSArray *_peerHosts;
-    NSUInteger _maxConnections;
-    NSUInteger _maxConnectionFailures;
-    NSTimeInterval _reconnectionDelayOnFailure;
-    uint32_t _fastCatchUpTimestamp;
     WSPeer *_downloadPeer;
 }
 
@@ -77,6 +70,7 @@
 @property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSSignedTransaction
 
 // sync
+@property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
 @property (nonatomic, assign) BOOL keepDownloading;
 @property (nonatomic, strong) WSPeer *downloadPeer;
 @property (nonatomic, assign) BOOL didNotifyDownloadFinished;
@@ -170,20 +164,22 @@
         self.reachability.delegate = self;
         self.reachability.delegateQueue = self.queue;
         
+        // group related
         self.shouldReconnectOnBecomeActive = NO;
         self.shouldDisconnectOnEnterBackground = NO;
-        self.headersOnly = NO;
         self.peerHosts = nil;
         self.maxConnections = WSPeerGroupDefaultMaxConnections;
         self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
         self.reconnectionDelayOnFailure = WSPeerGroupDefaultReconnectionDelay;
-
         self.bloomFilterRateMin = WSPeerGroupDefaultBFRateMin;
         self.bloomFilterRateDelta = WSPeerGroupDefaultBFRateDelta;
         self.bloomFilterObservedRateMax = WSPeerGroupDefaultBFObservedRateMax;
         self.bloomFilterLowPassRatio = WSPeerGroupDefaultBFLowPassRatio;
         self.bloomFilterTxsPerBlock = WSPeerGroupDefaultBFTxsPerBlock;
 
+        // peer related
+        self.headersOnly = NO;
+        
         self.keepConnected = NO;
         self.connectionFailures = 0;
         self.inactiveHosts = [[NSMutableOrderedSet alloc] init];
@@ -217,114 +213,6 @@
 }
 
 #pragma mark Properties
-
-- (BOOL)shouldReconnectOnBecomeActive
-{
-    @synchronized (self.queue) {
-        return _shouldReconnectOnBecomeActive;
-    }
-}
-
-- (void)setShouldReconnectOnBecomeActive:(BOOL)shouldReconnectOnBecomeActive
-{
-    @synchronized (self.queue) {
-        _shouldReconnectOnBecomeActive = shouldReconnectOnBecomeActive;
-    }
-}
-
-- (BOOL)shouldDisconnectOnEnterBackground
-{
-    @synchronized (self.queue) {
-        return _shouldDisconnectOnEnterBackground;
-    }
-}
-
-- (void)setShouldDisconnectOnEnterBackground:(BOOL)shouldDisconnectOnEnterBackground
-{
-    @synchronized (self.queue) {
-        _shouldDisconnectOnEnterBackground = shouldDisconnectOnEnterBackground;
-    }
-}
-
-- (NSArray *)peerHosts
-{
-    @synchronized (self.queue) {
-        return [_peerHosts copy];
-    }
-}
-
-- (void)setPeerHosts:(NSArray *)peerHosts
-{
-    @synchronized (self.queue) {
-        _peerHosts = [peerHosts copy];
-    }
-}
-
-- (NSUInteger)maxConnections
-{
-    @synchronized (self.queue) {
-        return _maxConnections;
-    }
-}
-
-- (void)setMaxConnections:(NSUInteger)maxConnections
-{
-    @synchronized (self.queue) {
-        _maxConnections = maxConnections;
-
-        if (self.inactiveHosts.count > 0) {
-            const NSInteger adjustment = maxConnections - self.connectedPeers.count;
-            if (adjustment > 0) {
-                [self triggerConnectionsFromSeed:nil];
-            }
-            else if (adjustment < 0) {
-                [self.pool closeConnections:-adjustment];
-            }
-        }
-    };
-}
-
-- (NSUInteger)maxConnectionFailures
-{
-    @synchronized (self.queue) {
-        return _maxConnectionFailures;
-    }
-}
-
-- (void)setMaxConnectionFailures:(NSUInteger)maxConnectionFailures
-{
-    @synchronized (self.queue) {
-        _maxConnectionFailures = maxConnectionFailures;
-    }
-}
-
-- (NSTimeInterval)reconnectionDelayOnFailure
-{
-    @synchronized (self.queue) {
-        return _reconnectionDelayOnFailure;
-    }
-}
-
-- (void)setReconnectionDelayOnFailure:(NSTimeInterval)reconnectionDelayOnFailure
-{
-    @synchronized (self.queue) {
-        _reconnectionDelayOnFailure = reconnectionDelayOnFailure;
-    }
-}
-
-- (uint32_t)fastCatchUpTimestamp
-{
-    @synchronized (self.queue) {
-        return _fastCatchUpTimestamp;
-    }
-}
-
-- (void)setFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
-{
-    @synchronized (self.queue) {
-        _fastCatchUpTimestamp = fastCatchUpTimestamp;
-    }
-}
 
 - (WSPeer *)downloadPeer
 {

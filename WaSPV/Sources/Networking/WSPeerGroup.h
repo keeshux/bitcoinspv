@@ -38,19 +38,23 @@
 
 @interface WSPeerGroup : NSObject <WSPeerDelegate, WSReachabilityDelegate>
 
+// WARNING: set properties before starting connections
+
+// group related
 @property (nonatomic, assign) BOOL shouldReconnectOnBecomeActive;           // NO
 @property (nonatomic, assign) BOOL shouldDisconnectOnEnterBackground;       // NO
-@property (nonatomic, assign) BOOL headersOnly;                             // NO
 @property (nonatomic, strong) NSArray *peerHosts;                           // nil
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0
-
 @property (nonatomic, assign) double bloomFilterRateMin;                    // 0.0001
 @property (nonatomic, assign) double bloomFilterRateDelta;                  // 0.0004
 @property (nonatomic, assign) double bloomFilterObservedRateMax;            // 0.005
 @property (nonatomic, assign) double bloomFilterLowPassRatio;               // 0.01
 @property (nonatomic, assign) NSUInteger bloomFilterTxsPerBlock;            // 600
+
+// peer related
+@property (nonatomic, assign) BOOL headersOnly;                             // NO
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
