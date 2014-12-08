@@ -56,7 +56,8 @@ typedef enum {
 - (instancetype)init;
 - (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
-                       headersOnly:(BOOL)headersOnly;
+                       headersOnly:(BOOL)headersOnly
+                         hasWallet:(BOOL)hasWallet;
 
 - (dispatch_queue_t)groupQueue;
 - (WSBlockChain *)blockChain;

@@ -191,17 +191,13 @@
 
         self.keepDownloading = NO;
         self.downloadPeer = nil;
-        self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
+        if (self.wallet) {
+            self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
 #if WASPV_WALLET_FILTER == WASPV_WALLET_FILTER_UNSPENT
-        self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
+            self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
 #endif
-        
-#warning TODO: if no wallet, remove full-match Bloom filter and download full blocks
-        if (!self.wallet) {
-            self.bloomFilter = [[WSMutableBloomFilter alloc] initWithFullMatch];
-            DDLogDebug(@"No wallet provided, full-match Bloom filter set");
         }
-
+        
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [nc addObserver:self selector:@selector(applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -556,7 +552,8 @@
     
     WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue
                                                                      blockChain:self.blockChain
-                                                                    headersOnly:self.headersOnly];
+                                                                    headersOnly:self.headersOnly
+                                                                      hasWallet:(self.wallet != nil)];
 
     WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:parameters];
     peer.relayTransactionsInVersion = (self.wallet == nil);
@@ -644,11 +641,19 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
-        [self resetBloomFilter];
-        
-        if (!self.headersOnly) {
-            DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
-            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+        if (self.wallet) {
+            [self resetBloomFilter];
+            
+            if (!self.headersOnly) {
+                DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
+                [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+            }
+        }
+        else if (self.headersOnly) {
+            DDLogDebug(@"No wallet provided, downloading block headers");
+        }
+        else {
+            DDLogDebug(@"No wallet provided, downloading full blocks");
         }
 
         const NSUInteger fromHeight = self.blockChain.currentHeight;
@@ -748,6 +753,10 @@
 - (BOOL)maybeResetAndSendBloomFilter
 {
     @synchronized (self.queue) {
+        if (!self.wallet) {
+            return NO;
+        }
+        
         DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
                    self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
         
@@ -876,7 +885,7 @@
                        peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
             if ([self isSynced]) {
-                if (!self.headersOnly) {
+                if (self.wallet && !self.headersOnly) {
                     DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }
@@ -1209,7 +1218,7 @@
 
         if (isDownloadFinished) {
             for (WSPeer *peer in self.connectedPeers) {
-                if (!self.headersOnly && (peer != self.downloadPeer)) {
+                if (self.wallet && !self.headersOnly && (peer != self.downloadPeer)) {
                     DDLogDebug(@"Loading Bloom filter for peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }

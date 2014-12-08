@@ -48,6 +48,7 @@
 @property (nonatomic, strong) dispatch_queue_t groupQueue;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, assign) BOOL headersOnly;
+@property (nonatomic, assign) BOOL hasWallet;
 
 @end
 
@@ -55,10 +56,13 @@
 
 - (instancetype)init
 {
-    return [self initWithGroupQueue:dispatch_get_main_queue() blockChain:nil headersOnly:NO];
+    return [self initWithGroupQueue:dispatch_get_main_queue() blockChain:nil headersOnly:NO hasWallet:NO];
 }
 
-- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue blockChain:(WSBlockChain *)blockChain headersOnly:(BOOL)headersOnly
+- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
+                        blockChain:(WSBlockChain *)blockChain
+                       headersOnly:(BOOL)headersOnly
+                         hasWallet:(BOOL)hasWallet
 {
     WSExceptionCheckIllegal(groupQueue != NULL, @"NULL groupQueue");
 
@@ -66,6 +70,7 @@
         self.groupQueue = groupQueue;
         self.blockChain = blockChain;
         self.headersOnly = headersOnly;
+        self.hasWallet = hasWallet;
         self.port = [WSCurrentParameters peerPort];
     }
     return self;
@@ -104,6 +109,7 @@
 
 // sync status (shared by WSPeerGroup, guarded by self.groupQueue)
 @property (nonatomic, strong) WSBlockChain *blockChain;
+@property (nonatomic, assign) BOOL hasWallet;
 @property (nonatomic, assign) BOOL headersOnly;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
@@ -169,6 +175,7 @@
 
         self.groupQueue = parameters.groupQueue;
         self.blockChain = parameters.blockChain;
+        self.hasWallet = parameters.hasWallet;
         self.headersOnly = parameters.headersOnly;
 
         _peerStatus = WSPeerStatusDisconnected;
@@ -504,7 +511,7 @@
         [self.pendingBlockIds addObjectsFromArray:blockHashes];
         [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        if (!self.headersOnly) {
+        if (self.hasWallet && !self.headersOnly) {
             DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
             
             if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
@@ -724,7 +731,12 @@
     
     for (WSInventory *inv in message.inventories) {
         if ([inv isBlockInventory]) {
-            [requestInventories addObject:WSInventoryFilteredBlock(inv.inventoryHash)];
+            if (self.hasWallet) {
+                [requestInventories addObject:WSInventoryFilteredBlock(inv.inventoryHash)];
+            }
+            else {
+                [requestInventories addObject:WSInventoryBlock(inv.inventoryHash)];
+            }
             [requestBlockHashes addObject:inv.inventoryHash];
         }
         else {
