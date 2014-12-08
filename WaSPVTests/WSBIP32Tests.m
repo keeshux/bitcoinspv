@@ -25,6 +25,8 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import <CommonCrypto/CommonCrypto.h>
+
 #import "XCTestCase+WaSPV.h"
 #import "WSHDKeyring.h"
 #import "WSKey.h"
@@ -202,10 +204,11 @@
     }
 }
 
-- (void)testBIP32org
+- (void)testBIP32orgWeak
 {
     NSString *mnemonic = [self mockWalletMnemonic];
-    NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
+    NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256];
+
     WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
     
     DDLogInfo(@"Mnemonic SHA256: %@", [keyData hexString]);
@@ -239,6 +242,53 @@
                           @"xprv9ubjmfvhjqj2qRhyntQMNeszzXqJ8woxraxVHTimixMXrWW1z3fSU67QohDFUAmufVLUrvfgmp1mgRvwz88uR5TPKQnoFPJYaapiKtgxjDG",
                           @"xprv9xMp4Aw6b64pYLpcRBZr8hnJQ8a6rDRkYEaY3usbs6PhxPTQa24rgaMatzueYCxqr7agCXwEdxUe8tpSRVFyGhnxoRaTLN4NMaAmdw3uH63",
                           @"xprv9yFgZzMRo85eV1dxfy5UCU1q8aNC8YcFNXfn2NpbtkUZfRXWCGXTcCxFaiNptyYPBG8fHZEagRZovpUr86ZusbhoKRzz1myPznkogJCDKVU"];
+    
+    [self testBIP32:bip32 paths:paths pubKeys:pubKeys privKeys:privKeys];
+}
+
+- (void)testBIP32orgStrong
+{
+    NSString *mnemonic = [self mockWalletMnemonic];
+    
+    const NSUInteger rounds = 50000;
+    NSMutableData *keyData = [[NSMutableData alloc] initWithLength:32];
+    for (NSUInteger i = 0; i < rounds; ++i) {
+        CCHmac(kCCHmacAlgSHA256, mnemonic.UTF8String, mnemonic.length, keyData.bytes, keyData.length, keyData.mutableBytes);
+    }
+    
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    
+    DDLogInfo(@"Mnemonic SHA256: %@", [keyData hexString]);
+    
+    WSBIP32Key *extendedPrivateKey = [bip32 extendedPrivateKey];
+    DDLogInfo(@"Master private key");
+    
+    NSString *chain = [extendedPrivateKey.chainData hexString];
+    NSString *expChain = @"e569da38c0bc79dd51fc41cc7c7c7e827c091af17973eb57c297f0b7c6285dfa";
+    DDLogInfo(@"\tChain: %@", chain);
+    XCTAssertEqualObjects(chain, expChain);
+    
+    NSString *privateKey = [[extendedPrivateKey privateKey] WIF];
+    NSString *expPrivateKey = @"KxPKLeFLbwrd2JbCXqiu6nJm8T9QBrcmxpgHuiS9qg7F48b9ceBR";
+    DDLogInfo(@"\tKey: %@", privateKey);
+    XCTAssertEqualObjects(privateKey, expPrivateKey);
+    
+    DDLogInfo(@"");
+    
+    NSArray *paths = @[@"m",
+                       @"m/12",
+                       @"m/0'/0",
+                       @"m/0'/0/729"];
+    
+    NSArray *pubKeys = @[@"xpub661MyMwAqRbcGpug52gazEaUhNJEJvE3sPdxtnXpafu8GWB6gPuC94n59uNFkJZ7Db69yua9pKkzvQqmvYq4HoVAzHf2Pwkem3teWDHMKVg",
+                         @"xpub69fbtdTaA85vR1CZursXAtDFrK4GDs3DR55n6cYVts9GVPpDBAGK7UHxAgpQaq1z5acjp7ou8YRsgvLZgBxGFwVyewA217vnFxo2rH3qujR",
+                         @"xpub6AZXSbcS22WNn6bqLXmvJLDwgoFucSmnV3icGU4AeCQdQu1egxMvXmhr79pYwkyc792ANpHXTjLxARxUnoTT2TrYdfDzut8HknvAvocQjjX",
+                         @"xpub6C28XyoPpRqc77zpWaiFvzyLPHV2V3WV9MpPSR7gssW6kV6kqjgsNj3wXpz36x6bcaRGHyDsLM8x3yRvfNaihR1DidyMhuzEs7Ykn6tyN6k"];
+    
+    NSArray *privKeys = @[@"xprv9s21ZrQH143K4LqCy19ad6dk9LTjuTWCWAiN6Q8D2LN9Phqx8rawbGTbJcSWXdm567mG8wamnEAktHSHTXgZGWfzPAQSfd3A4H7Jz8ghAus",
+                          @"xprv9vgFV7vgKkXdCX86oqLWokGXJHDmpQKN3rABJE8tLXcHcbV4dcx4ZfyUKQiHxftM6wTjqjfYEfnjA7ZLw2CSkMHTxFT7iiFB2HHGz1VFqoW",
+                          @"xprv9waB365YBex5ZcXNEWEuwCHD8mRRCz3w7po1U5eZ5rseY6gW9R3fyyPNFsEsBqhCWdJf2cH4Dc6zDnnWLRSYJG5yQoGqRELvCzdTqwkBscM",
+                          @"xprv9y2n8UGVz4HJtdvMQZBFZs2bqFeY5andn8tne2i5KXy7sgmcJCNcpvjTgacKQSJ3A9KHToZ1DUq6xwN6YbqzPvW6iWFoKYjKgCt4rKwRc7E"];
     
     [self testBIP32:bip32 paths:paths pubKeys:pubKeys privKeys:privKeys];
 }
