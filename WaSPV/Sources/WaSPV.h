@@ -40,7 +40,6 @@
 
 #import "WSKey.h"
 #import "WSPublicKey.h"
-#import "WSBIP38.h"
 #import "WSScript.h"
 #import "WSAddress.h"
 #import "WSTransaction.h"
@@ -61,6 +60,9 @@
 
 #import "WSHDWallet.h"
 #import "WSTransactionMetadata.h"
+
+#import "WSBIP21.h"
+#import "WSBIP38.h"
 
 #import "WSErrors.h"
 #import "WSMacros.h"
