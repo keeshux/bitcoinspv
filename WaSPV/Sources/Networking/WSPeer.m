@@ -960,7 +960,7 @@
             DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
                        self, currentHeight, self.lastBlockHeight);
             
-            WSBlockHeader *firstHeader = headers[0];
+            WSBlockHeader *firstHeader = [headers firstObject];
             WSBlockHeader *lastHeader = [headers lastObject];
             WSBlockHeader *lastHeaderBeforeFCU = nil;
             
@@ -1007,7 +1007,7 @@
             DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
                        self, currentHeight, self.lastBlockHeight);
             
-            WSHash256 *firstId = hashes[0];
+            WSHash256 *firstId = [hashes firstObject];
             WSHash256 *lastId = [hashes lastObject];
             
             WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
