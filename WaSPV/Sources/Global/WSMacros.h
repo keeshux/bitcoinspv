@@ -34,7 +34,6 @@
 @class WSMutableBuffer;
 @class WSKey;
 @class WSPublicKey;
-@class WSBIP38Key;
 @class WSAddress;
 @class WSInventory;
 @class WSNetworkAddress;
@@ -46,6 +45,8 @@
 @class WSBlockHeader;
 @class WSPartialMerkleTree;
 @class WSFilteredBlock;
+@class WSBIP21URL;
+@class WSBIP38Key;
 
 #pragma mark - Parameters
 
@@ -114,8 +115,6 @@ WSKey *WSKeyFromHex(NSString *hex);
 WSKey *WSKeyFromWIF(NSString *wif);
 WSPublicKey *WSPublicKeyFromHex(NSString *hex);
 
-WSBIP38Key *WSBIP38KeyFromString(NSString *string);
-
 WSAddress *WSAddressFromString(NSString *string);
 WSAddress *WSAddressFromHex(NSString *hexString);
 WSAddress *WSAddressP2PKHFromHash160(NSData *hash160);
@@ -148,6 +147,9 @@ WSSignedTransaction *WSTransactionFromHex(NSString *hex);
 WSBlockHeader *WSBlockHeaderFromHex(NSString *hex);
 WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
 WSFilteredBlock *WSFilteredBlockFromHex(NSString *hex);
+
+WSBIP21URL *WSBIP21URLFromString(NSString *string);
+WSBIP38Key *WSBIP38KeyFromString(NSString *string);
 
 NSString *WSCurrentQueueLabel();
 uint32_t WSCurrentTimestamp();

@@ -32,7 +32,6 @@
 #import "WSHash256.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
-#import "WSBIP38.h"
 #import "WSAddress.h"
 #import "WSScript.h"
 #import "WSInventory.h"
@@ -45,6 +44,8 @@
 #import "WSMessageFactory.h"
 #import "WSPartialMerkleTree.h"
 #import "WSFilteredBlock.h"
+#import "WSBIP21.h"
+#import "WSBIP38.h"
 #import "NSString+Binary.h"
 #import "NSString+Base58.h"
 #import "NSData+Binary.h"
@@ -122,11 +123,6 @@ inline WSKey *WSKeyFromWIF(NSString *wif)
 inline WSPublicKey *WSPublicKeyFromHex(NSString *hex)
 {
     return [WSPublicKey publicKeyWithData:[hex dataFromHex]];
-}
-
-inline WSBIP38Key *WSBIP38KeyFromString(NSString *string)
-{
-    return [[WSBIP38Key alloc] initWithEncrypted:string];
 }
 
 inline WSAddress *WSAddressFromString(NSString *string)
@@ -296,6 +292,16 @@ inline WSFilteredBlock *WSFilteredBlockFromHex(NSString *hex)
     WSBuffer *buffer = WSBufferFromHex(hex);
     
     return [[WSFilteredBlock alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+inline WSBIP21URL *WSBIP21URLFromString(NSString *string)
+{
+    return [WSBIP21URL URLWithString:string];
+}
+
+inline WSBIP38Key *WSBIP38KeyFromString(NSString *string)
+{
+    return [[WSBIP38Key alloc] initWithEncrypted:string];
 }
 
 //

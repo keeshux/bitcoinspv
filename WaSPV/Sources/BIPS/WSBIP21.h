@@ -27,6 +27,17 @@
 
 #import <Foundation/Foundation.h>
 
-@interface WSBIP21 : NSObject
+@class WSAddress;
+
+extern NSString *const WSBIP21URLScheme;
+
+@interface WSBIP21URL : NSObject
+
++ (instancetype)URLWithString:(NSString *)string;
+- (NSString *)label;
+- (WSAddress *)address;
+- (NSString *)message;
+- (uint64_t)amount;
+- (NSDictionary *)others;
 
 @end
