@@ -78,6 +78,7 @@
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
 @property (nonatomic, assign) NSUInteger observedFilterHeight;
 @property (nonatomic, assign) double observedFalsePositiveRate;
+@property (nonatomic, assign) NSTimeInterval lastDownloadedBlockTime;
 
 - (void)connect;
 - (void)disconnect;
@@ -95,6 +96,7 @@
 - (BOOL)maybeResetAndSendBloomFilter;
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
+- (void)detectDownloadTimeout;
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
@@ -179,6 +181,7 @@
 
         // peer related
         self.headersOnly = NO;
+        self.requestTimeout = WSPeerGroupDefaultRequestTimeout;
         
         self.keepConnected = NO;
         self.connectionFailures = 0;
@@ -547,7 +550,16 @@
         const NSUInteger toHeight = fromHeight + [self.downloadPeer numberOfBlocksLeft];
         [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
         
-        if (![self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp]) {
+        DDLogInfo(@"Preparing for blockchain sync");
+        if ([self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp]) {
+            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
+            });
+        }
+        else {
             DDLogInfo(@"Blockchain is synced");
             [self.notifier notifyDownloadFinished];
         }
@@ -701,6 +713,25 @@
 - (BOOL)needsBloomFiltering
 {
     return (self.wallet != nil);
+}
+
+- (void)detectDownloadTimeout
+{
+    const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+
+    @synchronized (self.queue) {
+        const NSTimeInterval elapsed = now - self.lastDownloadedBlockTime;
+
+        if (elapsed < self.requestTimeout) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:(self.requestTimeout - elapsed)];
+            });
+            return;
+        }
+
+        [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeSync, @"Download timed out, disconnecting")];
+    }
 }
 
 #pragma mark Interaction
@@ -921,6 +952,10 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
+        if (peer == self.downloadPeer) {
+            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+        }
+
         block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
@@ -952,6 +987,11 @@
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
 #warning FIXME: handle full blocks, blockchain not extending in full blocks mode
+    @synchronized (self.queue) {
+        if (peer == self.downloadPeer) {
+            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+        }
+    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
@@ -963,6 +1003,10 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
+        if (peer == self.downloadPeer) {
+            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+        }
+
         block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];

@@ -192,7 +192,6 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
 
-* Disconnect peers on timeout (sync may stall).
 * Implement payment protocol as described by [BIP70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki), [BIP71](https://github.com/bitcoin/bips/blob/master/bip-0071.mediawiki), [BIP72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki) and [BIP73](https://github.com/bitcoin/bips/blob/master/bip-0073.mediawiki).
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
 * Detect unpublished transactions.

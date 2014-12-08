@@ -55,6 +55,7 @@
 
 // peer related
 @property (nonatomic, assign) BOOL headersOnly;                             // NO
+@property (nonatomic, assign) NSTimeInterval requestTimeout;                // 15.0
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
