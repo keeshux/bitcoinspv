@@ -62,7 +62,10 @@
 #import "WSTransactionMetadata.h"
 
 #import "WSBIP21.h"
+#import "WSBIP32.h"
+#import "WSBIP37.h"
 #import "WSBIP38.h"
+#import "WSBIP39.h"
 
 #import "WSErrors.h"
 #import "WSMacros.h"
