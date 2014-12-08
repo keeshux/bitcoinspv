@@ -40,6 +40,7 @@
 #import "WSTransaction.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSAddress.h"
 #import "WSSeed.h"
 #import "WSHDWallet.h"
 #import "WSMessageFactory.h"
@@ -66,7 +67,7 @@
 
     self.pool = [[WSConnectionPool alloc] init];
     self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
-    self.bloomFilterParameters.falsePositiveRate = WSPeerGroupBloomFilterFPRateMin;
+    self.bloomFilterParameters.falsePositiveRate = WSPeerGroupDefaultBFRateMin;
     DDLogInfo(@"Bloom filter parameters: %@", self.bloomFilterParameters);
 
     NSString *dnsSeed = [WSCurrentParameters dnsSeeds][0];
@@ -503,7 +504,7 @@
 //    WSBuffer *signable = [tx.inputs[0] signableBufferForTransaction:tx];
 //    DDLogInfo(@"Tx (signable): %@", [signable.data hexString]);
 
-    NSOrderedSet *inputKeys = [[NSOrderedSet alloc] initWithArray:@[previousKey]];
+    NSDictionary *inputKeys = @{previousKey.address: previousKey};
 
 //    uint64_t fee;
     NSError *error;
@@ -554,7 +555,7 @@
 //    WSBuffer *signable = [tx.inputs[0] signableBufferForTransaction:tx];
 //    DDLogInfo(@"Tx (signable): %@", [signable.data hexString]);
     
-    NSOrderedSet *inputKeys = [[NSOrderedSet alloc] initWithArray:@[previousKey]];
+    NSDictionary *inputKeys = @{previousKey.address: previousKey};
 
 //    uint64_t fee;
     NSError *error;

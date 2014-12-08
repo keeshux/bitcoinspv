@@ -266,7 +266,7 @@
     builder = [wallet buildTransactionToAddress:address forValue:value fee:0 error:&error];
     XCTAssertNil(builder, @"Should fail for insufficient funds");
     
-    builder = [wallet buildWipeTransactionToAddress:address fee:25000 error:&error];
+    builder = [wallet buildSweepTransactionToAddress:address fee:25000 error:&error];
     XCTAssertNotNil(builder, @"Unable to build wipe transaction: %@", error);
     XCTAssertEqual([builder fee], 25000);
     
@@ -355,7 +355,7 @@
     [self runForever];
 }
 
-- (void)testWipe
+- (void)testSweep
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
 
@@ -365,7 +365,7 @@
     
     NSError *error;
     WSAddress *address = WSAddressFromString(@"n1tUe8bgzDnyDv8V2P4iSrBUMUxXMX597E");
-    WSTransactionBuilder *builder = [wallet buildWipeTransactionToAddress:address fee:0 error:&error];
+    WSTransactionBuilder *builder = [wallet buildSweepTransactionToAddress:address fee:0 error:&error];
     XCTAssertNotNil(builder, @"Unable to build transaction: %@", error);
 
     WSSignedTransaction *tx = [wallet signedTransactionWithBuilder:builder error:&error];
