@@ -103,7 +103,7 @@
     }
     if (!lastCheckpoint) {
         WSFilteredBlock *genesisBlock = self.genesisBlock;
-        lastCheckpoint = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil];
+        lastCheckpoint = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
     }
     
     return lastCheckpoint;
