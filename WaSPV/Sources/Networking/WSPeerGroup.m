@@ -748,12 +748,10 @@
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
     
     @synchronized (self.queue) {
-        if (![self isConnected]) {
+        if (![self isConnected] || ![self isSynced] || self.publishedTransactions[transaction.txId]) {
             return NO;
         }
-        if (self.publishedTransactions[transaction.txId]) {
-            return NO;
-        }
+
         self.publishedTransactions[transaction.txId] = transaction;
     
         // exclude one random peer to receive tx broadcast back
