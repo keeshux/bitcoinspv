@@ -993,13 +993,13 @@
 
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator
 {
-    DDLogDebug(@"%@ Behind catch-up, requesting headers with locator: %@", self, locator.hashes);
+    DDLogDebug(@"%@ Behind catch-up (or headers-only mode), requesting headers with locator: %@", self, locator.hashes);
     [self sendGetheadersMessageWithLocator:locator hashStop:nil];
 }
 
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator
 {
-    DDLogDebug(@"%@ Beyond catch-up, requesting block hashes with locator: %@", self, locator.hashes);
+    DDLogDebug(@"%@ Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", self, locator.hashes);
     [self sendGetblocksMessageWithLocator:locator hashStop:nil];
 }
 
