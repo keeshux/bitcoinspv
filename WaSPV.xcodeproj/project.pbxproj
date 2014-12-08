@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0ED738121A34B90400669C07 /* WSWebUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebUtils.m */; };
@@ -180,6 +181,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21Tests.m; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtils.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtils.m; sourceTree = "<group>"; };
@@ -777,6 +779,7 @@
 				8CB6D2931979D18000783ADF /* Manual */,
 				8C5DB95319677E9100AF079E /* WaSPVTests.m */,
 				8C8FB81C196776F300A07156 /* WSAddressTests.m */,
+				0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */,
 				8C8FB81D196776F300A07156 /* WSBIP32Tests.m */,
 				8C8FB81E196776F300A07156 /* WSBIP37Tests.m */,
 				0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */,
@@ -1231,6 +1234,7 @@
 				8C8FB830196776F300A07156 /* WSBlockTests.m in Sources */,
 				0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */,
 				8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */,
+				0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */,
 				8CDD9A241983066300720304 /* WSTimerTests.m in Sources */,
 				8C8FB831196776F300A07156 /* WSKeysTests.m in Sources */,
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
