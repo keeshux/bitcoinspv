@@ -45,6 +45,7 @@
 #import "WSMessageGetblocks.h"
 #import "WSMessageGetheaders.h"
 #import "WSMessageTx.h"
+#import "WSMessageBlock.h"
 #import "WSMessageHeaders.h"
 #import "WSMessageGetaddr.h"
 #import "WSMessageMempool.h"

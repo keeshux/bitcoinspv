@@ -131,6 +131,7 @@
 - (void)receiveGetdataMessage:(WSMessageGetdata *)message;
 - (void)receiveNotfoundMessage:(WSMessageNotfound *)message;
 - (void)receiveTxMessage:(WSMessageTx *)message;
+- (void)receiveBlockMessage:(WSMessageBlock *)message;
 - (void)receiveHeadersMessage:(WSMessageHeaders *)message;
 - (void)receivePingMessage:(WSMessagePing *)message;
 - (void)receivePongMessage:(WSMessagePong *)message;
@@ -773,6 +774,13 @@
     }
     
     [self.delegate peer:self didReceiveTransaction:transaction];
+}
+
+- (void)receiveBlockMessage:(WSMessageBlock *)message
+{
+    WSBlock *block = message.block;
+    
+    [self.delegate peer:self didReceiveBlock:block];
 }
 
 - (void)receiveHeadersMessage:(WSMessageHeaders *)message

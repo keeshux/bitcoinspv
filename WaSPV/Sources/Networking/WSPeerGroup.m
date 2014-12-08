@@ -1050,6 +1050,13 @@
     [self handleAddedBlock:block fromPeer:peer];
 }
 
+- (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
+{
+    DDLogVerbose(@"Received full block from %@: %@", peer, block);
+
+#warning TODO: handle full blocks
+}
+
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
 {
     DDLogVerbose(@"Received filtered block from %@: %@", peer, filteredBlock);
