@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
+		0E1143971A3556E900AB3F59 /* WSBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143961A3556E900AB3F59 /* WSBlock.m */; };
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0ED738121A34B90400669C07 /* WSWebUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebUtils.m */; };
@@ -182,6 +183,8 @@
 
 /* Begin PBXFileReference section */
 		0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21Tests.m; sourceTree = "<group>"; };
+		0E1143951A3556E900AB3F59 /* WSBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBlock.h; sourceTree = "<group>"; };
+		0E1143961A3556E900AB3F59 /* WSBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBlock.m; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtils.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtils.m; sourceTree = "<group>"; };
@@ -634,6 +637,8 @@
 		8C8ADF99196786CA007787ED /* Blockchain */ = {
 			isa = PBXGroup;
 			children = (
+				0E1143951A3556E900AB3F59 /* WSBlock.h */,
+				0E1143961A3556E900AB3F59 /* WSBlock.m */,
 				8C8ADF9C196786CA007787ED /* WSBlockChain.h */,
 				8C8ADF9D196786CA007787ED /* WSBlockChain.m */,
 				8C8ADF9A196786CA007787ED /* WSBlockHeader.h */,
@@ -1213,6 +1218,7 @@
 				8C8AE01C196786CA007787ED /* NSString+Binary.m in Sources */,
 				8C8ADFFC196786CA007787ED /* WSBIP37.m in Sources */,
 				8C8AE014196786CA007787ED /* WSMessageVersion.m in Sources */,
+				0E1143971A3556E900AB3F59 /* WSBlock.m in Sources */,
 				8C8AE004196786CA007787ED /* WSMacros.m in Sources */,
 				8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */,
 				8C8AE007196786CA007787ED /* WSParametersFactoryTestnet3.m in Sources */,
