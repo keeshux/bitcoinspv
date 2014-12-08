@@ -133,9 +133,9 @@
 - (NSString *)descriptionWithIndent:(NSUInteger)indent
 {
     NSMutableArray *tokens = [[NSMutableArray alloc] init];
+    [tokens addObject:[NSString stringWithFormat:@"size = %u bytes", [self estimatedSize]]];
     [tokens addObject:[NSString stringWithFormat:@"header = %@", [self.header descriptionWithIndent:(indent + 1)]]];
     [tokens addObject:[NSString stringWithFormat:@"transactions = %u", self.transactions.count]];
-    [tokens addObject:[NSString stringWithFormat:@"size = %u bytes", [self estimatedSize]]];
     return [NSString stringWithFormat:@"{%@}", WSStringDescriptionFromTokens(tokens, indent)];
 }
 
