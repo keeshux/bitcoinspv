@@ -208,13 +208,13 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 - (WSKey *)decryptedKeyWithPassphrase:(NSString *)passphrase
 {
     const uint8_t flags = self.flags;
-    uint32_t addressHash = self.addressHash;
+    const uint32_t addressHash = self.addressHash;
 
     NSMutableData *secret = [[NSMutableData alloc] initWithLength:WSBIP38KeySecretLength];
 
     if (![self isEC]) {
         NSData *password = normalize_passphrase(passphrase);
-        NSData *salt = [NSData dataWithBytesNoCopy:&addressHash length:sizeof(addressHash) freeWhenDone:NO];
+        NSData *salt = [NSData dataWithBytesNoCopy:(void *)&addressHash length:sizeof(addressHash) freeWhenDone:NO];
 
         NSData *derivedData = scrypt(password, salt, WSBIP38KeyScryptN, WSBIP38KeyScryptR, WSBIP38KeyScryptP, WSBIP38KeyScryptLength);
         const uint64_t *derivedBytes1 = (const uint64_t *)derivedData.bytes;
