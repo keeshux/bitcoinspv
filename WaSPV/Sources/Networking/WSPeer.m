@@ -529,8 +529,12 @@
     }
 
     dispatch_async(self.connectionQueue, ^{
+
+        // the filter must be guaranteed to be fresh BEFORE sending a new getdata
         if (shouldReloadBloomFilter) {
-            [self.delegate peerDidRequestFilterReload:self];
+            dispatch_sync(self.groupQueue, ^{
+                [self.delegate peerDidRequestFilterReload:self];
+            });
         }
 
         [self unsafeSendMessage:[WSMessageGetdata messageWithInventories:inventories]];
