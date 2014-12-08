@@ -1054,7 +1054,7 @@
 {
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
-#warning TODO: handle full blocks
+#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
