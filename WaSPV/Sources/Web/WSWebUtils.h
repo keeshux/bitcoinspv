@@ -40,7 +40,8 @@
                             toAddress:(WSAddress *)toAddress
                                   fee:(uint64_t)fee
                             maxTxSize:(NSUInteger)maxTxSize
-                              success:(void (^)(NSArray *))success // WSSignedTransaction
+                             callback:(void (^)(WSSignedTransaction *))callback
+                           completion:(void (^)(NSArray *))completion // WSSignedTransaction
                               failure:(void (^)(NSError *))failure;
 
 - (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
@@ -48,7 +49,8 @@
                                  toAddress:(WSAddress *)toAddress
                                        fee:(uint64_t)fee
                                  maxTxSize:(NSUInteger)maxTxSize
-                                   success:(void (^)(NSArray *))success // WSSignedTransaction
+                                  callback:(void (^)(WSSignedTransaction *))callback
+                                completion:(void (^)(NSArray *))completion // WSSignedTransaction
                                    failure:(void (^)(NSError *))failure;
 
 @end

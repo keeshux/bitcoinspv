@@ -73,13 +73,14 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                             toAddress:(WSAddress *)toAddress
                                   fee:(uint64_t)fee
                             maxTxSize:(NSUInteger)maxTxSize
-                              success:(void (^)(NSArray *))success
+                             callback:(void (^)(WSSignedTransaction *))callback
+                           completion:(void (^)(NSArray *))completion
                               failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromKey != nil, @"Nil fromKey");
     WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
-    WSExceptionCheckIllegal(success != nil, @"Nil success");
-    WSExceptionCheckIllegal(failure != nil, @"Nil failure");
+    WSExceptionCheckIllegal(completion != NULL, @"NULL completion");
+    WSExceptionCheckIllegal(failure != NULL, @"NULL failure");
     
     if (maxTxSize == 0) {
         maxTxSize = WSTransactionMaxSize;
@@ -126,13 +127,17 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                 failure(error);
                 return;
             }
-            DDLogDebug(@"#%u Sweep transaction: %@", transactions.count, transaction);
+            DDLogVerbose(@"#%u Sweep transaction: %@", transactions.count, transaction);
             [transactions addObject:transaction];
+            
+            if (callback) {
+                callback(transaction);
+            }
             
             builder = [[WSTransactionBuilder alloc] init];
         }
     } completion:^{
-        success(transactions);
+        completion(transactions);
     } failure:failure];
 }
 
@@ -141,16 +146,17 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                                  toAddress:(WSAddress *)toAddress
                                        fee:(uint64_t)fee
                                  maxTxSize:(NSUInteger)maxTxSize
-                                   success:(void (^)(NSArray *))success
+                                  callback:(void (^)(WSSignedTransaction *))callback
+                                completion:(void (^)(NSArray *))completion
                                    failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromBIP38Key != nil, @"Nil fromBIP38Key");
     WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
-    WSExceptionCheckIllegal(success != nil, @"Nil success");
-    WSExceptionCheckIllegal(failure != nil, @"Nil failure");
+    WSExceptionCheckIllegal(completion != NULL, @"NULL completion");
+    WSExceptionCheckIllegal(failure != NULL, @"NULL failure");
 
     WSKey *fromKey = [fromBIP38Key decryptedKeyWithPassphrase:passphrase];
-    [self buildSweepTransactionsFromKey:fromKey toAddress:toAddress fee:fee maxTxSize:maxTxSize success:success failure:failure];
+    [self buildSweepTransactionsFromKey:fromKey toAddress:toAddress fee:fee maxTxSize:maxTxSize callback:callback completion:completion failure:failure];
 }
 
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
