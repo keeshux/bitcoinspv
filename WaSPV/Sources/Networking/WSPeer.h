@@ -53,16 +53,15 @@ typedef enum {
 
 @property (nonatomic, assign) uint16_t port; // default network port
 
-- (instancetype)init;
 - (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
-                       headersOnly:(BOOL)headersOnly
-                         hasWallet:(BOOL)hasWallet;
+              shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
+               needsBloomFiltering:(BOOL)needsBloomFiltering;
 
 - (dispatch_queue_t)groupQueue;
 - (WSBlockChain *)blockChain;
-- (BOOL)headersOnly;
-- (BOOL)hasWallet;
+- (BOOL)shouldDownloadBlocks;
+- (BOOL)needsBloomFiltering;
 
 @end
 
@@ -124,8 +123,6 @@ typedef enum {
 - (NSUInteger)numberOfBlocksLeft;
 - (void)requestOutdatedBlocks;
 - (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
-- (BOOL)shouldDownloadBlocks;
-- (BOOL)needsBloomFiltering;
 
 // for testing, needs WASPV_TEST_MESSAGE_QUEUE to work
 - (id<WSMessage>)dequeueMessageSynchronouslyWithTimeout:(NSUInteger)timeout;

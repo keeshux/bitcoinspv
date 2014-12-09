@@ -445,8 +445,8 @@
     
     WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue
                                                                      blockChain:self.blockChain
-                                                                    headersOnly:self.headersOnly
-                                                                      hasWallet:(self.wallet != nil)];
+                                                           shouldDownloadBlocks:[self shouldDownloadBlocks]
+                                                            needsBloomFiltering:[self needsBloomFiltering]];
 
     WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:parameters];
     peer.delegate = self;
@@ -811,7 +811,7 @@
                        peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
             if ([self isSynced]) {
-                if ([self.downloadPeer needsBloomFiltering]) {
+                if ([self needsBloomFiltering]) {
                     DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }
@@ -1164,7 +1164,7 @@
 
         if (isDownloadFinished) {
             for (WSPeer *peer in self.connectedPeers) {
-                if ([self.downloadPeer needsBloomFiltering] && (peer != self.downloadPeer)) {
+                if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
                     DDLogDebug(@"Loading Bloom filter for peer %@", peer);
                     [peer sendFilterloadMessageWithFilter:self.bloomFilter];
                 }

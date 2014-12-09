@@ -47,30 +47,25 @@
 
 @property (nonatomic, strong) dispatch_queue_t groupQueue;
 @property (nonatomic, strong) WSBlockChain *blockChain;
-@property (nonatomic, assign) BOOL headersOnly;
-@property (nonatomic, assign) BOOL hasWallet;
+@property (nonatomic, assign) BOOL shouldDownloadBlocks;
+@property (nonatomic, assign) BOOL needsBloomFiltering;
 
 @end
 
 @implementation WSPeerParameters
 
-- (instancetype)init
-{
-    return [self initWithGroupQueue:dispatch_get_main_queue() blockChain:nil headersOnly:NO hasWallet:NO];
-}
-
 - (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
-                       headersOnly:(BOOL)headersOnly
-                         hasWallet:(BOOL)hasWallet
+              shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
+               needsBloomFiltering:(BOOL)needsBloomFiltering
 {
     WSExceptionCheckIllegal(groupQueue != NULL, @"NULL groupQueue");
 
     if ((self = [super init])) {
         self.groupQueue = groupQueue;
         self.blockChain = blockChain;
-        self.headersOnly = headersOnly;
-        self.hasWallet = hasWallet;
+        self.shouldDownloadBlocks = shouldDownloadBlocks;
+        self.needsBloomFiltering = needsBloomFiltering;
         self.port = [WSCurrentParameters peerPort];
     }
     return self;
@@ -109,8 +104,8 @@
 
 // sync status (shared by WSPeerGroup, guarded by self.groupQueue)
 @property (nonatomic, strong) WSBlockChain *blockChain;
-@property (nonatomic, assign) BOOL hasWallet;
-@property (nonatomic, assign) BOOL headersOnly;
+@property (nonatomic, assign) BOOL shouldDownloadBlocks;
+@property (nonatomic, assign) BOOL needsBloomFiltering;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
 @property (nonatomic, assign) BOOL isDownloadPeer;
@@ -177,8 +172,8 @@
 
         self.groupQueue = parameters.groupQueue;
         self.blockChain = parameters.blockChain;
-        self.hasWallet = parameters.hasWallet;
-        self.headersOnly = parameters.headersOnly;
+        self.shouldDownloadBlocks = parameters.shouldDownloadBlocks;
+        self.needsBloomFiltering = parameters.needsBloomFiltering;
 
         _peerStatus = WSPeerStatusDisconnected;
         _remoteHost = host;
@@ -259,7 +254,7 @@
     DDLogDebug(@"%@ Connection opened", self);
 
     self.deserializer = [[WSProtocolDeserializer alloc] initWithPeer:self];
-    [self sendVersionMessageWithRelayTransactions:(uint8_t)!self.hasWallet];
+    [self sendVersionMessageWithRelayTransactions:(uint8_t)![self needsBloomFiltering]];
 }
 
 - (void)processData:(NSData *)data
@@ -1120,16 +1115,6 @@
 
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
     }
-}
-
-- (BOOL)shouldDownloadBlocks
-{
-    return (self.hasWallet || !self.headersOnly);
-}
-
-- (BOOL)needsBloomFiltering
-{
-    return self.hasWallet;
 }
 
 #pragma mark Utils (unsafe)
