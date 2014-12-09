@@ -107,9 +107,9 @@ const NSUInteger        WSTransactionCoinbaseInputIndex         = 0xffffffff;
 //
 // See: https://gist.github.com/gavinandresen/2961409
 //
-const uint64_t          WSTransactionMaxSize                    = 100000;   // no tx can be larger than this size in bytes
-const uint64_t          WSTransactionFreeMaxSize                = 1000;     // tx must not be larger than this size in bytes without a fee
-const uint64_t          WSTransactionFreeMinPriority            = 57600000; // tx must not have a priority below this value without a fee
+const NSUInteger        WSTransactionMaxSize                    = 100000;   // no tx can be larger than this size in bytes
+const NSUInteger        WSTransactionFreeMaxSize                = 1000;     // tx must not be larger than this size in bytes without a fee
+const NSUInteger        WSTransactionFreeMinPriority            = 57600000; // tx must not have a priority below this value without a fee
 
 NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger numberOfOutputs)
 {
@@ -117,15 +117,15 @@ NSUInteger WSTransactionTypicalSize(NSUInteger numberOfInputs, NSUInteger number
     return (sizeof(uint32_t) + sizeof(uint32_t) + numberOfInputs * WSTransactionInputTypicalSize + numberOfOutputs * WSTransactionOutputTypicalSize);
 }
 
-NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, BOOL simulatingSignatures)
+NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *outputs, NSArray *extraInputs, NSArray *extraOutputs, BOOL simulatingSignatures)
 {
     NSUInteger size = 0;
     
     size += sizeof(uint32_t); // version
     
-    size += WSBufferVarIntSize(inputs.count);
+    size += WSBufferVarIntSize(inputs.count + extraInputs.count);
     if (simulatingSignatures) {
-        size += inputs.count * WSTransactionInputTypicalSize;
+        size += (inputs.count + extraInputs.count) * WSTransactionInputTypicalSize;
     }
     else {
         for (id<WSTransactionInput> input in inputs) {
@@ -135,14 +135,27 @@ NSUInteger WSTransactionEstimatedSize(NSOrderedSet *inputs, NSOrderedSet *output
             size += scriptSize;
             size += sizeof(uint32_t); // sequence
         }
+        for (id<WSTransactionInput> input in extraInputs) {
+            size += WSTransactionOutPointSize;
+            const NSUInteger scriptSize = [input.script estimatedSize];
+            size += WSBufferVarIntSize(scriptSize);
+            size += scriptSize;
+            size += sizeof(uint32_t); // sequence
+        }
     }
     
-    size += WSBufferVarIntSize(outputs.count);
+    size += WSBufferVarIntSize(outputs.count + extraOutputs.count);
     if (simulatingSignatures) {
-        size += outputs.count * WSTransactionOutputTypicalSize;
+        size += (outputs.count + extraOutputs.count) * WSTransactionOutputTypicalSize;
     }
     else {
         for (WSTransactionOutput *output in outputs) {
+            size += sizeof(uint64_t); // value
+            const NSUInteger scriptSize = [output.script estimatedSize];
+            size += WSBufferVarIntSize(scriptSize);
+            size += scriptSize;
+        }
+        for (WSTransactionOutput *output in extraOutputs) {
             size += sizeof(uint64_t); // value
             const NSUInteger scriptSize = [output.script estimatedSize];
             size += WSBufferVarIntSize(scriptSize);

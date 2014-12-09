@@ -252,7 +252,7 @@
 - (NSUInteger)estimatedSize
 {
     if (self.size == 0) {
-        return WSTransactionEstimatedSize(self.inputs, self.outputs, NO);
+        return WSTransactionEstimatedSize(self.inputs, self.outputs, nil, nil, NO);
     }
     return self.size;
 }
@@ -282,6 +282,7 @@
 @property (nonatomic, strong) NSMutableOrderedSet *outputs;
 
 - (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput hashFlags:(WSTransactionSigHash)hashFlags;
+- (NSUInteger)estimatedSizeWithExtraInputs:(NSArray *)inputs;
 
 @end
 
@@ -347,6 +348,26 @@
         value += output.value;
     }
     return value;
+}
+
+- (NSUInteger)sizeWithExtraOutputs:(NSUInteger)numberOfOutputs
+{
+    return [self sizeWithExtraInputs:nil outputs:numberOfOutputs];
+}
+
+- (NSUInteger)sizeWithExtraInputs:(NSArray *)inputs outputs:(NSUInteger)numberOfOutputs
+{
+    if (inputs) {
+        return [self estimatedSizeWithExtraInputs:inputs] + (numberOfOutputs * WSTransactionOutputTypicalSize);
+    }
+    else {
+        return [self estimatedSize] + (numberOfOutputs * WSTransactionOutputTypicalSize);
+    }
+}
+
+- (NSUInteger)sizeWithExtraBytes:(NSUInteger)numberOfBytes
+{
+    return [self estimatedSize] + numberOfBytes;
 }
 
 - (uint64_t)fee
@@ -442,7 +463,14 @@
 
 - (NSUInteger)estimatedSize
 {
-    return WSTransactionEstimatedSize(self.signableInputs, self.outputs, YES);
+    return WSTransactionEstimatedSize(self.signableInputs, self.outputs, nil, nil, YES);
+}
+
+- (NSUInteger)estimatedSizeWithExtraInputs:(NSArray *)inputs
+{
+    NSAssert(inputs, @"Nil inputs");
+    
+    return WSTransactionEstimatedSize(self.signableInputs, self.outputs, inputs, nil, YES);
 }
 
 @end
