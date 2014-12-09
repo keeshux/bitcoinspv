@@ -53,10 +53,10 @@
 //    WSAddress *address = WSAddressFromString(@"muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG");
     WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
     
-    [[WSWebUtils sharedInstance] buildSweepTransactionFromKey:key toAddress:address fee:0 success:^(WSSignedTransaction *transaction) {
-        DDLogDebug(@"Transaction: %@", transaction);
+    [[WSWebUtils sharedInstance] buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 success:^(NSArray *transactions) {
+        DDLogDebug(@"Transactions: %u", transactions.count);
     } failure:^(NSError *error) {
-        DDLogError(@"Error building transaction: %@", error);
+        DDLogError(@"Error building transactions: %@", error);
     }];
     
     [self runForSeconds:5.0];
@@ -68,10 +68,10 @@
     WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
     NSString *passphrase = @"foobar";
     
-    [[WSWebUtils sharedInstance] buildSweepTransactionFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 success:^(WSSignedTransaction *transaction) {
-        DDLogDebug(@"Transaction: %@", transaction);
+    [[WSWebUtils sharedInstance] buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 success:^(NSArray *transactions) {
+        DDLogDebug(@"Transactions: %u", transactions.count);
     } failure:^(NSError *error) {
-        DDLogError(@"Error building transaction: %@", error);
+        DDLogError(@"Error building transactions: %@", error);
     }];
     
     [self runForSeconds:5.0];

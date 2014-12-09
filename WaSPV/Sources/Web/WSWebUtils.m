@@ -49,7 +49,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
 
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
-                             handler:(void (^)(WSSignableTransactionInput *))handler
+                             handler:(void (^)(WSSignableTransactionInput *, BOOL, BOOL *))handler
                           completion:(void (^)())completion
                              failure:(void (^)(NSError *))failure;
 
@@ -69,62 +69,80 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     return instance;
 }
 
-- (void)buildSweepTransactionFromKey:(WSKey *)fromKey
-                           toAddress:(WSAddress *)toAddress
-                                 fee:(uint64_t)fee
-                             success:(void (^)(WSSignedTransaction *))success
-                             failure:(void (^)(NSError *))failure
+- (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
+                            toAddress:(WSAddress *)toAddress
+                                  fee:(uint64_t)fee
+                            maxTxSize:(NSUInteger)maxTxSize
+                              success:(void (^)(NSArray *))success
+                              failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromKey != nil, @"Nil fromKey");
     WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
     WSExceptionCheckIllegal(success != nil, @"Nil success");
     WSExceptionCheckIllegal(failure != nil, @"Nil failure");
     
-    WSAddress *fromAddress = [fromKey address];
-    WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
+    if (maxTxSize == 0) {
+        maxTxSize = WSTransactionMaxSize;
+    }
     
-#warning FIXME: transaction size not capped, split sweep operation into several transactions
-
+    WSAddress *fromAddress = [fromKey address];
+    NSMutableArray *transactions = [[NSMutableArray alloc] init];
+    __block WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
+    
     // XXX: unspent outputs may be _A LOT_
     //
     // https://api.biteasy.com/testnet/v1/addresses/muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG/unspent-outputs
     
     DDLogVerbose(@"Sweeping %@ funds into %@", fromAddress, toAddress);
 
-    [self fetchUnspentInputsForAddress:fromAddress page:1 handler:^(WSSignableTransactionInput *input) {
+    [self fetchUnspentInputsForAddress:fromAddress page:1 handler:^(WSSignableTransactionInput *input, BOOL isLast, BOOL *stop) {
         [builder addSignableInput:input];
+        
+        const NSUInteger estimatedTxSizeBefore = [builder sizeWithExtraInputs:nil outputs:1];
+        const NSUInteger estimatedTxSizeAfter = [builder sizeWithExtraInputs:@[input] outputs:1];
+
+        DDLogVerbose(@"#%u Sweep transaction estimated size: %u->%u > %u ?",
+                     transactions.count, estimatedTxSizeBefore, estimatedTxSizeAfter, maxTxSize);
+
+        if (isLast || ((estimatedTxSizeBefore <= maxTxSize) && (estimatedTxSizeAfter > maxTxSize))) {
+            DDLogVerbose(@"#%u Sweep inputs (%u): %@", transactions.count, builder.signableInputs.count, builder.signableInputs);
+            DDLogVerbose(@"#%u Sweep input value: %llu", transactions.count, [builder inputValue]);
+            
+            if (![builder addSweepOutputAddress:toAddress fee:fee]) {
+                failure(WSErrorMake(WSErrorCodeInsufficientFunds, @"Unspent balance is less than fee + min output value"));
+                return;
+            }
+            
+            DDLogVerbose(@"#%u Sweep output value: %llu", transactions.count, [builder outputValue]);
+            DDLogVerbose(@"#%u Sweep fee: %llu", transactions.count, [builder fee]);
+            
+            NSError *error;
+            NSDictionary *keys = @{fromAddress: fromKey};
+            WSSignedTransaction *transaction = [builder signedTransactionWithInputKeys:keys error:&error];
+            if (!transaction) {
+                DDLogDebug(@"#%u Sweep transaction error: %@", transactions.count, error);
+
+                *stop = YES;
+                failure(error);
+                return;
+            }
+            DDLogDebug(@"#%u Sweep transaction: %@", transactions.count, transaction);
+            [transactions addObject:transaction];
+            
+            builder = [[WSTransactionBuilder alloc] init];
+        }
     } completion:^{
-        DDLogVerbose(@"Sweep inputs (%u): %@", builder.signableInputs.count, builder.signableInputs);
-        DDLogVerbose(@"Sweep input value: %llu", [builder inputValue]);
-
-        if (![builder addSweepOutputAddress:toAddress fee:fee]) {
-            failure(WSErrorMake(WSErrorCodeInsufficientFunds, @"Unspent balance is less than fee + min output value"));
-            return;
-        }
-
-        DDLogVerbose(@"Sweep output value: %llu", [builder outputValue]);
-        DDLogVerbose(@"Sweep fee: %llu", [builder fee]);
-
-        NSError *error;
-        NSDictionary *keys = @{fromAddress: fromKey};
-        WSSignedTransaction *transaction = [builder signedTransactionWithInputKeys:keys error:&error];
-        if (!transaction) {
-            failure(error);
-            return;
-        }
-
-        DDLogVerbose(@"Sweep transaction: %@", transaction);
-        success(transaction);
-
+        success(transactions);
     } failure:failure];
 }
 
-- (void)buildSweepTransactionFromBIP38Key:(WSBIP38Key *)fromBIP38Key
-                               passphrase:(NSString *)passphrase
-                                toAddress:(WSAddress *)toAddress
-                                      fee:(uint64_t)fee
-                                  success:(void (^)(WSSignedTransaction *))success
-                                  failure:(void (^)(NSError *))failure
+- (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
+                                passphrase:(NSString *)passphrase
+                                 toAddress:(WSAddress *)toAddress
+                                       fee:(uint64_t)fee
+                                 maxTxSize:(NSUInteger)maxTxSize
+                                   success:(void (^)(NSArray *))success
+                                   failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromBIP38Key != nil, @"Nil fromBIP38Key");
     WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
@@ -132,12 +150,12 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     WSExceptionCheckIllegal(failure != nil, @"Nil failure");
 
     WSKey *fromKey = [fromBIP38Key decryptedKeyWithPassphrase:passphrase];
-    [self buildSweepTransactionFromKey:fromKey toAddress:toAddress fee:fee success:success failure:failure];
+    [self buildSweepTransactionsFromKey:fromKey toAddress:toAddress fee:fee maxTxSize:maxTxSize success:success failure:failure];
 }
 
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
-                             handler:(void (^)(WSSignableTransactionInput *))handler
+                             handler:(void (^)(WSSignableTransactionInput *, BOOL, BOOL *))handler
                           completion:(void (^)())completion
                              failure:(void (^)(NSError *))failure
 {
@@ -154,6 +172,8 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
         NSDictionary *jsonData = object[@"data"];
         NSArray *jsonOutputs = jsonData[@"outputs"];
         NSDictionary *jsonPagination = jsonData[@"pagination"];
+        const NSUInteger nextPage = [jsonPagination[@"next_page"] unsignedIntegerValue];
+        const BOOL isLastPage = (nextPage == 0);
         
         for (NSDictionary *jsonOutput in jsonOutputs) {
             const uint64_t previousValue = [jsonOutput[@"value"] unsignedLongLongValue];
@@ -169,19 +189,23 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
             WSTransactionOutPoint *previousOutpoint = [WSTransactionOutPoint outpointWithTxId:previousTxId index:previousIndex];
             WSSignableTransactionInput *input = [[WSSignableTransactionInput alloc] initWithPreviousOutput:previousOutput outpoint:previousOutpoint];
             
-            handler(input);
+            const BOOL isLast = (isLastPage && (jsonOutput == [jsonOutputs lastObject]));
+            BOOL stop = NO;
+            handler(input, isLast, &stop);
+            if (stop) {
+                return;
+            }
         }
         
-        const NSUInteger nextPage = [jsonPagination[@"next_page"] unsignedIntegerValue];
-        if (nextPage > 0) {
-            
+        if (isLastPage) {
+            completion();
+        }
+        else {
+        
             // yield to avoid rate limiting
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, WSWebUtilsBiteasyYieldInterval * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 [self fetchUnspentInputsForAddress:address page:nextPage handler:handler completion:completion failure:failure];
             });
-        }
-        else {
-            completion();
         }
     } failure:^(int statusCode, NSError *error) {
         failure(error ? : WSErrorMake(WSErrorCodeNetworking, @"HTTP %u", statusCode));

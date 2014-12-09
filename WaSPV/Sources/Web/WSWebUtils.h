@@ -36,17 +36,19 @@
 
 + (instancetype)sharedInstance;
 
-- (void)buildSweepTransactionFromKey:(WSKey *)fromKey
-                           toAddress:(WSAddress *)toAddress
-                                 fee:(uint64_t)fee
-                             success:(void (^)(WSSignedTransaction *))success
-                             failure:(void (^)(NSError *))failure;
+- (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
+                            toAddress:(WSAddress *)toAddress
+                                  fee:(uint64_t)fee
+                            maxTxSize:(NSUInteger)maxTxSize
+                              success:(void (^)(NSArray *))success // WSSignedTransaction
+                              failure:(void (^)(NSError *))failure;
 
-- (void)buildSweepTransactionFromBIP38Key:(WSBIP38Key *)fromBIP38Key
-                               passphrase:(NSString *)passphrase
-                                toAddress:(WSAddress *)toAddress
-                                      fee:(uint64_t)fee
-                                  success:(void (^)(WSSignedTransaction *))success
-                                  failure:(void (^)(NSError *))failure;
+- (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
+                                passphrase:(NSString *)passphrase
+                                 toAddress:(WSAddress *)toAddress
+                                       fee:(uint64_t)fee
+                                 maxTxSize:(NSUInteger)maxTxSize
+                                   success:(void (^)(NSArray *))success // WSSignedTransaction
+                                   failure:(void (^)(NSError *))failure;
 
 @end
