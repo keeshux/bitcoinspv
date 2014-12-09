@@ -74,7 +74,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                                   fee:(uint64_t)fee
                             maxTxSize:(NSUInteger)maxTxSize
                              callback:(void (^)(WSSignedTransaction *))callback
-                           completion:(void (^)(NSArray *))completion
+                           completion:(void (^)(NSUInteger))completion
                               failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromKey != nil, @"Nil fromKey");
@@ -87,8 +87,8 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     }
     
     WSAddress *fromAddress = [fromKey address];
-    NSMutableArray *transactions = [[NSMutableArray alloc] init];
     __block WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
+    __block NSUInteger numberOfTransactions = 0;
     
     // XXX: unspent outputs may be _A LOT_
     //
@@ -103,32 +103,32 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
         const NSUInteger estimatedTxSizeAfter = [builder sizeWithExtraInputs:@[input] outputs:1];
 
         DDLogVerbose(@"#%u Sweep transaction estimated size: %u->%u > %u ?",
-                     transactions.count, estimatedTxSizeBefore, estimatedTxSizeAfter, maxTxSize);
+                     numberOfTransactions, estimatedTxSizeBefore, estimatedTxSizeAfter, maxTxSize);
 
         if (isLast || ((estimatedTxSizeBefore <= maxTxSize) && (estimatedTxSizeAfter > maxTxSize))) {
-            DDLogVerbose(@"#%u Sweep inputs (%u): %@", transactions.count, builder.signableInputs.count, builder.signableInputs);
-            DDLogVerbose(@"#%u Sweep input value: %llu", transactions.count, [builder inputValue]);
+            DDLogVerbose(@"#%u Sweep inputs (%u): %@", numberOfTransactions, builder.signableInputs.count, builder.signableInputs);
+            DDLogVerbose(@"#%u Sweep input value: %llu", numberOfTransactions, [builder inputValue]);
             
             if (![builder addSweepOutputAddress:toAddress fee:fee]) {
                 failure(WSErrorMake(WSErrorCodeInsufficientFunds, @"Unspent balance is less than fee + min output value"));
                 return;
             }
             
-            DDLogVerbose(@"#%u Sweep output value: %llu", transactions.count, [builder outputValue]);
-            DDLogVerbose(@"#%u Sweep fee: %llu", transactions.count, [builder fee]);
+            DDLogVerbose(@"#%u Sweep output value: %llu", numberOfTransactions, [builder outputValue]);
+            DDLogVerbose(@"#%u Sweep fee: %llu", numberOfTransactions, [builder fee]);
             
             NSError *error;
             NSDictionary *keys = @{fromAddress: fromKey};
             WSSignedTransaction *transaction = [builder signedTransactionWithInputKeys:keys error:&error];
             if (!transaction) {
-                DDLogDebug(@"#%u Sweep transaction error: %@", transactions.count, error);
+                DDLogDebug(@"#%u Sweep transaction error: %@", numberOfTransactions, error);
 
                 *stop = YES;
                 failure(error);
                 return;
             }
-            DDLogVerbose(@"#%u Sweep transaction: %@", transactions.count, transaction);
-            [transactions addObject:transaction];
+            DDLogVerbose(@"#%u Sweep transaction: %@", numberOfTransactions, transaction);
+            ++numberOfTransactions;
             
             if (callback) {
                 callback(transaction);
@@ -137,7 +137,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
             builder = [[WSTransactionBuilder alloc] init];
         }
     } completion:^{
-        completion(transactions);
+        completion(numberOfTransactions);
     } failure:failure];
 }
 
@@ -147,7 +147,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                                        fee:(uint64_t)fee
                                  maxTxSize:(NSUInteger)maxTxSize
                                   callback:(void (^)(WSSignedTransaction *))callback
-                                completion:(void (^)(NSArray *))completion
+                                completion:(void (^)(NSUInteger))completion
                                    failure:(void (^)(NSError *))failure
 {
     WSExceptionCheckIllegal(fromBIP38Key != nil, @"Nil fromBIP38Key");

@@ -41,7 +41,7 @@
                                   fee:(uint64_t)fee
                             maxTxSize:(NSUInteger)maxTxSize
                              callback:(void (^)(WSSignedTransaction *))callback
-                           completion:(void (^)(NSArray *))completion // WSSignedTransaction
+                           completion:(void (^)(NSUInteger))completion
                               failure:(void (^)(NSError *))failure;
 
 - (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
@@ -50,7 +50,7 @@
                                        fee:(uint64_t)fee
                                  maxTxSize:(NSUInteger)maxTxSize
                                   callback:(void (^)(WSSignedTransaction *))callback
-                                completion:(void (^)(NSArray *))completion // WSSignedTransaction
+                                completion:(void (^)(NSUInteger))completion
                                    failure:(void (^)(NSError *))failure;
 
 @end

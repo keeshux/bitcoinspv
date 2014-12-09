@@ -55,8 +55,8 @@
     
     [[WSWebUtils sharedInstance] buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
         DDLogInfo(@"Transaction: %@", transaction);
-    } completion:^(NSArray *transactions) {
-        DDLogInfo(@"Total transactions: %u", transactions.count);
+    } completion:^(NSUInteger numberOfTransactions) {
+        DDLogInfo(@"Total transactions: %u", numberOfTransactions);
     } failure:^(NSError *error) {
         DDLogError(@"Error building transactions: %@", error);
     }];
@@ -72,8 +72,8 @@
     
     [[WSWebUtils sharedInstance] buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
         DDLogInfo(@"Transaction: %@", transaction);
-    } completion:^(NSArray *transactions) {
-        DDLogInfo(@"Total transactions: %u", transactions.count);
+    } completion:^(NSUInteger numberOfTransactions) {
+        DDLogInfo(@"Total transactions: %u", numberOfTransactions);
     } failure:^(NSError *error) {
         DDLogError(@"Error building transactions: %@", error);
     }];
