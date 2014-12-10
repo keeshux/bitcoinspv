@@ -253,6 +253,25 @@
     XCTAssertFalse([tx isCoinbase], @"Tx is coinbase");
 }
 
+//- (void)testEncodeMultiSigned
+//{
+//    WSParametersSetCurrentType(WSParametersTypeMain);
+//    
+//    // https://gist.github.com/gavinandresen/3966071
+//    
+//    WSKey *key1 = WSKeyFromWIF(@"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU");
+//    WSKey *key2 = WSKeyFromWIF(@"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk");
+//    WSKey *key3 = WSKeyFromWIF(@"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw");
+//    
+//    WSPublicKey *pk1 = [key1 publicKey];
+//    WSPublicKey *pk2 = [key2 publicKey];
+//    WSPublicKey *pk3 = [key3 publicKey];
+//    
+//    DDLogInfo(@"%@ <- %@", pk1, key1);
+//    DDLogInfo(@"%@ <- %@", pk2, key2);
+//    DDLogInfo(@"%@ <- %@", pk3, key3);
+//}
+
 - (void)testDecodeCoinbase
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
