@@ -89,6 +89,8 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 + (instancetype)scriptWithAddress:(WSAddress *)address;
 + (instancetype)scriptWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;
++ (instancetype)scriptWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys;
++ (instancetype)scriptWithNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys;
 
 - (instancetype)initWithChunks:(NSArray *)chunks; // WSScriptChunk
 - (NSArray *)chunks;
@@ -98,7 +100,7 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 - (BOOL)isScriptSigWithSignature:(NSData **)signature publicKey:(WSPublicKey **)publicKey;
 - (BOOL)isScriptMultiSigWithSignatures:(NSArray **)signatures publicKeys:(NSArray **)publicKeys redeemScript:(WSScript **)redeemScript;
-- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n publicKeys:(NSArray **)publicKeys;
+- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray **)publicKeys;
 
 - (BOOL)isPay2PubKeyHash;
 - (BOOL)isPay2PubKey;
@@ -123,7 +125,7 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 - (instancetype)init;
 - (instancetype)initWithAddress:(WSAddress *)address; // P2PKH or P2SH
-- (instancetype)initWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;
+- (instancetype)initWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;   // scriptSig
 
 - (void)appendChunk:(WSScriptChunk *)chunk;
 - (void)appendOpcode:(WSScriptOpcode)opcode;

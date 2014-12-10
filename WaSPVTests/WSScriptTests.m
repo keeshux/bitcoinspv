@@ -193,9 +193,11 @@
                 XCTAssertEqualObjects(addressFromOutput, addressFromInputRedeem);
             }
             
-            NSUInteger m, n;
+            NSUInteger numberOfSignatures;
             NSArray *publicKeys;
-            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:&publicKeys];
+            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithNumberOfSignatures:&numberOfSignatures publicKeys:&publicKeys];
+            const NSUInteger m = numberOfSignatures;
+            const NSUInteger n = publicKeys.count;
 
             XCTAssertTrue(isMultiSig);
             XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
@@ -310,10 +312,12 @@
     WSScript *script = WSScriptFromHex(expScriptHex);
     DDLogInfo(@"Script chunks: %@", script.chunks);
     
-    NSUInteger m, n;
+    NSUInteger numberOfSignatures;
     NSArray *pubKeys;
-    XCTAssertTrue([script isScriptMultiSigReedemWithM:&m N:&n publicKeys:&pubKeys]);
-    XCTAssertNotNil(pubKeys);
+    XCTAssertTrue([script isScriptMultiSigReedemWithNumberOfSignatures:&numberOfSignatures publicKeys:&pubKeys]);
+    const NSUInteger m = numberOfSignatures;
+    const NSUInteger n = pubKeys.count;
+
     XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
 
     XCTAssertEqual(pubKeys.count, expPubKeys.count);

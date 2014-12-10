@@ -187,14 +187,13 @@
     WSBuffer *chunkRedeemBuffer = [[WSBuffer alloc] initWithData:chunkRedeem.pushData];
     WSScript *localRedeemScript = [[WSScript alloc] initWithBuffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
 
-    NSUInteger m, n;
+    NSUInteger outNumberOfSignatures;
     NSArray *localPublicKeys;
-    if (![localRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:&localPublicKeys]) {
+    if (![localRedeemScript isScriptMultiSigReedemWithNumberOfSignatures:&outNumberOfSignatures publicKeys:&localPublicKeys]) {
         return NO;
     }
-    
-    NSAssert(localSignatures.count == m, @"Incorrect number of signatures (%u != %u)", localSignatures.count, m);
-    NSAssert(localPublicKeys.count == n, @"Incorrect number of public keys (%u != %u)", localPublicKeys.count, n);
+
+    NSAssert(localSignatures.count == outNumberOfSignatures, @"Incorrect number of signatures (%u != %u)", localSignatures.count, outNumberOfSignatures);
 
     if (signatures) {
         *signatures = localSignatures;
@@ -219,7 +218,7 @@
 //
 // script chunks = (3 + n) with (n > 0)
 //
-- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n publicKeys:(NSArray *__autoreleasing *)publicKeys
+- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -255,11 +254,8 @@
         [localPublicKeys addObject:publicKey];
     }
     
-    if (m) {
-        *m = chunkM;
-    }
-    if (n) {
-        *n = chunkN;
+    if (numberOfSignatures) {
+        *numberOfSignatures = chunkM;
     }
     if (publicKeys) {
         *publicKeys = localPublicKeys;
@@ -654,7 +650,7 @@
     return NO;
 }
 
-- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n publicKeys:(NSArray *__autoreleasing *)publicKeys
+- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     return NO;
 }
