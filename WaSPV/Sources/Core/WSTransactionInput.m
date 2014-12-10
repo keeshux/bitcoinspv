@@ -99,7 +99,6 @@
 
 - (WSAddress *)address
 {
-#warning XXX: unreliable, only works with basic scriptSig (signature + public key)
     return [self.script standardAddress];
 }
 
