@@ -95,12 +95,8 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 - (BOOL)isPushDataOnly;
 - (BOOL)containsData:(NSData *)data;
-- (NSArray *)arrayWithPushData; // NSData
-- (NSSet *)setWithPushData; // NSData
 - (WSAddress *)addressFromHash;
-- (WSPublicKey *)publicKey; // nil if non-trivial scriptSig (signature + script)
 
-- (BOOL)isPay2PubKeyHash;
 - (BOOL)isPay2ScriptHash;
 - (BOOL)isPay2PubKey;
 - (BOOL)isPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n;

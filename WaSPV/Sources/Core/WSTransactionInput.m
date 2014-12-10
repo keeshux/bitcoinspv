@@ -100,7 +100,7 @@
 - (WSAddress *)address
 {
 #warning XXX: unreliable, only works with basic scriptSig (signature + public key)
-    return [[self.script publicKey] address];
+    return [self.script standardAddress];
 }
 
 #pragma mark WSBufferEncoder

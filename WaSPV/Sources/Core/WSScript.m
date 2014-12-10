@@ -105,34 +105,12 @@
     return NO;
 }
 
-- (NSArray *)arrayWithPushData
-{
-    NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:self.chunks.count];
-    for (WSScriptChunk *chunk in self.chunks) {
-        if (chunk.pushData) {
-            [array addObject:chunk.pushData];
-        }
-    }
-    return array;
-}
-
-- (NSSet *)setWithPushData
-{
-    NSMutableSet *set = [[NSMutableSet alloc] initWithCapacity:self.chunks.count];
-    for (WSScriptChunk *chunk in self.chunks) {
-        if (chunk.pushData) {
-            [set addObject:chunk.pushData];
-        }
-    }
-    return set;
-}
-
 - (WSAddress *)addressFromHash
 {
     return WSAddressP2SHFromHash160([[self toBuffer] computeHash160]);
 }
 
-- (WSPublicKey *)publicKey
+- (NSArray *)publicKeys
 {
     for (WSScriptChunk *chunk in self.chunks) {
         if (WSPublicKeyIsValidData(chunk.pushData)) {
@@ -578,16 +556,6 @@
     WSExceptionCheckIllegal(data != nil, @"Nil data");
 
     return [self.coinbaseData isEqualToData:data];
-}
-
-- (NSArray *)arrayWithPushData
-{
-    return @[self.coinbaseData];
-}
-
-- (NSSet *)setWithPushData
-{
-    return [NSSet setWithObject:self.coinbaseData];
 }
 
 - (WSAddress *)addressFromHash

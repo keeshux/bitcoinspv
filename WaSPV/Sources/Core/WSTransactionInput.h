@@ -51,7 +51,7 @@
 
 - (BOOL)isCoinbase;
 - (BOOL)isSigned;
-- (WSAddress *)address; // XXX: unreliable for signed inputs
+- (WSAddress *)address; // nil if script is not standard
 
 @end
 
