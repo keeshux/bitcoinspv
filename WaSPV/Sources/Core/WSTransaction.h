@@ -91,9 +91,9 @@
 
 - (uint64_t)inputValue;
 - (uint64_t)outputValue;
-- (NSUInteger)sizeWithExtraOutputs:(NSUInteger)numberOfOutputs;
-- (NSUInteger)sizeWithExtraInputs:(NSArray *)inputs outputs:(NSUInteger)numberOfOutputs;
-- (NSUInteger)sizeWithExtraBytes:(NSUInteger)numberOfBytes;
+- (NSUInteger)estimatedSizeWithExtraOutputs:(NSUInteger)numberOfOutputs;
+- (NSUInteger)estimatedSizeWithExtraInputs:(NSArray *)inputs outputs:(NSUInteger)numberOfOutputs;
+- (NSUInteger)estimatedSizeWithExtraBytes:(NSUInteger)numberOfBytes;
 - (uint64_t)fee;
 - (uint64_t)standardFee;
 - (uint64_t)standardFeeWithExtraOutputs:(NSUInteger)numberOfOutputs;

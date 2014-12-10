@@ -99,8 +99,8 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     [self fetchUnspentInputsForAddress:fromAddress page:1 handler:^(WSSignableTransactionInput *input, BOOL isLast, BOOL *stop) {
         [builder addSignableInput:input];
         
-        const NSUInteger estimatedTxSizeBefore = [builder sizeWithExtraInputs:nil outputs:1];
-        const NSUInteger estimatedTxSizeAfter = [builder sizeWithExtraInputs:@[input] outputs:1];
+        const NSUInteger estimatedTxSizeBefore = [builder estimatedSizeWithExtraInputs:nil outputs:1];
+        const NSUInteger estimatedTxSizeAfter = [builder estimatedSizeWithExtraInputs:@[input] outputs:1];
 
         DDLogVerbose(@"#%u Sweep transaction estimated size: %u->%u > %u ?",
                      numberOfTransactions, estimatedTxSizeBefore, estimatedTxSizeAfter, maxTxSize);

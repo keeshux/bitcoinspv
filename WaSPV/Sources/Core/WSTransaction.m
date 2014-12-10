@@ -350,12 +350,12 @@
     return value;
 }
 
-- (NSUInteger)sizeWithExtraOutputs:(NSUInteger)numberOfOutputs
+- (NSUInteger)estimatedSizeWithExtraOutputs:(NSUInteger)numberOfOutputs
 {
-    return [self sizeWithExtraInputs:nil outputs:numberOfOutputs];
+    return [self estimatedSizeWithExtraInputs:nil outputs:numberOfOutputs];
 }
 
-- (NSUInteger)sizeWithExtraInputs:(NSArray *)inputs outputs:(NSUInteger)numberOfOutputs
+- (NSUInteger)estimatedSizeWithExtraInputs:(NSArray *)inputs outputs:(NSUInteger)numberOfOutputs
 {
     if (inputs) {
         return [self estimatedSizeWithExtraInputs:inputs] + (numberOfOutputs * WSTransactionOutputTypicalSize);
@@ -365,7 +365,7 @@
     }
 }
 
-- (NSUInteger)sizeWithExtraBytes:(NSUInteger)numberOfBytes
+- (NSUInteger)estimatedSizeWithExtraBytes:(NSUInteger)numberOfBytes
 {
     return [self estimatedSize] + numberOfBytes;
 }
