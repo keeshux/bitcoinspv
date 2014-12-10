@@ -31,7 +31,7 @@
 @interface WSCoreDataManager : NSObject
 
 - (instancetype)initWithPath:(NSString *)path error:(NSError **)error;
-- (NSString *)path;
+- (NSURL *)storeURL;
 - (NSManagedObjectContext *)context;
 - (void)truncate;
 - (BOOL)truncateWithError:(NSError **)error;

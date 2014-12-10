@@ -29,16 +29,16 @@
 
 #import "WSCoreDataManager.h"
 #import "WSConfig.h"
+#import "WSErrors.h"
 
 @interface WSCoreDataManager ()
 
-@property (nonatomic, copy) NSString *path;
 @property (nonatomic, strong) NSManagedObjectModel *model;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *coordinator;
 @property (nonatomic, strong) NSPersistentStore *store;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 
-- (BOOL)createPersistentStoreWithError:(NSError **)error;
+- (BOOL)createPersistentStoreWithURL:(NSURL *)url error:(NSError **)error;
 
 @end
 
@@ -46,8 +46,9 @@
 
 - (instancetype)initWithPath:(NSString *)path error:(NSError *__autoreleasing *)error
 {
+    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    
     if ((self = [super init])) {
-        self.path = path;
         NSBundle *bundle = WSClientBundle([self class]);
         self.model = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];
         if (!self.model) {
@@ -61,7 +62,7 @@
         }
         
         self.coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
-        if (![self createPersistentStoreWithError:error]) {
+        if (![self createPersistentStoreWithURL:[NSURL fileURLWithPath:path] error:error]) {
             return nil;
         }
         
@@ -72,12 +73,17 @@
     return self;
 }
 
-- (BOOL)createPersistentStoreWithError:(NSError *__autoreleasing *)error
+- (NSURL *)storeURL
+{
+    return self.store.URL;
+}
+
+- (BOOL)createPersistentStoreWithURL:(NSURL *)url error:(NSError *__autoreleasing *)error
 {
     NSError *localError;
     self.store = [self.coordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                 configuration:nil
-                                                          URL:[NSURL fileURLWithPath:self.path]
+                                                          URL:url
                                                       options:@{NSMigratePersistentStoresAutomaticallyOption:@(YES),
                                                                 NSInferMappingModelAutomaticallyOption:@(YES)}
                                                         error:&localError];
@@ -101,8 +107,8 @@
 {
     NSError *localError;
     const BOOL result = ([self.coordinator removePersistentStore:self.store error:&localError] &&
-                         [[NSFileManager defaultManager] removeItemAtPath:self.path error:&localError] &&
-                         [self createPersistentStoreWithError:&localError]);
+                         [[NSFileManager defaultManager] removeItemAtURL:self.store.URL error:&localError] &&
+                         [self createPersistentStoreWithURL:self.store.URL error:&localError]);
     
     if (!result) {
         DDLogError(@"Core Data error while truncating store (%@)", localError);

@@ -219,10 +219,10 @@
 {
     [self.manager.context performBlock:^{
         if ([self.manager.context save:NULL]) {
-            DDLogInfo(@"Saved store to %@", self.manager.path);
+            DDLogInfo(@"Saved store to %@", self.manager.storeURL);
         }
         else {
-            DDLogError(@"Failed to save store to %@", self.manager.path);
+            DDLogError(@"Failed to save store to %@", self.manager.storeURL);
         }
     }];
     return YES;
@@ -230,13 +230,13 @@
 
 - (void)truncate
 {
-    DDLogInfo(@"Truncating store at %@", self.manager.path);
+    DDLogInfo(@"Truncating store at %@", self.manager.storeURL);
 
     [self.manager truncate];
 
-    self.cachedBlockEntities = [[NSMutableDictionary alloc] init];
-    self.cachedTxIdsToBlockEntities = [[NSMutableDictionary alloc] init];
-
+    [self.cachedBlockEntities removeAllObjects];
+    [self.cachedTxIdsToBlockEntities removeAllObjects];
+    
     [self.manager.context performBlockAndWait:^{
         [self unsafeInsertGenesisBlock];
     }];
