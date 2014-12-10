@@ -234,10 +234,10 @@
 
     [self.manager truncate];
 
-    [self.cachedBlockEntities removeAllObjects];
-    [self.cachedTxIdsToBlockEntities removeAllObjects];
-    
     [self.manager.context performBlockAndWait:^{
+        [self.cachedBlockEntities removeAllObjects];
+        [self.cachedTxIdsToBlockEntities removeAllObjects];
+        
         [self unsafeInsertGenesisBlock];
     }];
 }

@@ -116,6 +116,11 @@
             *error = localError;
         }
     }
+
+    self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    self.context.persistentStoreCoordinator = self.coordinator;
+    self.context.undoManager = nil;
+
     return result;
 }
 
