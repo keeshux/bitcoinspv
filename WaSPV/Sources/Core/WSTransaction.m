@@ -403,7 +403,7 @@
     
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.signableInputs.count];
     for (WSSignableTransactionInput *input in self.signableInputs) {
-        WSAddress *inputAddress = input.previousOutput.address;
+        WSAddress *inputAddress = input.address;
         WSKey *key = keys[inputAddress];
         if (!key) {
             WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorInputAddressKey: inputAddress},

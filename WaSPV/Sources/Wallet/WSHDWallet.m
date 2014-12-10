@@ -594,15 +594,16 @@
         NSMutableDictionary *keys = [[NSMutableDictionary alloc] initWithCapacity:builder.signableInputs.count];
 
         for (WSSignableTransactionInput *input in builder.signableInputs) {
-            WSKey *key = [self privateKeyForAddress:input.address];
+            WSAddress *inputAddress = input.address;
+            WSKey *key = [self privateKeyForAddress:inputAddress];
             if (!key) {
                 const NSUInteger index = keys.count;
-                WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorInputAddressKey: input.address},
-                                   @"Missing key for input address %@", index, input.address);
+                WSErrorSetUserInfo(error, WSErrorCodeSignature, @{WSErrorInputAddressKey: inputAddress},
+                                   @"Missing key for input address %@", index, inputAddress);
 
                 return nil;
             }
-            keys[input.address] = key;
+            keys[inputAddress] = key;
         }
         
         return [builder signedTransactionWithInputKeys:keys error:error];
