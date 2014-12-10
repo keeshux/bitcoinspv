@@ -328,7 +328,7 @@
     
     offset += WSBlockHeaderSize;
 
-    const NSUInteger height = [buffer uint32AtOffset:offset];
+    const uint32_t height = [buffer uint32AtOffset:offset];
     offset += sizeof(uint32_t);
     NSData *workData = [buffer varDataAtOffset:offset length:NULL];
     

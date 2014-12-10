@@ -138,7 +138,7 @@
     for (NSUInteger i = 0; i < 50; ++i) {
         struct in_addr addr;
 
-        const uint32_t address = mrand48();
+        const uint32_t address = (uint32_t)mrand48();
         addr.s_addr = address;
         NSString *host1 = [NSString stringWithUTF8String:inet_ntoa(addr)];
         NSString *host2 = WSNetworkHostFromIPv4(addr.s_addr);
