@@ -28,11 +28,13 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
+#import "DDLog.h"
 
 #import "WSKey.h"
 #import "WSPublicKey.h"
 #import "WSHash256.h"
 #import "WSBitcoin.h"
+#import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 #import "NSString+Base58.h"
@@ -87,25 +89,30 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 - (instancetype)initWithData:(NSData *)data compressed:(BOOL)compressed
 {
-    WSExceptionCheckIllegal(WSKeyIsValidData(data), @"Incorrect private key data (length: %u != %u)",
-                            data.length, WSKeyLength);
+    if (data.length != WSKeyLength) {
+        DDLogWarn(@"Incorrect private key data (length: %u != %u)", data.length, WSKeyLength);
+        return nil;
+    }
+    
+    EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp256k1);
+    if (!key) {
+        return nil;
+    }
+    
+    const EC_GROUP *group = EC_KEY_get0_group(key);
+    EC_POINT *pub = EC_POINT_new(group);
+    if (!pub) {
+        return nil;
+    }
+
+    BN_CTX *ctx = BN_CTX_new();
+    if (!ctx) {
+        EC_POINT_free(pub);
+        return nil;
+    }
     
     if ((self = [super init])) {
-        self.key = EC_KEY_new_by_curve_name(NID_secp256k1);
-        if (!self.key) {
-            return nil;
-        }
-
-        BN_CTX *ctx = BN_CTX_new();
-        if (!ctx) {
-            return nil;
-        }
-        
-        const EC_GROUP *group = EC_KEY_get0_group(self.key);
-        EC_POINT *pub = EC_POINT_new(group);
-        if (!pub) {
-            return nil;
-        }
+        self.key = key;
         
         BIGNUM priv;
         BN_CTX_start(ctx);

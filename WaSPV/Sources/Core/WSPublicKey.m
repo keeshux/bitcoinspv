@@ -28,11 +28,13 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
+#import "DDLog.h"
 
 #import "WSPublicKey.h"
 #import "WSKey.h"
 #import "WSHash256.h"
 #import "WSBitcoin.h"
+#import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 #import "NSData+Hash.h"
@@ -68,14 +70,21 @@
 
 - (instancetype)initWithData:(NSData *)data
 {
-    WSExceptionCheckIllegal(WSPublicKeyIsValidData(data), @"Incorrect public key data (length: %u != %u | %u)",
-                            data.length, WSPublicKeyUncompressedLength, WSPublicKeyCompressedLength);
+    if ((data.length != WSPublicKeyUncompressedLength) && (data.length != WSPublicKeyCompressedLength)) {
+        DDLogWarn(@"Incorrect public key data (length: %u != %u | %u)",
+                  data.length, WSPublicKeyUncompressedLength, WSPublicKeyCompressedLength);
+
+        return nil;
+    }
+
+    EC_KEY *key = EC_KEY_new_by_curve_name(NID_secp256k1);
+    if (!key) {
+        return nil;
+    }
 
     if ((self = [super init])) {
-        self.key = EC_KEY_new_by_curve_name(NID_secp256k1);
-        if (!self.key) {
-            return nil;
-        }
+        self.key = key;
+
         const unsigned char *bytes = data.bytes;
         o2i_ECPublicKey(&_key, &bytes, data.length);
         self.data = [data copy];
