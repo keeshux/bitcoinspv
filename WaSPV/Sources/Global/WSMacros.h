@@ -41,6 +41,7 @@
 @class WSSeed;
 @class WSPeer;
 @class WSScript;
+@class WSCoinbaseScript;
 @class WSSignedTransaction;
 @protocol WSMessage;
 @class WSBlockHeader;
@@ -149,6 +150,7 @@ NSData *WSNetworkIPv6FromIPv4(uint32_t ipv4);
 uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 
 WSScript *WSScriptFromHex(NSString *hex);
+WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex);
 WSSignedTransaction *WSTransactionFromHex(NSString *hex);
 WSBlockHeader *WSBlockHeaderFromHex(NSString *hex);
 WSBlock *WSBlockFromHex(NSString *hex);

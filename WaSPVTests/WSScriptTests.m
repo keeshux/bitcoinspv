@@ -266,8 +266,7 @@
                             @"03941104194b6e434d696e65724b5134c9115c1d3a93d01653b59d20038a0000000034020000"];
 
     for (NSString *hex in expSHexes) {
-        WSBuffer *buffer = WSBufferFromHex(hex);
-        WSScript *script = [[WSScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+        WSScript *script = WSScriptFromHex(hex);
         
         XCTAssertEqualObjects([[script toBuffer] hexString], hex);
         
@@ -279,8 +278,7 @@
     }
 
     for (NSString *hex in expCBHexes) {
-        WSBuffer *buffer = WSBufferFromHex(hex);
-        WSScript *script = [[WSCoinbaseScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+        WSScript *script = WSCoinbaseScriptFromHex(hex);
         
         XCTAssertEqualObjects([[script toBuffer] hexString], hex);
 

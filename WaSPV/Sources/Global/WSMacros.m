@@ -287,6 +287,13 @@ inline WSScript *WSScriptFromHex(NSString *hex)
     return [[WSScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
 }
 
+inline WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSCoinbaseScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+}
+
 inline WSSignedTransaction *WSTransactionFromHex(NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
