@@ -930,6 +930,33 @@
     return self.pushData.length;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    WSScriptChunk *chunk = object;
+    if (self.isOpcode) {
+        return (chunk.opcode == self.opcode);
+    }
+    else {
+        return [chunk.pushData isEqualToData:self.pushData];
+    }
+}
+
+- (NSUInteger)hash
+{
+    if (self.isOpcode) {
+        return self.opcode;
+    }
+    else {
+        return [self.pushData hash];
+    }
+}
+
 - (NSString *)description
 {
     NSMutableArray *components = [[NSMutableArray alloc] init];
