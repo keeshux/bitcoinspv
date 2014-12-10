@@ -29,6 +29,7 @@
 
 #import "WSBuffer.h"
 #import "WSHash256.h"
+#import "WSHash160.h"
 #import "WSNetworkAddress.h"
 #import "WSInventory.h"
 #import "WSMessage.h"
@@ -221,9 +222,9 @@
     return WSHash256Compute(self.data);
 }
 
-- (NSData *)computeHash160
+- (WSHash160 *)computeHash160
 {
-    return [self.data hash160];
+    return WSHash160Compute(self.data);
 }
 
 - (NSString *)hexString

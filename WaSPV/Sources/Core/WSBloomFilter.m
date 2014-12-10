@@ -28,6 +28,7 @@
 #import "WSBloomFilter.h"
 #import "WSPublicKey.h"
 #import "WSAddress.h"
+#import "WSHash160.h"
 #import "WSTransactionOutPoint.h"
 
 @interface WSBloomFilter ()
@@ -74,7 +75,7 @@
 
 - (BOOL)containsAddress:(WSAddress *)address
 {
-    return [self.filter containsData:address.hash160];
+    return [self.filter containsData:address.hash160.data];
 }
 
 - (BOOL)containsUnspent:(WSTransactionOutPoint *)unspent
@@ -140,7 +141,7 @@
 
 - (void)insertAddress:(WSAddress *)address
 {
-    [self.filter insertData:address.hash160];
+    [self.filter insertData:address.hash160.data];
 }
 
 - (void)insertUnspent:(WSTransactionOutPoint *)unspent

@@ -1,8 +1,8 @@
 //
-//  WSAddress.h
+//  WSHash160.h
 //  WaSPV
 //
-//  Created by Davide De Rosa on 02/07/14.
+//  Created by Davide De Rosa on 10/12/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -27,15 +27,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class WSHash160;
+@interface WSHash160 : NSObject <NSCopying>
 
-@interface WSAddress : NSObject <NSCopying>
-
-- (instancetype)initWithVersion:(uint8_t)version hash160:(WSHash160 *)hash160;
-- (instancetype)initWithEncoded:(NSString *)encoded;
-- (uint8_t)version;
-- (WSHash160 *)hash160;
-- (NSString *)encoded;
-- (NSString *)hexEncoded;
+- (instancetype)initWithData:(NSData *)data;
+- (NSData *)data;
+- (const void *)bytes;
+- (NSUInteger)length;
 
 @end

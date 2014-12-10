@@ -110,9 +110,9 @@
     return data;
 }
 
-- (NSData *)hash160
+- (WSHash160 *)hash160
 {
-    return [[self encodedData] hash160];
+    return WSHash160FromData([[self encodedData] hash160]);
 }
 
 - (WSAddress *)address

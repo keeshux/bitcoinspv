@@ -30,6 +30,7 @@
 #import "WSParametersFactory.h"
 
 @class WSHash256;
+@class WSHash160;
 @class WSBuffer;
 @class WSMutableBuffer;
 @class WSKey;
@@ -109,6 +110,10 @@ WSHash256 *WSHash256FromHex(NSString *hexString);
 WSHash256 *WSHash256FromData(NSData *data);
 WSHash256 *WSHash256Zero();
 
+WSHash160 *WSHash160Compute(NSData *sourceData);
+WSHash160 *WSHash160FromHex(NSString *hexString);
+WSHash160 *WSHash160FromData(NSData *data);
+
 WSBuffer *WSBufferFromHex(NSString *hex);
 WSMutableBuffer *WSMutableBufferFromHex(NSString *hex);
 
@@ -118,8 +123,8 @@ WSPublicKey *WSPublicKeyFromHex(NSString *hex);
 
 WSAddress *WSAddressFromString(NSString *string);
 WSAddress *WSAddressFromHex(NSString *hexString);
-WSAddress *WSAddressP2PKHFromHash160(NSData *hash160);
-WSAddress *WSAddressP2SHFromHash160(NSData *hash160);
+WSAddress *WSAddressP2PKHFromHash160(WSHash160 *hash160);
+WSAddress *WSAddressP2SHFromHash160(WSHash160 *hash160);
 
 WSInventory *WSInventoryTx(WSHash256 *hash);
 WSInventory *WSInventoryTxFromHex(NSString *hex);

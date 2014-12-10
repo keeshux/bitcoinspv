@@ -29,6 +29,7 @@
 
 #import "WSScript.h"
 #import "WSPublicKey.h"
+#import "WSHash160.h"
 #import "WSAddress.h"
 #import "WSConfig.h"
 #import "WSBitcoin.h"
@@ -280,7 +281,7 @@
         return nil;
     }
     NSData *hash160 = [self.chunks[2] pushData];
-    return WSAddressP2PKHFromHash160(hash160);
+    return WSAddressP2PKHFromHash160(WSHash160FromData(hash160));
 }
 
 - (WSAddress *)addressFromPay2ScriptHash
@@ -289,7 +290,7 @@
         return nil;
     }
     NSData *hash160 = [self.chunks[1] pushData];
-    return WSAddressP2SHFromHash160(hash160);
+    return WSAddressP2SHFromHash160(WSHash160FromData(hash160));
 }
 
 - (WSAddress *)addressFromPay2PubKey
@@ -494,7 +495,7 @@
     if (address.version == [WSCurrentParameters publicKeyAddressVersion]) {
         [self appendOpcode:WSScriptOpcode_DUP];
         [self appendOpcode:WSScriptOpcode_HASH160];
-        [self appendPushData:address.hash160];
+        [self appendPushData:address.hash160.data];
         [self appendOpcode:WSScriptOpcode_EQUALVERIFY];
         [self appendOpcode:WSScriptOpcode_CHECKSIG];
     }
@@ -505,7 +506,7 @@
     //
     else if (address.version == [WSCurrentParameters scriptAddressVersion]) {
         [self appendOpcode:WSScriptOpcode_HASH160];
-        [self appendPushData:address.hash160];
+        [self appendPushData:address.hash160.data];
         [self appendOpcode:WSScriptOpcode_EQUAL];
     }
 }

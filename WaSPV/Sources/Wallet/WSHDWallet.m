@@ -819,7 +819,7 @@
                 [filter insertData:[pubKey encodedData]];
                 
                 // addresses match outputs scriptPubKey (received money)
-                [filter insertData:[pubKey hash160]];
+                [filter insertData:[pubKey hash160].data];
             }
         }
         
@@ -845,7 +845,7 @@
                 if (![bloomFilter containsData:[pubKey encodedData]]) {
                     return NO;
                 }
-                if (![bloomFilter containsData:[pubKey hash160]]) {
+                if (![bloomFilter containsData:[pubKey hash160].data]) {
                     return NO;
                 }
             }

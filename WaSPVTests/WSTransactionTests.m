@@ -34,6 +34,8 @@
 #import "WSKey.h"
 #import "WSPublicKey.h"
 #import "WSAddress.h"
+#import "WSBuffer.h"
+#import "WaSPV.h"
 
 @interface WSTransactionTests : XCTestCase
 

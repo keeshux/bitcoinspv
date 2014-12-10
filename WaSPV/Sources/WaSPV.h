@@ -36,6 +36,7 @@
 #import "WSParametersFactoryRegtest.h"
 
 #import "WSHash256.h"
+#import "WSHash160.h"
 #import "WSBuffer.h"
 
 #import "WSKey.h"

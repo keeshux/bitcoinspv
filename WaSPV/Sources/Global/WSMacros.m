@@ -30,6 +30,7 @@
 
 #import "WSMacros.h"
 #import "WSHash256.h"
+#import "WSHash160.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
 #import "WSAddress.h"
@@ -101,6 +102,25 @@ inline WSHash256 *WSHash256Zero()
     return zero;
 }
 
+inline WSHash160 *WSHash160Compute(NSData *sourceData)
+{
+    NSData *data = [sourceData hash160];
+    
+    return [[WSHash160 alloc] initWithData:data];
+}
+
+inline WSHash160 *WSHash160FromHex(NSString *hexString)
+{
+    NSData *data = [[hexString dataFromHex] reverse];
+    
+    return [[WSHash160 alloc] initWithData:data];
+}
+
+inline WSHash160 *WSHash160FromData(NSData *data)
+{
+    return [[WSHash160 alloc] initWithData:data];
+}
+
 inline WSBuffer *WSBufferFromHex(NSString *hex)
 {
     return [[WSBuffer alloc] initWithData:[hex dataFromHex]];
@@ -136,12 +156,12 @@ inline WSAddress *WSAddressFromHex(NSString *hexString)
     return WSAddressFromString([hexString base58CheckFromHex]);
 }
 
-inline WSAddress *WSAddressP2PKHFromHash160(NSData *hash160)
+inline WSAddress *WSAddressP2PKHFromHash160(WSHash160 *hash160)
 {
     return [[WSAddress alloc] initWithVersion:[WSCurrentParameters publicKeyAddressVersion] hash160:hash160];
 }
 
-inline WSAddress *WSAddressP2SHFromHash160(NSData *hash160)
+inline WSAddress *WSAddressP2SHFromHash160(WSHash160 *hash160)
 {
     return [[WSAddress alloc] initWithVersion:[WSCurrentParameters scriptAddressVersion] hash160:hash160];
 }

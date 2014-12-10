@@ -28,6 +28,7 @@
 #import "DDLog.h"
 
 #import "WSAddress.h"
+#import "WSHash160.h"
 #import "WSScript.h"
 #import "WSConfig.h"
 #import "WSBitcoin.h"
@@ -39,27 +40,27 @@
 @interface WSAddress ()
 
 @property (nonatomic, assign) uint8_t version;
-@property (nonatomic, strong) NSData *hash160;
+@property (nonatomic, strong) WSHash160 *hash160;
 @property (nonatomic, strong) NSString *encoded;
 
 @end
 
 @implementation WSAddress
 
-- (instancetype)initWithVersion:(uint8_t)version hash160:(NSData *)hash160
+- (instancetype)initWithVersion:(uint8_t)version hash160:(WSHash160 *)hash160
 {
-    WSExceptionCheckIllegal(hash160.length == WSHash160Length, @"Hash160 must be %u bytes long", WSHash160Length);
+    WSExceptionCheckIllegal(hash160 != nil, @"Nil hash160");
     WSExceptionCheckIllegal((version == [WSCurrentParameters publicKeyAddressVersion]) ||
                             (version == [WSCurrentParameters scriptAddressVersion]),
                              @"Unrecognized address version (%u)", version);
 
     if ((self = [super init])) {
         self.version = version;
-        self.hash160 = [hash160 copy];
+        self.hash160 = hash160;
 
         NSMutableData *data = [[NSMutableData alloc] initWithCapacity:WSAddressLength];
         [data appendBytes:&_version length:1];
-        [data appendData:self.hash160];
+        [data appendData:self.hash160.data];
         self.encoded = [data base58CheckString];
     }
     return self;
@@ -83,9 +84,11 @@
         return nil;
     }
     
+    NSData *hash160Data = [data subdataWithRange:NSMakeRange(1, data.length - 1)];
+    
     if ((self = [super init])) {
         self.version = version;
-        self.hash160 = [data subdataWithRange:NSMakeRange(1, data.length - 1)];
+        self.hash160 = WSHash160FromData(hash160Data);
         self.encoded = [encoded copy];
     }
     return self;

@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 @class WSHash256;
+@class WSHash160;
 @class WSNetworkAddress;
 @class WSInventory;
 
@@ -53,7 +54,7 @@
 
 - (WSBuffer *)subBufferWithRange:(NSRange)range;
 - (WSHash256 *)computeHash256;
-- (NSData *)computeHash160;
+- (WSHash160 *)computeHash160;
 - (NSString *)hexString;
 
 - (const void *)bytes;

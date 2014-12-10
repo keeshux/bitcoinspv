@@ -31,6 +31,7 @@
 #import "WSSeedGenerator.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
+#import "WSHash160.h"
 #import "WSErrors.h"
 
 #pragma mark -
@@ -46,7 +47,7 @@
 - (uint32_t)bip32Fingerprint
 {
     uint32_t fingerprint = 0x0;
-    [[self hash160] getBytes:&fingerprint length:4];
+    [[self hash160].data getBytes:&fingerprint length:4];
 
     return CFSwapInt32HostToBig(fingerprint);
 }

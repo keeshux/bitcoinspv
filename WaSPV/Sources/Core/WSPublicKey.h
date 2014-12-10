@@ -29,6 +29,7 @@
 
 @class WSAddress;
 @class WSHash256;
+@class WSHash160;
 
 #pragma mark -
 
@@ -40,7 +41,7 @@
 - (NSData *)data;
 - (BOOL)isCompressed;
 - (NSData *)encodedData;
-- (NSData *)hash160;
+- (WSHash160 *)hash160;
 - (WSAddress *)address;
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature;
 

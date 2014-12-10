@@ -29,6 +29,7 @@
 #import "WSPublicKey.h"
 #import "WSScript.h"
 #import "WSAddress.h"
+#import "WSHash160.h"
 
 @interface WSScriptTests : XCTestCase
 
@@ -197,7 +198,7 @@
     XCTAssertEqualObjects(addressFromOutput, expAddress);
     
     WSScript *inputScript = WSScriptFromHex(@"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae");
-    NSData *inputScriptHash160 = [[inputScript toBuffer] computeHash160];
+    WSHash160 *inputScriptHash160 = [[inputScript toBuffer] computeHash160];
     DDLogInfo(@"Input.hash160: %@", inputScriptHash160);
     WSAddress *addressFromInput = WSAddressP2SHFromHash160(inputScriptHash160);
     DDLogInfo(@"From input: %@", addressFromInput);

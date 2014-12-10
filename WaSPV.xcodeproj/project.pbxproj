@@ -12,6 +12,7 @@
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
+		0E8E8BEE1A386FD3009493AD /* WSHash160.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E8E8BED1A386FD3009493AD /* WSHash160.m */; };
 		0ED738121A34B90400669C07 /* WSWebUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebUtils.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
@@ -189,6 +190,8 @@
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
+		0E8E8BEC1A386FD3009493AD /* WSHash160.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSHash160.h; sourceTree = "<group>"; };
+		0E8E8BED1A386FD3009493AD /* WSHash160.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSHash160.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtils.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtils.m; sourceTree = "<group>"; };
 		0ED738131A34B95900669C07 /* WSWebUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsTests.m; sourceTree = "<group>"; };
@@ -497,6 +500,8 @@
 				8C49703A196EEEF800BD9D3B /* WSBloomFilter.m */,
 				8C49703B196EEEF800BD9D3B /* WSBuffer.h */,
 				8C49703C196EEEF800BD9D3B /* WSBuffer.m */,
+				0E8E8BEC1A386FD3009493AD /* WSHash160.h */,
+				0E8E8BED1A386FD3009493AD /* WSHash160.m */,
 				8C49703D196EEEF800BD9D3B /* WSHash256.h */,
 				8C49703E196EEEF800BD9D3B /* WSHash256.m */,
 				8C49703F196EEEF800BD9D3B /* WSHDKeyring.h */,
@@ -1173,6 +1178,7 @@
 				8C497058196EEEF800BD9D3B /* WSBuffer.m in Sources */,
 				8C8AE00A196786CA007787ED /* WSMessageFilterload.m in Sources */,
 				8C8AE011196786CA007787ED /* WSMessagePong.m in Sources */,
+				0E8E8BEE1A386FD3009493AD /* WSHash160.m in Sources */,
 				8C8AE013196786CA007787ED /* WSMessageVerack.m in Sources */,
 				8C40243B19840536008FDC5F /* WSTransactionOutPoint.m in Sources */,
 				8C8ADFFD196786CA007787ED /* WSBIP39.m in Sources */,
