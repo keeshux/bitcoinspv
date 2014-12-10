@@ -296,6 +296,28 @@
     for (WSPublicKey *pk in pubKeys) {
         XCTAssertEqualObjects(pk, WSPublicKeyFromHex(expPubKeys[[pubKeys indexOfObject:pk]]));
     }
+    
+    NSMutableArray *revSignatures = [[NSMutableArray alloc] initWithCapacity:expSignatures.count];
+    for (NSString *hex in expSignatures) {
+        [revSignatures addObject:[hex dataFromHex]];
+    }
+    NSMutableArray *revPubKeys = [[NSMutableArray alloc] initWithCapacity:expPubKeys.count];
+    for (NSString *hex in expPubKeys) {
+        [revPubKeys addObject:WSPublicKeyFromHex(hex)];
+    }
+    WSScript *revScript = [WSScript scriptWithSignatures:revSignatures publicKeys:revPubKeys];
+    DDLogInfo(@"Rebuilt script: %@", revScript);
+
+    NSString *builtScriptHex = [[script toBuffer] hexString];
+    NSString *revScriptHex = [[revScript toBuffer] hexString];
+
+    DDLogInfo(@"Expected: %@", expScriptHex);
+    DDLogInfo(@"Built   : %@", builtScriptHex);
+    DDLogInfo(@"Reversed: %@", revScriptHex);
+
+    XCTAssertEqualObjects(revScriptHex, expScriptHex);
+    XCTAssertEqualObjects(revScriptHex, builtScriptHex);
+    XCTAssertEqualObjects(revScript, script);
 }
 
 - (void)testPubKeysFromMultiSigRedeem
