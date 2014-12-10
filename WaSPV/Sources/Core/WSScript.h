@@ -96,7 +96,7 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 - (BOOL)isPushDataOnly;
 - (BOOL)containsData:(NSData *)data;
 
-- (BOOL)isScriptSig;
+- (BOOL)isScriptSigWithSignature:(NSData **)signature publicKey:(WSPublicKey **)publicKey;
 - (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n;
 - (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n;
 
