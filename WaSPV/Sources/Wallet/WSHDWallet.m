@@ -31,6 +31,7 @@
 #import "WSHDWallet.h"
 #import "WSSeed.h"
 #import "WSHash256.h"
+#import "WSHash160.h"
 #import "WSHDKeyring.h"
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
