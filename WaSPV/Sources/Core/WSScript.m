@@ -318,7 +318,7 @@
 - (WSAddress *)addressFromScriptSig
 {
     if (self.chunks.count != 2) {
-        return NO;
+        return nil;
     }
     
     WSScriptChunk *chunkSig = self.chunks[0];
