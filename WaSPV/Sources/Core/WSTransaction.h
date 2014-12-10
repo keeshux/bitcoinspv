@@ -84,8 +84,10 @@
 
 - (void)addSignableInput:(WSSignableTransactionInput *)signableInput;
 - (void)addOutput:(WSTransactionOutput *)output;
-- (NSOrderedSet *)signableInputs; // WSSignableTransactionInput
-- (NSOrderedSet *)outputs; // WSTransactionOutput
+- (BOOL)addSweepOutputAddressWithStandardFee:(WSAddress *)address;
+- (BOOL)addSweepOutputAddress:(WSAddress *)address fee:(uint64_t)fee; // fee = 0 for standard fee
+- (NSOrderedSet *)signableInputs;   // WSSignableTransactionInput
+- (NSOrderedSet *)outputs;          // WSTransactionOutput
 
 - (uint64_t)inputValue;
 - (uint64_t)outputValue;
@@ -96,10 +98,6 @@
 - (uint64_t)standardFee;
 - (uint64_t)standardFeeWithExtraOutputs:(NSUInteger)numberOfOutputs;
 - (uint64_t)standardFeeWithExtraBytes:(NSUInteger)numberOfBytes;
-
-// fee = 0 for standard fee
-- (BOOL)addSweepOutputAddressWithStandardFee:(WSAddress *)address;
-- (BOOL)addSweepOutputAddress:(WSAddress *)address fee:(uint64_t)fee;
 
 // map keys by address
 - (WSSignedTransaction *)signedTransactionWithInputKeys:(NSDictionary *)keys error:(NSError **)error;
