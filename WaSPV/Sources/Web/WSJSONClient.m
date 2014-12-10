@@ -42,12 +42,12 @@
     return instance;
 }
 
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(NSInteger, id))success failure:(void (^)(NSInteger, NSError *))failure
 {
     [self asynchronousRequestWithBaseURL:baseURL path:path timeout:WSJSONClientDefaultTimeout success:success failure:failure];
 }
 
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(NSInteger, id))success failure:(void (^)(NSInteger, NSError *))failure
 {
     NSURL *url = [NSURL URLWithString:path relativeToURL:baseURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
@@ -61,11 +61,11 @@
             return;
         }
         
-        int statusCode = 0;
+        NSInteger statusCode = 0;
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             statusCode = httpResponse.statusCode;
-            DDLogDebug(@"%@ -> Status %u", request.URL, statusCode);
+            DDLogDebug(@"%@ -> Status %d", request.URL, statusCode);
         }
         if (ddLogLevel == LOG_LEVEL_VERBOSE) {
             DDLogVerbose(@"%@ -> Response string: %@", request.URL, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);

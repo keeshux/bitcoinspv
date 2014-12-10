@@ -174,7 +174,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyBaseURLFormat, [self networkName]]];
     NSString *path = [NSString stringWithFormat:WSWebUtilsBiteasyUnspentFormat, address, page, WSWebUtilsBiteasyUnspentPerPage];
     
-    [[WSJSONClient sharedInstance] asynchronousRequestWithBaseURL:baseURL path:path success:^(int statusCode, id object) {
+    [[WSJSONClient sharedInstance] asynchronousRequestWithBaseURL:baseURL path:path success:^(NSInteger statusCode, id object) {
         NSDictionary *jsonData = object[@"data"];
         NSArray *jsonOutputs = jsonData[@"outputs"];
         NSDictionary *jsonPagination = jsonData[@"pagination"];
@@ -189,7 +189,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                      previousAddress, address);
             
             WSHash256 *previousTxId = WSHash256FromHex(jsonOutput[@"transaction_hash"]);
-            const uint32_t previousIndex = [jsonOutput[@"transaction_index"] unsignedIntegerValue];
+            const uint32_t previousIndex = (uint32_t)[jsonOutput[@"transaction_index"] unsignedIntegerValue];
             
             WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithValue:previousValue address:previousAddress];
             WSTransactionOutPoint *previousOutpoint = [WSTransactionOutPoint outpointWithTxId:previousTxId index:previousIndex];
@@ -213,7 +213,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                 [self fetchUnspentInputsForAddress:address page:nextPage handler:handler completion:completion failure:failure];
             });
         }
-    } failure:^(int statusCode, NSError *error) {
+    } failure:^(NSInteger statusCode, NSError *error) {
         failure(error ? : WSErrorMake(WSErrorCodeNetworking, @"HTTP %u", statusCode));
     }];
 }

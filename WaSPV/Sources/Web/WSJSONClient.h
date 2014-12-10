@@ -30,7 +30,7 @@
 @interface WSJSONClient : NSObject
 
 + (instancetype)sharedInstance;
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure;
-- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(int, id))success failure:(void (^)(int, NSError *))failure;
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path success:(void (^)(NSInteger, id))success failure:(void (^)(NSInteger, NSError *))failure;
+- (void)asynchronousRequestWithBaseURL:(NSURL *)baseURL path:(NSString *)path timeout:(NSTimeInterval)timeout success:(void (^)(NSInteger, id))success failure:(void (^)(NSInteger, NSError *))failure;
 
 @end
