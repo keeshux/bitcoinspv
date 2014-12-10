@@ -156,7 +156,7 @@
     return YES;
 }
 
-- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript *__autoreleasing *)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -174,21 +174,36 @@
 
     // middle chunks are a sequence of signatures
     const NSUInteger numberOfSignatures = self.chunks.count - 2;
-    for (NSUInteger i = 1; i < numberOfSignatures; ++i) {
-        if (![self.chunks[i] isSignature]) {
+    NSMutableArray *localSignatures = [[NSMutableArray alloc] initWithCapacity:numberOfSignatures];
+    for (NSUInteger i = 1; i <= numberOfSignatures; ++i) {
+        WSScriptChunk *chunk = self.chunks[i];
+        if (![chunk isSignature]) {
             return NO;
         }
+        [localSignatures addObject:chunk.pushData];
     }
 
     WSScriptChunk *chunkRedeem = [self.chunks lastObject];
     WSBuffer *chunkRedeemBuffer = [[WSBuffer alloc] initWithData:chunkRedeem.pushData];
-    WSScript *embeddedRedeemScript = [[WSScript alloc] initWithBuffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
-    if (![embeddedRedeemScript isScriptMultiSigReedemWithM:m N:n]) {
+    WSScript *localRedeemScript = [[WSScript alloc] initWithBuffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
+
+    NSUInteger m, n;
+    NSArray *localPublicKeys;
+    if (![localRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:&localPublicKeys]) {
         return NO;
     }
+    
+    NSAssert(localSignatures.count == m, @"Incorrect number of signatures (%u != %u)", localSignatures.count, m);
+    NSAssert(localPublicKeys.count == n, @"Incorrect number of public keys (%u != %u)", localPublicKeys.count, n);
 
+    if (signatures) {
+        *signatures = localSignatures;
+    }
+    if (publicKeys) {
+        *publicKeys = localPublicKeys;
+    }
     if (redeemScript) {
-        *redeemScript = embeddedRedeemScript;
+        *redeemScript = localRedeemScript;
     }
 
     return YES;
@@ -204,7 +219,7 @@
 //
 // script chunks = (3 + n) with (n > 0)
 //
-- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -230,11 +245,24 @@
         return NO;
     }
     
+    NSMutableArray *localPublicKeys = [[NSMutableArray alloc] initWithCapacity:chunkN];
+    for (NSUInteger i = 1; i <= chunkN; ++i) {
+        WSScriptChunk *chunk = self.chunks[i];
+        WSPublicKey *publicKey = [WSPublicKey publicKeyWithData:chunk.pushData];
+        if (!publicKey) {
+            return NO;
+        }
+        [localPublicKeys addObject:publicKey];
+    }
+    
     if (m) {
         *m = chunkM;
     }
     if (n) {
         *n = chunkN;
+    }
+    if (publicKeys) {
+        *publicKeys = localPublicKeys;
     }
     
     return YES;
@@ -308,7 +336,7 @@
 - (WSAddress *)addressFromScriptMultisig
 {
     WSScript *redeemScript;
-    if (![self isScriptMultiSigWithRedeemScript:&redeemScript M:NULL N:NULL]) {
+    if (![self isScriptMultiSigWithSignatures:NULL publicKeys:NULL redeemScript:&redeemScript]) {
         return nil;
     }
     return WSAddressP2SHFromHash160([[redeemScript toBuffer] computeHash160]);
@@ -621,12 +649,12 @@
     return NO;
 }
 
-- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript *__autoreleasing *)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
 {
     return NO;
 }
 
-- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     return NO;
 }

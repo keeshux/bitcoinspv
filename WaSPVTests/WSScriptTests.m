@@ -160,9 +160,6 @@
             XCTAssertEqualObjects(addressFromOutput, expAddress);
         }
         
-        BOOL isMultiSig;
-        NSUInteger m, n;
-        
         if (i < expInputRedeemScripts.count) {
             WSScript *inputRedeemScript = WSScriptFromHex(expInputRedeemScripts[i]);
             addressFromInputRedeem = [inputRedeemScript addressFromHash];
@@ -172,7 +169,9 @@
                 XCTAssertEqualObjects(addressFromOutput, addressFromInputRedeem);
             }
             
-            isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n];
+            NSUInteger m, n;
+            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:NULL];
+
             XCTAssertTrue(isMultiSig);
             XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
             DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
@@ -187,7 +186,12 @@
                 XCTAssertEqualObjects(addressFromOutput, addressFromInput);
             }
             
-            isMultiSig = [inputScript isScriptMultiSigWithRedeemScript:NULL M:&m N:&n];
+            NSArray *signatures;
+            NSArray *publicKeys;
+            const BOOL isMultiSig = [inputScript isScriptMultiSigWithSignatures:&signatures publicKeys:&publicKeys redeemScript:NULL];
+            const NSUInteger m = signatures.count;
+            const NSUInteger n = publicKeys.count;
+
             XCTAssertTrue(isMultiSig);
             XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
             DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
@@ -222,7 +226,7 @@
 //    }
 //}
 //
-//- (void)testPubKeysFromPay2Multisig
+//- (void)testPubKeysFromMultisig
 //{
 //    WSParametersSetCurrentType(WSParametersTypeMain);
 //
