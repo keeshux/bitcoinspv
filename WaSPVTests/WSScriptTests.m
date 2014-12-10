@@ -138,6 +138,7 @@
     
     NSUInteger m, n;
     const BOOL isMultiSig = [script isPay2MultiSigWithM:&m N:&n];
+    XCTAssertTrue(isMultiSig);
     XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
     DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
 
@@ -167,6 +168,7 @@
     
     NSUInteger m, n;
     NSArray *pubKeys = [script publicKeysFromPay2MultiSigWithM:&m N:&n];
+    XCTAssertNotNil(pubKeys);
     XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
 
     XCTAssertEqual(pubKeys.count, expPubKeys.count);
