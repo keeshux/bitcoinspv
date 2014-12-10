@@ -142,7 +142,7 @@
     return ([chunkSig isSignature] && [WSPublicKey publicKeyWithData:chunkPubKey.pushData]);
 }
 
-- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript *__autoreleasing *)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -638,7 +638,7 @@
     return NO;
 }
 
-- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript *__autoreleasing *)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
 {
     return NO;
 }

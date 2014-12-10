@@ -99,9 +99,6 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 - (BOOL)isScriptSig;
 - (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n;
 - (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n;
-//- (NSArray *)publicKeys; // WSPublicKey
-//- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n; // WSPublicKey
-//- (NSArray *)signatures; // NSData
 
 - (BOOL)isPay2PubKeyHash;
 - (BOOL)isPay2PubKey;
