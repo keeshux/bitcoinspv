@@ -166,7 +166,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
                              failure:(void (^)(NSError *))failure
 {
     NSAssert(address != nil, @"Nil address");
-    NSAssert(page > 0, @"Non positive page");
+    NSAssert(page > 0, @"Non-positive page");
     NSAssert(handler, @"NULL handler");
     NSAssert(completion, @"NULL completion");
     NSAssert(failure, @"NULL failure");
