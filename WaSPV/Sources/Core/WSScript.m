@@ -796,6 +796,11 @@
     return ((self.opcode == WSScriptOpcode_OP_0) || (self.pushData != nil));
 }
 
+- (BOOL)isSignature
+{
+    return ((self.pushData.length > 0) && (*(uint8_t *)self.pushData.bytes == WSKeySignaturePrefix));
+}
+
 - (NSString *)opcodeString
 {
     if (!self.isOpcode) {

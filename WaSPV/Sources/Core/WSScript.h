@@ -147,6 +147,7 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 + (instancetype)chunkWithPushData:(NSData *)pushData;
 - (BOOL)isOpcode;
 - (BOOL)isPushData;
+- (BOOL)isSignature;
 - (WSScriptOpcode)opcode;
 - (NSString *)opcodeString;
 - (NSUInteger)opcodeValue; // for OP_[1-16]
