@@ -237,66 +237,68 @@
     }
 }
 
-//- (void)testSignaturesFromMultisig
-//{
-//    WSParametersSetCurrentType(WSParametersTypeMain);
-//
-//    // tx = 7f53001bf79f5a874c018cce58471fd51a9444b564bbbb37032bda7f2beb9439
-//    NSString *expScriptHex = @"004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae";
-//    NSArray *expSignatures = @[@"30450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001",
-//                               @"3045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf801"];
-//
-//    id<WSScript> script = WSScriptFromHex(expScriptHex);
-//    DDLogInfo(@"Script chunks: %@", script.chunks);
-//
-//    NSArray *signatures = [script signaturesFromMultiSig];
-//    XCTAssertEqual(signatures.count, expSignatures.count);
-//
-//    NSUInteger i = 0;
-//    for (NSData *sigData in signatures) {
-//        NSString *sig = [sigData hexString];
-//        NSString *expSig = expSignatures[i];
-//
-//        DDLogInfo(@"Signature: %@", sig);
-//        DDLogInfo(@"Expected : %@", expSig);
-//        XCTAssertEqualObjects(sig, expSig);
-//        ++i;
-//    }
-//}
-//
-//- (void)testPubKeysFromMultisig
-//{
-//    WSParametersSetCurrentType(WSParametersTypeMain);
-//
-//    //
-//    // https://gist.github.com/gavinandresen/3966071
-//    //
-//    NSString *expScriptHex = @"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae";
-//    NSArray *expPubKeys = @[@"0491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f86",
-//                            @"04865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec6874",
-//                            @"048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d46213"];
-//
-//    WSScript *script = WSScriptFromHex(expScriptHex);
-//    DDLogInfo(@"Script chunks: %@", script.chunks);
-//    
-//    NSUInteger m, n;
-//    NSArray *pubKeys = [script publicKeysFromPay2MultiSigWithM:&m N:&n];
-//    XCTAssertNotNil(pubKeys);
-//    XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
-//
-//    XCTAssertEqual(pubKeys.count, expPubKeys.count);
-//    
-//    NSUInteger i = 0;
-//    for (WSPublicKey *pubKey in pubKeys) {
-//        NSString *pubHex = [[pubKey encodedData] hexString];
-//        NSString *expPubHex = expPubKeys[i];
-//        
-//        DDLogInfo(@"Public key: %@", pubHex);
-//        DDLogInfo(@"Expected  : %@", expPubHex);
-//        XCTAssertEqualObjects(pubHex, expPubHex);
-//        ++i;
-//    }
-//}
+- (void)testSignaturesFromMultisig
+{
+    WSParametersSetCurrentType(WSParametersTypeMain);
+
+    // tx = 7f53001bf79f5a874c018cce58471fd51a9444b564bbbb37032bda7f2beb9439
+    NSString *expScriptHex = @"004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae";
+    NSArray *expSignatures = @[@"30450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001",
+                               @"3045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf801"];
+
+    WSScript *script = WSScriptFromHex(expScriptHex);
+    DDLogInfo(@"Script chunks: %@", script.chunks);
+
+    NSArray *signatures;
+    XCTAssertTrue([script isScriptMultiSigWithSignatures:&signatures publicKeys:NULL redeemScript:NULL]);
+    XCTAssertEqual(signatures.count, expSignatures.count);
+
+    NSUInteger i = 0;
+    for (NSData *sigData in signatures) {
+        NSString *sig = [sigData hexString];
+        NSString *expSig = expSignatures[i];
+
+        DDLogInfo(@"Signature: %@", sig);
+        DDLogInfo(@"Expected : %@", expSig);
+        XCTAssertEqualObjects(sig, expSig);
+        ++i;
+    }
+}
+
+- (void)testPubKeysFromMultisigRedeem
+{
+    WSParametersSetCurrentType(WSParametersTypeMain);
+
+    //
+    // https://gist.github.com/gavinandresen/3966071
+    //
+    NSString *expScriptHex = @"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae";
+    NSArray *expPubKeys = @[@"0491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f86",
+                            @"04865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec6874",
+                            @"048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d46213"];
+
+    WSScript *script = WSScriptFromHex(expScriptHex);
+    DDLogInfo(@"Script chunks: %@", script.chunks);
+    
+    NSUInteger m, n;
+    NSArray *pubKeys;
+    XCTAssertTrue([script isScriptMultiSigReedemWithM:&m N:&n publicKeys:&pubKeys]);
+    XCTAssertNotNil(pubKeys);
+    XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
+
+    XCTAssertEqual(pubKeys.count, expPubKeys.count);
+    
+    NSUInteger i = 0;
+    for (WSPublicKey *pubKey in pubKeys) {
+        NSString *pubHex = [[pubKey encodedData] hexString];
+        NSString *expPubHex = expPubKeys[i];
+        
+        DDLogInfo(@"Public key: %@", pubHex);
+        DDLogInfo(@"Expected  : %@", expPubHex);
+        XCTAssertEqualObjects(pubHex, expPubHex);
+        ++i;
+    }
+}
 
 - (void)testCoinbaseScripts
 {
