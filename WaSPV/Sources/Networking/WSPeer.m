@@ -54,6 +54,14 @@
 
 @implementation WSPeerParameters
 
+- (instancetype)init
+{
+    return [self initWithGroupQueue:dispatch_get_main_queue()
+                         blockChain:nil
+               shouldDownloadBlocks:YES
+                needsBloomFiltering:YES];
+}
+
 - (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
