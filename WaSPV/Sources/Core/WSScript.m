@@ -56,10 +56,11 @@
 
 @property (nonatomic, strong) NSArray *chunks;
 
+- (WSAddress *)addressFromScriptSig;
+- (WSAddress *)addressFromScriptMultisig;
 - (WSAddress *)addressFromPay2PubKeyHash;
 - (WSAddress *)addressFromPay2ScriptHash;
 - (WSAddress *)addressFromPay2PubKey;
-- (WSAddress *)addressFromPay2MultiSig;
 
 @end
 
@@ -105,21 +106,6 @@
     return NO;
 }
 
-- (WSAddress *)addressFromHash
-{
-    return WSAddressP2SHFromHash160([[self toBuffer] computeHash160]);
-}
-
-- (NSArray *)publicKeys
-{
-    for (WSScriptChunk *chunk in self.chunks) {
-        if (WSPublicKeyIsValidData(chunk.pushData)) {
-            return [WSPublicKey publicKeyWithData:chunk.pushData];
-        }
-    }
-    return nil;
-}
-
 - (BOOL)isEqual:(id)object
 {
     if (object == self) {
@@ -142,31 +128,56 @@
     return [self.chunks componentsJoinedByString:@" "];
 }
 
-#pragma mark Output scripts
+#pragma mark Input scripts
 
-- (BOOL)isPay2PubKeyHash
+- (BOOL)isScriptSig
 {
-    return ((self.chunks.count == 5) &&
-            ([self.chunks[0] opcode] == WSScriptOpcode_DUP) &&
-            ([self.chunks[1] opcode] == WSScriptOpcode_HASH160) &&
-            ([self.chunks[2] pushDataLength] == WSHash160Length) &&
-            ([self.chunks[3] opcode] == WSScriptOpcode_EQUALVERIFY) &&
-            ([self.chunks[4] opcode] == WSScriptOpcode_CHECKSIG));
+    if (self.chunks.count != 2) {
+        return NO;
+    }
+    
+    WSScriptChunk *chunkSig = self.chunks[0];
+    WSScriptChunk *chunkPubKey = self.chunks[1];
+    
+    return ([chunkSig isSignature] && [WSPublicKey publicKeyWithData:chunkPubKey.pushData]);
 }
 
-- (BOOL)isPay2ScriptHash
+- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
 {
-    return ((self.chunks.count == 3) &&
-            ([self.chunks[0] opcode] == WSScriptOpcode_HASH160) &&
-            ([self.chunks[1] pushDataLength] == WSHash160Length) &&
-            ([self.chunks[2] opcode] == WSScriptOpcode_EQUAL));
-}
+    if (self.chunks.count < 4) {
+        return NO;
+    }
 
-- (BOOL)isPay2PubKey
-{
-    return ((self.chunks.count == 2) &&
-            WSPublicKeyIsValidData([self.chunks[0] pushData]) &&
-            ([self.chunks[1] opcode] == WSScriptOpcode_CHECKSIG));
+#warning XXX: discard first opcode, usually OP_0
+    if (![[self.chunks firstObject] isOpcode]) {
+        return NO;
+    }
+    
+    // last chunk is push data with redeem script
+    if (![[self.chunks lastObject] isPushData]) {
+        return NO;
+    }
+
+    // middle chunks are a sequence of signatures
+    const NSUInteger numberOfSignatures = self.chunks.count - 2;
+    for (NSUInteger i = 1; i < numberOfSignatures; ++i) {
+        if (![self.chunks[i] isSignature]) {
+            return NO;
+        }
+    }
+
+    WSScriptChunk *chunkRedeem = [self.chunks lastObject];
+    WSBuffer *chunkRedeemBuffer = [[WSBuffer alloc] initWithData:chunkRedeem.pushData];
+    WSScript *embeddedRedeemScript = [[WSScript alloc] initWithBuffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
+    if (![embeddedRedeemScript isScriptMultiSigReedemWithM:m N:n]) {
+        return NO;
+    }
+
+    if (redeemScript) {
+        *redeemScript = embeddedRedeemScript;
+    }
+
+    return YES;
 }
 
 //
@@ -179,7 +190,7 @@
 //
 // script chunks = (3 + n) with (n > 0)
 //
-- (BOOL)isPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -187,7 +198,7 @@
     if ([[self.chunks lastObject] opcode] != WSScriptOpcode_CHECKMULTISIG) {
         return NO;
     }
-
+    
     const NSUInteger chunkN = [self.chunks[self.chunks.count - 2] opcodeValue];
     if (chunkN == NSNotFound) {
         return NO;
@@ -195,7 +206,7 @@
     if (self.chunks.count != 3 + chunkN) {
         return NO;
     }
-
+    
     const NSUInteger chunkM = [self.chunks[0] opcodeValue];
     if (chunkM == NSNotFound) {
         return NO;
@@ -204,36 +215,73 @@
         DDLogWarn(@"Invalid multiSig, N < M (%u < %u)", chunkN, chunkM);
         return NO;
     }
-
+    
     if (m) {
         *m = chunkM;
     }
     if (n) {
         *n = chunkN;
     }
-
+    
     return YES;
 }
 
-- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n
+//- (NSArray *)publicKeys
+//{
+//    for (WSScriptChunk *chunk in self.chunks) {
+//        if (WSPublicKeyIsValidData(chunk.pushData)) {
+//            return [WSPublicKey publicKeyWithData:chunk.pushData];
+//        }
+//    }
+//    return nil;
+//}
+//
+//- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n
+//{
+//    NSUInteger localM, localN;
+//    if (![self isPay2MultiSigWithM:&localM N:&localN]) {
+//        return nil;
+//    }
+//    
+//    NSMutableArray *pubKeys = [[NSMutableArray alloc] initWithCapacity:localN];
+//    for (NSUInteger i = 0; i < localN; ++i) {
+//        NSData *pubKeyData = [self.chunks[1 + i] pushData];
+//        [pubKeys addObject:[WSPublicKey publicKeyWithData:pubKeyData]];
+//    }
+//    if (m) {
+//        *m = localM;
+//    }
+//    if (n) {
+//        *n = localN;
+//    }
+//    return pubKeys;
+//}
+
+#pragma mark Output scripts
+
+- (BOOL)isPay2PubKeyHash
 {
-    NSUInteger localM, localN;
-    if (![self isPay2MultiSigWithM:&localM N:&localN]) {
-        return nil;
-    }
-    
-    NSMutableArray *pubKeys = [[NSMutableArray alloc] initWithCapacity:localN];
-    for (NSUInteger i = 0; i < localN; ++i) {
-        NSData *pubKeyData = [self.chunks[1 + i] pushData];
-        [pubKeys addObject:[WSPublicKey publicKeyWithData:pubKeyData]];
-    }
-    if (m) {
-        *m = localM;
-    }
-    if (n) {
-        *n = localN;
-    }
-    return pubKeys;
+    return ((self.chunks.count == 5) &&
+            ([self.chunks[0] opcode] == WSScriptOpcode_DUP) &&
+            ([self.chunks[1] opcode] == WSScriptOpcode_HASH160) &&
+            ([self.chunks[2] pushDataLength] == WSHash160Length) &&
+            ([self.chunks[3] opcode] == WSScriptOpcode_EQUALVERIFY) &&
+            ([self.chunks[4] opcode] == WSScriptOpcode_CHECKSIG));
+}
+
+- (BOOL)isPay2PubKey
+{
+    return ((self.chunks.count == 2) &&
+            [WSPublicKey publicKeyWithData:[self.chunks[0] pushData]] &&
+            ([self.chunks[1] opcode] == WSScriptOpcode_CHECKSIG));
+}
+
+- (BOOL)isPay2ScriptHash
+{
+    return ((self.chunks.count == 3) &&
+            ([self.chunks[0] opcode] == WSScriptOpcode_HASH160) &&
+            ([self.chunks[1] pushDataLength] == WSHash160Length) &&
+            ([self.chunks[2] opcode] == WSScriptOpcode_EQUAL));
 }
 
 #pragma mark Standard address
@@ -242,17 +290,52 @@
 {
     WSAddress *address = [self addressFromPay2PubKeyHash];
     if (!address) {
-        address = [self addressFromPay2ScriptHash];
-    }
-    if (!address) {
         address = [self addressFromPay2PubKey];
     }
     if (!address) {
-        address = [self addressFromPay2MultiSig];
+        address = [self addressFromPay2ScriptHash];
+    }
+    if (!address) {
+        address = [self addressFromScriptSig];
+    }
+    if (!address) {
+        address = [self addressFromScriptMultisig];
     }
     return address;
 }
             
+- (WSAddress *)addressFromScriptSig
+{
+    if (self.chunks.count != 2) {
+        return NO;
+    }
+    
+    WSScriptChunk *chunkSig = self.chunks[0];
+    if (![chunkSig isSignature]) {
+        return nil;
+    }
+    WSScriptChunk *chunkPubKey = self.chunks[1];
+    WSPublicKey *pubKey = [WSPublicKey publicKeyWithData:chunkPubKey.pushData];
+    if (!pubKey) {
+        return nil;
+    }
+    return WSAddressP2PKHFromHash160([pubKey hash160]);
+}
+
+- (WSAddress *)addressFromHash
+{
+    return WSAddressP2SHFromHash160([[self toBuffer] computeHash160]);
+}
+
+- (WSAddress *)addressFromScriptMultisig
+{
+    WSScript *redeemScript;
+    if (![self isScriptMultiSigWithRedeemScript:&redeemScript M:NULL N:NULL]) {
+        return nil;
+    }
+    return WSAddressP2SHFromHash160([[redeemScript toBuffer] computeHash160]);
+}
+
 - (WSAddress *)addressFromPay2PubKeyHash
 {
     if (![self isPay2PubKeyHash]) {
@@ -277,14 +360,6 @@
         return nil;
     }
     return [[WSPublicKey publicKeyWithData:[self.chunks[0] pushData]] address];
-}
-
-- (WSAddress *)addressFromPay2MultiSig
-{
-    if (![self isPay2MultiSigWithM:NULL N:NULL]) {
-        return nil;
-    }
-    return [self addressFromHash];
 }
 
 #pragma mark NSCopying
@@ -558,22 +633,22 @@
     return [self.coinbaseData isEqualToData:data];
 }
 
-- (WSAddress *)addressFromHash
-{
-    return nil;
-}
-
-- (WSPublicKey *)publicKey
-{
-    return nil;
-}
-
-- (BOOL)isPay2PubKeyHash
+- (BOOL)isScriptSig
 {
     return NO;
 }
 
-- (BOOL)isPay2ScriptHash
+- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n
+{
+    return NO;
+}
+
+- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n
+{
+    return NO;
+}
+
+- (BOOL)isPay2PubKeyHash
 {
     return NO;
 }
@@ -583,17 +658,17 @@
     return NO;
 }
 
-- (BOOL)isPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n
+- (BOOL)isPay2ScriptHash
 {
     return NO;
 }
 
-- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n
+- (WSAddress *)standardAddress
 {
     return nil;
 }
 
-- (WSAddress *)standardAddress
+- (WSAddress *)addressFromHash
 {
     return nil;
 }

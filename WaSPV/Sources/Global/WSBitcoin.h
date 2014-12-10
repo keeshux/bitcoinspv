@@ -44,9 +44,6 @@ extern const uint8_t            WSKeySignaturePrefix;
 extern const NSUInteger         WSPublicKeyUncompressedLength;
 extern const NSUInteger         WSPublicKeyCompressedLength;
 
-BOOL WSKeyIsValidData(NSData *data);
-BOOL WSPublicKeyIsValidData(NSData *data);
-
 extern const NSUInteger         WSHash160Length;
 extern const NSUInteger         WSHash256Length;
 extern const NSUInteger         WSAddressLength;

@@ -95,14 +95,20 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 - (BOOL)isPushDataOnly;
 - (BOOL)containsData:(NSData *)data;
-- (WSAddress *)addressFromHash;
 
-- (BOOL)isPay2ScriptHash;
+- (BOOL)isScriptSig;
+- (BOOL)isScriptMultiSigWithRedeemScript:(WSScript **)redeemScript M:(NSUInteger *)m N:(NSUInteger *)n;
+- (BOOL)isScriptMultiSigReedemWithM:(NSUInteger *)m N:(NSUInteger *)n;
+//- (NSArray *)publicKeys; // WSPublicKey
+//- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n; // WSPublicKey
+//- (NSArray *)signatures; // NSData
+
+- (BOOL)isPay2PubKeyHash;
 - (BOOL)isPay2PubKey;
-- (BOOL)isPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n;
-- (NSArray *)publicKeysFromPay2MultiSigWithM:(NSUInteger *)m N:(NSUInteger *)n; // WSPublicKey
+- (BOOL)isPay2ScriptHash;
 
 - (WSAddress *)standardAddress; // nil if non-standard script
+- (WSAddress *)addressFromHash;
 
 @end
 
