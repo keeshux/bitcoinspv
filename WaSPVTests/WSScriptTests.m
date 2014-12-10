@@ -195,7 +195,7 @@
             
             NSUInteger numberOfSignatures;
             NSArray *publicKeys;
-            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithNumberOfSignatures:&numberOfSignatures publicKeys:&publicKeys];
+            const BOOL isMultiSig = [inputRedeemScript isScriptSigWithReedemNumberOfSignatures:&numberOfSignatures publicKeys:&publicKeys];
             const NSUInteger m = numberOfSignatures;
             const NSUInteger n = publicKeys.count;
 
@@ -221,7 +221,7 @@
             
             NSArray *signatures;
             NSArray *publicKeys;
-            const BOOL isMultiSig = [inputScript isScriptMultiSigWithSignatures:&signatures publicKeys:&publicKeys redeemScript:NULL];
+            const BOOL isMultiSig = [inputScript isScriptSigWithSignatures:&signatures publicKeys:&publicKeys redeemScript:NULL];
             const NSUInteger m = signatures.count;
             const NSUInteger n = publicKeys.count;
 
@@ -252,7 +252,7 @@
     DDLogInfo(@"Script chunks: %@", script.chunks);
 
     NSArray *signatures;
-    XCTAssertTrue([script isScriptMultiSigWithSignatures:&signatures publicKeys:NULL redeemScript:NULL]);
+    XCTAssertTrue([script isScriptSigWithSignatures:&signatures publicKeys:NULL redeemScript:NULL]);
     XCTAssertEqual(signatures.count, expSignatures.count);
 
     NSUInteger i = 0;
@@ -282,7 +282,7 @@
     NSArray *signatures;
     NSArray *pubKeys;
     WSScript *redeemScript;
-    XCTAssertTrue([script isScriptMultiSigWithSignatures:&signatures publicKeys:&pubKeys redeemScript:&redeemScript]);
+    XCTAssertTrue([script isScriptSigWithSignatures:&signatures publicKeys:&pubKeys redeemScript:&redeemScript]);
     XCTAssertEqual(signatures.count, expSignatures.count);
     XCTAssertEqual(pubKeys.count, expPubKeys.count);
 
@@ -314,7 +314,7 @@
     
     NSUInteger numberOfSignatures;
     NSArray *pubKeys;
-    XCTAssertTrue([script isScriptMultiSigReedemWithNumberOfSignatures:&numberOfSignatures publicKeys:&pubKeys]);
+    XCTAssertTrue([script isScriptSigWithReedemNumberOfSignatures:&numberOfSignatures publicKeys:&pubKeys]);
     const NSUInteger m = numberOfSignatures;
     const NSUInteger n = pubKeys.count;
 

@@ -166,7 +166,7 @@
     return YES;
 }
 
-- (BOOL)isScriptMultiSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
+- (BOOL)isScriptSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -199,7 +199,7 @@
 
     NSUInteger outNumberOfSignatures;
     NSArray *localPublicKeys;
-    if (![localRedeemScript isScriptMultiSigReedemWithNumberOfSignatures:&outNumberOfSignatures publicKeys:&localPublicKeys]) {
+    if (![localRedeemScript isScriptSigWithReedemNumberOfSignatures:&outNumberOfSignatures publicKeys:&localPublicKeys]) {
         return NO;
     }
 
@@ -228,7 +228,7 @@
 //
 // script chunks = (3 + n) with (n > 0)
 //
-- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
+- (BOOL)isScriptSigWithReedemNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     if (self.chunks.count < 4) {
         return NO;
@@ -345,7 +345,7 @@
 - (WSAddress *)addressFromScriptMultisig
 {
     WSScript *redeemScript;
-    if (![self isScriptMultiSigWithSignatures:NULL publicKeys:NULL redeemScript:&redeemScript]) {
+    if (![self isScriptSigWithSignatures:NULL publicKeys:NULL redeemScript:&redeemScript]) {
         return nil;
     }
     return WSAddressP2SHFromHash160([[redeemScript toBuffer] computeHash160]);
@@ -541,6 +541,8 @@
 
 - (instancetype)initWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys
 {
+    WSExceptionCheckIllegal(signatures.count > 0, @"Empty signatures");
+    WSExceptionCheckIllegal(publicKeys.count > 0, @"Empty publicKeys");
     WSExceptionCheckIllegal(signatures.count <= 16, @"Too many signatures (M: %u > 16)", signatures.count);
     WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
     WSExceptionCheckIllegal(signatures.count >= 2, @"At least 2 signatures required for multiSig (M: %u < 2)", signatures.count);
@@ -560,15 +562,18 @@
 
 - (instancetype)initWithRedeemNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys
 {
+    WSExceptionCheckIllegal(numberOfSignatures > 0, @"Non-positive numberOfSignatures");
+    WSExceptionCheckIllegal(publicKeys.count > 0, @"Empty publicKeys");
     WSExceptionCheckIllegal(numberOfSignatures <= 16, @"Too many signatures (M: %u > 16)", numberOfSignatures);
     WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
     WSExceptionCheckIllegal(publicKeys.count >= numberOfSignatures, @"At least %u public keys required for multiSig (N: %u < %u)", publicKeys.count, numberOfSignatures);
 
-    if ((self = [super init])) {
+    if ((self = [self init])) {
         [self appendOpcode:WSScriptOpcodeFromValue(numberOfSignatures)];
         for (WSPublicKey *publicKey in publicKeys) {
             [self appendPushData:publicKey.data];
         }
+        [self appendOpcode:WSScriptOpcodeFromValue(publicKeys.count)];
         [self appendOpcode:WSScriptOpcode_CHECKMULTISIG];
     }
     return self;
@@ -583,7 +588,12 @@
 
 - (void)appendOpcode:(WSScriptOpcode)opcode
 {
-    [self.chunks addObject:[WSScriptChunk chunkWithOpcode:opcode]];
+    if (opcode == WSScriptOpcode_OP_0) {
+        [self.chunks addObject:[WSScriptChunk chunkWithOpcode:opcode pushData:nil]];
+    }
+    else {
+        [self.chunks addObject:[WSScriptChunk chunkWithOpcode:opcode]];
+    }
 }
 
 - (void)appendPushData:(NSData *)pushData
@@ -693,12 +703,12 @@
     return NO;
 }
 
-- (BOOL)isScriptMultiSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
+- (BOOL)isScriptSigWithSignatures:(NSArray *__autoreleasing *)signatures publicKeys:(NSArray *__autoreleasing *)publicKeys redeemScript:(WSScript *__autoreleasing *)redeemScript
 {
     return NO;
 }
 
-- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
+- (BOOL)isScriptSigWithReedemNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray *__autoreleasing *)publicKeys
 {
     return NO;
 }

@@ -102,8 +102,8 @@ NSUInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
 - (BOOL)containsData:(NSData *)data;
 
 - (BOOL)isScriptSigWithSignature:(NSData **)signature publicKey:(WSPublicKey **)publicKey;
-- (BOOL)isScriptMultiSigWithSignatures:(NSArray **)signatures publicKeys:(NSArray **)publicKeys redeemScript:(WSScript **)redeemScript;
-- (BOOL)isScriptMultiSigReedemWithNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray **)publicKeys;
+- (BOOL)isScriptSigWithSignatures:(NSArray **)signatures publicKeys:(NSArray **)publicKeys redeemScript:(WSScript **)redeemScript;
+- (BOOL)isScriptSigWithReedemNumberOfSignatures:(NSUInteger *)numberOfSignatures publicKeys:(NSArray **)publicKeys;
 
 - (BOOL)isPay2PubKeyHash;
 - (BOOL)isPay2PubKey;
