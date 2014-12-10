@@ -133,7 +133,7 @@
 
     NSArray *expInputRedeemScripts = @[@"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae",
                                        @"52210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae"];
-
+    
     NSArray *expInputScripts = @[@"ff48304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae"];
 
     NSArray *expMs = @[@2,
@@ -141,6 +141,11 @@
 
     NSArray *expNs = @[@3,
                        @3];
+    
+    NSArray *expSignatures = @[@[@"304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d7801", @"30440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a401"]];
+    
+    NSArray *expPublicKeys = @[@[@"0491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f86", @"04865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec6874", @"048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d46213"],
+                               @[@"0387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec85", @"034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd", @"035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a"]];
     
     for (NSUInteger i = 0; i < expAddresses.count; ++i) {
         WSParametersSetCurrentType([expNetworks[i] intValue]);
@@ -153,8 +158,25 @@
         WSAddress *addressFromInputRedeem = nil;
         WSAddress *addressFromInput = nil;
 
+        NSMutableArray *checkSignatures = nil;
+        if (i < expSignatures.count) {
+            checkSignatures = [[NSMutableArray alloc] init];
+            for (NSString *hex in expSignatures[i]) {
+                [checkSignatures addObject:[hex dataFromHex]];
+            }
+        }
+        NSMutableArray *checkPublicKeys = nil;
+        if (i < expPublicKeys.count) {
+            checkPublicKeys = [[NSMutableArray alloc] init];
+            for (NSString *hex in expPublicKeys[i]) {
+                [checkPublicKeys addObject:WSPublicKeyFromHex(hex)];
+            }
+        }
+
         if (i < expOutputScripts.count) {
             WSScript *outputScript = WSScriptFromHex(expOutputScripts[i]);
+            DDLogInfo(@"Output script: %@", outputScript);
+
             addressFromOutput = [outputScript standardAddress];
             DDLogInfo(@"From output: %@", addressFromOutput);
             XCTAssertEqualObjects(addressFromOutput, expAddress);
@@ -162,6 +184,8 @@
         
         if (i < expInputRedeemScripts.count) {
             WSScript *inputRedeemScript = WSScriptFromHex(expInputRedeemScripts[i]);
+            DDLogInfo(@"Input redeem script: %@", inputRedeemScript);
+
             addressFromInputRedeem = [inputRedeemScript addressFromHash];
             DDLogInfo(@"From input redeem: %@", addressFromInputRedeem);
             XCTAssertEqualObjects(addressFromInputRedeem, expAddress);
@@ -170,15 +194,22 @@
             }
             
             NSUInteger m, n;
-            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:NULL];
+            NSArray *publicKeys;
+            const BOOL isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n publicKeys:&publicKeys];
 
             XCTAssertTrue(isMultiSig);
             XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
             DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
+            
+            if (checkPublicKeys) {
+                XCTAssertEqualObjects(publicKeys, checkPublicKeys);
+            }
         }
 
         if (i < expInputScripts.count) {
             WSScript *inputScript = WSScriptFromHex(expInputScripts[i]);
+            DDLogInfo(@"Input script: %@", inputScript);
+
             addressFromInput = [inputScript standardAddress];
             DDLogInfo(@"From input: %@", addressFromInput);
             XCTAssertEqualObjects(addressFromInput, expAddress);
@@ -191,6 +222,13 @@
             const BOOL isMultiSig = [inputScript isScriptMultiSigWithSignatures:&signatures publicKeys:&publicKeys redeemScript:NULL];
             const NSUInteger m = signatures.count;
             const NSUInteger n = publicKeys.count;
+
+            if (checkSignatures) {
+                XCTAssertEqualObjects(signatures, checkSignatures);
+            }
+            if (checkPublicKeys) {
+                XCTAssertEqualObjects(publicKeys, checkPublicKeys);
+            }
 
             XCTAssertTrue(isMultiSig);
             XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
