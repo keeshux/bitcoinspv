@@ -77,7 +77,7 @@
     XCTAssertEqualObjects(scriptHex, expScriptHex);
 }
 
-- (void)testAddressFromScript
+- (void)testAddressFromOutputScript
 {
     WSParametersSetCurrentType(WSParametersTypeMain);
 
@@ -99,28 +99,100 @@
     XCTAssertEqualObjects(decodedAddress, expAddress);
 }
 
-- (void)testAddressFromScriptMultiSig
+- (void)testAddressFromInputScript
 {
     WSParametersSetCurrentType(WSParametersTypeMain);
     
-    WSAddress *expAddress= WSAddressFromString(@"3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC");
+    NSString *expScriptHex = @"483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9e";
     
-    WSScript *outputScript = WSScriptFromHex(@"a914f815b036d9bbbce5e9f2a00abd1bf3dc91e9551087");
-    WSAddress *addressFromOutput = [outputScript standardAddress];
-    DDLogInfo(@"From output: %@", addressFromOutput);
-    XCTAssertEqualObjects(addressFromOutput, expAddress);
+    WSScript *script = WSScriptFromHex(expScriptHex);
+    DDLogInfo(@"Script chunks: %@", script.chunks);
+    DDLogInfo(@"Script (human readable): %@", script);
     
-    WSScript *inputRedeemScript = WSScriptFromHex(@"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae");
-    WSAddress *addressFromInputRedeem = [inputRedeemScript addressFromHash];
-    DDLogInfo(@"From input redeem: %@", addressFromInputRedeem);
-    XCTAssertEqualObjects(addressFromInputRedeem, expAddress);
+    NSString *scriptHex = [[script toBuffer] hexString];
+    DDLogInfo(@"Script (hex): %@", scriptHex);
+    DDLogInfo(@"Expected    : %@", expScriptHex);
+    XCTAssertEqualObjects(scriptHex, expScriptHex);
     
-    WSScript *inputScript = WSScriptFromHex(@"ff48304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae");
-    WSAddress *addressFromInput = [inputScript standardAddress];
-    DDLogInfo(@"From input: %@", addressFromInput);
-    XCTAssertEqualObjects(addressFromInput, expAddress);
+    WSAddress *decodedAddress = [script standardAddress];
+    WSAddress *expAddress = WSAddressFromString(@"18pV61UrtyK9YW8tDa53UkM8DDbFWKiwvc");
+    DDLogInfo(@"Address : %@", decodedAddress);
+    DDLogInfo(@"Expected: %@", expAddress);
+    XCTAssertEqualObjects(decodedAddress, expAddress);
+}
+
+- (void)testAddressFromScriptMultiSig
+{
+    NSArray *expNetworks = @[@(WSParametersTypeMain),
+                             @(WSParametersTypeTestnet3)];
     
-    XCTAssertEqualObjects(addressFromOutput, addressFromInputRedeem);
+    NSArray *expAddresses = @[@"3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC",
+                              @"2MzeFhdGMftyDR1jt8Vtz8DV2eDbY8CCRS4"];
+
+    NSArray *expOutputScripts = @[@"a914f815b036d9bbbce5e9f2a00abd1bf3dc91e9551087"];
+
+    NSArray *expInputRedeemScripts = @[@"52410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae",
+                                       @"52210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae"];
+
+    NSArray *expInputScripts = @[@"ff48304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353ae"];
+
+    NSArray *expMs = @[@2,
+                       @2];
+
+    NSArray *expNs = @[@3,
+                       @3];
+    
+    for (NSUInteger i = 0; i < expAddresses.count; ++i) {
+        WSParametersSetCurrentType([expNetworks[i] intValue]);
+        
+        WSAddress *expAddress = WSAddressFromString(expAddresses[i]);
+        const NSUInteger expM = [expMs[i] unsignedIntegerValue];
+        const NSUInteger expN = [expNs[i] unsignedIntegerValue];
+        
+        WSAddress *addressFromOutput = nil;
+        WSAddress *addressFromInputRedeem = nil;
+        WSAddress *addressFromInput = nil;
+
+        if (i < expOutputScripts.count) {
+            WSScript *outputScript = WSScriptFromHex(expOutputScripts[i]);
+            addressFromOutput = [outputScript standardAddress];
+            DDLogInfo(@"From output: %@", addressFromOutput);
+            XCTAssertEqualObjects(addressFromOutput, expAddress);
+        }
+        
+        BOOL isMultiSig;
+        NSUInteger m, n;
+        
+        if (i < expInputRedeemScripts.count) {
+            WSScript *inputRedeemScript = WSScriptFromHex(expInputRedeemScripts[i]);
+            addressFromInputRedeem = [inputRedeemScript addressFromHash];
+            DDLogInfo(@"From input redeem: %@", addressFromInputRedeem);
+            XCTAssertEqualObjects(addressFromInputRedeem, expAddress);
+            if (addressFromOutput) {
+                XCTAssertEqualObjects(addressFromOutput, addressFromInputRedeem);
+            }
+            
+            isMultiSig = [inputRedeemScript isScriptMultiSigReedemWithM:&m N:&n];
+            XCTAssertTrue(isMultiSig);
+            XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
+            DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
+        }
+
+        if (i < expInputScripts.count) {
+            WSScript *inputScript = WSScriptFromHex(expInputScripts[i]);
+            addressFromInput = [inputScript standardAddress];
+            DDLogInfo(@"From input: %@", addressFromInput);
+            XCTAssertEqualObjects(addressFromInput, expAddress);
+            if (addressFromOutput) {
+                XCTAssertEqualObjects(addressFromOutput, addressFromInput);
+            }
+            
+            isMultiSig = [inputScript isScriptMultiSigWithRedeemScript:NULL M:&m N:&n];
+            XCTAssertTrue(isMultiSig);
+            XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
+            DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
+        }
+    }
 }
 
 //- (void)testSignaturesFromMultisig
@@ -148,32 +220,6 @@
 //        XCTAssertEqualObjects(sig, expSig);
 //        ++i;
 //    }
-//}
-//
-//- (void)testAddressFromPay2Multisig
-//{
-//    WSParametersSetCurrentType(WSParametersTypeTestnet3);
-//
-//    NSString *expScriptHex = @"52210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae";
-//    WSAddress *expAddress = WSAddressFromString(@"2MzeFhdGMftyDR1jt8Vtz8DV2eDbY8CCRS4");
-//
-//    WSScript *script = WSScriptFromHex(expScriptHex);
-//    DDLogInfo(@"Script chunks: %@", script.chunks);
-//    DDLogInfo(@"Script (human readable): %@", script);
-//    
-//    NSUInteger m, n;
-//    const BOOL isMultiSig = [script isScriptMultiSigReedemWithM:&m N:&n];
-//    XCTAssertTrue(isMultiSig);
-//    XCTAssertTrue((m == 2) && (n == 3), @"Not a 2-of-3 multiSig script");
-//    DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
-//
-//    NSString *scriptHex = [[script toBuffer] hexString];
-//    DDLogInfo(@"Script (eff): %@", scriptHex);
-//    DDLogInfo(@"Script (exp): %@", expScriptHex);
-//    WSAddress *address = [script addressFromHash];
-//    DDLogInfo(@"Address (eff): %@", address);
-//    DDLogInfo(@"Address (exp): %@", expAddress);
-//    XCTAssertEqualObjects(address, expAddress);
 //}
 //
 //- (void)testPubKeysFromPay2Multisig
