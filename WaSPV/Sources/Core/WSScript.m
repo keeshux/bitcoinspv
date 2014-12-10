@@ -253,6 +253,9 @@
         }
         [localPublicKeys addObject:publicKey];
     }
+    if (localPublicKeys.count != chunkN) {
+        return NO;
+    }
     
     if (numberOfSignatures) {
         *numberOfSignatures = chunkM;
