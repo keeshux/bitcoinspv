@@ -76,6 +76,16 @@
     return [[[WSScriptBuilder alloc] initWithSignature:signature publicKey:publicKey] build];
 }
 
++ (instancetype)scriptWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys
+{
+    return [[[WSScriptBuilder alloc] initWithSignatures:signatures publicKeys:publicKeys] build];
+}
+
++ (instancetype)redeemScriptWithNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys
+{
+    return [[[WSScriptBuilder alloc] initWithRedeemNumberOfSignatures:numberOfSignatures publicKeys:publicKeys] build];
+}
+
 - (instancetype)initWithChunks:(NSArray *)chunks
 {
     if ((self = [super init])) {
@@ -529,6 +539,41 @@
     return self;
 }
 
+- (instancetype)initWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys
+{
+    WSExceptionCheckIllegal(signatures.count <= 16, @"Too many signatures (M: %u > 16)", signatures.count);
+    WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
+    WSExceptionCheckIllegal(signatures.count >= 2, @"At least 2 signatures required for multiSig (M: %u < 2)", signatures.count);
+    WSExceptionCheckIllegal(publicKeys.count >= signatures.count, @"At least %u public keys required for multiSig (N: %u < %u)", publicKeys.count, signatures.count);
+    
+    if ((self = [self init])) {
+        [self appendOpcode:WSScriptOpcode_OP_0];
+        for (NSData *signature in signatures) {
+            [self appendPushData:signature];
+        }
+
+        WSScript *redeemScript = [WSScript redeemScriptWithNumberOfSignatures:signatures.count publicKeys:publicKeys];
+        [self appendPushData:[redeemScript toBuffer].data];
+    }
+    return self;
+}
+
+- (instancetype)initWithRedeemNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys
+{
+    WSExceptionCheckIllegal(numberOfSignatures <= 16, @"Too many signatures (M: %u > 16)", numberOfSignatures);
+    WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
+    WSExceptionCheckIllegal(publicKeys.count >= numberOfSignatures, @"At least %u public keys required for multiSig (N: %u < %u)", publicKeys.count, numberOfSignatures);
+
+    if ((self = [super init])) {
+        [self appendOpcode:WSScriptOpcodeFromValue(numberOfSignatures)];
+        for (WSPublicKey *publicKey in publicKeys) {
+            [self appendPushData:publicKey.data];
+        }
+        [self appendOpcode:WSScriptOpcode_CHECKMULTISIG];
+    }
+    return self;
+}
+
 - (void)appendChunk:(WSScriptChunk *)chunk
 {
     WSExceptionCheckIllegal(chunk != nil, @"Nil chunk");
@@ -867,7 +912,7 @@
     if (!self.isOpcode) {
         return NSNotFound;
     }
-    return WSScriptOpcodeValue(self.opcode);
+    return WSScriptOpcodeToValue(self.opcode);
 }
 
 - (NSUInteger)pushDataLength
@@ -983,7 +1028,7 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
         //        names[@(WSScriptOpcode_PUSHDATA2)]              = @"OP_PUSHDATA2";
         //        names[@(WSScriptOpcode_PUSHDATA4)]              = @"OP_PUSHDATA4";
         for (int numberOpcode = WSScriptOpcode_OP_1; numberOpcode <= WSScriptOpcode_OP_16; ++numberOpcode) {
-            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%u", WSScriptOpcodeValue(numberOpcode)];
+            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%u", WSScriptOpcodeToValue(numberOpcode)];
         }
         names[@(WSScriptOpcode_OP_RETURN)]              = @"RETURN";
         names[@(WSScriptOpcode_DUP)]                    = @"DUP";
@@ -999,7 +1044,14 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
     return names[@(opcode)] ?: [NSString stringWithFormat:@"OP_?(%X)", opcode];
 }
 
-NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode)
+WSScriptOpcode WSScriptOpcodeFromValue(NSUInteger value)
+{
+    WSExceptionCheckIllegal((value >= 1) && (value <= 16), @"Not an 1-16 value (%u)", value);
+    
+    return (value + WSScriptOpcode_OP_1 - 1);
+}
+
+NSUInteger WSScriptOpcodeToValue(WSScriptOpcode opcode)
 {
     WSExceptionCheckIllegal((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16),
                             @"Not an OP_1-16 opcode (%x)", opcode);

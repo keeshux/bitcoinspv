@@ -75,7 +75,10 @@ typedef enum {
 } WSScriptOpcode;
 
 NSString *WSScriptOpcodeString(WSScriptOpcode opcode);
-NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
+
+// for OP_1-16 opcodes
+WSScriptOpcode WSScriptOpcodeFromValue(NSUInteger value);
+NSUInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
 
 #pragma mark -
 
@@ -90,7 +93,7 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 + (instancetype)scriptWithAddress:(WSAddress *)address;
 + (instancetype)scriptWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;
 + (instancetype)scriptWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys;
-+ (instancetype)scriptWithNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys;
++ (instancetype)redeemScriptWithNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys;
 
 - (instancetype)initWithChunks:(NSArray *)chunks; // WSScriptChunk
 - (NSArray *)chunks;
@@ -125,7 +128,9 @@ NSUInteger WSScriptOpcodeValue(WSScriptOpcode opcode); // for OP_1-16 opcodes
 
 - (instancetype)init;
 - (instancetype)initWithAddress:(WSAddress *)address; // P2PKH or P2SH
-- (instancetype)initWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;   // scriptSig
+- (instancetype)initWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey;
+- (instancetype)initWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys;
+- (instancetype)initWithRedeemNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys;
 
 - (void)appendChunk:(WSScriptChunk *)chunk;
 - (void)appendOpcode:(WSScriptOpcode)opcode;
