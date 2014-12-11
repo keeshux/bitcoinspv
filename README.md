@@ -2,9 +2,7 @@
 
 WaSPV (read *wasvee*) is a native Bitcoin SPV ([Simplified Payment Verification](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients)) client library for iOS written in Objective-C. It conveniently supports Bloom filters ([BIP37](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki)) and hierarchical deterministic wallets ([BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)).
 
-WaSPV is still experimental and quite far from being production ready.
-
-In other words: __you DO NOT want to use it in production environments today__.
+WaSPV is still experimental and __you DO NOT want to use it in production environments today__.
 
 ## Contacts
 
