@@ -6,25 +6,65 @@ WaSPV is still experimental and quite far from being production ready.
 
 In other words: __you DO NOT want to use it in production environments today__.
 
-## License
-
-WaSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
-
-Basically those willing to use WaSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
-
-Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be appreciated.
-
 ## Contacts
 
 Twitter: [@keeshux](https://twitter.com/keeshux)
 
 Website: [davidederosa.com](http://davidederosa.com)
 
-## Donations
+## Structure
 
-WaSPV is *free* software, donations are extremely welcome.
+The library is thorough and features a moderately high granularity to isolate the smallest bits of the Bitcoin protocol. Many atomic classes make up the whole thing in tiny steps while also decoupling the user from the areas he's not interested in, because files interdependency is kept at an unnoticeable minimum.
 
-Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
+Grouped by area:
+
+* Global
+    * Constant values of the Bitcoin ecosystem.
+    * Specific library settings unrelated to Bitcoin.
+    * Domain and codes found in the `NSError` objects returned by the library.
+    * Useful macros for frequent operations.
+
+* Parameters
+    * Here you find network-specific magic numbers and parameters.
+
+* Core
+    * Generic binary data (de)serialization ([WSBuffer](WaSPV/Sources/Core/WSBuffer.h)).
+    * Hashes used everywhere for transaction and block ids, addresses, checksums etc. ([WSHash256](WaSPV/Sources/Core/WSHash256.h), [WSHash160](WaSPV/Sources/Core/WSHash160.h)).
+    * ECDSA keys wrappers, able to also import WIF private keys ([WSKey](WaSPV/Sources/Core/WSKey.h), [WSPublicKey](WaSPV/Sources/Core/WSPublicKey.h)).
+    * Scripts as the key part of the Bitcoin transaction system ([WSScript](WaSPV/Sources/Core/WSScript.h)).
+    * Transaction family clsses will help you decode binary transactions or build/sign your own from inputs, outputs and keys ([WSTransaction](WaSPV/Sources/Core/WSTransaction.h)).
+    * Addresses are just a shorter way to visualize a transaction script, all standard forms (P2PK, P2PKH, P2SH) are supported ([WSAddress](WaSPV/Sources/Core/WSAddress.h)).
+    * An extensive implementation of a BIP32 HD keyring ([WSHDKeyring](WaSPV/Sources/Core/WSHDKeyring.h)).
+
+* Blockchain
+    * Full blocks as seen on the wire, with clean separation between headers and transactions ([WSBlockHeader](WaSPV/Sources/Blockchain/WSBlockHeader.h), [WSBlock](WaSPV/Sources/Blockchain/WSBlock.h)).
+    * Filtered (Merkle) blocks with partial Merkle tree verification ([WSFilteredBlock](WaSPV/Sources/Blockchain/WSFilteredBlock.h), [WSPartialMerkleTree](WaSPV/Sources/Blockchain/WSPartialMerkleTree.h)).
+    * Block stores as a means to save blocks to memory or persistently into the iOS Core Data context ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h), [WSCoreDataBlockStore](WaSPV/Sources/Blockchain/WSCoreDataBlockStore.h)).
+    * A blockchain business wrapper doing all the block connection logic, validation and reorganization ([WSBlockChain](WaSPV/Sources/Blockchain/WSBlockChain.h)).
+
+* Protocol
+    * Almost all protocol messages are defined here, one class per message.
+    * Bloom filters as defined by BIP37 ([WSBloomFilter](WaSPV/Sources/Protocol/WSBloomFilter.h)).
+
+* Networking
+    * Enter the P2P Bitcoin network ([WSPeerGroup](WaSPV/Sources/Networking/WSPeerGroup.h)).
+    * Connection pooling when dealing with multiple peers ([WSConnectionPool](WaSPV/Sources/Networking/WSConnectionPool.h)).
+    * Blockchain SPV synchronization with Bloom filtering for low bandwidth usage.
+
+* Wallet
+    * Generic wallet representations.
+    * A fully BIP32-compliant HD wallet ([WSHDWallet](WaSPV/Sources/Wallet/WSHDWallet.h)).
+
+* Web
+    * Useful operations accomplished with the aid of third-party web services ([WSWebUtils](WaSPV/Sources/Web/WSWebUtils.h)).
+    * Sweep an external private key (e.g. a paper wallet), be it plain or password-encrypted (BIP38).
+
+* BIPS
+    * BIP21: parsing and building of "bitcoin:" URLs.
+    * BIP32: hierarchical deterministic wallets.
+    * BIP37: Bloom filtering for fast blockchain synchronization.
+    * BIP38: passphrase-protected private keys.
+    * BIP39: mnemonics for deterministic keys.
 
 ## Installation
 
@@ -193,19 +233,33 @@ Sensitive data are never serialized automatically so that clients will be able t
 WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
 
 * Build multi-signature transactions (support is incomplete).
-* Implement payment protocol as described by [BIP70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki), [BIP71](https://github.com/bitcoin/bips/blob/master/bip-0071.mediawiki), [BIP72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki) and [BIP73](https://github.com/bitcoin/bips/blob/master/bip-0073.mediawiki).
+* Implement payment protocol as described by [BIP70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki)/[BIP71](https://github.com/bitcoin/bips/blob/master/bip-0071.mediawiki)/[BIP72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki)/[BIP73](https://github.com/bitcoin/bips/blob/master/bip-0073.mediawiki).
 * Handle [BIP61](https://github.com/bitcoin/bips/blob/master/bip-0061.mediawiki) REJECT message.
 * Detect unpublished transactions.
 * Improve SPV security by tracking peer confidence.
 * Support basic wallets with static keys.
 * Cope with [Core Data versioning](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreDataVersioning/Articles/Introduction.html).
 
+## License
+
+WaSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
+
+Basically those willing to use WaSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
+
+Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be appreciated.
+
 ## Disclaimer
 
 The developer takes no responsibility for lost money or any damage due to WaSPV regular usage or bugs. Use at your own risk.
 
+## Donations
+
+WaSPV is *free* software, donations are extremely welcome.
+
+Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
+
 ## Credits
 
 * [bitcoinj](http://bitcoinj.github.io/) - The most popular Bitcoin library for Java.
-* [breadwallet](https://github.com/voisine/breadwallet) - An open source Bitcoin wallet for iOS.
+* [breadwallet](http://github.com/voisine/breadwallet) - An open source Bitcoin wallet for iOS.
 * [bip32.org](http://bip32.org) - Deterministic wallets for JavaScript.
