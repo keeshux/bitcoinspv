@@ -1215,6 +1215,9 @@
         }
 
         if (isDownloadFinished) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+            });
             [self.notifier notifyDownloadFinished];
         }
     }
