@@ -1065,7 +1065,7 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
         //        names[@(WSScriptOpcode_PUSHDATA2)]              = @"OP_PUSHDATA2";
         //        names[@(WSScriptOpcode_PUSHDATA4)]              = @"OP_PUSHDATA4";
         for (int numberOpcode = WSScriptOpcode_OP_1; numberOpcode <= WSScriptOpcode_OP_16; ++numberOpcode) {
-            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%u", WSScriptOpcodeToValue(numberOpcode)];
+            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%d", WSScriptOpcodeToValue(numberOpcode)];
         }
         names[@(WSScriptOpcode_OP_RETURN)]              = @"RETURN";
         names[@(WSScriptOpcode_DUP)]                    = @"DUP";
@@ -1081,14 +1081,14 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
     return names[@(opcode)] ?: [NSString stringWithFormat:@"OP_?(%X)", opcode];
 }
 
-WSScriptOpcode WSScriptOpcodeFromValue(NSUInteger value)
+WSScriptOpcode WSScriptOpcodeFromValue(NSInteger value)
 {
     WSExceptionCheckIllegal((value >= 1) && (value <= 16), @"Not an 1-16 value (%u)", value);
     
-    return (value + WSScriptOpcode_OP_1 - 1);
+    return (WSScriptOpcode_OP_1 + (int)value - 1);
 }
 
-NSUInteger WSScriptOpcodeToValue(WSScriptOpcode opcode)
+NSInteger WSScriptOpcodeToValue(WSScriptOpcode opcode)
 {
     WSExceptionCheckIllegal((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16),
                             @"Not an OP_1-16 opcode (%x)", opcode);

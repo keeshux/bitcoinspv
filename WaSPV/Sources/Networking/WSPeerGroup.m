@@ -1169,7 +1169,7 @@
 - (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
 {
     @synchronized (self.queue) {
-        WSStorableBlock *expected = [WSCurrentParameters checkpointAtHeight:(self.currentHeight + 1)];
+        WSStorableBlock *expected = [WSCurrentParameters checkpointAtHeight:(uint32_t)(self.currentHeight + 1)];
         if (!expected) {
             return nil;
         }

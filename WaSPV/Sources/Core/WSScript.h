@@ -77,8 +77,8 @@ typedef enum {
 NSString *WSScriptOpcodeString(WSScriptOpcode opcode);
 
 // for OP_1-16 opcodes
-WSScriptOpcode WSScriptOpcodeFromValue(NSUInteger value);
-NSUInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
+WSScriptOpcode WSScriptOpcodeFromValue(NSInteger value);
+NSInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
 
 #pragma mark -
 
