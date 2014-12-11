@@ -816,7 +816,6 @@
             for (uint32_t account = 0; account < numberOfWatchedAddresses; ++account) {
                 WSPublicKey *pubKey = [chain publicKeyForAccount:account];
                 
-#warning XXX: doesn't match multiSig inputs, but we don't send multiSig transactions
                 // public keys match inputs scriptSig (sent money)
                 [filter insertData:[pubKey encodedData]];
                 
