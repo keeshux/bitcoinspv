@@ -121,7 +121,7 @@ static const NSUInteger        WSWebUtilsBiteasyUnspentPerPage          = 100;
             NSDictionary *keys = @{fromAddress: fromKey};
             WSSignedTransaction *transaction = [builder signedTransactionWithInputKeys:keys error:&error];
             if (!transaction) {
-                DDLogDebug(@"#%u Sweep transaction error: %@", numberOfTransactions, error);
+//                DDLogDebug(@"#%u Sweep transaction error: %@", (unsigned long)numberOfTransactions, error);
 
                 *stop = YES;
                 failure(error);
