@@ -99,7 +99,7 @@
     XCTAssertEqualObjects(url.string, string);
 
     string = @"bitcoin:";
-    url = [[[WSBIP21URLBuilder builder] address:nil] build];
+    url = [[WSBIP21URLBuilder builder] build];
     DDLogInfo(@"%@", url.string);
     XCTAssertEqualObjects(url.string, string);
 }
