@@ -36,10 +36,73 @@ NSString *const         WSBIP21URLScheme        = @"bitcoin";
 
 static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)(\\?.*)?$";
 
-@interface WSBIP21URL ()
+
+@interface WSBIP21URLBuilder ()
 
 @property (nonatomic, copy) NSString *label;
 @property (nonatomic, strong) WSAddress *address;
+@property (nonatomic, copy) NSString *message;
+@property (nonatomic, assign) uint64_t amount;
+@property (nonatomic, copy) NSDictionary *others;
+
+@end
+
+@implementation WSBIP21URLBuilder
+
++ (instancetype)builder
+{
+    return [[self alloc] init];
+}
+
+- (instancetype)address:(WSAddress *)address
+{
+    WSExceptionCheckIllegal(address != nil, @"Nil address");
+    self.address = address;
+    return self;
+}
+
+- (instancetype)label:(NSString *)label
+{
+    WSExceptionCheckIllegal(label != nil, @"Nil label");
+    self.label = label;
+    return self;
+}
+
+- (instancetype)message:(NSString *)message
+{
+    WSExceptionCheckIllegal(message != nil, @"Nil message");
+    self.message = message;
+    return self;
+}
+
+- (instancetype)amount:(uint64_t)amount
+{
+    WSExceptionCheckIllegal(amount > 0, @"Non-positive amount");
+    self.amount = amount;
+    return self;
+}
+
+- (instancetype)others:(NSDictionary *)others
+{
+    WSExceptionCheckIllegal(others.count > 0, @"Empty others");
+    self.others = others;
+    return self;
+}
+
+- (WSBIP21URL *)build
+{
+    return [[WSBIP21URL alloc] initWithBuilder:self];
+}
+
+@end
+
+#pragma mark -
+
+@interface WSBIP21URL ()
+
+@property (nonatomic, copy) NSString *string;
+@property (nonatomic, strong) WSAddress *address;
+@property (nonatomic, copy) NSString *label;
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, assign) uint64_t amount;
 @property (nonatomic, copy) NSDictionary *others;
@@ -117,6 +180,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
     NSString *message = arguments[@"message"];
 
     if ((self = [super init])) {
+        self.string = string;
         self.label = label;
         self.address = address;
         self.message = message;
@@ -126,6 +190,50 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
         [arguments removeObjectForKey:@"message"];
         [arguments removeObjectForKey:@"amount"];
         self.others = arguments;
+    }
+    return self;
+}
+
+- (instancetype)initWithBuilder:(WSBIP21URLBuilder *)builder
+{
+    if ((self = [super init])) {
+        self.address = builder.address;
+        self.label = builder.label;
+        self.message = builder.message;
+        self.amount = builder.amount;
+        self.others = builder.others;
+
+        NSMutableString *string = [[NSMutableString alloc] initWithString:WSBIP21URLScheme];
+        [string appendString:@":"];
+        if (self.address) {
+            [string appendString:self.address.encoded];
+        }
+        
+        NSMutableArray *optionals = [[NSMutableArray alloc] initWithCapacity:4];
+        if (self.label.length > 0) {
+            [optionals addObject:[NSString stringWithFormat:@"label=%@", [self.label stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+        }
+        if (self.message.length > 0) {
+            [optionals addObject:[NSString stringWithFormat:@"message=%@", [self.message stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+        }
+        if (self.amount > 0) {
+            NSDecimalNumber *amountNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%llu", self.amount]];
+            amountNumber = [amountNumber decimalNumberByMultiplyingByPowerOf10:-8];
+
+            [optionals addObject:[NSString stringWithFormat:@"amount=%@", [amountNumber description]]];
+        }
+        if (self.others.count > 0) {
+            for (NSString *key in [self.others allKeys]) {
+                NSString *value = self.others[key];
+                [optionals addObject:[NSString stringWithFormat:@"%@=%@", key, [value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+            }
+        }
+        if (optionals.count > 0) {
+            [string appendString:@"?"];
+            NSString *query = [optionals componentsJoinedByString:@"&"];
+            [string appendString:query];
+        }
+        self.string = string;
     }
     return self;
 }

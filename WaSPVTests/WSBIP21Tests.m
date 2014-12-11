@@ -45,7 +45,7 @@
     [super tearDown];
 }
 
-- (void)testBasic
+- (void)testParse
 {
     WSBIP21URL *url;
     WSAddress *address = WSAddressFromString(@"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42");
@@ -86,6 +86,22 @@
     XCTAssertNil(url.message);
     XCTAssertEqualObjects(url.others[@"req-somethingyoudontunderstand"], @"50");
     XCTAssertEqualObjects(url.others[@"req-somethingelseyoudontget"], @"999");
+}
+
+- (void)testBuild
+{
+    WSBIP21URL *url;
+    NSString *string;
+    
+    string = @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?label=Hello%20Coin!&amount=76.2582";
+    url = [[[[[WSBIP21URLBuilder builder] address:WSAddressFromString(@"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42")] amount:7625820000LL] label:@"Hello Coin!"] build];
+    DDLogInfo(@"%@", url.string);
+    XCTAssertEqualObjects(url.string, string);
+
+    string = @"bitcoin:";
+    url = [[[WSBIP21URLBuilder builder] address:nil] build];
+    DDLogInfo(@"%@", url.string);
+    XCTAssertEqualObjects(url.string, string);
 }
 
 @end

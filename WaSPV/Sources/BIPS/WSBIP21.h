@@ -28,16 +28,31 @@
 #import <Foundation/Foundation.h>
 
 @class WSAddress;
+@class WSBIP21URLBuilder;
 
 extern NSString *const WSBIP21URLScheme;
 
 @interface WSBIP21URL : NSObject
 
 + (instancetype)URLWithString:(NSString *)string;
-- (NSString *)label;
+- (instancetype)initWithBuilder:(WSBIP21URLBuilder *)builder;
 - (WSAddress *)address;
+- (NSString *)label;
 - (NSString *)message;
 - (uint64_t)amount;
 - (NSDictionary *)others;
+- (NSString *)string;
+
+@end
+
+@interface WSBIP21URLBuilder : NSObject
+
++ (instancetype)builder;
+- (instancetype)address:(WSAddress *)address;
+- (instancetype)label:(NSString *)label;
+- (instancetype)message:(NSString *)message;
+- (instancetype)amount:(uint64_t)amount;
+- (instancetype)others:(NSDictionary *)others;
+- (WSBIP21URL *)build;
 
 @end
