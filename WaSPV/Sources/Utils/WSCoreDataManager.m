@@ -38,7 +38,7 @@
 @property (nonatomic, strong) NSPersistentStore *store;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 
-- (BOOL)createPersistentStoreWithURL:(NSURL *)url error:(NSError **)error;
++ (NSPersistentStore *)createPersistentStoreWithURL:(NSURL *)url forCoordinator:(NSPersistentStoreCoordinator *)coordinator error:(NSError *__autoreleasing *)error;
 
 @end
 
@@ -48,27 +48,33 @@
 {
     WSExceptionCheckIllegal(path != nil, @"Nil path");
     
-    if ((self = [super init])) {
-        NSBundle *bundle = WSClientBundle([self class]);
-        self.model = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];
-        if (!self.model) {
-            return nil;
-        }
+    NSBundle *bundle = WSClientBundle([self class]);
+    NSManagedObjectModel *model = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];
+    if (!model) {
+        return nil;
+    }
+    
+    NSArray *entities = [model entities];
+    DDLogDebug(@"Loaded %u entities from merged Core Data model", entities.count);
+    for (NSEntityDescription *entity in entities) {
+        DDLogDebug(@"\t%@", entity.name);
+    }
+    
+    NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+    NSPersistentStore *store = [[self class] createPersistentStoreWithURL:[NSURL fileURLWithPath:path] forCoordinator:coordinator error:error];
+    if (!store) {
+        return nil;
+    }
+                  
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    context.persistentStoreCoordinator = coordinator;
+    context.undoManager = nil;
 
-        NSArray *entities = [self.model entities];
-        DDLogDebug(@"Loaded %u entities from merged Core Data model", entities.count);
-        for (NSEntityDescription *entity in entities) {
-            DDLogDebug(@"\t%@", entity.name);
-        }
-        
-        self.coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
-        if (![self createPersistentStoreWithURL:[NSURL fileURLWithPath:path] error:error]) {
-            return nil;
-        }
-        
-        self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        self.context.persistentStoreCoordinator = self.coordinator;
-        self.context.undoManager = nil;
+    if ((self = [super init])) {
+        self.model = model;
+        self.coordinator = coordinator;
+        self.store = store;
+        self.context = context;
     }
     return self;
 }
@@ -78,24 +84,23 @@
     return self.store.URL;
 }
 
-- (BOOL)createPersistentStoreWithURL:(NSURL *)url error:(NSError *__autoreleasing *)error
++ (NSPersistentStore *)createPersistentStoreWithURL:(NSURL *)url forCoordinator:(NSPersistentStoreCoordinator *)coordinator error:(NSError *__autoreleasing *)error
 {
     NSError *localError;
-    self.store = [self.coordinator addPersistentStoreWithType:NSSQLiteStoreType
-                                                configuration:nil
-                                                          URL:url
-                                                      options:@{NSMigratePersistentStoresAutomaticallyOption:@(YES),
-                                                                NSInferMappingModelAutomaticallyOption:@(YES)}
-                                                        error:&localError];
+    NSPersistentStore *store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                         configuration:nil
+                                                                   URL:url
+                                                               options:@{NSMigratePersistentStoresAutomaticallyOption:@(YES),
+                                                                         NSInferMappingModelAutomaticallyOption:@(YES)}
+                                                                 error:&localError];
 
-    if (!self.store) {
+    if (!store) {
         DDLogError(@"Core Data error initializing persistent coordinator (%@)", localError);
         if (error) {
             *error = localError;
         }
     }
-    
-    return (self.store != nil);
+    return store;
 }
 
 - (void)truncate
@@ -106,22 +111,26 @@
 - (BOOL)truncateWithError:(NSError *__autoreleasing *)error
 {
     NSError *localError;
-    const BOOL result = ([self.coordinator removePersistentStore:self.store error:&localError] &&
-                         [[NSFileManager defaultManager] removeItemAtURL:self.store.URL error:&localError] &&
-                         [self createPersistentStoreWithURL:self.store.URL error:&localError]);
+    if (![self.coordinator removePersistentStore:self.store error:&localError] ||
+        ![[NSFileManager defaultManager] removeItemAtURL:self.store.URL error:&localError]) {
     
-    if (!result) {
         DDLogError(@"Core Data error while truncating store (%@)", localError);
         if (error) {
             *error = localError;
         }
+        return NO;
+    }
+
+    self.store = [[self class] createPersistentStoreWithURL:self.store.URL forCoordinator:self.coordinator error:&localError];
+    if (!self.store) {
+        return NO;
     }
 
     self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     self.context.persistentStoreCoordinator = self.coordinator;
     self.context.undoManager = nil;
 
-    return result;
+    return YES;
 }
 
 @end
