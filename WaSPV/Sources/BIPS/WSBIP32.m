@@ -181,7 +181,7 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
     });
 
     if ([rx numberOfMatchesInString:path options:0 range:NSMakeRange(0, [path length])] == 0) {
-        DDLogWarn(@"Path format is incorrect");
+        DDLogDebug(@"Path format is incorrect");
         return nil;
     }
     

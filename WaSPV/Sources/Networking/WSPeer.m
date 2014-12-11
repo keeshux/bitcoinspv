@@ -707,7 +707,7 @@
 {
     @synchronized (self) {
         if (_didReceiveVerack) {
-            DDLogWarn(@"%@ Unexpected verack received", self);
+            DDLogWarn(@"%@ Unexpected 'verack' received", self);
             return;
         }
         _connectionTime = [NSDate timeIntervalSinceReferenceDate] - _connectionStartTime;

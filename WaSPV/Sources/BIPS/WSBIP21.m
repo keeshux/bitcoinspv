@@ -125,7 +125,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
     NSRegularExpression *rx = [NSRegularExpression regularExpressionWithPattern:WSBIP21URLRegex options:0 error:NULL];
     NSArray *matches = [rx matchesInString:string options:0 range:NSMakeRange(0, string.length)];
     if (matches.count == 0) {
-        DDLogWarn(@"Malformed BIP21 URL (%@)", string);
+        DDLogDebug(@"Malformed BIP21 URL (%@)", string);
         return nil;
     }
     
@@ -134,7 +134,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
     NSString *addressString = [string substringWithRange:[result rangeAtIndex:1]];
     WSAddress *address = [[WSAddress alloc] initWithEncoded:addressString];
     if (!address) {
-        DDLogWarn(@"Invalid address '%@' in URL (%@)", addressString, string);
+        DDLogDebug(@"Invalid address '%@' in URL (%@)", addressString, string);
         return nil;
     }
 
@@ -170,7 +170,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
     if (amountString) {
         NSDecimalNumber *amountNumber = [NSDecimalNumber decimalNumberWithString:amountString];
         if (!amountNumber) {
-            DDLogWarn(@"Invalid amount '%@' in URL (%@)", amountString, string);
+            DDLogDebug(@"Invalid amount '%@' in URL (%@)", amountString, string);
             return nil;
         }
         amount = [[amountNumber decimalNumberByMultiplyingByPowerOf10:8] unsignedLongLongValue];

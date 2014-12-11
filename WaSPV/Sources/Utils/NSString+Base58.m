@@ -139,7 +139,7 @@
     const uint32_t expectedChecksum = *(uint32_t *)hash256.bytes;
     const uint32_t checksum = *(uint32_t *)((const uint8_t *)fullData.bytes + fullData.length - 4);
     if (checksum != expectedChecksum) {
-        DDLogWarn(@"Bad Base58Check checksum (%u != %u)", checksum, expectedChecksum);
+        DDLogDebug(@"Bad Base58Check checksum (%u != %u)", checksum, expectedChecksum);
         return nil;
     }
 

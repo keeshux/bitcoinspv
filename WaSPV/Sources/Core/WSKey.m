@@ -90,7 +90,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 - (instancetype)initWithData:(NSData *)data compressed:(BOOL)compressed
 {
     if (data.length != WSKeyLength) {
-        DDLogWarn(@"Incorrect private key data (length: %u != %u)", data.length, WSKeyLength);
+        DDLogVerbose(@"Incorrect private key data (length: %u != %u)", data.length, WSKeyLength);
         return nil;
     }
     

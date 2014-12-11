@@ -163,7 +163,7 @@
     NSError *error;
     WSNetworkAddress *address = [[WSNetworkAddress alloc] initWithBuffer:self from:offset available:WSNetworkAddressLength error:&error];
     if (!address) {
-        DDLogWarn(@"Malformed network address (%@)", error);
+        DDLogDebug(@"Malformed network address (%@)", error);
         return nil;
     }
     return address;
@@ -174,7 +174,7 @@
     NSError *error;
     WSInventory *inventory = [[WSInventory alloc] initWithBuffer:self from:offset available:WSInventoryLength error:&error];
     if (!inventory) {
-        DDLogWarn(@"Malformed inventory (%@)", error);
+        DDLogDebug(@"Malformed inventory (%@)", error);
         return nil;
     }
     return inventory;

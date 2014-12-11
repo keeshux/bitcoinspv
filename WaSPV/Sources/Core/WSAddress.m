@@ -72,7 +72,7 @@
     
     NSData *data = [encoded dataFromBase58Check];
     if (data.length != WSAddressLength) {
-        DDLogWarn(@"Invalid Bitcoin address (length: %u != %u)", data.length, WSAddressLength);
+        DDLogVerbose(@"Invalid Bitcoin address (length: %u != %u)", data.length, WSAddressLength);
         return nil;
     }
     
@@ -80,7 +80,7 @@
     if ((version != [WSCurrentParameters publicKeyAddressVersion]) &&
         (version != [WSCurrentParameters scriptAddressVersion])) {
         
-        DDLogWarn(@"Unrecognized Bitcoin address version (%u)", version);
+        DDLogVerbose(@"Unrecognized Bitcoin address version (%u)", version);
         return nil;
     }
     

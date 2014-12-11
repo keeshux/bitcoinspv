@@ -250,7 +250,7 @@
         return NO;
     }
     if (chunkN < chunkM) {
-        DDLogWarn(@"Invalid multiSig, N < M (%u < %u)", chunkN, chunkM);
+        DDLogDebug(@"Invalid multiSig, N < M (%u < %u)", chunkN, chunkM);
         return NO;
     }
     
