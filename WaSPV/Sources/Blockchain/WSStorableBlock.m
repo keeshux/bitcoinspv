@@ -131,7 +131,7 @@
         return NO;
     }
     WSStorableBlock *block = object;
-    return [self.blockId isEqual:block.blockId];
+    return [block.blockId isEqual:self.blockId];
 }
 
 - (NSUInteger)hash

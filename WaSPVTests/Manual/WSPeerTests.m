@@ -88,7 +88,7 @@
     }
 
     NSString *address = addresses[mrand48() % addresses.count];
-//    NSString *address = @"54.173.19.184";
+//    address = @"54.173.19.184";
     self.peer = [self.pool openConnectionToPeerHost:address];
 }
 

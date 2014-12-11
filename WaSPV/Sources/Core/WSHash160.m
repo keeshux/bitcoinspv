@@ -67,7 +67,7 @@
         return NO;
     }
     WSHash160 *hash160 = object;
-    return [self.data isEqualToData:hash160.data];
+    return [hash160.data isEqualToData:self.data];
 }
 
 - (NSUInteger)hash
