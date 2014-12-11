@@ -195,6 +195,29 @@
     return &largest;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    WSBlockHeader *header = object;
+    return ([header.blockId isEqual:self.blockId] &&
+            (header.version == self.version) &&
+            [header.previousBlockId isEqual:self.previousBlockId] &&
+            [header.merkleRoot isEqual:self.merkleRoot] &&
+            (header.timestamp == self.timestamp) &&
+            (header.bits == self.bits) &&
+            (header.nonce == self.nonce));
+}
+
+- (NSUInteger)hash
+{
+    return [self.blockId hash];
+}
+
 - (NSString *)description
 {
     return [self descriptionWithIndent:0];
