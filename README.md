@@ -79,7 +79,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'WaSPV', '~> 0.1'
+    pod 'WaSPV', '~> 0.2'
 
 and run on the terminal:
 
