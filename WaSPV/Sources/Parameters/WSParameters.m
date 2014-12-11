@@ -40,6 +40,7 @@
 
 @property (nonatomic, strong) NSMutableArray *dnsSeeds;
 @property (nonatomic, strong) NSArray *checkpoints;
+@property (nonatomic, strong) NSDictionary *checkpointsByHeight;
 
 @end
 
@@ -66,6 +67,8 @@
     WSBuffer *buffer = WSBufferFromHex(hex);
 
     NSMutableArray *checkpoints = [[NSMutableArray alloc] initWithCapacity:100];
+    NSMutableDictionary *checkpointsByHeight = [[NSMutableDictionary alloc] initWithCapacity:100];
+
     NSUInteger offset = 0;
     while (offset < buffer.length) {
         WSStorableBlock *block = [[WSStorableBlock alloc] initWithBuffer:buffer
@@ -73,6 +76,8 @@
                                                                available:(buffer.length - offset)
                                                                    error:NULL];
         [checkpoints addObject:block];
+        checkpointsByHeight[@(block.height)] = block;
+
         offset += [block estimatedSize];
     }
     NSAssert(offset == buffer.length, @"Malformed checkpoints file (consumed bytes: %u != %u)", offset, buffer.length);
@@ -85,6 +90,12 @@
     }];
 
     self.checkpoints = checkpoints;
+    self.checkpointsByHeight = checkpointsByHeight;
+}
+
+- (WSStorableBlock *)checkpointAtHeight:(uint32_t)height
+{
+    return self.checkpointsByHeight[@(height)];
 }
 
 - (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp

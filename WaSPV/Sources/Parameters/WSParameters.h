@@ -51,6 +51,7 @@
 - (WSFilteredBlock *)genesisBlock;
 - (WSHash256 *)genesisBlockId;
 - (NSArray *)checkpoints;
+- (WSStorableBlock *)checkpointAtHeight:(uint32_t)height;
 - (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp;
 - (NSArray *)dnsSeeds;
 
