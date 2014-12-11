@@ -306,7 +306,16 @@
 
 #pragma mark Standard address
 
-- (WSAddress *)standardAddress
+- (WSAddress *)standardInputAddress
+{
+    WSAddress *address = [self addressFromScriptSig];
+    if (!address) {
+        address = [self addressFromScriptMultisig];
+    }
+    return address;
+}
+            
+- (WSAddress *)standardOutputAddress
 {
     WSAddress *address = [self addressFromPay2PubKeyHash];
     if (!address) {
@@ -315,15 +324,18 @@
     if (!address) {
         address = [self addressFromPay2ScriptHash];
     }
+    return address;
+}
+
+- (WSAddress *)standardAddress
+{
+    WSAddress *address = [self standardInputAddress];
     if (!address) {
-        address = [self addressFromScriptSig];
-    }
-    if (!address) {
-        address = [self addressFromScriptMultisig];
+        address = [self standardOutputAddress];
     }
     return address;
 }
-            
+
 - (WSAddress *)addressFromScriptSig
 {
     if (self.chunks.count != 2) {
@@ -726,6 +738,16 @@
 - (BOOL)isPay2ScriptHash
 {
     return NO;
+}
+
+- (WSAddress *)standardInputAddress
+{
+    return nil;
+}
+
+- (WSAddress *)standardOutputAddress
+{
+    return nil;
 }
 
 - (WSAddress *)standardAddress

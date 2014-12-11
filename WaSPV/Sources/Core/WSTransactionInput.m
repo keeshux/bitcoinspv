@@ -99,7 +99,7 @@
 
 - (WSAddress *)address
 {
-    return [self.script standardAddress];
+    return [self.script standardInputAddress];
 }
 
 #pragma mark WSBufferEncoder

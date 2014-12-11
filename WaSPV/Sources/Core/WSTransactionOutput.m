@@ -63,7 +63,7 @@
     if ((self = [super init])) {
         self.value = value;
         self.script = [script copy];
-        self.address = [script standardAddress];
+        self.address = [script standardOutputAddress];
     }
     return self;
 }
