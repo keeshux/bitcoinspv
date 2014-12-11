@@ -98,6 +98,7 @@
 - (BOOL)needsBloomFiltering;
 - (void)detectDownloadTimeout;
 
+- (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError **)error;
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks fromPeer:(WSPeer *)peer;
@@ -954,6 +955,12 @@
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
         }
 
+        WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:header error:&error];
+        if (expected) {
+            [self.pool closeConnectionForProcessor:peer error:error];
+            return;
+        }
+
         block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
@@ -1003,6 +1010,13 @@
     @synchronized (self.queue) {
         if (peer == self.downloadPeer) {
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+
+        }
+
+        WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error];
+        if (expected) {
+            [self.pool closeConnectionForProcessor:peer error:error];
+            return;
         }
 
         block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
@@ -1151,6 +1165,29 @@
 }
 
 #pragma mark Handlers
+
+- (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
+{
+    @synchronized (self.queue) {
+        WSStorableBlock *expected = [WSCurrentParameters checkpointAtHeight:(self.currentHeight + 1)];
+        if (!expected) {
+            return nil;
+        }
+        if ([header isEqual:expected.header]) {
+            return nil;
+        }
+
+        DDLogError(@"Checkpoint validation failed at %u", expected.height);
+        DDLogError(@"Expected checkpoint: %@", expected);
+        DDLogError(@"Found block header: %@", header);
+        
+        if (error) {
+            *error = WSErrorMake(WSErrorCodeRescan, @"Checkpoint validation failed at %u (%@ != %@)",
+                                 expected.height, header.blockId, expected.blockId);
+        }
+        return expected;
+    }
+}
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer
 {
