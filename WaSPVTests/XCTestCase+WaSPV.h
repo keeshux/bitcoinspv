@@ -44,6 +44,7 @@
 @interface XCTestCase (WaSPV)
 
 - (NSString *)mockWalletMnemonic;
+- (WSSeed *)mockWalletSeed;
 - (NSString *)mockPathForFile:(NSString *)file;
 
 - (void)runForever;

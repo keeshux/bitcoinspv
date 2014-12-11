@@ -53,7 +53,6 @@
 
     // essential backup data
     WSParametersType _parametersType;
-    NSTimeInterval _creationTime;
     NSUInteger _gapLimit;
 
     // serialized for convenience
@@ -125,7 +124,6 @@
     
     if ((self = [self init])) {
         _parametersType = WSParametersGetCurrentType();
-        _creationTime = seed.creationTime;
         _gapLimit = gapLimit;
 
         _allExternalAddresses = [[NSMutableOrderedSet alloc] init];
@@ -201,7 +199,8 @@
 - (NSTimeInterval)creationTime
 {
     @synchronized (self) {
-        return _creationTime;
+        WSExceptionCheckIllegal(_seed != nil, @"Seed is missing, probably unloaded with unloadSensitiveData and never reloaded");
+        return _seed.creationTime;
     }
 }
 
@@ -641,10 +640,10 @@
     }
 }
 
-+ (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic
++ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed
 {
     WSExceptionCheckIllegal(path != nil, @"Nil path");
-    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
+    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
 
     @synchronized (self) {
         WSHDWallet *wallet = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
@@ -652,8 +651,6 @@
             return nil;
         }
         wallet.path = path;
-
-        WSSeed *seed = WSSeedMake(mnemonic, wallet.creationTime);
         [wallet rebuildTransientStructuresWithSeed:seed];
         return wallet;
     }
@@ -1346,7 +1343,7 @@
     NSMutableArray *tokens = [[NSMutableArray alloc] init];
 
     @synchronized (self) {
-        [tokens addObject:[NSString stringWithFormat:@"created = %@", [NSDate dateWithTimeIntervalSinceReferenceDate:_creationTime]]];
+        [tokens addObject:[NSString stringWithFormat:@"created = %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.creationTime]]];
         [tokens addObject:[NSString stringWithFormat:@"receive = %@", self.receiveAddress]];
         [tokens addObject:[NSString stringWithFormat:@"transactions = %u", _txs.count]];
         [tokens addObject:[NSString stringWithFormat:@"balance = %llu", _balance]];
@@ -1371,7 +1368,6 @@
 + (NSDictionary *)codableProperties
 {
     return @{@"_parametersType": [NSNumber class],
-             @"_creationTime": [NSNumber class],
              @"_gapLimit": [NSNumber class],
              @"_allExternalAddresses": [NSMutableOrderedSet class],
              @"_allInternalAddresses": [NSMutableOrderedSet class],

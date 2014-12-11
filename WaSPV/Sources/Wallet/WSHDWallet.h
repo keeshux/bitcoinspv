@@ -51,7 +51,7 @@
 // the wallet, you should only use the following method and explicity
 // provide the mnemonic each time you reload a serialized wallet.
 //
-+ (instancetype)loadFromPath:(NSString *)path mnemonic:(NSString *)mnemonic;
++ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed;
 - (void)loadSensitiveDataWithSeed:(WSSeed *)seed;
 - (void)unloadSensitiveData;
 

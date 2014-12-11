@@ -45,7 +45,6 @@
 @property (nonatomic, copy) NSString *storeTestPath;
 @property (nonatomic, copy) NSString *walletMainPath;
 @property (nonatomic, copy) NSString *walletTestPath;
-@property (nonatomic, copy) NSString *seedPhrase;
 @property (nonatomic, strong) id<WSBlockStore> currentStore;
 @property (nonatomic, strong) NSString *currentWalletPath;
 @property (nonatomic, assign) volatile BOOL stopOnSync;
@@ -67,7 +66,6 @@
     self.storeTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.sqlite"];
     self.walletMainPath = [self mockPathForFile:@"WalletNetworkTests-Main.wallet"];
     self.walletTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.wallet"];
-    self.seedPhrase = [self mockWalletMnemonic];
 
 //    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 //        WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
@@ -430,12 +428,12 @@
 //    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = 0.0;
 
-    return WSSeedMake(self.seedPhrase, creationTime);
+    return WSSeedMake([self mockWalletMnemonic], creationTime);
 }
 
 - (WSHDWallet *)loadWalletFromCurrentPath
 {
-    return [WSHDWallet loadFromPath:self.currentWalletPath mnemonic:self.seedPhrase];
+    return [WSHDWallet loadFromPath:self.currentWalletPath seed:[self mockWalletSeed]];
 }
 
 - (void)saveWallet:(id<WSWallet>)wallet

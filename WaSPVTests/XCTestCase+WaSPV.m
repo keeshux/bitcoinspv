@@ -39,6 +39,11 @@ static volatile BOOL running;
     return @"news snake whip verb camera renew siege never eager physical type wet";
 }
 
+- (WSSeed *)mockWalletSeed
+{
+    return WSSeedMakeFromISODate([self mockWalletMnemonic], @"2014-05-01");
+}
+
 - (NSString *)mockPathForFile:(NSString *)file
 {
     NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
