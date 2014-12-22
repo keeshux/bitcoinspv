@@ -79,7 +79,6 @@
     uint64_t _confirmedBalance;
 }
 
-- (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed;
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead forced:(BOOL)forced;
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead internal:(BOOL)internal forced:(BOOL)forced;
 //- (void)cleanTransientStructures;
@@ -134,7 +133,8 @@
         _usedAddresses = [[NSMutableSet alloc] init];
         _metadataByTxId = [[NSMutableDictionary alloc] init];
         
-        [self rebuildTransientStructuresWithSeed:seed];
+        [self loadSensitiveDataWithSeed:seed];
+        [self rebuildTransientStructures];
     }
     return self;
 }
@@ -150,28 +150,6 @@
 {
     @synchronized (self) {
         return _gapLimit;
-    }
-}
-
-- (void)rebuildTransientStructuresWithSeed:(WSSeed *)seed
-{
-    NSAssert(seed, @"Nil seed");
-    
-    @synchronized (self) {
-        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
-        
-        [self loadSensitiveDataWithSeed:seed];
-        
-        _txsById = [[NSMutableDictionary alloc] initWithCapacity:_txs.count];
-        for (WSSignedTransaction *tx in _txs) {
-            _txsById[tx.txId] = tx;
-        }
-        
-        [self recalculateSpendsAndBalance];
-        [self generateAddressesWithLookAhead:_gapLimit forced:YES];
-        
-        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-        DDLogDebug(@"Rebuilt wallet transient structures in %.3fs", rebuildTime);
     }
 }
 
@@ -640,10 +618,14 @@
     }
 }
 
++ (instancetype)loadFromPath:(NSString *)path
+{
+    return [self loadFromPath:path seed:nil];
+}
+
 + (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed
 {
     WSExceptionCheckIllegal(path != nil, @"Nil path");
-    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
 
     @synchronized (self) {
         WSHDWallet *wallet = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
@@ -651,7 +633,10 @@
             return nil;
         }
         wallet.path = path;
-        [wallet rebuildTransientStructuresWithSeed:seed];
+        if (seed) {
+            [wallet loadSensitiveDataWithSeed:seed];
+            [wallet rebuildTransientStructures];
+        }
         return wallet;
     }
 }
@@ -665,6 +650,26 @@
         WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithData:[_seed derivedKeyData]];
         _externalChain = [keyring chainForAccount:0 internal:NO];
         _internalChain = [keyring chainForAccount:0 internal:YES];
+    }
+}
+
+- (void)rebuildTransientStructures
+{
+    @synchronized (self) {
+        NSAssert(self.seed, @"Nil seed, call loadSensitiveDataWithSeed: first");
+        
+        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+        
+        _txsById = [[NSMutableDictionary alloc] initWithCapacity:_txs.count];
+        for (WSSignedTransaction *tx in _txs) {
+            _txsById[tx.txId] = tx;
+        }
+        
+        [self recalculateSpendsAndBalance];
+        [self generateAddressesWithLookAhead:_gapLimit forced:YES];
+        
+        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+        DDLogDebug(@"Rebuilt wallet transient structures in %.3fs", rebuildTime);
     }
 }
 

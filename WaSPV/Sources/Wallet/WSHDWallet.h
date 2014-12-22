@@ -49,10 +49,12 @@
 //
 // NSKeyedUnarchiver deserialization alone won't be able to restore
 // the wallet, you should only use the following method and explicity
-// provide the mnemonic each time you reload a serialized wallet.
+// provide the seed each time you reload a serialized wallet.
 //
++ (instancetype)loadFromPath:(NSString *)path;
 + (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed;
 - (void)loadSensitiveDataWithSeed:(WSSeed *)seed;
+- (void)rebuildTransientStructures;
 - (void)unloadSensitiveData;
 
 @end
