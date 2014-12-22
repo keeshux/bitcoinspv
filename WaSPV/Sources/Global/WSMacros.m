@@ -216,6 +216,13 @@ inline WSSeed *WSSeedMakeNow(NSString *mnemonic)
     return [[WSSeed alloc] initWithMnemonic:mnemonic];
 }
 
+inline WSSeed *WSSeedMakeFromDate(NSString *mnemonic, NSDate *date)
+{
+    const NSTimeInterval creationTime = [date timeIntervalSinceReferenceDate];
+    
+    return WSSeedMake(mnemonic, creationTime);
+}
+
 inline WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso)
 {
     const NSTimeInterval creationTime = WSTimestampFromISODate(iso) - NSTimeIntervalSince1970;

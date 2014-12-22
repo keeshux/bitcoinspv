@@ -139,6 +139,7 @@ WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t services);
 WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
 WSSeed *WSSeedMakeUnknown(NSString *mnemonic);
 WSSeed *WSSeedMakeNow(NSString *mnemonic);
+WSSeed *WSSeedMakeFromDate(NSString *mnemonic, NSDate *date);
 WSSeed *WSSeedMakeFromISODate(NSString *mnemonic, NSString *iso); // yyyy-MM-dd
 
 NSString *WSNetworkHostFromIPv4(uint32_t ipv4);
