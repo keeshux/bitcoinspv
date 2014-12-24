@@ -72,8 +72,9 @@
 //    WSKey *key = WSKeyFromWIF(@"cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo"); // muqqZmhjF7u2nNmYTi7KoDpQh8TLvqBSTd
 ////    WSAddress *address = WSAddressFromString(@"muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG");
 //    WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
+//    id<WSWebUtils> utils = [WSWebUtilsFactory utilsForProvider:WSWebUtilsProviderBiteasy];
 //    
-//    [[WSWebUtils sharedInstance] buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
+//    [utils buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
 //        DDLogInfo(@"Transaction: %@", transaction);
 //    } completion:^(NSUInteger numberOfTransactions) {
 //        DDLogInfo(@"Total transactions: %u", numberOfTransactions);
@@ -89,8 +90,9 @@
 //    WSBIP38Key *bip38Key = WSBIP38KeyFromString(@"6PYLdaRqCvj77isRyypqsX2kZyPvM6ESG2LXbm7bXwNYfDbd1Q5KuYqvtZ"); // cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo
 //    WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
 //    NSString *passphrase = @"foobar";
+//    id<WSWebUtils> utils = [WSWebUtilsFactory utilsForProvider:WSWebUtilsProviderBiteasy];
 //    
-//    [[WSWebUtils sharedInstance] buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
+//    [utils buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
 //        DDLogInfo(@"Transaction: %@", transaction);
 //    } completion:^(NSUInteger numberOfTransactions) {
 //        DDLogInfo(@"Total transactions: %u", numberOfTransactions);

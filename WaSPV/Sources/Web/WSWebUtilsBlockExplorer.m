@@ -41,6 +41,11 @@ static NSString *const WSWebUtilsBlockExplorerObjectTransaction     = @"tx";
 
 #pragma mark WSWebUtils
 
+- (NSString *)provider
+{
+    return WSWebUtilsProviderBlockExplorer;
+}
+
 - (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash
 {
     WSExceptionCheckIllegal(hash != nil, @"Nil hash");
@@ -75,6 +80,16 @@ static NSString *const WSWebUtilsBlockExplorerObjectTransaction     = @"tx";
     
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBlockExplorerFormat, network]];
     return [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBlockExplorerObjectPathFormat, object, hash] relativeToURL:baseURL];
+}
+
+- (void)buildSweepTransactionsFromKey:(WSKey *)fromKey toAddress:(WSAddress *)toAddress fee:(uint64_t)fee maxTxSize:(NSUInteger)maxTxSize callback:(void (^)(WSSignedTransaction *))callback completion:(void (^)(NSUInteger))completion failure:(void (^)(NSError *))failure
+{
+    WSExceptionRaiseUnsupported(@"Unsupported operation");
+}
+
+- (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key passphrase:(NSString *)passphrase toAddress:(WSAddress *)toAddress fee:(uint64_t)fee maxTxSize:(NSUInteger)maxTxSize callback:(void (^)(WSSignedTransaction *))callback completion:(void (^)(NSUInteger))completion failure:(void (^)(NSError *))failure
+{
+    WSExceptionRaiseUnsupported(@"Unsupported operation");
 }
 
 @end
