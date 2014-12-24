@@ -12,6 +12,11 @@
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
 		0E6A02B91A2F762B001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libWaSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libWaSPV.a */; };
+		0E7FB6671A4B10A100095193 /* WSWebUtilsBiteasy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E7FB65E1A4B10A100095193 /* WSWebUtilsBiteasy.m */; };
+		0E7FB6681A4B10A100095193 /* WSWebUtilsBlockchain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E7FB6601A4B10A100095193 /* WSWebUtilsBlockchain.m */; };
+		0E7FB6691A4B10A100095193 /* WSWebUtilsBlockExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E7FB6621A4B10A100095193 /* WSWebUtilsBlockExplorer.m */; };
+		0E7FB66A1A4B10A100095193 /* WSWebUtilsBlockr.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E7FB6641A4B10A100095193 /* WSWebUtilsBlockr.m */; };
+		0E7FB6701A4B326000095193 /* WSWebUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E7FB66F1A4B326000095193 /* WSWebUtilsTests.m */; };
 		0E8E8BEE1A386FD3009493AD /* WSHash160.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E8E8BED1A386FD3009493AD /* WSHash160.m */; };
 		0E9721281A392A360011F6E5 /* WSBlockLocator.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9721211A392A360011F6E5 /* WSBlockLocator.m */; };
 		0E9721291A392A360011F6E5 /* WSBloomFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9721231A392A360011F6E5 /* WSBloomFilter.m */; };
@@ -190,6 +195,15 @@
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
+		0E7FB65D1A4B10A100095193 /* WSWebUtilsBiteasy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtilsBiteasy.h; sourceTree = "<group>"; };
+		0E7FB65E1A4B10A100095193 /* WSWebUtilsBiteasy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsBiteasy.m; sourceTree = "<group>"; };
+		0E7FB65F1A4B10A100095193 /* WSWebUtilsBlockchain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtilsBlockchain.h; sourceTree = "<group>"; };
+		0E7FB6601A4B10A100095193 /* WSWebUtilsBlockchain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsBlockchain.m; sourceTree = "<group>"; };
+		0E7FB6611A4B10A100095193 /* WSWebUtilsBlockExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtilsBlockExplorer.h; sourceTree = "<group>"; };
+		0E7FB6621A4B10A100095193 /* WSWebUtilsBlockExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsBlockExplorer.m; sourceTree = "<group>"; };
+		0E7FB6631A4B10A100095193 /* WSWebUtilsBlockr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtilsBlockr.h; sourceTree = "<group>"; };
+		0E7FB6641A4B10A100095193 /* WSWebUtilsBlockr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsBlockr.m; sourceTree = "<group>"; };
+		0E7FB66F1A4B326000095193 /* WSWebUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsTests.m; sourceTree = "<group>"; };
 		0E8E8BEC1A386FD3009493AD /* WSHash160.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSHash160.h; sourceTree = "<group>"; };
 		0E8E8BED1A386FD3009493AD /* WSHash160.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSHash160.m; sourceTree = "<group>"; };
 		0E9721201A392A360011F6E5 /* WSBlockLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBlockLocator.h; sourceTree = "<group>"; };
@@ -202,7 +216,6 @@
 		0E9721271A392A360011F6E5 /* WSNetworkAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSNetworkAddress.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtils.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtils.m; sourceTree = "<group>"; };
-		0ED738131A34B95900669C07 /* WSWebUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtilsTests.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
 		0EF696761A34BF69006E027C /* WSJSONClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSJSONClient.m; sourceTree = "<group>"; };
 		0EF696781A34DC57006E027C /* WSBIP38.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP38.h; sourceTree = "<group>"; };
@@ -473,6 +486,14 @@
 			children = (
 				0EF696751A34BF69006E027C /* WSJSONClient.h */,
 				0EF696761A34BF69006E027C /* WSJSONClient.m */,
+				0E7FB65D1A4B10A100095193 /* WSWebUtilsBiteasy.h */,
+				0E7FB65E1A4B10A100095193 /* WSWebUtilsBiteasy.m */,
+				0E7FB65F1A4B10A100095193 /* WSWebUtilsBlockchain.h */,
+				0E7FB6601A4B10A100095193 /* WSWebUtilsBlockchain.m */,
+				0E7FB6611A4B10A100095193 /* WSWebUtilsBlockExplorer.h */,
+				0E7FB6621A4B10A100095193 /* WSWebUtilsBlockExplorer.m */,
+				0E7FB6631A4B10A100095193 /* WSWebUtilsBlockr.h */,
+				0E7FB6641A4B10A100095193 /* WSWebUtilsBlockr.m */,
 				0ED738101A34B90400669C07 /* WSWebUtils.h */,
 				0ED738111A34B90400669C07 /* WSWebUtils.m */,
 			);
@@ -809,6 +830,7 @@
 				8C8FB827196776F300A07156 /* WSTransactionTests.m */,
 				8C7CC4AA19813F1D00FD5782 /* WSWalletSerializationTests.m */,
 				8C8FB829196776F300A07156 /* WSWalletTests.m */,
+				0E7FB66F1A4B326000095193 /* WSWebUtilsTests.m */,
 				8C068C01196B10D3001E2CE4 /* XCTestCase+WaSPV.h */,
 				8C068C02196B10D3001E2CE4 /* XCTestCase+WaSPV.m */,
 				8C8FB80C196776B700A07156 /* Supporting Files */,
@@ -835,7 +857,6 @@
 				8CB6D2971979D18000783ADF /* WSPeerTests.m */,
 				8CB6D2981979D18000783ADF /* WSSyncTests.m */,
 				8C7B3AF2197BE59100FC676B /* WSWalletNetworkTests.m */,
-				0ED738131A34B95900669C07 /* WSWebUtilsTests.m */,
 			);
 			path = Manual;
 			sourceTree = "<group>";
@@ -1159,10 +1180,13 @@
 				8C8AE005196786CA007787ED /* WSParameters.m in Sources */,
 				8C9D4461196C10C300E4C31C /* WSMessageGetblocks.m in Sources */,
 				8C8890F8198952F400BB19CA /* WSGCDTimer.m in Sources */,
+				0E7FB66A1A4B10A100095193 /* WSWebUtilsBlockr.m in Sources */,
 				0ED738121A34B90400669C07 /* WSWebUtils.m in Sources */,
 				8C8AE008196786CA007787ED /* WSMessage.m in Sources */,
 				8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */,
+				0E7FB6691A4B10A100095193 /* WSWebUtilsBlockExplorer.m in Sources */,
 				8C40245219853B54008FDC5F /* WSParametersFactory.m in Sources */,
+				0E7FB6681A4B10A100095193 /* WSWebUtilsBlockchain.m in Sources */,
 				0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */,
 				8C4024411984062E008FDC5F /* WSTransactionOutput.m in Sources */,
 				8C8AE01B196786CA007787ED /* NSString+Base58.m in Sources */,
@@ -1173,6 +1197,7 @@
 				8CAC9C98197003F500A2596E /* WSMemoryBlockStore.m in Sources */,
 				8C8AE001196786CA007787ED /* WSPartialMerkleTree.m in Sources */,
 				8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */,
+				0E7FB6671A4B10A100095193 /* WSWebUtilsBiteasy.m in Sources */,
 				8C497058196EEEF800BD9D3B /* WSBuffer.m in Sources */,
 				8C8AE00A196786CA007787ED /* WSMessageFilterload.m in Sources */,
 				8C8AE011196786CA007787ED /* WSMessagePong.m in Sources */,
@@ -1253,6 +1278,7 @@
 				0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */,
 				8C068C03196B10D3001E2CE4 /* XCTestCase+WaSPV.m in Sources */,
 				0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */,
+				0E7FB6701A4B326000095193 /* WSWebUtilsTests.m in Sources */,
 				8CDD9A241983066300720304 /* WSTimerTests.m in Sources */,
 				8C8FB831196776F300A07156 /* WSKeysTests.m in Sources */,
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,

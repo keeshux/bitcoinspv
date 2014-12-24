@@ -27,30 +27,51 @@
 
 #import <Foundation/Foundation.h>
 
+@class WSHash256;
 @class WSKey;
 @class WSBIP38Key;
 @class WSAddress;
 @class WSSignedTransaction;
 
-@interface WSWebUtils : NSObject
+extern NSString *const WSWebUtilsProviderBiteasy;
+extern NSString *const WSWebUtilsProviderBlockExplorer;
+extern NSString *const WSWebUtilsProviderBlockr;
+extern NSString *const WSWebUtilsProviderBlockchain;
 
-+ (instancetype)sharedInstance;
+@protocol WSWebUtils;
 
-- (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
-                            toAddress:(WSAddress *)toAddress
-                                  fee:(uint64_t)fee
-                            maxTxSize:(NSUInteger)maxTxSize
-                             callback:(void (^)(WSSignedTransaction *))callback
-                           completion:(void (^)(NSUInteger))completion
-                              failure:(void (^)(NSError *))failure;
+@interface WSWebUtilsFactory : NSObject
 
-- (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
-                                passphrase:(NSString *)passphrase
-                                 toAddress:(WSAddress *)toAddress
-                                       fee:(uint64_t)fee
-                                 maxTxSize:(NSUInteger)maxTxSize
-                                  callback:(void (^)(WSSignedTransaction *))callback
-                                completion:(void (^)(NSUInteger))completion
-                                   failure:(void (^)(NSError *))failure;
++ (id<WSWebUtils>)utilsForProvider:(NSString *)provider;
+
+@end
+
+#pragma mark -
+
+typedef enum {
+    WSWebUtilsObjectTypeBlock,
+    WSWebUtilsObjectTypeTransaction
+} WSWebUtilsObjectType;
+
+@protocol WSWebUtils <NSObject>
+
+- (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash;
+
+//- (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
+//                            toAddress:(WSAddress *)toAddress
+//                                  fee:(uint64_t)fee
+//                            maxTxSize:(NSUInteger)maxTxSize
+//                             callback:(void (^)(WSSignedTransaction *))callback
+//                           completion:(void (^)(NSUInteger))completion
+//                              failure:(void (^)(NSError *))failure;
+//
+//- (void)buildSweepTransactionsFromBIP38Key:(WSBIP38Key *)fromBIP38Key
+//                                passphrase:(NSString *)passphrase
+//                                 toAddress:(WSAddress *)toAddress
+//                                       fee:(uint64_t)fee
+//                                 maxTxSize:(NSUInteger)maxTxSize
+//                                  callback:(void (^)(WSSignedTransaction *))callback
+//                                completion:(void (^)(NSUInteger))completion
+//                                   failure:(void (^)(NSError *))failure;
 
 @end
