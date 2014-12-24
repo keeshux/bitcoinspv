@@ -53,24 +53,24 @@
     [super tearDown];
 }
 
-- (void)testVersion
-{
-    WSNetworkAddress *address = WSNetworkAddressMake(0x10203040, WSPeerEnabledServices);
-    WSMessageVersion *message = [WSMessageVersion messageWithVersion:WSPeerProtocol services:WSPeerEnabledServices remoteNetworkAddress:address relayTransactions:0];
-    const uint64_t timestamp = message.timestamp;
-    const uint64_t nonce = message.nonce;
-
-    NSMutableData *expData = [[@"721101000000000000000000ffffffffffffffff000000000000000000000000000000000000ffff40302010479d000000000000000000000000000000000000ffff7f000001479dffffffffffffffff0b2f57615350563a302e322f0000000000" dataFromHex] mutableCopy];
-    const NSRange timestampRange = NSMakeRange(12, 8);
-    const NSRange nonceRange = NSMakeRange(72, 8);
-    [expData replaceBytesInRange:timestampRange withBytes:&timestamp];
-    [expData replaceBytesInRange:nonceRange withBytes:&nonce];
-
-    NSString *hex = [[message toBuffer] hexString];
-    NSString *expHex = [expData hexString];
-    DDLogInfo(@"Version: %@", hex);
-    XCTAssertEqualObjects(hex, expHex);
-}
+//- (void)testVersion
+//{
+//    WSNetworkAddress *address = WSNetworkAddressMake(0x10203040, WSPeerEnabledServices);
+//    WSMessageVersion *message = [WSMessageVersion messageWithVersion:WSPeerProtocol services:WSPeerEnabledServices remoteNetworkAddress:address relayTransactions:0];
+//    const uint64_t timestamp = message.timestamp;
+//    const uint64_t nonce = message.nonce;
+//
+//    NSMutableData *expData = [[@"721101000000000000000000ffffffffffffffff000000000000000000000000000000000000ffff40302010479d000000000000000000000000000000000000ffff7f000001479dffffffffffffffff0b2f57615350563a302e322f0000000000" dataFromHex] mutableCopy];
+//    const NSRange timestampRange = NSMakeRange(12, 8);
+//    const NSRange nonceRange = NSMakeRange(72, 8);
+//    [expData replaceBytesInRange:timestampRange withBytes:&timestamp];
+//    [expData replaceBytesInRange:nonceRange withBytes:&nonce];
+//
+//    NSString *hex = [[message toBuffer] hexString];
+//    NSString *expHex = [expData hexString];
+//    DDLogInfo(@"Version: %@", hex);
+//    XCTAssertEqualObjects(hex, expHex);
+//}
 
 - (void)testDeserializer
 {
