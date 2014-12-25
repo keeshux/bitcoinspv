@@ -33,6 +33,19 @@
 #import "WSBitcoin.h"
 #import "WSMacros.h"
 
+//
+// https://en.bitcoin.it/wiki/Testnet
+//
+// Key differences from main network:
+//
+// Minimum difficulty of 1.0 on testnet is equal to difficulty of 0.5 on mainnet.
+// This means that the mainnet-equivalent of any testnet difficulty is half the testnet difficulty.
+// In addition, if no block has been found in 20 minutes, the difficulty automatically resets back
+// to the minimum for a single block, after which it returns to its previous value.
+//
+// The IsStandard() check is disabled so that non-standard transactions can be experimented with.
+//
+
 @interface WSParametersFactoryTestnet3 ()
 
 @property (nonatomic, strong) WSMutableParameters *parameters;
@@ -54,11 +67,12 @@
         parameters.bip32PublicKeyVersion        = 0x043587cf; // "tpub"
         parameters.bip32PrivateKeyVersion       = 0x04358394; // "tprv"
         parameters.maxProofOfWork               = 0x1d00ffff;
-        parameters.retargetTimespan             = 2 * WSDatesOneWeek;
-        parameters.minRetargetTimespan          = parameters.retargetTimespan / 4;
-        parameters.maxRetargetTimespan          = parameters.retargetTimespan * 4;
-        parameters.retargetSpacing              = 10 * WSDatesOneMinute;
-        parameters.retargetInterval             = parameters.retargetTimespan / parameters.retargetSpacing; // 2016
+//        parameters.retargetTimespan             = 2 * WSDatesOneWeek;
+//        parameters.minRetargetTimespan          = parameters.retargetTimespan / 4;
+//        parameters.maxRetargetTimespan          = parameters.retargetTimespan * 4;
+        parameters.retargetSpacing              = 20 * WSDatesOneMinute;
+//        parameters.retargetInterval             = parameters.retargetTimespan / parameters.retargetSpacing; // 2016
+        parameters.retargetInterval             = 2016;
 
         WSBlockHeader *genesisHeader = [[WSBlockHeader alloc] initWithVersion:1
                                                               previousBlockId:WSHash256Zero()
