@@ -27,7 +27,6 @@
 
 #import <arpa/inet.h>
 #import <errno.h>
-#import "DDLog.h"
 
 #import "WSPeerGroup.h"
 #import "WSBlockStore.h"

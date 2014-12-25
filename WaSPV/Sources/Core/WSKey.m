@@ -28,7 +28,6 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
-#import "DDLog.h"
 
 #import "WSKey.h"
 #import "WSPublicKey.h"

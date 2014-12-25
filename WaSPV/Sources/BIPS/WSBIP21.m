@@ -25,11 +25,10 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
-
 #import "WSBIP21.h"
 #import "WSAddress.h"
 #import "WSConfig.h"
+#import "WSMacros.h"
 #import "WSErrors.h"
 
 NSString *const         WSBIP21URLScheme        = @"bitcoin";

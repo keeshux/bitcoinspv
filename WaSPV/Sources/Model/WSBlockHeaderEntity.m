@@ -25,11 +25,10 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSMacros.h"
-
 #import "WSBlockHeaderEntity.h"
 #import "WSStorableBlockEntity.h"
 #import "WSHash256.h"
+#import "WSMacros.h"
 
 @implementation WSBlockHeaderEntity
 

@@ -25,7 +25,6 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
 #import "AutoCoding.h"
 
 #import "WSHDWallet.h"

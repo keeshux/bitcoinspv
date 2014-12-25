@@ -26,7 +26,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDLog.h"
 
 #import "WSBitcoin.h"
 

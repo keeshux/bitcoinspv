@@ -25,8 +25,6 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
-
 #import "WSBlockChain.h"
 #import "WSHash256.h"
 #import "WSBlockStore.h"

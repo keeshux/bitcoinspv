@@ -25,10 +25,9 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
-
 #import "WSCoreDataManager.h"
 #import "WSConfig.h"
+#import "WSMacros.h"
 #import "WSErrors.h"
 
 @interface WSCoreDataManager ()

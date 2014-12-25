@@ -25,8 +25,6 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
-
 #import "WSWebUtilsBiteasy.h"
 #import "WSJSONClient.h"
 #import "WSKey.h"

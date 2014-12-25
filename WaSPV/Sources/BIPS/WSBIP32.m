@@ -29,7 +29,6 @@
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
 #import <openssl/bn.h>
-#import "DDLog.h"
 
 #import "WSBIP32.h"
 #import "WSKey.h"

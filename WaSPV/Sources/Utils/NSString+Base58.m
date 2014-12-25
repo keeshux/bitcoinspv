@@ -26,7 +26,6 @@
 //
 
 #import <openssl/bn.h>
-#import "DDLog.h"
 
 #import "NSString+Base58.h"
 #import "NSString+Binary.h"

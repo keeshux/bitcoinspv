@@ -26,8 +26,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DDLog.h"
 
 #import "WSParametersFactory.h"
+
+// required by CocoaLumberjack, define in client project
+extern const int ddLogLevel;
 
 @class WSHash256;
 @class WSHash160;

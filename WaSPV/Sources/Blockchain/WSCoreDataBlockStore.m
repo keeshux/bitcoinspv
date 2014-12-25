@@ -25,8 +25,6 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "DDLog.h"
-
 #import "WSCoreDataBlockStore.h"
 #import "WSCoreDataManager.h"
 #import "WSBlockHeaderEntity.h"

@@ -26,10 +26,10 @@
 //
 
 #import <arpa/inet.h>
-#import "DDLog.h"
 
 #import "WSConnectionPool.h"
 #import "WSConfig.h"
+#import "WSMacros.h"
 #import "WSErrors.h"
 
 //
