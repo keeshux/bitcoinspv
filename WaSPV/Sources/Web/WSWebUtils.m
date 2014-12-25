@@ -43,6 +43,8 @@ NSString *const WSWebUtilsProviderBlockchain        = @"WSWebUtilsBlockchain";
 
 + (id<WSWebUtils>)utilsForProvider:(NSString *)provider
 {
+    WSExceptionCheckIllegal(provider.length > 0, @"Empty provider");
+    
     Class clazz = NSClassFromString(provider);
     WSExceptionCheckIllegal(clazz != nil, @"Unknown provider (%@)", provider);
     return [[clazz alloc] init];
