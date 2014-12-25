@@ -642,7 +642,7 @@
 
 - (void)receiveMessage:(id<WSMessage>)message
 {
-    NSAssert(message != nil, @"Nil message");
+    NSParameterAssert(message);
     
     if (message.originalPayload.length < 1024) {
         DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalPayload.length);
@@ -952,7 +952,7 @@
 
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
 {
-    NSAssert(headers.count > 0, @"Empty headers");
+    NSParameterAssert(headers.count > 0);
     
     @synchronized (self.groupQueue) {
         if (self.isDownloadPeer) {
@@ -999,7 +999,7 @@
 
 - (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes
 {
-    NSAssert(hashes.count > 0, @"Empty hashes");
+    NSParameterAssert(hashes.count > 0);
     
     @synchronized (self.groupQueue) {
         if (self.isDownloadPeer && (hashes.count >= WSMessageBlocksMaxCount)) {
@@ -1031,7 +1031,7 @@
 
 - (void)addBlockHeaders:(NSArray *)headers
 {
-    NSAssert(headers.count > 0, @"Empty headers");
+    NSParameterAssert(headers.count > 0);
     
     @synchronized (self.groupQueue) {
         for (WSBlockHeader *header in headers) {
@@ -1048,7 +1048,7 @@
 
 - (void)beginFilteredBlock:(WSFilteredBlock *)filteredBlock
 {
-    NSAssert(filteredBlock != nil, @"Nil filteredBlock");
+    NSParameterAssert(filteredBlock);
 
     @synchronized (self.groupQueue) {
         self.currentFilteredBlock = filteredBlock;
@@ -1058,8 +1058,8 @@
 
 - (BOOL)addTransactionToCurrentFilteredBlock:(WSSignedTransaction *)transaction outdated:(BOOL *)outdated
 {
-    NSAssert(transaction != nil, @"Nil transaction");
-    NSAssert(outdated != NULL, @"NULL outdated");
+    NSParameterAssert(transaction);
+    NSParameterAssert(outdated);
     
     @synchronized (self.groupQueue) {
         if (!self.currentFilteredBlock) {

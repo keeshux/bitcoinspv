@@ -332,7 +332,7 @@
 
 - (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback
 {
-    NSAssert(resolutionCallback, @"NULL resolutionCallback");
+    NSParameterAssert(resolutionCallback);
 
     // if discovery ongoing, fall back to current inactive hosts
     BOOL ongoing = NO;
@@ -441,7 +441,7 @@
 
 - (void)openConnectionToPeerHost:(NSString *)host
 {
-    NSAssert(host, @"Nil host");
+    NSParameterAssert(host);
     
     WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue
                                                                      blockChain:self.blockChain

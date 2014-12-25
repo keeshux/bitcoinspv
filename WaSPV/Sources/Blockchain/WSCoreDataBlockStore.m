@@ -253,7 +253,7 @@
 
 - (WSStorableBlockEntity *)unsafeBlockEntityForIdData:(NSData *)blockIdData
 {
-    NSAssert(blockIdData, @"Nil blockIdData");
+    NSParameterAssert(blockIdData);
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[WSStorableBlockEntity entityName]];
     request.fetchLimit = 1;
@@ -270,7 +270,7 @@
 
 - (WSTransactionEntity *)unsafeTransactionEntityForIdData:(NSData *)txIdData
 {
-    NSAssert(txIdData, @"Nil txIdData");
+    NSParameterAssert(txIdData);
 
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[WSTransactionEntity entityName]];
     request.fetchLimit = 1;

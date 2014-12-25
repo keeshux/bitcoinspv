@@ -208,11 +208,11 @@ static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
                           completion:(void (^)())completion
                              failure:(void (^)(NSError *))failure
 {
-    NSAssert(address != nil, @"Nil address");
-    NSAssert(page > 0, @"Non-positive page");
-    NSAssert(handler, @"NULL handler");
-    NSAssert(completion, @"NULL completion");
-    NSAssert(failure, @"NULL failure");
+    NSParameterAssert(address);
+    NSParameterAssert(page > 0);
+    NSParameterAssert(handler);
+    NSParameterAssert(completion);
+    NSParameterAssert(failure);
     
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyBaseAPIFormat, [self networkName]]];
     NSString *path = [NSString stringWithFormat:WSWebUtilsBiteasyUnspentPathFormat, address, page, WSWebUtilsBiteasyUnspentPerPage];

@@ -424,7 +424,7 @@
 
 - (WSBuffer *)signableBufferForInput:(WSSignableTransactionInput *)signableInput hashFlags:(WSTransactionSigHash)hashFlags
 {
-    NSAssert(signableInput != nil, @"Nil signableInput");
+    NSParameterAssert(signableInput != nil);
     NSAssert([self.signableInputs containsObject:signableInput], @"Transaction doesn't contain this input");
 
     WSMutableBuffer *buffer = [[WSMutableBuffer alloc] init];
@@ -468,7 +468,7 @@
 
 - (NSUInteger)estimatedSizeWithExtraInputs:(NSArray *)inputs
 {
-    NSAssert(inputs, @"Nil inputs");
+    NSParameterAssert(inputs);
     
     return WSTransactionEstimatedSize(self.signableInputs, self.outputs, inputs, nil, YES);
 }

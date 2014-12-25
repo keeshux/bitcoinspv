@@ -190,7 +190,7 @@
 
 - (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor
 {
-    NSAssert(processor, @"Nil processor");
+    NSParameterAssert(processor);
 
     @synchronized (self.handlers) {
         for (WSConnectionHandler *handler in self.handlers) {
@@ -205,7 +205,7 @@
 // unsafe
 - (void)delayRemoveHandler:(WSConnectionHandler *)handler
 {
-    NSAssert(handler, @"Nil handler");
+    NSParameterAssert(handler);
 
     if ([handler.socket isConnected]) {
         [handler.socket disconnect];
@@ -218,7 +218,7 @@
 // unsafe
 - (void)removeHandler:(WSConnectionHandler *)handler
 {
-    NSAssert(handler, @"Nil handler");
+    NSParameterAssert(handler);
     
     if (!self.handlersByIdentifier[handler.identifier]) {
         DDLogVerbose(@"Removing nonexistent handler (%@)", handler);

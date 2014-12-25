@@ -95,7 +95,7 @@
 //
 - (id<WSMessage>)parseMessageAndKeepParsing:(BOOL *)keepParsing error:(NSError *__autoreleasing *)error
 {
-    NSAssert(keepParsing, @"NULL keepParsing");
+    NSParameterAssert(keepParsing);
 
     NSInteger currentHeaderLength = self.builtHeader.length;
     NSInteger currentPayloadLength = self.builtPayload.length;

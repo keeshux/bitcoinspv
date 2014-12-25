@@ -174,7 +174,7 @@
 
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectOrphans:(BOOL)connectOrphans error:(NSError *__autoreleasing *)error
 {
-    NSAssert(header != nil, @"Nil header");
+    WSExceptionCheckIllegal(header != nil, @"Nil header");
     
     WSStorableBlock *addedBlock = nil;
     
@@ -289,7 +289,11 @@
 
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
-            WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header transactions:orphan.transactions reorganizeBlock:reorganizeBlock connectOrphans:NO error:NULL];
+            WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
+                                                           transactions:orphan.transactions
+                                                        reorganizeBlock:reorganizeBlock
+                                                         connectOrphans:NO
+                                                                  error:NULL];
             if (connectedOrphan) {
                 [connectedOrphanIds addObject:connectedOrphan.blockId];
             }
@@ -318,7 +322,7 @@
 
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead
 {
-    NSAssert(forkHead, @"Nil forkHead");
+    NSParameterAssert(forkHead);
 
     WSStorableBlock *mainBlock = self.head;
     WSStorableBlock *forkBlock = forkHead;
@@ -340,6 +344,8 @@
 
 - (NSArray *)subchainFromHead:(WSStorableBlock *)head toBase:(WSStorableBlock *)base
 {
+    NSParameterAssert(head);
+    NSParameterAssert(base);
     NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
 
     NSMutableArray *chain = [[NSMutableArray alloc] initWithCapacity:(head.height - base.height)];

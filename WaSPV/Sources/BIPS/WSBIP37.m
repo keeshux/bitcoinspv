@@ -238,7 +238,7 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (uint32_t)hashData:(NSData *)data atIndex:(uint32_t)index
 {
-    NSAssert(data, @"Hashing nil data");
+    NSParameterAssert(data);
     
     return WSBIP37MurmurHash3(data, self.parameters.tweak + index * WSBIP37HashMultiplier) % (self.filter.length * 8);
 }

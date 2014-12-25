@@ -1327,7 +1327,7 @@
         [self recalculateSpendsAndBalance];
 
         NSAssert(self.allTransactions.count == 0, @"Expected zero transactions");
-        NSAssert(_balance == 0LL, @"Expected zero balance after forgetting all transactions");
+        NSAssert(_balance == 0ULL, @"Expected zero balance after forgetting all transactions");
     }
 }
 

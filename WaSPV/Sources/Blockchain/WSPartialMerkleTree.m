@@ -111,7 +111,7 @@
 
 - (WSHash256 *)computeMerkleRootSavingMatchedHashes:(NSMutableSet *)matchedHashes error:(NSError *__autoreleasing *)error
 {
-    NSAssert(matchedHashes, @"Nil matchedHashes");
+    NSParameterAssert(matchedHashes);
     
     // traverse the partial tree bottom-up
     const NSUInteger height = [self treeHeight];

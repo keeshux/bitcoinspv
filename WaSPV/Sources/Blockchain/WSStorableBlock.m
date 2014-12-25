@@ -230,8 +230,8 @@
 
 - (BOOL)validateTargetFromPreviousBlock:(WSStorableBlock *)previousBlock retargetBlock:(WSStorableBlock *)retargetBlock error:(NSError *__autoreleasing *)error
 {
-    NSAssert(previousBlock, @"Nil previousBlock");
-    NSAssert(retargetBlock, @"Nil retargetBlock");
+    NSParameterAssert(previousBlock);
+    NSParameterAssert(retargetBlock);
     
     uint32_t span = previousBlock.header.timestamp - retargetBlock.header.timestamp;
     const uint32_t minRetargetTimespan = [WSCurrentParameters minRetargetTimespan];
