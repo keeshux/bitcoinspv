@@ -25,15 +25,18 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSBIP39.h"
 #import "WSSeed.h"
 
-@interface WSSeedGenerator : NSObject <WSBIP39>
+@interface WSSeedGenerator : NSObject
 
 @property (nonatomic, copy) NSString *wordsPath;
 
 + (instancetype)sharedInstance;
+- (NSString *)generateRandomMnemonic;
 - (WSSeed *)generateRandomSeed;
+- (NSString *)mnemonicFromData:(NSData *)data error:(NSError **)error;
+- (NSData *)dataFromMnemonic:(NSString *)mnemonic error:(NSError **)error;
+- (NSData *)deriveKeyDataFromMnemonic:(NSString *)mnemonic;
 - (void)unloadWords;
 
 @end

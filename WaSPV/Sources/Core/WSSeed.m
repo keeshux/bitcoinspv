@@ -49,13 +49,13 @@
 //    WSExceptionCheckIllegal(creationTime >= 0.0, @"creationTime must be positive");
 
     if ((self = [super init])) {
-        WSSeedGenerator *bip = [WSSeedGenerator sharedInstance];
+        WSSeedGenerator *generator = [WSSeedGenerator sharedInstance];
 
-        NSData *mnemonicData = [bip dataFromMnemonic:mnemonic error:nil];
+        NSData *mnemonicData = [generator dataFromMnemonic:mnemonic error:NULL];
         if (!mnemonicData) {
             return nil;
         }
-        NSAssert1([[bip mnemonicFromData:mnemonicData error:NULL] isEqualToString:mnemonic],
+        NSAssert1([[generator mnemonicFromData:mnemonicData error:NULL] isEqualToString:mnemonic],
                   @"Mnemonic reencoding test failed: '%@'", mnemonic);
 
         self.mnemonic = mnemonic;
@@ -66,7 +66,7 @@
 
 - (NSData *)derivedKeyData
 {
-    return [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:self.mnemonic passphrase:nil];
+    return [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:self.mnemonic];
 }
 
 @end

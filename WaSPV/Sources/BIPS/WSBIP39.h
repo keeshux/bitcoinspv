@@ -40,9 +40,10 @@ extern const NSUInteger         WSBIP39SaltPrefixLength;
 
 #pragma mark -
 
-@protocol WSBIP39 <NSObject>
+@interface WSBIP39 : NSObject
 
-- (NSString *)generateRandomMnemonic;
+- (instancetype)initWithWordListNoCopy:(NSArray *)wordList;
+
 - (NSString *)generateRandomMnemonicWithEntropyLength:(uint32_t)entropyLength;
 - (NSString *)mnemonicFromData:(NSData *)data error:(NSError **)error;
 - (NSData *)dataFromMnemonic:(NSString *)mnemonic error:(NSError **)error;
