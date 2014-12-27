@@ -101,6 +101,9 @@
 - (id<WSBIP32Keyring>)safeInternalChain;
 
 - (void)setPath:(NSString *)path;
+- (void)loadSensitiveDataWithSeed:(WSSeed *)seed;
+- (void)rebuildTransientStructures;
+- (void)unloadSensitiveData;
 
 - (WSTransactionOutput *)previousOutputFromInput:(WSSignedTransactionInput *)input;
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError *__autoreleasing *)error;
@@ -617,14 +620,10 @@
     }
 }
 
-+ (instancetype)loadFromPath:(NSString *)path
-{
-    return [self loadFromPath:path seed:nil];
-}
-
 + (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed
 {
     WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
 
     @synchronized (self) {
         WSHDWallet *wallet = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
@@ -632,10 +631,8 @@
             return nil;
         }
         wallet.path = path;
-        if (seed) {
-            [wallet loadSensitiveDataWithSeed:seed];
-            [wallet rebuildTransientStructures];
-        }
+        [wallet loadSensitiveDataWithSeed:seed];
+        [wallet rebuildTransientStructures];
         return wallet;
     }
 }

@@ -45,16 +45,12 @@
 - (NSArray *)watchedReceiveAddresses; // WSAddress
 
 //
-// WARNING: mnemonic is NOT serialized and MUST be saved elsewhere
+// WARNING: seed is NOT serialized and MUST be saved elsewhere
 //
 // NSKeyedUnarchiver deserialization alone won't be able to restore
 // the wallet, you should only use the following method and explicity
 // provide the seed each time you reload a serialized wallet.
 //
-+ (instancetype)loadFromPath:(NSString *)path;
 + (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed;
-- (void)loadSensitiveDataWithSeed:(WSSeed *)seed;
-- (void)rebuildTransientStructures;
-- (void)unloadSensitiveData;
 
 @end
