@@ -220,7 +220,7 @@
 - (WSPeer *)downloadPeer
 {
     @synchronized (self.queue) {
-        NSAssert1(!_downloadPeer || _downloadPeer.isDownloadPeer, @"%@ is not download peer", _downloadPeer);
+        NSAssert(!_downloadPeer || _downloadPeer.isDownloadPeer, @"%@ is not download peer", _downloadPeer);
         return _downloadPeer;
     }
 }

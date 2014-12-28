@@ -55,8 +55,8 @@
         if (!mnemonicData) {
             return nil;
         }
-        NSAssert1([[generator mnemonicFromData:mnemonicData error:NULL] isEqualToString:mnemonic],
-                  @"Mnemonic reencoding test failed: '%@'", mnemonic);
+        NSAssert([[generator mnemonicFromData:mnemonicData error:NULL] isEqualToString:mnemonic],
+                 @"Mnemonic reencoding test failed: '%@'", mnemonic);
 
         self.mnemonic = mnemonic;
         self.creationTime = creationTime;
