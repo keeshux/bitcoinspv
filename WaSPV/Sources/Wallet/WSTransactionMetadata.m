@@ -65,6 +65,9 @@
     if (self.height == NSNotFound) {
         return 0;
     }
+    if (networkHeight < self.height) {
+        return NSNotFound;
+    }
     return networkHeight - self.height + 1;
 }
 
