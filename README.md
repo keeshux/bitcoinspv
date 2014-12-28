@@ -87,7 +87,7 @@ and run on the terminal:
 
 ### Imports
 
-WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the compiler will complain if you don't define it somewhere, e.g. in the application delegate:
+WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the linker will complain if you don't define it somewhere, e.g. in the application delegate:
 
     #import "AppDelegate.h"
 
