@@ -62,6 +62,9 @@
 
 - (NSUInteger)confirmationsAtNetworkHeight:(NSUInteger)networkHeight
 {
+    if (self.height == NSNotFound) {
+        return 0;
+    }
     return networkHeight - self.height + 1;
 }
 
