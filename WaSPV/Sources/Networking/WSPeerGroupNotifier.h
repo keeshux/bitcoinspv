@@ -70,4 +70,6 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyBlockAdded:(WSStorableBlock *)block;
 - (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished;
 
+- (BOOL)didNotifyDownloadStarted;
+
 @end

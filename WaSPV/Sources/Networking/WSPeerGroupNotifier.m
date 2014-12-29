@@ -76,6 +76,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     
     if ((self = [super init])) {
         self.peerGroup = peerGroup;
+        self.syncFromHeight = NSNotFound;
+        self.syncToHeight = NSNotFound;
         self.syncTaskId = UIBackgroundTaskInvalid;
     }
     return self;
@@ -123,6 +125,9 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     @synchronized (self) {
         fromHeight = self.syncFromHeight;
         toHeight = self.syncToHeight;
+
+        self.syncFromHeight = NSNotFound;
+        self.syncToHeight = NSNotFound;
     
         if (self.syncTaskId != UIBackgroundTaskInvalid) {
             [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
@@ -141,6 +146,9 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     DDLogError(@"Download failed%@", WSStringOptional(error, @" (%@)"));
     
     @synchronized (self) {
+        self.syncFromHeight = NSNotFound;
+        self.syncToHeight = NSNotFound;
+
         if (self.syncTaskId != UIBackgroundTaskInvalid) {
             [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
             self.syncTaskId = UIBackgroundTaskInvalid;
@@ -180,6 +188,13 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
+}
+
+- (BOOL)didNotifyDownloadStarted
+{
+    @synchronized (self) {
+        return (self.syncFromHeight != NSNotFound);
+    }
 }
 
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo

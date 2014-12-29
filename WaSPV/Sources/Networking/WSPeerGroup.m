@@ -533,6 +533,12 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
+        if (![self.notifier didNotifyDownloadStarted]) {
+            const NSUInteger fromHeight = self.blockChain.currentHeight;
+            const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+            [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
+        }
+
         if ([self needsBloomFiltering]) {
             [self resetBloomFilter];
             
@@ -546,10 +552,6 @@
             DDLogDebug(@"No wallet provided, downloading block headers");
         }
 
-        const NSUInteger fromHeight = self.blockChain.currentHeight;
-        const NSUInteger toHeight = fromHeight + [self.downloadPeer numberOfBlocksLeft];
-        [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
-        
         DDLogInfo(@"Preparing for blockchain sync");
         if ([self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp]) {
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
