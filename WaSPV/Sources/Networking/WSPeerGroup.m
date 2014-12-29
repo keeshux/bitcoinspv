@@ -733,7 +733,9 @@
             return;
         }
 
-        [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeSync, @"Download timed out, disconnecting")];
+        if (self.downloadPeer) {
+            [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeSync, @"Download timed out, disconnecting")];
+        }
     }
 }
 
