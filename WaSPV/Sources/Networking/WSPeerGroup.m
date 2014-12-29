@@ -533,12 +533,6 @@
     @synchronized (self.queue) {
         NSAssert(self.downloadPeer, @"No download peer set");
         
-        if (![self.notifier didNotifyDownloadStarted]) {
-            const NSUInteger fromHeight = self.blockChain.currentHeight;
-            const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
-            [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
-        }
-
         if ([self needsBloomFiltering]) {
             [self resetBloomFilter];
             
@@ -553,15 +547,22 @@
         }
 
         DDLogInfo(@"Preparing for blockchain sync");
-        if ([self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp]) {
+
+        void (^prepareBlock)() = ^{
+            if (![self.notifier didNotifyDownloadStarted]) {
+                const NSUInteger fromHeight = self.blockChain.currentHeight;
+                const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+                [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
+            }
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
 
             dispatch_async(dispatch_get_main_queue(), ^{
                 [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
                 [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
             });
-        }
-        else {
+        };
+
+        if (![self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prepareBlock:prepareBlock]) {
             DDLogInfo(@"Blockchain is synced");
             [self.notifier notifyDownloadFinished];
         }

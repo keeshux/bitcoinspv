@@ -837,7 +837,7 @@
     }
 }
 
-- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prepareBlock:(void (^)())prepareBlock
 {
     @synchronized (self.groupQueue) {
         NSAssert(self.isDownloadPeer, @"Not download peer");
@@ -860,6 +860,10 @@
         }
         else {
             DDLogDebug(@"%@ No fast catch-up checkpoint", self);
+        }
+        
+        if (prepareBlock) {
+            prepareBlock();
         }
         
         WSBlockLocator *locator = [self.blockChain currentLocator];

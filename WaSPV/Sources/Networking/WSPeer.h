@@ -119,7 +119,7 @@ typedef enum {
 // sync
 - (BOOL)isDownloadPeer;
 - (void)setIsDownloadPeer:(BOOL)isDownloadPeer;
-- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
+- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prepareBlock:(void (^)())prepareBlock;
 - (NSUInteger)numberOfBlocksLeft;
 - (void)requestOutdatedBlocks;
 - (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
