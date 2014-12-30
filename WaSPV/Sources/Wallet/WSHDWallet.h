@@ -33,12 +33,15 @@
 
 #pragma mark -
 
+extern NSString *const WSHDWalletDefaultChainsPath;
+
 @interface WSHDWallet : NSObject <WSWallet, WSSynchronizableWallet>
 
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
 - (instancetype)initWithSeed:(WSSeed *)seed;
 - (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
+- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath;
 - (WSSeed *)seed;
 - (NSUInteger)gapLimit;
 
@@ -52,5 +55,6 @@
 // provide the seed each time you reload a serialized wallet.
 //
 + (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed;
++ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
 
 @end
