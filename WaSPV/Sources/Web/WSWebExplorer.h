@@ -1,5 +1,5 @@
 //
-//  WSWebUtils.h
+//  WSWebExplorer.h
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/12/14.
@@ -33,30 +33,30 @@
 @class WSAddress;
 @class WSSignedTransaction;
 
-extern NSString *const WSWebUtilsProviderBiteasy;
-extern NSString *const WSWebUtilsProviderBlockExplorer;
-extern NSString *const WSWebUtilsProviderBlockr;
-extern NSString *const WSWebUtilsProviderBlockchain;
+extern NSString *const WSWebExplorerProviderBiteasy;
+extern NSString *const WSWebExplorerProviderBlockExplorer;
+extern NSString *const WSWebExplorerProviderBlockr;
+extern NSString *const WSWebExplorerProviderBlockchain;
 
-@protocol WSWebUtils;
+@protocol WSWebExplorer;
 
-@interface WSWebUtilsFactory : NSObject
+@interface WSWebExplorerFactory : NSObject
 
-+ (id<WSWebUtils>)utilsForProvider:(NSString *)provider;
++ (id<WSWebExplorer>)explorerForProvider:(NSString *)provider;
 
 @end
 
 #pragma mark -
 
 typedef enum {
-    WSWebUtilsObjectTypeBlock,
-    WSWebUtilsObjectTypeTransaction
-} WSWebUtilsObjectType;
+    WSWebExplorerObjectTypeBlock,
+    WSWebExplorerObjectTypeTransaction
+} WSWebExplorerObjectType;
 
-@protocol WSWebUtils <NSObject>
+@protocol WSWebExplorer <NSObject>
 
 - (NSString *)provider;
-- (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash;
+- (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash;
 
 - (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
                             toAddress:(WSAddress *)toAddress

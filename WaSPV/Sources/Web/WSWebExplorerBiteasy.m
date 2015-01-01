@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsBiteasy.m
+//  WSWebExplorerBiteasy.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
@@ -25,7 +25,7 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSWebUtilsBiteasy.h"
+#import "WSWebExplorerBiteasy.h"
 #import "WSJSONClient.h"
 #import "WSKey.h"
 #import "WSBIP38.h"
@@ -38,20 +38,20 @@
 #import "WSMacros.h"
 #import "WSErrors.h"
 
-static NSString *const          WSWebUtilsBiteasyBaseFormat              = @"https://www.biteasy.com/%@/";
-static NSString *const          WSWebUtilsBiteasyNetworkMain             = @"blockchain";
-static NSString *const          WSWebUtilsBiteasyNetworkTest             = @"testnet";
+static NSString *const          WSWebExplorerBiteasyBaseFormat              = @"https://www.biteasy.com/%@/";
+static NSString *const          WSWebExplorerBiteasyNetworkMain             = @"blockchain";
+static NSString *const          WSWebExplorerBiteasyNetworkTest             = @"testnet";
 
-static NSString *const          WSWebUtilsBiteasyObjectPathFormat        = @"%@/%@";
-static NSString *const          WSWebUtilsBiteasyObjectBlock             = @"blocks";
-static NSString *const          WSWebUtilsBiteasyObjectTransaction       = @"transactions";
+static NSString *const          WSWebExplorerBiteasyObjectPathFormat        = @"%@/%@";
+static NSString *const          WSWebExplorerBiteasyObjectBlock             = @"blocks";
+static NSString *const          WSWebExplorerBiteasyObjectTransaction       = @"transactions";
 
-static NSString *const          WSWebUtilsBiteasyBaseAPIFormat           = @"https://api.biteasy.com/%@/v1/";
-static NSString *const          WSWebUtilsBiteasyUnspentPathFormat       = @"addresses/%@/unspent-outputs?page=%u&per_page=%u";
-static const NSUInteger         WSWebUtilsBiteasyUnspentPerPage          = 100;
-static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
+static NSString *const          WSWebExplorerBiteasyBaseAPIFormat           = @"https://api.biteasy.com/%@/v1/";
+static NSString *const          WSWebExplorerBiteasyUnspentPathFormat       = @"addresses/%@/unspent-outputs?page=%u&per_page=%u";
+static const NSUInteger         WSWebExplorerBiteasyUnspentPerPage          = 100;
+static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.0;
 
-@interface WSWebUtilsBiteasy ()
+@interface WSWebExplorerBiteasy ()
 
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
@@ -61,16 +61,16 @@ static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
 
 @end
 
-@implementation WSWebUtilsBiteasy
+@implementation WSWebExplorerBiteasy
 
 - (NSString *)networkName
 {
     switch (WSParametersGetCurrentType()) {
         case WSParametersTypeMain: {
-            return WSWebUtilsBiteasyNetworkMain;
+            return WSWebExplorerBiteasyNetworkMain;
         }
         case WSParametersTypeTestnet3: {
-            return WSWebUtilsBiteasyNetworkTest;
+            return WSWebExplorerBiteasyNetworkTest;
         }
         case WSParametersTypeRegtest: {
             WSExceptionRaiseUnsupported(@"Regtest network is not supported");
@@ -79,35 +79,35 @@ static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
     return nil;
 }
 
-- (NSString *)objectForType:(WSWebUtilsObjectType)type
+- (NSString *)objectForType:(WSWebExplorerObjectType)type
 {
     switch (type) {
-        case WSWebUtilsObjectTypeBlock: {
-            return WSWebUtilsBiteasyObjectBlock;
+        case WSWebExplorerObjectTypeBlock: {
+            return WSWebExplorerBiteasyObjectBlock;
         }
-        case WSWebUtilsObjectTypeTransaction: {
-            return WSWebUtilsBiteasyObjectTransaction;
+        case WSWebExplorerObjectTypeTransaction: {
+            return WSWebExplorerBiteasyObjectTransaction;
         }
     }
     return nil;
 }
 
-#pragma mark WSWebUtils
+#pragma mark WSWebExplorer
 
 - (NSString *)provider
 {
-    return WSWebUtilsProviderBiteasy;
+    return WSWebExplorerProviderBiteasy;
 }
 
-- (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash
+- (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
     WSExceptionCheckIllegal(hash != nil, @"Nil hash");
     
     NSString *network = [self networkName];
     NSString *object = [self objectForType:objectType];
     
-    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyBaseFormat, network]];
-    return [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyObjectPathFormat, object, hash] relativeToURL:baseURL];
+    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyBaseFormat, network]];
+    return [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyObjectPathFormat, object, hash] relativeToURL:baseURL];
 }
 
 - (void)buildSweepTransactionsFromKey:(WSKey *)fromKey
@@ -214,8 +214,8 @@ static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
     NSParameterAssert(completion);
     NSParameterAssert(failure);
     
-    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBiteasyBaseAPIFormat, [self networkName]]];
-    NSString *path = [NSString stringWithFormat:WSWebUtilsBiteasyUnspentPathFormat, address, page, WSWebUtilsBiteasyUnspentPerPage];
+    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyBaseAPIFormat, [self networkName]]];
+    NSString *path = [NSString stringWithFormat:WSWebExplorerBiteasyUnspentPathFormat, address, page, WSWebExplorerBiteasyUnspentPerPage];
     
     [[WSJSONClient sharedInstance] asynchronousRequestWithBaseURL:baseURL path:path success:^(NSInteger statusCode, id object) {
         NSDictionary *jsonData = object[@"data"];
@@ -252,7 +252,7 @@ static const NSTimeInterval     WSWebUtilsBiteasyYieldInterval           = 1.0;
         else {
             
             // yield to avoid rate limiting
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, WSWebUtilsBiteasyYieldInterval * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, WSWebExplorerBiteasyYieldInterval * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 [self fetchUnspentInputsForAddress:address page:nextPage handler:handler completion:completion failure:failure];
             });
         }

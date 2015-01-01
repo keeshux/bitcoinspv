@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsTests.m
+//  WSWebTests.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/12/14.
@@ -51,16 +51,16 @@
 {
     WSParametersSetCurrentType(WSParametersTypeTestnet3);
     
-    WSWebUtilsObjectType objectType = WSWebUtilsObjectTypeTransaction;
+    WSWebExplorerObjectType objectType = WSWebExplorerObjectTypeTransaction;
     WSHash256 *hash = WSHash256FromHex(@"d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5");
     
-    NSDictionary *expURLStrings = @{WSWebUtilsProviderBiteasy: @"https://www.biteasy.com/testnet/transactions/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5",
-                                    WSWebUtilsProviderBlockExplorer: @"https://blockexplorer.com/testnet/tx/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5",
-                                    WSWebUtilsProviderBlockr: @"http://tbtc.blockr.io/tx/info/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5"};
+    NSDictionary *expURLStrings = @{WSWebExplorerProviderBiteasy: @"https://www.biteasy.com/testnet/transactions/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5",
+                                    WSWebExplorerProviderBlockExplorer: @"https://blockexplorer.com/testnet/tx/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5",
+                                    WSWebExplorerProviderBlockr: @"http://tbtc.blockr.io/tx/info/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5"};
 
     for (NSString *provider in [expURLStrings allKeys]) {
-        id<WSWebUtils> utils = [WSWebUtilsFactory utilsForProvider:provider];
-        NSURL *url = [utils URLForObjectType:objectType hash:hash];
+        id<WSWebExplorer> explorer = [WSWebExplorerFactory explorerForProvider:provider];
+        NSURL *url = [explorer URLForObjectType:objectType hash:hash];
         
         DDLogInfo(@"%@: %@", provider, [url absoluteURL]);
         XCTAssertEqualObjects([url absoluteString], expURLStrings[provider]);

@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsBiteasy.h
+//  WSWebExplorerBiteasy.h
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
@@ -27,8 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSWebUtils.h"
+#import "WSWebExplorer.h"
 
-@interface WSWebUtilsBiteasy : NSObject <WSWebUtils>
+@interface WSWebExplorerBiteasy : NSObject <WSWebExplorer>
 
 @end

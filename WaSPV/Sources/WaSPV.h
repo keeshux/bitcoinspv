@@ -72,4 +72,4 @@
 
 #import "WSErrors.h"
 #import "WSMacros.h"
-#import "WSWebUtils.h"
+#import "WSWebExplorer.h"

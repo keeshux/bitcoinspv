@@ -1,5 +1,5 @@
 //
-//  WSWebUtils.m
+//  WSWebExplorer.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 07/12/14.
@@ -25,21 +25,21 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSWebUtils.h"
-#import "WSWebUtilsBiteasy.h"
-#import "WSWebUtilsBlockExplorer.h"
-#import "WSWebUtilsBlockr.h"
-#import "WSWebUtilsBlockchain.h"
+#import "WSWebExplorer.h"
+#import "WSWebExplorerBiteasy.h"
+#import "WSWebExplorerBlockExplorer.h"
+#import "WSWebExplorerBlockr.h"
+#import "WSWebExplorerBlockchain.h"
 #import "WSErrors.h"
 
-NSString *const WSWebUtilsProviderBiteasy           = @"WSWebUtilsBiteasy";
-NSString *const WSWebUtilsProviderBlockExplorer     = @"WSWebUtilsBlockExplorer";
-NSString *const WSWebUtilsProviderBlockr            = @"WSWebUtilsBlockr";
-NSString *const WSWebUtilsProviderBlockchain        = @"WSWebUtilsBlockchain";
+NSString *const WSWebExplorerProviderBiteasy           = @"WSWebExplorerBiteasy";
+NSString *const WSWebExplorerProviderBlockExplorer     = @"WSWebExplorerBlockExplorer";
+NSString *const WSWebExplorerProviderBlockr            = @"WSWebExplorerBlockr";
+NSString *const WSWebExplorerProviderBlockchain        = @"WSWebExplorerBlockchain";
 
-@implementation WSWebUtilsFactory
+@implementation WSWebExplorerFactory
 
-+ (id<WSWebUtils>)utilsForProvider:(NSString *)provider
++ (id<WSWebExplorer>)explorerForProvider:(NSString *)provider
 {
     WSExceptionCheckIllegal(provider.length > 0, @"Empty provider");
     

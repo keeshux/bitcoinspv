@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsBlockr.h
+//  WSWebExplorerBlockchain.h
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
@@ -27,8 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSWebUtils.h"
+#import "WSWebExplorer.h"
 
-@interface WSWebUtilsBlockr : NSObject <WSWebUtils>
+@interface WSWebExplorerBlockchain : NSObject <WSWebExplorer>
 
 @end

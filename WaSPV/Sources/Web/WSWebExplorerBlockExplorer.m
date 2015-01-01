@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsBlockchain.m
+//  WSWebExplorerBlockExplorer.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
@@ -25,48 +25,61 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSWebUtilsBlockchain.h"
+#import "WSWebExplorerBlockExplorer.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 
-static NSString *const WSWebUtilsBlockchainBaseFormat           = @"https://blockchain.info/";
+static NSString *const WSWebExplorerBlockExplorerFormat                = @"https://blockexplorer.com%@/";
+static NSString *const WSWebExplorerBlockExplorerNetworkMain           = @"";
+static NSString *const WSWebExplorerBlockExplorerNetworkTest           = @"/testnet";
 
-static NSString *const WSWebUtilsBlockchainObjectPathFormat     = @"%@/%@";
-static NSString *const WSWebUtilsBlockchainObjectBlock          = @"block";
-static NSString *const WSWebUtilsBlockchainObjectTransaction    = @"tx";
+static NSString *const WSWebExplorerBlockExplorerObjectPathFormat      = @"%@/%@";
+static NSString *const WSWebExplorerBlockExplorerObjectBlock           = @"block";
+static NSString *const WSWebExplorerBlockExplorerObjectTransaction     = @"tx";
 
-@implementation WSWebUtilsBlockchain
+@implementation WSWebExplorerBlockExplorer
 
-#pragma mark WSWebUtils
+#pragma mark WSWebExplorer
 
 - (NSString *)provider
 {
-    return WSWebUtilsProviderBlockchain;
+    return WSWebExplorerProviderBlockExplorer;
 }
 
-- (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash
+- (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
     WSExceptionCheckIllegal(hash != nil, @"Nil hash");
     
+    NSString *network = nil;
     NSString *object = nil;
     
-    if (WSParametersGetCurrentType() != WSParametersTypeMain) {
-        return nil;
+    switch (WSParametersGetCurrentType()) {
+        case WSParametersTypeMain: {
+            network = WSWebExplorerBlockExplorerNetworkMain;
+            break;
+        }
+        case WSParametersTypeTestnet3: {
+            network = WSWebExplorerBlockExplorerNetworkTest;
+            break;
+        }
+        case WSParametersTypeRegtest: {
+            return nil;
+        }
     }
     
     switch (objectType) {
-        case WSWebUtilsObjectTypeBlock: {
-            object = WSWebUtilsBlockchainObjectBlock;
+        case WSWebExplorerObjectTypeBlock: {
+            object = WSWebExplorerBlockExplorerObjectBlock;
             break;
         }
-        case WSWebUtilsObjectTypeTransaction: {
-            object = WSWebUtilsBlockchainObjectTransaction;
+        case WSWebExplorerObjectTypeTransaction: {
+            object = WSWebExplorerBlockExplorerObjectTransaction;
             break;
         }
     }
     
-    NSURL *baseURL = [NSURL URLWithString:WSWebUtilsBlockchainBaseFormat];
-    return [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBlockchainObjectPathFormat, object, hash] relativeToURL:baseURL];
+    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBlockExplorerFormat, network]];
+    return [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBlockExplorerObjectPathFormat, object, hash] relativeToURL:baseURL];
 }
 
 - (void)buildSweepTransactionsFromKey:(WSKey *)fromKey toAddress:(WSAddress *)toAddress fee:(uint64_t)fee maxTxSize:(NSUInteger)maxTxSize callback:(void (^)(WSSignedTransaction *))callback completion:(void (^)(NSUInteger))completion failure:(void (^)(NSError *))failure

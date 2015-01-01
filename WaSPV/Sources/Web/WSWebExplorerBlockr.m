@@ -1,5 +1,5 @@
 //
-//  WSWebUtilsBlockExplorer.m
+//  WSWebExplorerBlockr.m
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
@@ -25,28 +25,28 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSWebUtilsBlockExplorer.h"
+#import "WSWebExplorerBlockr.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 
-static NSString *const WSWebUtilsBlockExplorerFormat                = @"https://blockexplorer.com%@/";
-static NSString *const WSWebUtilsBlockExplorerNetworkMain           = @"";
-static NSString *const WSWebUtilsBlockExplorerNetworkTest           = @"/testnet";
+static NSString *const WSWebExplorerBlockrFormat               = @"http://%@.blockr.io/";
+static NSString *const WSWebExplorerBlockrNetworkMain          = @"btc";
+static NSString *const WSWebExplorerBlockrNetworkTest          = @"tbtc";
 
-static NSString *const WSWebUtilsBlockExplorerObjectPathFormat      = @"%@/%@";
-static NSString *const WSWebUtilsBlockExplorerObjectBlock           = @"block";
-static NSString *const WSWebUtilsBlockExplorerObjectTransaction     = @"tx";
+static NSString *const WSWebExplorerBlockrObjectPathFormat     = @"%@/info/%@";
+static NSString *const WSWebExplorerBlockrObjectBlock          = @"block";
+static NSString *const WSWebExplorerBlockrObjectTransaction    = @"tx";
 
-@implementation WSWebUtilsBlockExplorer
+@implementation WSWebExplorerBlockr
 
-#pragma mark WSWebUtils
+#pragma mark WSWebExplorer
 
 - (NSString *)provider
 {
-    return WSWebUtilsProviderBlockExplorer;
+    return WSWebExplorerProviderBlockr;
 }
 
-- (NSURL *)URLForObjectType:(WSWebUtilsObjectType)objectType hash:(WSHash256 *)hash
+- (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
     WSExceptionCheckIllegal(hash != nil, @"Nil hash");
     
@@ -55,11 +55,11 @@ static NSString *const WSWebUtilsBlockExplorerObjectTransaction     = @"tx";
     
     switch (WSParametersGetCurrentType()) {
         case WSParametersTypeMain: {
-            network = WSWebUtilsBlockExplorerNetworkMain;
+            network = WSWebExplorerBlockrNetworkMain;
             break;
         }
         case WSParametersTypeTestnet3: {
-            network = WSWebUtilsBlockExplorerNetworkTest;
+            network = WSWebExplorerBlockrNetworkTest;
             break;
         }
         case WSParametersTypeRegtest: {
@@ -68,18 +68,18 @@ static NSString *const WSWebUtilsBlockExplorerObjectTransaction     = @"tx";
     }
     
     switch (objectType) {
-        case WSWebUtilsObjectTypeBlock: {
-            object = WSWebUtilsBlockExplorerObjectBlock;
+        case WSWebExplorerObjectTypeBlock: {
+            object = WSWebExplorerBlockrObjectBlock;
             break;
         }
-        case WSWebUtilsObjectTypeTransaction: {
-            object = WSWebUtilsBlockExplorerObjectTransaction;
+        case WSWebExplorerObjectTypeTransaction: {
+            object = WSWebExplorerBlockrObjectTransaction;
             break;
         }
     }
     
-    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBlockExplorerFormat, network]];
-    return [NSURL URLWithString:[NSString stringWithFormat:WSWebUtilsBlockExplorerObjectPathFormat, object, hash] relativeToURL:baseURL];
+    NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBlockrFormat, network]];
+    return [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBlockrObjectPathFormat, object, hash] relativeToURL:baseURL];
 }
 
 - (void)buildSweepTransactionsFromKey:(WSKey *)fromKey toAddress:(WSAddress *)toAddress fee:(uint64_t)fee maxTxSize:(NSUInteger)maxTxSize callback:(void (^)(WSSignedTransaction *))callback completion:(void (^)(NSUInteger))completion failure:(void (^)(NSError *))failure
