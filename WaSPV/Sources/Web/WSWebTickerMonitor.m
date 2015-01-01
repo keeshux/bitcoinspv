@@ -131,7 +131,7 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
     return [self.conversionRates allKeys];
 }
 
-- (double)averageConversionRateForCurrencyCode:(NSString *)currencyCode
+- (double)averageConversionRateToCurrencyCode:(NSString *)currencyCode
 {
     WSExceptionCheckIllegal(currencyCode != nil, @"Nil currencyCode");
     

@@ -40,6 +40,6 @@ extern NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification;
 - (void)stop;
 - (BOOL)isStarted;
 - (NSArray *)availableCurrencyCodes;
-- (double)averageConversionRateForCurrencyCode:(NSString *)currencyCode;
+- (double)averageConversionRateToCurrencyCode:(NSString *)currencyCode;
 
 @end
