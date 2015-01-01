@@ -129,7 +129,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 {
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
     WSExceptionCheckIllegal(gapLimit > 0, @"Non-positive gapLimit");
-    WSExceptionCheckIllegal(chainsPath, @"Nil chainsPath");
+    WSExceptionCheckIllegal(chainsPath != nil, @"Nil chainsPath");
     
     if ((self = [self init])) {
         _parametersType = WSParametersGetCurrentType();
