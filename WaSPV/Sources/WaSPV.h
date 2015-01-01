@@ -61,6 +61,9 @@
 #import "WSHDWallet.h"
 #import "WSTransactionMetadata.h"
 
+#import "WSBitcoinCurrency.h"
+#import "WSPhysicalCurrency.h"
+
 #import "WSBIP21.h"
 #import "WSBIP32.h"
 #import "WSBIP37.h"

@@ -22,6 +22,9 @@
 		0E9721291A392A360011F6E5 /* WSBloomFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9721231A392A360011F6E5 /* WSBloomFilter.m */; };
 		0E97212A1A392A360011F6E5 /* WSInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9721251A392A360011F6E5 /* WSInventory.m */; };
 		0E97212B1A392A360011F6E5 /* WSNetworkAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9721271A392A360011F6E5 /* WSNetworkAddress.m */; };
+		0EA147121A55843F00AA400D /* WSCurrencyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147111A55843F00AA400D /* WSCurrencyTests.m */; };
+		0EA1471B1A5589B700AA400D /* WSBitcoinCurrency.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147181A5589B700AA400D /* WSBitcoinCurrency.m */; };
+		0EA147221A5596E000AA400D /* WSPhysicalCurrency.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147211A5596E000AA400D /* WSPhysicalCurrency.m */; };
 		0ED738121A34B90400669C07 /* WSWebUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebUtils.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
@@ -214,6 +217,12 @@
 		0E9721251A392A360011F6E5 /* WSInventory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSInventory.m; sourceTree = "<group>"; };
 		0E9721261A392A360011F6E5 /* WSNetworkAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSNetworkAddress.h; sourceTree = "<group>"; };
 		0E9721271A392A360011F6E5 /* WSNetworkAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSNetworkAddress.m; sourceTree = "<group>"; };
+		0EA147111A55843F00AA400D /* WSCurrencyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCurrencyTests.m; sourceTree = "<group>"; };
+		0EA147171A5589B700AA400D /* WSBitcoinCurrency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBitcoinCurrency.h; sourceTree = "<group>"; };
+		0EA147181A5589B700AA400D /* WSBitcoinCurrency.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBitcoinCurrency.m; sourceTree = "<group>"; };
+		0EA1471D1A5589C300AA400D /* WSCurrency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSCurrency.h; sourceTree = "<group>"; };
+		0EA147201A5596E000AA400D /* WSPhysicalCurrency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPhysicalCurrency.h; sourceTree = "<group>"; };
+		0EA147211A5596E000AA400D /* WSPhysicalCurrency.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPhysicalCurrency.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebUtils.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebUtils.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
@@ -481,6 +490,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0EA147161A5589B700AA400D /* Currency */ = {
+			isa = PBXGroup;
+			children = (
+				0EA147171A5589B700AA400D /* WSBitcoinCurrency.h */,
+				0EA147181A5589B700AA400D /* WSBitcoinCurrency.m */,
+				0EA1471D1A5589C300AA400D /* WSCurrency.h */,
+				0EA147201A5596E000AA400D /* WSPhysicalCurrency.h */,
+				0EA147211A5596E000AA400D /* WSPhysicalCurrency.m */,
+			);
+			path = Currency;
+			sourceTree = "<group>";
+		};
 		0ED7380F1A34B90400669C07 /* Web */ = {
 			isa = PBXGroup;
 			children = (
@@ -823,6 +844,7 @@
 				8C8FB820196776F300A07156 /* WSBlockChainTests.m */,
 				8C8FB821196776F300A07156 /* WSBlockTests.m */,
 				8C7CC4A81981379C00FD5782 /* WSCoreDataStoreTests.m */,
+				0EA147111A55843F00AA400D /* WSCurrencyTests.m */,
 				8C8FB822196776F300A07156 /* WSKeysTests.m */,
 				8C8FB823196776F300A07156 /* WSMessageTests.m */,
 				8C8FB826196776F300A07156 /* WSScriptTests.m */,
@@ -867,6 +889,7 @@
 				8C8ADF90196786CA007787ED /* BIPS */,
 				8C8ADF99196786CA007787ED /* Blockchain */,
 				8C497036196EEEF800BD9D3B /* Core */,
+				0EA147161A5589B700AA400D /* Currency */,
 				8C8ADFA3196786CA007787ED /* Global */,
 				8C49821A19708F28007CE061 /* Model */,
 				8CBF49FC1969DF0000FAFF64 /* Networking */,
@@ -1186,6 +1209,7 @@
 				8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */,
 				0E7FB6691A4B10A100095193 /* WSWebUtilsBlockExplorer.m in Sources */,
 				8C40245219853B54008FDC5F /* WSParametersFactory.m in Sources */,
+				0EA147221A5596E000AA400D /* WSPhysicalCurrency.m in Sources */,
 				0E7FB6681A4B10A100095193 /* WSWebUtilsBlockchain.m in Sources */,
 				0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */,
 				8C4024411984062E008FDC5F /* WSTransactionOutput.m in Sources */,
@@ -1244,6 +1268,7 @@
 				8CDE10F4196CE0C500A14493 /* WSPeerGroup.m in Sources */,
 				8C9A76241976EBD3008BF471 /* WSTransactionEntity.m in Sources */,
 				0E9721291A392A360011F6E5 /* WSBloomFilter.m in Sources */,
+				0EA1471B1A5589B700AA400D /* WSBitcoinCurrency.m in Sources */,
 				8C8AE009196786CA007787ED /* WSMessageAddr.m in Sources */,
 				8C497060196EEEF800BD9D3B /* WSScript.m in Sources */,
 				8C196B5F197EE62900D27CA1 /* WSHDWallet.m in Sources */,
@@ -1271,6 +1296,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0EA147121A55843F00AA400D /* WSCurrencyTests.m in Sources */,
 				8C8FB838196776F300A07156 /* WSWalletTests.m in Sources */,
 				8C8FB82C196776F300A07156 /* WSBIP32Tests.m in Sources */,
 				8C7CC4AB19813F1D00FD5782 /* WSWalletSerializationTests.m in Sources */,
