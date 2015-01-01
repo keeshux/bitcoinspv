@@ -35,7 +35,9 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 @interface WSWebTickerMonitor ()
 
 @property (nonatomic, strong) NSTimer *fetchTimer;
-@property (nonatomic, copy) NSSet *tickers;
+@property (nonatomic, strong) NSArray *tickers;
+@property (nonatomic, assign) NSTimeInterval tickerInterval;
+@property (nonatomic, assign) NSUInteger nextTickerIndex;
 @property (nonatomic, strong) NSMutableSet *pendingTickers;
 @property (nonatomic, strong) NSMutableDictionary *conversionRates;
 
@@ -65,21 +67,21 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 - (void)startWithProviders:(NSSet *)providers updateInterval:(NSTimeInterval)updateInterval
 {
     WSExceptionCheckIllegal(providers.count > 0, @"Empty providers");
-    WSExceptionCheckIllegal(updateInterval >= 10.0, @"updateInterval must be at least 10 seconds");
+    WSExceptionCheckIllegal(updateInterval / providers.count >= 10.0, @"(updateInterval / providers.count) must be at least 10 seconds", providers.count);
     
-    NSMutableSet *tickers = [[NSMutableSet alloc] initWithCapacity:providers.count];
+    NSMutableArray *tickers = [[NSMutableArray alloc] initWithCapacity:providers.count];
     for (NSString *provider in providers) {
         id<WSWebTicker> ticker = [WSWebTickerFactory tickerForProvider:provider];
         [tickers addObject:ticker];
     }
 
     self.tickers = tickers;
+    self.tickerInterval = updateInterval / self.tickers.count;
+    self.nextTickerIndex = 0;
     self.pendingTickers = [[NSMutableSet alloc] initWithCapacity:self.tickers.count];
     self.conversionRates = [[NSMutableDictionary alloc] init];
-    self.fetchTimer = [NSTimer timerWithTimeInterval:updateInterval target:self selector:@selector(fetchNewRates) userInfo:nil repeats:YES];
-    
+
     [self fetchNewRates];
-    [[NSRunLoop currentRunLoop] addTimer:self.fetchTimer forMode:NSRunLoopCommonModes];
 }
 
 - (void)stop
@@ -95,35 +97,37 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 
 - (void)fetchNewRates
 {
-    for (id<WSWebTicker> ticker in self.tickers) {
-        DDLogVerbose(@"Fetching ticker: %@", ticker.provider);
+    id<WSWebTicker> ticker = self.tickers[self.nextTickerIndex];
+    DDLogVerbose(@"Fetching ticker: %@", ticker.provider);
+    self.nextTickerIndex = (self.nextTickerIndex + 1) % self.tickers.count;
 
-        if ([self.pendingTickers containsObject:ticker]) {
-            DDLogVerbose(@"Skipping pending ticker: %@", ticker.provider);
-            continue;
-        }
-        
-        [self.pendingTickers addObject:ticker];
-
-        [ticker fetchRatesWithSuccess:^(NSDictionary *rates) {
-            [self.pendingTickers removeObject:ticker];
-
-            for (NSString *currencyCode in [rates allKeys]) {
-                NSMutableDictionary *ratesByProvider = self.conversionRates[currencyCode];
-                if (!ratesByProvider) {
-                    ratesByProvider = [[NSMutableDictionary alloc] init];
-                    self.conversionRates[currencyCode] = ratesByProvider;
-                }
-                ratesByProvider[ticker.provider] = rates[currencyCode];
-            }
-
-            DDLogVerbose(@"Conversion rates: %@", self.conversionRates);
-
-            [[NSNotificationCenter defaultCenter] postNotificationName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil];
-        } failure:^(NSError *error) {
-            [self.pendingTickers removeObject:ticker];
-        }];
+    if ([self.pendingTickers containsObject:ticker]) {
+        DDLogVerbose(@"Skipping pending ticker: %@", ticker.provider);
+        return;
     }
+    
+    [self.pendingTickers addObject:ticker];
+
+    [ticker fetchRatesWithSuccess:^(NSDictionary *rates) {
+        [self.pendingTickers removeObject:ticker];
+
+        for (NSString *currencyCode in [rates allKeys]) {
+            NSMutableDictionary *ratesByProvider = self.conversionRates[currencyCode];
+            if (!ratesByProvider) {
+                ratesByProvider = [[NSMutableDictionary alloc] init];
+                self.conversionRates[currencyCode] = ratesByProvider;
+            }
+            ratesByProvider[ticker.provider] = rates[currencyCode];
+        }
+
+        DDLogVerbose(@"Conversion rates: %@", self.conversionRates);
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil];
+    } failure:^(NSError *error) {
+        [self.pendingTickers removeObject:ticker];
+    }];
+
+    self.fetchTimer = [NSTimer scheduledTimerWithTimeInterval:self.tickerInterval target:self selector:@selector(fetchNewRates) userInfo:nil repeats:NO];
 }
 
 - (NSArray *)availableCurrencyCodes

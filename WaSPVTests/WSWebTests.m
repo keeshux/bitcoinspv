@@ -120,11 +120,11 @@
 //{
 //    WSWebTickerMonitor *monitor = [WSWebTickerMonitor sharedInstance];
 //    
-//    [monitor startWithProviders:[NSSet setWithObjects:WSWebTickerProviderBitstamp, WSWebTickerProviderBlockchain, nil] updateInterval:10.0];
+//    [monitor startWithProviders:[NSSet setWithObjects:WSWebTickerProviderBitstamp, WSWebTickerProviderBlockchain, nil] updateInterval:20.0];
 //    
 //    [[NSNotificationCenter defaultCenter] addObserverForName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 //        for (NSString *code in [monitor availableCurrencyCodes]) {
-//            DDLogInfo(@"BTC/%@ = %f", code, [monitor averageConversionRateForCurrencyCode:code]);
+//            DDLogInfo(@"BTC/%@ = %f", code, [monitor averageConversionRateToCurrencyCode:code]);
 //        }
 //    }];
 //
