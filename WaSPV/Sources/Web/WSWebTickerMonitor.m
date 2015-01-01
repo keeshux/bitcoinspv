@@ -117,7 +117,7 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
                 ratesByProvider[ticker.provider] = rates[currencyCode];
             }
 
-            DDLogDebug(@"Conversion rates: %@", self.conversionRates);
+            DDLogVerbose(@"Conversion rates: %@", self.conversionRates);
 
             [[NSNotificationCenter defaultCenter] postNotificationName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil];
         } failure:^(NSError *error) {
