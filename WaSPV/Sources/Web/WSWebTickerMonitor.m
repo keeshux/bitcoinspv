@@ -96,10 +96,10 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 - (void)fetchNewRates
 {
     for (id<WSWebTicker> ticker in self.tickers) {
-        DDLogDebug(@"Fetching ticker: %@", ticker.provider);
+        DDLogVerbose(@"Fetching ticker: %@", ticker.provider);
 
         if ([self.pendingTickers containsObject:ticker]) {
-            DDLogDebug(@"Skipping pending ticker: %@", ticker.provider);
+            DDLogVerbose(@"Skipping pending ticker: %@", ticker.provider);
             continue;
         }
         
