@@ -36,5 +36,6 @@ extern NSString *const WSPhysicalCurrencyCodeEUR;
 
 - (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates; // NSString(code) -> double(rate)
 - (NSString *)code;
+- (NSDictionary *)conversionRates;
 
 @end
