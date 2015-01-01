@@ -62,12 +62,15 @@
 {
     WSBitcoinCurrency *btc = [WSBitcoinCurrency currencyForCode:WSBitcoinCurrencyCodeBTC];
     WSBitcoinCurrency *millis = [WSBitcoinCurrency currencyForCode:WSBitcoinCurrencyCodeMilliBTC];
-    WSPhysicalCurrency *usd = [[WSPhysicalCurrency alloc] initWithCode:WSPhysicalCurrencyCodeUSD];
-    WSPhysicalCurrency *eur = [[WSPhysicalCurrency alloc] initWithCode:WSPhysicalCurrencyCodeEUR];
     WSBitcoinCurrency *sat = [WSBitcoinCurrency currencyForCode:WSBitcoinCurrencyCodeSatoshi];
 
-    usd.conversionRates = @{btc.code: @0.003125, eur.code: @0.83};
-    eur.conversionRates = @{btc.code: @0.0038, usd.code: @1.2};
+    WSPhysicalCurrency *usd = [[WSPhysicalCurrency alloc] initWithCode:WSPhysicalCurrencyCodeUSD
+                                                       conversionRates:@{WSBitcoinCurrencyCodeBTC: @0.003125,
+                                                                         WSPhysicalCurrencyCodeEUR: @0.83}];
+
+    WSPhysicalCurrency *eur = [[WSPhysicalCurrency alloc] initWithCode:WSPhysicalCurrencyCodeEUR
+                                                       conversionRates:@{WSBitcoinCurrencyCodeBTC: @0.0038,
+                                                                         WSPhysicalCurrencyCodeUSD: @1.2}];
     
     XCTAssertEqualObjects([btc convertValue:DEC(@"120") toCurrency:millis], DEC(@"120000"));
     XCTAssertEqualObjects([btc convertValue:DEC(@"120") toCurrency:btc], DEC(@"120"));

@@ -34,9 +34,7 @@ extern NSString *const WSPhysicalCurrencyCodeEUR;
 
 @interface WSPhysicalCurrency : NSObject <WSCurrency>
 
-@property (nonatomic, strong) NSDictionary *conversionRates; // NSString(code) -> double(rate)
-
-- (instancetype)initWithCode:(NSString *)code;
+- (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates; // NSString(code) -> double(rate)
 - (NSString *)code;
 
 @end
