@@ -54,7 +54,9 @@ Grouped by area:
     * A fully BIP32-compliant HD wallet ([WSHDWallet](WaSPV/Sources/Wallet/WSHDWallet.h)).
 
 * Web
-    * Useful operations accomplished with the aid of third-party web services ([WSWebUtils](WaSPV/Sources/Web/WSWebUtils.h)).
+    * Useful operations accomplished with the aid of third-party web services.
+    * Explorer classes from different providers ([WSWebExplorer](WaSPV/Sources/Web/WSWebExplorer.h)).
+    * Ticker classes and unified price monitor ([WSWebTicker](WaSPV/Sources/Web/WSWebTicker.h), [WSWebTickerMonitor](WaSPV/Sources/Web/WSWebTickerMonitor.h)).
     * Sweep an external private key (e.g. a paper wallet), be it plain or password-encrypted (BIP38).
 
 * BIPS
