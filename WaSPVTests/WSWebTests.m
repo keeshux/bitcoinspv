@@ -102,5 +102,33 @@
 //    
 //    [self runForSeconds:5.0];
 //}
+//
+//- (void)testTicker
+//{
+//    id<WSWebTicker> ticker = [WSWebTickerFactory tickerForProvider:WSWebTickerProviderBitstamp];
+//    
+//    [ticker fetchRatesWithSuccess:^(NSDictionary *rates) {
+//        DDLogInfo(@"Rates: %@", rates);
+//    } failure:^(NSError *error) {
+//        DDLogError(@"Error: %@", error);
+//    }];
+//    
+//    [self runForSeconds:3.0];
+//}
+//
+//- (void)testTickerMonitor
+//{
+//    WSWebTickerMonitor *monitor = [WSWebTickerMonitor sharedInstance];
+//    
+//    [monitor startWithProviders:[NSSet setWithObjects:WSWebTickerProviderBitstamp, WSWebTickerProviderBlockchain, nil] updateInterval:10.0];
+//    
+//    [[NSNotificationCenter defaultCenter] addObserverForName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+//        for (NSString *code in [monitor availableCurrencyCodes]) {
+//            DDLogInfo(@"BTC/%@ = %f", code, [monitor averageConversionRateForCurrencyCode:code]);
+//        }
+//    }];
+//
+//    [self runForever];
+//}
 
 @end

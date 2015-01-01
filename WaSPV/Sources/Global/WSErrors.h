@@ -50,7 +50,8 @@ typedef enum {
     WSErrorCodeInvalidBlock,
     WSErrorCodeInvalidTransaction,
     WSErrorCodeInsufficientFunds,
-    WSErrorCodeBIP39BadMnemonic
+    WSErrorCodeBIP39BadMnemonic,
+    WSErrorCodeWebService
 } WSErrorCode;
 
 extern NSString *const          WSErrorMessageTypeKey;

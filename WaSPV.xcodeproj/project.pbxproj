@@ -25,6 +25,10 @@
 		0EA147121A55843F00AA400D /* WSCurrencyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147111A55843F00AA400D /* WSCurrencyTests.m */; };
 		0EA1471B1A5589B700AA400D /* WSBitcoinCurrency.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147181A5589B700AA400D /* WSBitcoinCurrency.m */; };
 		0EA147221A5596E000AA400D /* WSPhysicalCurrency.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147211A5596E000AA400D /* WSPhysicalCurrency.m */; };
+		0EA147251A55B48600AA400D /* WSWebTickerMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147241A55B48600AA400D /* WSWebTickerMonitor.m */; };
+		0EA147281A55B80F00AA400D /* WSWebTicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147271A55B80F00AA400D /* WSWebTicker.m */; };
+		0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */; };
+		0EA1472E1A55C2B900AA400D /* WSWebTickerBlockchain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
@@ -223,6 +227,14 @@
 		0EA1471D1A5589C300AA400D /* WSCurrency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSCurrency.h; sourceTree = "<group>"; };
 		0EA147201A5596E000AA400D /* WSPhysicalCurrency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPhysicalCurrency.h; sourceTree = "<group>"; };
 		0EA147211A5596E000AA400D /* WSPhysicalCurrency.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPhysicalCurrency.m; sourceTree = "<group>"; };
+		0EA147231A55B48600AA400D /* WSWebTickerMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerMonitor.h; sourceTree = "<group>"; };
+		0EA147241A55B48600AA400D /* WSWebTickerMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerMonitor.m; sourceTree = "<group>"; };
+		0EA147261A55B80F00AA400D /* WSWebTicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTicker.h; sourceTree = "<group>"; };
+		0EA147271A55B80F00AA400D /* WSWebTicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTicker.m; sourceTree = "<group>"; };
+		0EA147291A55B8B900AA400D /* WSWebTickerBitstamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBitstamp.h; sourceTree = "<group>"; };
+		0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBitstamp.m; sourceTree = "<group>"; };
+		0EA1472C1A55C2B900AA400D /* WSWebTickerBlockchain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBlockchain.h; sourceTree = "<group>"; };
+		0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBlockchain.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebExplorer.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
@@ -517,6 +529,14 @@
 				0E7FB6641A4B10A100095193 /* WSWebExplorerBlockr.m */,
 				0ED738101A34B90400669C07 /* WSWebExplorer.h */,
 				0ED738111A34B90400669C07 /* WSWebExplorer.m */,
+				0EA147261A55B80F00AA400D /* WSWebTicker.h */,
+				0EA147271A55B80F00AA400D /* WSWebTicker.m */,
+				0EA147291A55B8B900AA400D /* WSWebTickerBitstamp.h */,
+				0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */,
+				0EA1472C1A55C2B900AA400D /* WSWebTickerBlockchain.h */,
+				0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */,
+				0EA147231A55B48600AA400D /* WSWebTickerMonitor.h */,
+				0EA147241A55B48600AA400D /* WSWebTickerMonitor.m */,
 			);
 			path = Web;
 			sourceTree = "<group>";
@@ -1220,6 +1240,7 @@
 				8C8AE00B196786CA007787ED /* WSMessageGetdata.m in Sources */,
 				8CAC9C98197003F500A2596E /* WSMemoryBlockStore.m in Sources */,
 				8C8AE001196786CA007787ED /* WSPartialMerkleTree.m in Sources */,
+				0EA1472E1A55C2B900AA400D /* WSWebTickerBlockchain.m in Sources */,
 				8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */,
 				0E7FB6671A4B10A100095193 /* WSWebExplorerBiteasy.m in Sources */,
 				8C497058196EEEF800BD9D3B /* WSBuffer.m in Sources */,
@@ -1238,6 +1259,7 @@
 				8C8ADFFE196786CA007787ED /* WSBlockHeader.m in Sources */,
 				8C8AE017196786CA007787ED /* NSData+Base58.m in Sources */,
 				8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */,
+				0EA147251A55B48600AA400D /* WSWebTickerMonitor.m in Sources */,
 				8C865DE7196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m in Sources */,
 				8CBF4A10196AA94D00FAFF64 /* WSPeer.m in Sources */,
 				8C9A762C19771BED008BF471 /* WSTransactionOutPointEntity.m in Sources */,
@@ -1277,6 +1299,7 @@
 				0EF696801A351742006E027C /* WSBIP21.m in Sources */,
 				8C8AE01C196786CA007787ED /* NSString+Binary.m in Sources */,
 				0E97212B1A392A360011F6E5 /* WSNetworkAddress.m in Sources */,
+				0EA147281A55B80F00AA400D /* WSWebTicker.m in Sources */,
 				8C8ADFFC196786CA007787ED /* WSBIP37.m in Sources */,
 				8C8AE014196786CA007787ED /* WSMessageVersion.m in Sources */,
 				0E1143971A3556E900AB3F59 /* WSBlock.m in Sources */,
@@ -1288,6 +1311,7 @@
 				8CDD9A1E1983007900720304 /* WSBlockMacros.m in Sources */,
 				8C777EE41971512800B19ED9 /* WSCoreDataBlockStore.m in Sources */,
 				8CBB63CA198D3115006599DB /* WSCoreDataManager.m in Sources */,
+				0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */,
 				8C8ADFFF196786CA007787ED /* WSBlockChain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

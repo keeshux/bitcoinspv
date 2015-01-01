@@ -1,9 +1,9 @@
 //
-//  WSWebExplorerBlockchain.h
+//  WSWebTicker.h
 //  WaSPV
 //
-//  Created by Davide De Rosa on 04/09/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 01/01/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -27,8 +27,28 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSWebExplorer.h"
+#import "WSPhysicalCurrency.h"
 
-@interface WSWebExplorerBlockchain : NSObject <WSWebExplorer>
+extern NSString *const WSWebTickerProviderBitstamp;
+extern NSString *const WSWebTickerProviderBlockchain;
+
+@protocol WSWebTicker;
+
+@interface WSWebTickerFactory : NSObject
+
++ (id<WSWebTicker>)tickerForProvider:(NSString *)provider;
+
+@end
+
+#pragma mark -
+
+@protocol WSWebTicker <NSObject>
+
+- (NSString *)provider;
+
+//
+// success returns a {"XXX": "BTC/XXX rate"} dictionary where XXX is a WSPhysicalCurrencyCode*
+//
+- (void)fetchRatesWithSuccess:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure;
 
 @end

@@ -1,9 +1,9 @@
 //
-//  WSWebExplorerBlockchain.h
+//  WSWebTickerBlockchain.h
 //  WaSPV
 //
-//  Created by Davide De Rosa on 04/09/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 01/01/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -27,8 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSWebExplorer.h"
+#import "WSWebTicker.h"
 
-@interface WSWebExplorerBlockchain : NSObject <WSWebExplorer>
+@interface WSWebTickerBlockchain : NSObject <WSWebTicker>
 
 @end

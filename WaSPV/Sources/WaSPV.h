@@ -64,6 +64,10 @@
 #import "WSBitcoinCurrency.h"
 #import "WSPhysicalCurrency.h"
 
+#import "WSWebExplorer.h"
+#import "WSWebTicker.h"
+#import "WSWebTickerMonitor.h"
+
 #import "WSBIP21.h"
 #import "WSBIP32.h"
 #import "WSBIP37.h"
@@ -72,4 +76,3 @@
 
 #import "WSErrors.h"
 #import "WSMacros.h"
-#import "WSWebExplorer.h"

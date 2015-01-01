@@ -3,7 +3,7 @@
 //  WaSPV
 //
 //  Created by Davide De Rosa on 04/09/14.
-//  Copyright (c) 2014 fingrtip. All rights reserved.
+//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux

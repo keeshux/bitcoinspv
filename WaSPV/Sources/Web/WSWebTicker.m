@@ -1,9 +1,9 @@
 //
-//  WSWebExplorerBlockchain.h
+//  WSWebTicker.m
 //  WaSPV
 //
-//  Created by Davide De Rosa on 04/09/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 01/01/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -25,10 +25,21 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <Foundation/Foundation.h>
+#import "WSWebTicker.h"
+#import "WSErrors.h"
 
-#import "WSWebExplorer.h"
+NSString *const WSWebTickerProviderBitstamp         = @"WSWebTickerBitstamp";
+NSString *const WSWebTickerProviderBlockchain       = @"WSWebTickerBlockchain";
 
-@interface WSWebExplorerBlockchain : NSObject <WSWebExplorer>
+@implementation WSWebTickerFactory
+
++ (id<WSWebTicker>)tickerForProvider:(NSString *)provider
+{
+    WSExceptionCheckIllegal(provider.length > 0, @"Empty provider");
+    
+    Class clazz = NSClassFromString(provider);
+    WSExceptionCheckIllegal(clazz != nil, @"Unknown provider (%@)", provider);
+    return [[clazz alloc] init];
+}
 
 @end
