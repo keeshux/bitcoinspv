@@ -44,6 +44,7 @@ NSBundle *WSClientBundle(Class clazz)
 const uint32_t          WSSeedGeneratorDefaultEntropyBits           = 128;
 
 const uint32_t          WSBlockUnknownHeight                        = UINT32_MAX;
+const uint32_t          WSBlockUnknownTimestamp                     = UINT32_MAX;
 
 const NSTimeInterval    WSPeerConnectTimeout                        = 3.0;
 const NSTimeInterval    WSPeerWriteTimeout                          = 30.0;

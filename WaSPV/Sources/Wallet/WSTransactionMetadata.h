@@ -37,7 +37,8 @@
 - (instancetype)initWithParentBlock:(WSStorableBlock *)block;
 - (instancetype)initWithNoParentBlock;
 - (WSHash256 *)parentBlockId;
-- (NSUInteger)height;
+- (uint32_t)height;
+- (uint32_t)timestamp;
 - (NSUInteger)confirmationsAtNetworkHeight:(NSUInteger)networkHeight;
 
 @end

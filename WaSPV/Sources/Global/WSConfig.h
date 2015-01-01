@@ -47,6 +47,7 @@ NSBundle *WSClientBundle(Class clazz);
 extern const uint32_t           WSSeedGeneratorDefaultEntropyBits;
 
 extern const uint32_t           WSBlockUnknownHeight;
+extern const uint32_t           WSBlockUnknownTimestamp;
 
 extern const NSTimeInterval     WSPeerConnectTimeout;
 extern const NSTimeInterval     WSPeerWriteTimeout;

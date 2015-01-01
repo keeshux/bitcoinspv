@@ -27,14 +27,17 @@
 
 #import "WSTransactionMetadata.h"
 #import "WSStorableBlock.h"
+#import "WSBlockHeader.h"
 #import "WSHash256.h"
 #import "WSBitcoin.h"
+#import "WSConfig.h"
 #import "WSErrors.h"
 
 @interface WSTransactionMetadata ()
 
 @property (nonatomic, strong) WSHash256 *parentBlockId;
-@property (nonatomic, assign) NSUInteger height;
+@property (nonatomic, assign) uint32_t height;
+@property (nonatomic, assign) uint32_t timestamp;
 
 @end
 
@@ -47,6 +50,7 @@
     if ((self = [super init])) {
         self.parentBlockId = block.blockId;
         self.height = block.height;
+        self.timestamp = block.header.timestamp;
     }
     return self;
 }
@@ -56,6 +60,7 @@
     if ((self = [super init])) {
         self.parentBlockId = nil;
         self.height = WSBlockUnknownHeight;
+        self.timestamp = WSBlockUnknownTimestamp;
     }
     return self;
 }
