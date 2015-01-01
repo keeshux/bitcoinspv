@@ -56,7 +56,7 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 - (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates
 {
     WSExceptionCheckIllegal(code != nil, @"Nil code");
-    WSExceptionCheckIllegal([[[self class] knownCurrencyCodes] containsObject:code], @"Unknown currency code (%@)", code);
+//    WSExceptionCheckIllegal([[[self class] knownCurrencyCodes] containsObject:code], @"Unknown currency code (%@)", code);
     WSExceptionCheckIllegal(conversionRates != nil, @"Nil conversionRates");
     
     if ((self = [super init])) {
