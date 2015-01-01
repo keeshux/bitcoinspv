@@ -81,7 +81,8 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
     self.pendingTickers = [[NSMutableSet alloc] initWithCapacity:self.tickers.count];
     self.conversionRates = [[NSMutableDictionary alloc] init];
 
-    [self fetchNewRates];
+    [self fetchAllRates];
+    self.fetchTimer = [NSTimer scheduledTimerWithTimeInterval:self.tickerInterval target:self selector:@selector(fetchNextRatesAndCycle) userInfo:nil repeats:NO];
 }
 
 - (void)stop
@@ -95,7 +96,14 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
     return (self.fetchTimer != nil);
 }
 
-- (void)fetchNewRates
+- (void)fetchAllRates
+{
+    for (NSUInteger i = 0; i < self.tickers.count; ++i) {
+        [self fetchNextRates];
+    }
+}
+
+- (void)fetchNextRates
 {
     id<WSWebTicker> ticker = self.tickers[self.nextTickerIndex];
     DDLogVerbose(@"Fetching ticker: %@", ticker.provider);
@@ -126,8 +134,12 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
     } failure:^(NSError *error) {
         [self.pendingTickers removeObject:ticker];
     }];
+}
 
-    self.fetchTimer = [NSTimer scheduledTimerWithTimeInterval:self.tickerInterval target:self selector:@selector(fetchNewRates) userInfo:nil repeats:NO];
+- (void)fetchNextRatesAndCycle
+{
+    [self fetchNextRates];
+    self.fetchTimer = [NSTimer scheduledTimerWithTimeInterval:self.tickerInterval target:self selector:@selector(fetchNextRatesAndCycle) userInfo:nil repeats:NO];
 }
 
 - (NSArray *)availableCurrencyCodes
