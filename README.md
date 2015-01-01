@@ -53,6 +53,10 @@ Grouped by area:
     * Generic wallet representations.
     * A fully BIP32-compliant HD wallet ([WSHDWallet](WaSPV/Sources/Wallet/WSHDWallet.h)).
 
+* Currency
+    * Helper classes for currency conversions.
+    * Bitcoin currency variants (bitcoin, millis, satoshis).
+
 * Web
     * Useful operations accomplished with the aid of third-party web services.
     * Explorer classes from different providers ([WSWebExplorer](WaSPV/Sources/Web/WSWebExplorer.h)).
