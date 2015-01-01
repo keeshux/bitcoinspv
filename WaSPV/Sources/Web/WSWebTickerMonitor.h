@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSWebTicker.h"
 #import "WSPhysicalCurrency.h"
 
 extern NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification;
