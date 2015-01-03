@@ -99,10 +99,12 @@
 
 - (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError **)error;
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
+- (void)handleReplacedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks fromPeer:(WSPeer *)peer;
 - (void)handleMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification;
 - (void)applicationDidEnterBackground:(NSNotification *)notification;
@@ -1011,6 +1013,7 @@
 
     NSError *error;
     WSStorableBlock *block = nil;
+    WSStorableBlock *previousHead = nil;
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
@@ -1025,6 +1028,7 @@
             return;
         }
 
+        previousHead = self.blockChain.head;
         block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
@@ -1076,7 +1080,12 @@
         }
     }
     
-    [self handleAddedBlock:block fromPeer:peer];
+    if (![block.blockId isEqual:previousHead.blockId]) {
+        [self handleAddedBlock:block fromPeer:peer];
+    }
+    else {
+        [self handleReplacedBlock:block fromPeer:peer];
+    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
@@ -1230,32 +1239,15 @@
 
     //
     
-    if (!self.wallet) {
-        return;
+    if (self.wallet) {
+        [self recoverMissedBlockTransactions:block fromPeer:peer];
     }
+}
 
-    //
-    // enforce registration in case we lost these transactions during sync
-    //
-    // see note in [WSHDWallet isRelevantTransaction:savingReceivingAddresses:]
-    //
-    BOOL didGenerateNewAddresses = NO;
-    for (WSSignedTransaction *transaction in block.transactions) {
-        BOOL txDidGenerateNewAddresses = NO;
-        [self.wallet registerTransaction:transaction didGenerateNewAddresses:&txDidGenerateNewAddresses];
-
-        didGenerateNewAddresses |= txDidGenerateNewAddresses;
-    }
-
-    [self.wallet registerBlock:block];
-    
-    // transactions should already exist in wallet, no new addresses should be generated
-    if (didGenerateNewAddresses) {
-        DDLogWarn(@"Block registration triggered (unexpected) new addresses generation");
-        
-        if ([self maybeResetAndSendBloomFilter]) {
-            [peer requestOutdatedBlocks];
-        }
+- (void)handleReplacedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer
+{
+    if (self.wallet) {
+        [self recoverMissedBlockTransactions:block fromPeer:peer];
     }
 }
 
@@ -1341,6 +1333,32 @@
             DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction);
         }
         return isPublished;
+    }
+}
+
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block fromPeer:(WSPeer *)peer
+{
+    //
+    // enforce registration in case we lost these transactions
+    //
+    // see note in [WSHDWallet isRelevantTransaction:savingReceivingAddresses:]
+    //
+    BOOL didGenerateNewAddresses = NO;
+    for (WSSignedTransaction *transaction in block.transactions) {
+        BOOL txDidGenerateNewAddresses = NO;
+        [self.wallet registerTransaction:transaction didGenerateNewAddresses:&txDidGenerateNewAddresses];
+        
+        didGenerateNewAddresses |= txDidGenerateNewAddresses;
+    }
+    
+    [self.wallet registerBlock:block];
+    
+    if (didGenerateNewAddresses) {
+        DDLogWarn(@"Block registration triggered new addresses generation");
+        
+        if ([self maybeResetAndSendBloomFilter]) {
+            [peer requestOutdatedBlocks];
+        }
     }
 }
 
