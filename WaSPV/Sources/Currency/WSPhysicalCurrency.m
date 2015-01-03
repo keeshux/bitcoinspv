@@ -35,6 +35,7 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 @interface WSPhysicalCurrency ()
 
 @property (nonatomic, copy) NSString *code;
+@property (nonatomic, assign) WSCurrencySymbolPosition symbolPosition;
 @property (nonatomic, strong) NSDictionary *conversionRates;
 
 + (NSSet *)knownCurrencyCodes;
@@ -55,12 +56,20 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 
 - (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates
 {
+    return [self initWithCode:code conversionRates:conversionRates symbolPosition:WSCurrencySymbolPositionPrepend];
+}
+
+- (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates symbolPosition:(WSCurrencySymbolPosition)symbolPosition
+{
     WSExceptionCheckIllegal(code != nil, @"Nil code");
 //    WSExceptionCheckIllegal([[[self class] knownCurrencyCodes] containsObject:code], @"Unknown currency code (%@)", code);
+    WSExceptionCheckIllegal((symbolPosition >= WSCurrencySymbolPositionPrepend) && (symbolPosition <= WSCurrencySymbolPositionAppend),
+                            @"Unknown symbolPosition (%d)", symbolPosition);
     WSExceptionCheckIllegal(conversionRates != nil, @"Nil conversionRates");
     
     if ((self = [super init])) {
         self.code = code;
+        self.symbolPosition = symbolPosition;
         self.conversionRates = conversionRates;
     }
     return self;

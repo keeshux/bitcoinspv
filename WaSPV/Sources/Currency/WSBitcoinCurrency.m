@@ -109,6 +109,11 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 #pragma mark WSCurrency
 
+- (WSCurrencySymbolPosition)symbolPosition
+{
+    return WSCurrencySymbolPositionAppend;
+}
+
 - (NSDecimalNumber *)conversionRateToCurrency:(id<WSCurrency>)currency
 {
     WSExceptionCheckIllegal(currency != nil, @"Nil currency");

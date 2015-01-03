@@ -8,9 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum {
+    WSCurrencySymbolPositionPrepend, // default
+    WSCurrencySymbolPositionAppend
+} WSCurrencySymbolPosition;
+
 @protocol WSCurrency <NSObject>
 
 - (NSString *)code;
+- (WSCurrencySymbolPosition)symbolPosition;
 - (NSDecimalNumber *)conversionRateToCurrency:(id<WSCurrency>)currency;
 - (NSDecimalNumber *)convertValue:(NSDecimalNumber *)value toCurrency:(id<WSCurrency>)currency;
 
