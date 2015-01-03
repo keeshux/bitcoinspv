@@ -70,9 +70,8 @@
     if (self.height == NSNotFound) {
         return 0;
     }
-    if (networkHeight < self.height) {
-        return NSNotFound;
-    }
+#warning XXX: wrong confirmations if transaction in fork block
+//    WSExceptionCheckIllegal(networkHeight >= self.height, @"Parent block can never be higher than networkHeight");
     return networkHeight - self.height + 1;
 }
 
