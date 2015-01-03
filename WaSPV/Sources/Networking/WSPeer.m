@@ -301,10 +301,10 @@
 - (BOOL)isConnected
 {
     @synchronized (self) {
-        NSAssert((self.connectionQueue != nil) == (_peerStatus != WSPeerStatusDisconnected),
-                 @"Connection queue must not be nil as long as a connection is active");
+        NSAssert((self.connectionQueue != NULL) == (_peerStatus != WSPeerStatusDisconnected),
+                 @"Connection queue must not be NULL as long as a connection is active");
         
-        return (self.connectionQueue != nil);
+        return (self.connectionQueue != NULL);
     }
 }
 
