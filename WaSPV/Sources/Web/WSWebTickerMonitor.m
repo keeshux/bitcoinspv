@@ -41,7 +41,9 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 @property (nonatomic, strong) NSMutableSet *pendingTickers;
 @property (nonatomic, strong) NSMutableDictionary *conversionRates;
 
-- (void)fetchNewRates;
+- (void)fetchAllRates;
+- (void)fetchNextRates;
+- (void)fetchNextRatesAndCycle;
 
 @end
 
