@@ -41,8 +41,6 @@
 // WARNING: set properties before starting connections
 
 // group related
-@property (nonatomic, assign) BOOL shouldReconnectOnBecomeActive;           // NO
-@property (nonatomic, assign) BOOL shouldDisconnectOnEnterBackground;       // NO
 @property (nonatomic, strong) NSArray *peerHosts;                           // nil
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20

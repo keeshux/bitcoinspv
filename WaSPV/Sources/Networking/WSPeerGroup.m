@@ -106,9 +106,6 @@
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 
-- (void)applicationDidBecomeActive:(NSNotification *)notification;
-- (void)applicationDidEnterBackground:(NSNotification *)notification;
-
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 @end
@@ -169,8 +166,6 @@
         self.reachability.delegateQueue = self.queue;
         
         // group related
-        self.shouldReconnectOnBecomeActive = NO;
-        self.shouldDisconnectOnEnterBackground = NO;
         self.peerHosts = nil;
         self.maxConnections = WSPeerGroupDefaultMaxConnections;
         self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
@@ -201,10 +196,6 @@
 #endif
         }
         
-        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-        [nc addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
-        [nc addObserver:self selector:@selector(applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-
         [self.reachability startNotifier];
     }
     return self;
@@ -1379,24 +1370,6 @@
         else {
             [self disconnect];
         }
-    }
-}
-
-- (void)applicationDidBecomeActive:(NSNotification *)notification
-{
-    if (self.shouldReconnectOnBecomeActive) {
-        @synchronized (self.queue) {
-            if (self.keepConnected && [self.reachability isReachable]) {
-                [self connect];
-            }
-        }
-    }
-}
-
-- (void)applicationDidEnterBackground:(NSNotification *)notification
-{
-    if (self.shouldDisconnectOnEnterBackground) {
-        [self disconnect];
     }
 }
 
