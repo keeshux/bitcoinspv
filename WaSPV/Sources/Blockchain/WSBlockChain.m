@@ -179,8 +179,21 @@
     WSStorableBlock *addedBlock = nil;
     
     if ([header.blockId isEqual:self.head.blockId]) {
-        DDLogDebug(@"Ignoring duplicated head: %@", header.blockId);
-        return nil;
+        if (![self.head.transactions isSubsetOfOrderedSet:transactions]) {
+            DDLogDebug(@"Ignoring duplicated head: %@", header.blockId);
+            return nil;
+        }
+
+        DDLogDebug(@"Replacing head with newer block: %@", header.blockId);
+        WSStorableBlock *headParent = [self.head previousBlockInChain:self];
+        WSStorableBlock *newHead = [headParent buildNextBlockFromHeader:header transactions:transactions];
+
+        [self.store putBlock:newHead];
+        [self.store setHead:newHead];
+        
+        [self.delegate blockChain:self didReplaceHead:newHead];
+
+        return newHead;
     }
     if (connectOrphans && self.orphans[header.blockId]) {
         DDLogDebug(@"Ignoring known orphan: %@", header.blockId);

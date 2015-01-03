@@ -26,25 +26,10 @@
 //
 
 #import "XCTestCase+WaSPV.h"
-#import "WSBlockChain.h"
-#import "WSStorableBlock.h"
-#import "WSMemoryBlockStore.h"
-#import "WSBlockHeader.h"
-#import "WSFilteredBlock.h"
-#import "WSBlockLocator.h"
-#import "WSConnectionPool.h"
-#import "WSCoreDataManager.h"
-#import "WSCoreDataBlockStore.h"
-#import "WSBlockChain.h"
-#import "WSPeerGroup.h"
-#import "WSMessageFactory.h"
+#import "WaSPV.h"
 #import "WSBlockMacros.h"
-#import "WSTransaction.h"
-#import "WSTransactionOutPoint.h"
-#import "WSTransactionInput.h"
-#import "WSTransactionOutput.h"
-#import "WSScript.h"
-#import "WSHDWallet.h"
+#import "WSBlockLocator.h"
+#import "WSFilteredBlock.h"
 
 static WSBlockHeader *WSMakeDummyHeader(WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
 {
@@ -295,6 +280,23 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     DDLogInfo(@"BlockChain: %@", chain);
 }
 
+- (void)testReplace
+{
+    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+
+    WSBlockHeader *header = WSBlockHeaderFromHex(@"01000000a9c570a45d959023551f9a694ace9c12206174f21383f30949ca3b9b00000000eaf93dbbfb3551a1ff8b6bd5ba4cea7508e790c23cd07b9d9e791936a79d5fd4b3eb494dffff001d0385a7dd00");
+    WSSignedTransaction *transaction = WSTransactionFromHex(@"0100000002c60c5a1d539c43101b0d4d36fce86941d132d126670320a02cfeb55d733de76e01000000fdfe00004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53aeffffffff0efe1d2b69d50fc4271ac76671ac3f549617bde1cab71c715212fb062030725401000000fd000100493046022100bddd0d72c54fce23718d4450720e60a90d6c7c50af1c3caeb25dd49228a7233a022100c905f4bb5c624d594dbb364ffbeffc1f9e8ab72dac297b2f8fb1f07632fdf52801493046022100f8ff9b9fd434bf018c21725047b0205c4ab70bcc999c625c8c5573a836d7b525022100a7cfc4f741386c1b22d0e2a994139f52961d86d51332fc03d117bb422abb9123014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd2103082587f27afa0481c6af0e75bead2daabdd0ac17395563bd9282ed6ca00025db53aeffffffff0230cd23f7000000001976a91469611d4ddff939f5ef553f020ba3ba0f1d1d76d688ac032700000000000017a91431ecbf82d5dac9ec751e450fc38f098e3d630cb68700000000");
+    WSStorableBlock *block;
+    
+    WSBlockChain *chain = [self chainWithLocalHeaders];
+    block = [chain addBlockWithHeader:header transactions:nil error:NULL];
+    XCTAssertNil(block);
+    block = [chain addBlockWithHeader:header transactions:[NSOrderedSet orderedSetWithObject:transaction] error:NULL];
+    XCTAssertNotNil(block);
+    
+    DDLogInfo(@"BlockChain: %@", chain);
+}
+
 // transactions reorg needs WASPV_TEST_DUMMY_TXS
 - (void)testReorganize
 {
@@ -536,6 +538,11 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     [self.wallet registerBlock:block];
 
     DDLogInfo(@"Wallet transactions (%u): %@", self.wallet.allTransactions.count, self.wallet.allTransactions);
+}
+
+- (void)blockChain:(WSBlockChain *)blockChain didReplaceHead:(WSStorableBlock *)head
+{
+    DDLogInfo(@"Replaced head: %@", head);
 }
 
 - (void)blockChain:(WSBlockChain *)blockChain didReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks

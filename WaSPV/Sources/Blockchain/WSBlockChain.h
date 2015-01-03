@@ -77,6 +77,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 @protocol WSBlockChainDelegate <NSObject>
 
 - (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block;
+- (void)blockChain:(WSBlockChain *)blockChain didReplaceHead:(WSStorableBlock *)head;
 - (void)blockChain:(WSBlockChain *)blockChain didReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 
 @end
