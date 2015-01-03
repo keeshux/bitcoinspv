@@ -148,10 +148,14 @@
 {
     WSExceptionCheckIllegal(block != nil, @"Nil block");
 
-    if (self.cachedBlockEntities[block.blockId.data]) {
+    WSStorableBlockEntity *oldBlockEntity = self.cachedBlockEntities[block.blockId.data];
+    if (oldBlockEntity) {
         DDLogWarn(@"Replacing block %@", block.blockId);
     }
     [self.manager.context performBlockAndWait:^{
+        if (oldBlockEntity) {
+            [self.manager.context deleteObject:oldBlockEntity];
+        }
         WSStorableBlockEntity *blockEntity = [[WSStorableBlockEntity alloc] initWithContext:self.manager.context];
         [blockEntity copyFromStorableBlock:block];
         self.cachedBlockEntities[block.blockId.data] = blockEntity;
