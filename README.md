@@ -116,21 +116,17 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
     #import "WaSPV.h"
 
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        WSParametersSetCurrentType(WSParametersTypeTestnet3);
-        ...
-    }
-
     - (void)createWallet
     {
+        id<WSParameters> parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+
         WSSeed *seed = [[WSSeedGenerator sharedInstance] generateRandomSeed];
 
         // now's the time to backup the seed somewhere, show it to the user etc.
 
-        WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed];
+        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
 
-        id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+        id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:parameters];
         WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
         [peerGroup startConnections];
         [peerGroup startBlockChainDownload];
@@ -143,20 +139,15 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
     #import "WaSPV.h"
 
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        WSParametersSetCurrentType(WSParametersTypeTestnet3);
-        ...
-        return YES;
-    }
-
     - (void)restoreWallet
     {
+        id<WSParameters> parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+
         WSSeed *seed = WSSeedMakeFromISODate(@"enter your bip39 mnemonic seed phrase", @"2014-02-28");
 
-        WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed];
+        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
 
-        id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+        id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:parameters];
         WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
         [peerGroup startConnections];
         [peerGroup startBlockChainDownload];
@@ -175,19 +166,14 @@ Bitcoin nodes can operate on three networks:
 - __Testnet3__: test coins are quite hard to mine but have negligible value. Online [faucets](http://faucet.xeno-genesis.com/) exist to earn test coins.
 - __Regtest__: mining time is trivial on regtest so it's best suited for testing manually built blockchains.
 
-For security reasons, the library defaults to testnet3. Testnet3 is a full-blown network -it has DNS seeds and a real blockchain- but losing coins there is not an issue. An explicit call to the `WSParametersSetCurrentType()` macro is needed to switch to main or regtest networks.
+Most initializers depend on network parameters, you can get a reference with the following code:
 
-Current network must be set once on application launch:
+    // networkType must be one of: WSNetworkTypeMain, WSNetworkTypeTestnet3, WSNetworkTypeRegtest
 
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        WSParametersSetCurrentType(WSParametersTypeMain);
-        ...
-    }
+    id<WSParameters> networkParameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+    ...
 
-strictly before any library component is used and must not change throughout the application lifecycle.
-
-__WARNING: switching to main network may cost you real money, make sure you know what you're doing!__
+__WARNING: operating on main network may cost you real money, make sure you know what you're doing!__
 
 ### Mnemonics
 
