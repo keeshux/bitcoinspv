@@ -180,12 +180,16 @@
     
     if ([header.blockId isEqual:self.head.blockId]) {
 
-        if ((!self.head.transactions && (transactions.count > 0)) ||
-            [self.head.transactions isSubsetOfOrderedSet:transactions]) {
+        if ((self.head.transactions.count < transactions.count) &&
+            (!self.head.transactions || [self.head.transactions isSubsetOfOrderedSet:transactions])) {
 
-            DDLogDebug(@"Replacing head with newer block: %@", header.blockId);
+            DDLogDebug(@"Trying to replace head with more detailed block: %@", header.blockId);
             WSStorableBlock *headParent = [self.head previousBlockInChain:self];
             WSStorableBlock *newHead = [headParent buildNextBlockFromHeader:header transactions:transactions];
+            if ([self.head hasMoreWorkThanBlock:newHead]) {
+                DDLogDebug(@"Ignoring block with less work than head (%@ < %@)", [newHead workString], [self.head workString]);
+                return nil;
+            }
 
             [self.store putBlock:newHead];
             [self.store setHead:newHead];
