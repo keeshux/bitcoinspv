@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "DDLog.h"
 
-#import "WSParametersFactory.h"
+#import "WSParameters.h"
 
 // required by CocoaLumberjack, define in client project
 extern const int ddLogLevel;
@@ -90,6 +90,8 @@ static inline double WSUtilsProgress(const NSUInteger from, const NSUInteger to,
 }
 
 #pragma mark - Shortcuts
+
+id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType);
 
 WSHash256 *WSHash256Compute(NSData *sourceData);
 WSHash256 *WSHash256FromHex(NSString *hexString);

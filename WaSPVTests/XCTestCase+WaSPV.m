@@ -42,7 +42,7 @@ static id<WSParameters> networkParameters;
 
 - (void)setNetworkType:(WSNetworkType)networkType
 {
-    networkParameters = [[WSParametersFactory sharedInstance] parametersForNetworkType:networkType];
+    networkParameters = WSParametersForNetworkType(networkType);
 }
 
 - (id<WSParameters>)networkParameters

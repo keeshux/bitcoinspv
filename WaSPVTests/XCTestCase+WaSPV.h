@@ -28,6 +28,7 @@
 #import <XCTest/XCTest.h>
 #import "DDLog.h"
 
+#import "WSParameters.h"
 #import "WSConfig.h"
 #import "WSBitcoin.h"
 #import "WSMacros.h"

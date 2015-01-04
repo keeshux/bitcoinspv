@@ -29,6 +29,7 @@
 #import <arpa/inet.h>
 
 #import "WSMacros.h"
+#import "WSParametersFactory.h"
 #import "WSHash256.h"
 #import "WSHash160.h"
 #import "WSKey.h"
@@ -70,6 +71,11 @@ NSString *WSStringDescriptionFromTokens(NSArray *tokens, NSUInteger indent)
 }
 
 #pragma mark - Shortcuts
+
+inline id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType)
+{
+    return [[WSParametersFactory sharedInstance] parametersForNetworkType:networkType];
+}
 
 inline WSHash256 *WSHash256Compute(NSData *sourceData)
 {

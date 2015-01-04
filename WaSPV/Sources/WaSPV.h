@@ -28,11 +28,7 @@
 #import <Foundation/Foundation.h>
 
 #import "WSBitcoin.h"
-
 #import "WSParameters.h"
-#import "WSParametersFactoryMain.h"
-#import "WSParametersFactoryTestnet3.h"
-#import "WSParametersFactoryRegtest.h"
 
 #import "WSHash256.h"
 #import "WSHash160.h"

@@ -42,7 +42,6 @@
 #import "WSScript.h"
 #import "WSStorableBlock.h"
 #import "WSTransactionMetadata.h"
-#import "WSParametersFactory.h"
 #import "WSConfig.h"
 #import "WSBitcoin.h"
 #import "WSMacros.h"
