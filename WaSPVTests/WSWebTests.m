@@ -37,9 +37,11 @@
 
 @implementation WSWebUtilsTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    self.networkType = WSNetworkTypeTestnet3;
 }
 
 - (void)tearDown {
@@ -69,12 +71,12 @@
 
 //- (void)testSweep
 //{
-//    WSKey *key = WSKeyFromWIF(@"cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo"); // muqqZmhjF7u2nNmYTi7KoDpQh8TLvqBSTd
-////    WSAddress *address = WSAddressFromString(@"muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG");
-//    WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
-//    id<WSWebUtils> utils = [WSWebUtilsFactory utilsForProvider:WSWebUtilsProviderBiteasy];
+//    WSKey *key = WSKeyFromWIF(self.networkParameters, @"cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo"); // muqqZmhjF7u2nNmYTi7KoDpQh8TLvqBSTd
+////    WSAddress *address = WSAddressFromString(self.networkParameters, @"muyDoehpBExCbRRXLtDUpw5DaTb33UZeyG");
+//    WSAddress *address = WSAddressFromString(self.networkParameters, @"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
+//    id<WSWebExplorer> explorer = [WSWebExplorerFactory explorerForProvider:WSWebExplorerProviderBiteasy networkType:self.networkType];
 //    
-//    [utils buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
+//    [explorer buildSweepTransactionsFromKey:key toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
 //        DDLogInfo(@"Transaction: %@", transaction);
 //    } completion:^(NSUInteger numberOfTransactions) {
 //        DDLogInfo(@"Total transactions: %u", numberOfTransactions);
@@ -88,11 +90,11 @@
 //- (void)testSweepBIP38
 //{
 //    WSBIP38Key *bip38Key = WSBIP38KeyFromString(@"6PYLdaRqCvj77isRyypqsX2kZyPvM6ESG2LXbm7bXwNYfDbd1Q5KuYqvtZ"); // cU5m4wLDcMPHVWqYRdRYzJDDZc6VKPFhLy5Fwcvb439e8N3EQipo
-//    WSAddress *address = WSAddressFromString(@"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
+//    WSAddress *address = WSAddressFromString(self.networkParameters, @"2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX");
 //    NSString *passphrase = @"foobar";
-//    id<WSWebUtils> utils = [WSWebUtilsFactory utilsForProvider:WSWebUtilsProviderBiteasy];
+//    id<WSWebExplorer> explorer = [WSWebExplorerFactory explorerForProvider:WSWebExplorerProviderBiteasy networkType:self.networkType];
 //    
-//    [utils buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
+//    [explorer buildSweepTransactionsFromBIP38Key:bip38Key passphrase:passphrase toAddress:address fee:0 maxTxSize:1000 callback:^(WSSignedTransaction *transaction) {
 //        DDLogInfo(@"Transaction: %@", transaction);
 //    } completion:^(NSUInteger numberOfTransactions) {
 //        DDLogInfo(@"Total transactions: %u", numberOfTransactions);
@@ -124,7 +126,7 @@
 //    
 //    [[NSNotificationCenter defaultCenter] addObserverForName:WSWebTickerMonitorDidUpdateConversionRatesNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 //        for (NSString *code in [monitor availableCurrencyCodes]) {
-//            DDLogInfo(@"BTC/%@ = %f", code, [monitor averageConversionRateToCurrencyCode:code]);
+//            DDLogInfo(@"BTC/%@ = %@", code, [monitor averageConversionRateToCurrencyCode:code]);
 //        }
 //    }];
 //
