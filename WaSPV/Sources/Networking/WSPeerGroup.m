@@ -578,7 +578,7 @@
 
             // not reconnecting without error
             [self.pool closeConnectionForProcessor:self.downloadPeer
-                                             error:WSErrorMake(WSErrorCodeSync, @"Download stopped")];
+                                             error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
         }
         return YES;
     }
@@ -700,7 +700,8 @@
             DDLogVerbose(@"Ignoring call because not connected");
             return NO;
         }
-        [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeRescan, @"Preparing for rescan")];
+        [self.pool closeConnectionForProcessor:self.downloadPeer
+                                         error:WSErrorMake(WSErrorCodePeerGroupRescan, @"Preparing for rescan")];
         return YES;
     }
 }
@@ -731,7 +732,8 @@
         }
 
         if (self.downloadPeer) {
-            [self.pool closeConnectionForProcessor:self.downloadPeer error:WSErrorMake(WSErrorCodeSync, @"Download timed out, disconnecting")];
+            [self.pool closeConnectionForProcessor:self.downloadPeer
+                                             error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
         }
     }
 }
@@ -806,7 +808,7 @@
             error = WSErrorMake(WSErrorCodeNetworking, @"Peer %@ does not provide full node services", self);
         }
         if (peer.lastBlockHeight < self.blockChain.currentHeight) {
-            error = WSErrorMake(WSErrorCodeSync, @"Peer %@ is behind us (height: %u < %u)", self, peer.lastBlockHeight, self.blockChain.currentHeight);
+            error = WSErrorMake(WSErrorCodePeerGroupSync, @"Peer %@ is behind us (height: %u < %u)", self, peer.lastBlockHeight, self.blockChain.currentHeight);
         }
         if (error) {
             [self.pool closeConnectionForProcessor:peer error:error];
@@ -858,7 +860,7 @@
             // WARNING: disconnecting during download is a major waste of time and bandwidth
             if ([self isSynced]) {
                 [self.pool closeConnectionForProcessor:self.downloadPeer
-                                                 error:WSErrorMake(WSErrorCodeSync, @"Found a better download peer than %@", self.downloadPeer)];
+                                                 error:WSErrorMake(WSErrorCodePeerGroupSync, @"Found a better download peer than %@", self.downloadPeer)];
             }
         }
     }
@@ -892,7 +894,7 @@
             if (self.downloadPeer) {
                 DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
                 
-                if (error.code == WSErrorCodeRescan) {
+                if (error.code == WSErrorCodePeerGroupRescan) {
                     [self.notifier notifyDownloadFailedWithError:error];
                     
                     DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
@@ -917,10 +919,15 @@
                     [self loadFilterAndStartDownload];
                 }
             }
+            else if (!self.keepDownloading) {
+                DDLogDebug(@"Download stopped");
+                
+                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+            }
             else {
                 DDLogDebug(@"No more peers for download");
                 
-                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodeSync, @"No more peers for download")];
+                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupSync, @"No more peers for download")];
             }
         }
     
@@ -1074,7 +1081,7 @@
             
             if (self.observedFalsePositiveRate > self.bloomFilterObservedRateMax) {
                 [self.pool closeConnectionForProcessor:self.downloadPeer
-                                                 error:WSErrorMake(WSErrorCodeSync, @"Too many false positives (%f > %f) in the %u-%u range (%u blocks), disconnecting",
+                                                 error:WSErrorMake(WSErrorCodePeerGroupSync, @"Too many false positives (%f > %f) in the %u-%u range (%u blocks), disconnecting",
                                                                    self.observedFalsePositiveRate, self.bloomFilterObservedRateMax,
                                                                    self.observedFilterHeight, self.currentHeight,
                                                                    self.currentHeight - self.observedFilterHeight)];
@@ -1199,7 +1206,7 @@
         DDLogError(@"Found block header: %@", header);
         
         if (error) {
-            *error = WSErrorMake(WSErrorCodeRescan, @"Checkpoint validation failed at %u (%@ != %@)",
+            *error = WSErrorMake(WSErrorCodePeerGroupRescan, @"Checkpoint validation failed at %u (%@ != %@)",
                                  expected.height, header.blockId, expected.blockId);
         }
         return expected;
