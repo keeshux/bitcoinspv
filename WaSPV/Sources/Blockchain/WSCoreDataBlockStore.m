@@ -113,7 +113,7 @@
 
 - (id<WSParameters>)parameters
 {
-    return self.head.parameters;
+    return self.genesisBlock.parameters;
 }
 
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId
