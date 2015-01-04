@@ -234,11 +234,6 @@
 - (BOOL)startConnections
 {
     @synchronized (self.queue) {
-        if (self.keepConnected) {
-            DDLogVerbose(@"Ignoring call because already started");
-            return NO;
-        }
-
         self.keepConnected = YES;
         [self connect];
         return YES;
@@ -248,11 +243,6 @@
 - (BOOL)stopConnections
 {
     @synchronized (self.queue) {
-        if (!self.keepConnected) {
-            DDLogVerbose(@"Ignoring call because not started");
-            return NO;
-        }
-
         self.keepConnected = NO;
         [self disconnect];
         return YES;
