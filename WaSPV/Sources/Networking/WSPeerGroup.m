@@ -771,6 +771,13 @@
     return YES;
 }
 
+- (void)runExclusiveBlock:(void (^)())block
+{
+    @synchronized (self.queue) {
+        block();
+    }
+}
+
 #pragma mark Events (group queue)
 
 - (void)peerDidConnect:(WSPeer *)peer

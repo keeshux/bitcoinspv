@@ -80,5 +80,6 @@
 // interaction
 - (NSUInteger)currentHeight;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
+- (void)runExclusiveBlock:(void (^)())block;
 
 @end
