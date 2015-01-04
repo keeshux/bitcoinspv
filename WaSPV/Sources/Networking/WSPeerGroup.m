@@ -544,28 +544,25 @@
 
         DDLogInfo(@"Preparing for blockchain sync");
 
-        const NSUInteger fromHeight = self.blockChain.currentHeight;
-        const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
-
-        void (^prepareBlock)() = ^{
+        [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
             if (![self.notifier didNotifyDownloadStarted]) {
                 [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
             }
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
-
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
                 [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
             });
-        };
-
-        if (![self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prepareBlock:prepareBlock]) {
-            [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
-
+        } syncedBlock:^(NSUInteger height) {
+            if (![self.notifier didNotifyDownloadStarted]) {
+                [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
+            }
+            
             DDLogInfo(@"Blockchain is synced");
-
+            
             [self.notifier notifyDownloadFinished];
-        }
+        }];
     }
 }
 

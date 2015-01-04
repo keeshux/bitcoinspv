@@ -845,13 +845,16 @@
     }
 }
 
-- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prepareBlock:(void (^)())prepareBlock
+- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock syncedBlock:(void (^)(NSUInteger))syncedBlock
 {
     @synchronized (self.groupQueue) {
         NSAssert(self.isDownloadPeer, @"Not download peer");
         NSAssert(self.isConnected, @"Syncing with disconnected peer?");
         
         if ([self numberOfBlocksLeft] == 0) {
+            if (syncedBlock) {
+                syncedBlock(self.blockChain.currentHeight);
+            }
             return NO;
         }
         
@@ -870,8 +873,11 @@
             DDLogDebug(@"%@ No fast catch-up checkpoint", self);
         }
         
-        if (prepareBlock) {
-            prepareBlock();
+        if (prestartBlock) {
+            const NSUInteger fromHeight = self.blockChain.currentHeight;
+            const NSUInteger toHeight = self.lastBlockHeight;
+
+            prestartBlock(fromHeight, toHeight);
         }
         
         WSBlockLocator *locator = [self.blockChain currentLocator];
