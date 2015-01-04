@@ -404,9 +404,9 @@
     self.deserializer = nil;
     
     @synchronized (self) {
-        self.connectionQueue = NULL;
-        self.delegate = nil;
-        
+//        self.connectionQueue = NULL;
+//        self.delegate = nil;
+//        
 //        _remoteHost = nil;
 //        _remotePort = 0;
 //        _remoteServices = 0;
