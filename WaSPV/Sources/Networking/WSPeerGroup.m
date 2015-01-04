@@ -886,7 +886,7 @@
                 DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
                 
                 if (error.code == WSErrorCodeRescan) {
-                    [self.notifier notifyDownloadFinished];
+                    [self.notifier notifyDownloadFailedWithError:error];
                     
                     DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
 
