@@ -107,7 +107,7 @@
 
 - (void)testMemory
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.store = [self memoryStore];
     
@@ -120,7 +120,7 @@
 
 - (void)testMemoryWithFCU
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.store = [self memoryStore];
     const uint32_t timestamp = WSTimestampFromISODate(@"2013-08-29");
@@ -136,46 +136,46 @@
 
 - (void)testPersistentWithFCU_Test3
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     [self privateTestPersistentWithFCU];
 }
 
 - (void)testPersistentWithFCU_Main
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     [self privateTestPersistentWithFCU];
 }
 
 - (void)testPersistentStoredHeads
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Test: %@", self.store.head);
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
     self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Main: %@", self.store.head);
 }
 
 - (void)testPersistentStoredWork_Test3
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     [self privateTestPersistentStoredWork];
 }
 
 - (void)testPersistentStoredWork_Main
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
     
     [self privateTestPersistentStoredWork];
 }
 
 - (void)testPersistent1
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     // WARNING: check this, may clear all blockchain store!
     self.store = [self persistentStoreTruncating:YES];
@@ -191,7 +191,7 @@
 
 - (void)testPersistent2
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     // WARNING: check this, may clear all blockchain store!
     self.store = [self persistentStoreTruncating:NO];
@@ -239,7 +239,7 @@
 
 - (void)testPersistent2StoredHead
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.store = [self persistentStoreTruncating:NO];
     DDLogInfo(@"Head: %@", [self.store head]);
@@ -247,7 +247,7 @@
 
 - (void)testPersistent2StoredChain
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.store = [self persistentStoreTruncating:NO];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.store];
@@ -256,7 +256,7 @@
 
 - (void)testPersistent2StoredBlock
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.store = [self persistentStoreTruncating:NO];
     
@@ -274,7 +274,7 @@
 
 //- (void)testPersistent2ConnectedTransactions
 //{
-//    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+//    self.networkType = WSNetworkTypeTestnet3;
 //
 //    self.store = [self persistentStoreTruncating:NO];
 //
@@ -321,7 +321,7 @@
 
 - (void)testMemorySearchingNullBlockChainBug
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.store = [self memoryStore];
     
@@ -399,7 +399,7 @@
 - (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating
 {
     NSString *path = nil;
-    if (WSParametersGetCurrentType() == WSParametersTypeMain) {
+    if (WSParametersGetCurrentType() == WSNetworkTypeMain) {
         path = self.mainPath;
     }
     else {

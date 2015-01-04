@@ -50,7 +50,7 @@
 
 - (void)testScriptFromAddress
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     //
     // OP_DUP
@@ -60,7 +60,7 @@
     // OP_EQUALVERIFY
     // OP_CHECKSIG
     //
-    WSAddress *address = WSAddressFromString(@"1LAAFtCLmq3A3ak57N4jUf5p3cJVDfwFN8");
+    WSAddress *address = WSAddressFromString(self.networkParameters, @"1LAAFtCLmq3A3ak57N4jUf5p3cJVDfwFN8");
     DDLogInfo(@"Address      : %@", address);
     DDLogInfo(@"Address (hex): %@", [address hexEncoded]);
     NSString *expScriptHex = @"76a914d225dc4e19d0377a60c65a348bcc5cf35beada3a88ac";
@@ -79,7 +79,7 @@
 
 - (void)testAddressFromOutputScript
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     NSString *expScriptHex = @"76a914d225dc4e19d0377a60c65a348bcc5cf35beada3a88ac";
 
@@ -92,8 +92,8 @@
     DDLogInfo(@"Expected    : %@", expScriptHex);
     XCTAssertEqualObjects(scriptHex, expScriptHex);
     
-    WSAddress *decodedAddress = [script standardAddress];
-    WSAddress *expAddress = WSAddressFromString(@"1LAAFtCLmq3A3ak57N4jUf5p3cJVDfwFN8");
+    WSAddress *decodedAddress = [script standardAddressWithParameters:self.networkParameters];
+    WSAddress *expAddress = WSAddressFromString(self.networkParameters, @"1LAAFtCLmq3A3ak57N4jUf5p3cJVDfwFN8");
     DDLogInfo(@"Address : %@", decodedAddress);
     DDLogInfo(@"Expected: %@", expAddress);
     XCTAssertEqualObjects(decodedAddress, expAddress);
@@ -101,7 +101,7 @@
 
 - (void)testAddressFromInputScript
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
     
     NSString *expScriptHex = @"483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9e";
     
@@ -114,8 +114,8 @@
     DDLogInfo(@"Expected    : %@", expScriptHex);
     XCTAssertEqualObjects(scriptHex, expScriptHex);
     
-    WSAddress *decodedAddress = [script standardAddress];
-    WSAddress *expAddress = WSAddressFromString(@"18pV61UrtyK9YW8tDa53UkM8DDbFWKiwvc");
+    WSAddress *decodedAddress = [script standardAddressWithParameters:self.networkParameters];
+    WSAddress *expAddress = WSAddressFromString(self.networkParameters, @"18pV61UrtyK9YW8tDa53UkM8DDbFWKiwvc");
     DDLogInfo(@"Address : %@", decodedAddress);
     DDLogInfo(@"Expected: %@", expAddress);
     XCTAssertEqualObjects(decodedAddress, expAddress);
@@ -123,8 +123,8 @@
 
 - (void)testAddressFromScriptMultiSig
 {
-    NSArray *expNetworks = @[@(WSParametersTypeMain),
-                             @(WSParametersTypeTestnet3)];
+    NSArray *expNetworks = @[@(WSNetworkTypeMain),
+                             @(WSNetworkTypeTestnet3)];
     
     NSArray *expAddresses = @[@"3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC",
                               @"2MzeFhdGMftyDR1jt8Vtz8DV2eDbY8CCRS4"];
@@ -148,9 +148,9 @@
                                @[@"0387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec85", @"034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd", @"035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a"]];
     
     for (NSUInteger i = 0; i < expAddresses.count; ++i) {
-        WSParametersSetCurrentType([expNetworks[i] intValue]);
+        self.networkType = [expNetworks[i] intValue];
         
-        WSAddress *expAddress = WSAddressFromString(expAddresses[i]);
+        WSAddress *expAddress = WSAddressFromString(self.networkParameters, expAddresses[i]);
         const NSUInteger expM = [expMs[i] unsignedIntegerValue];
         const NSUInteger expN = [expNs[i] unsignedIntegerValue];
         
@@ -177,7 +177,7 @@
             WSScript *outputScript = WSScriptFromHex(expOutputScripts[i]);
             DDLogInfo(@"Output script: %@", outputScript);
 
-            addressFromOutput = [outputScript standardAddress];
+            addressFromOutput = [outputScript standardAddressWithParameters:self.networkParameters];
             DDLogInfo(@"From output: %@", addressFromOutput);
             XCTAssertEqualObjects(addressFromOutput, expAddress);
         }
@@ -186,7 +186,7 @@
             WSScript *inputRedeemScript = WSScriptFromHex(expInputRedeemScripts[i]);
             DDLogInfo(@"Input redeem script: %@", inputRedeemScript);
 
-            addressFromInputRedeem = [inputRedeemScript addressFromHash];
+            addressFromInputRedeem = [inputRedeemScript addressFromHashWithParameters:self.networkParameters];
             DDLogInfo(@"From input redeem: %@", addressFromInputRedeem);
             XCTAssertEqualObjects(addressFromInputRedeem, expAddress);
             if (addressFromOutput) {
@@ -212,7 +212,7 @@
             WSScript *inputScript = WSScriptFromHex(expInputScripts[i]);
             DDLogInfo(@"Input script: %@", inputScript);
 
-            addressFromInput = [inputScript standardAddress];
+            addressFromInput = [inputScript standardAddressWithParameters:self.networkParameters];
             DDLogInfo(@"From input: %@", addressFromInput);
             XCTAssertEqualObjects(addressFromInput, expAddress);
             if (addressFromOutput) {
@@ -241,7 +241,7 @@
 
 - (void)testSignaturesFromMultisig
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     // tx = 7f53001bf79f5a874c018cce58471fd51a9444b564bbbb37032bda7f2beb9439
     NSString *expScriptHex = @"004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53ae";
@@ -322,7 +322,7 @@
 
 - (void)testPubKeysFromMultiSigRedeem
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     // https://gist.github.com/gavinandresen/3966071
 
@@ -358,7 +358,7 @@
 
 - (void)testCoinbaseScripts
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     NSArray *expHexes = @[@"039311040453b59c390300000022000000",
                           @"03941104194b6e434d696e65724b5134c9115c1d3a93d01653b59d20038a0000000034020000"];

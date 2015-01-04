@@ -44,7 +44,7 @@
 - (instancetype)init
 {
     if ((self = [super init])) {
-        WSMutableParameters *parameters = [[WSMutableParameters alloc] init];
+        WSMutableParameters *parameters = [[WSMutableParameters alloc] initWithNetworkType:WSNetworkTypeRegtest];
         
         parameters.magicNumber                  = 0xdab5bffa;
         parameters.publicKeyAddressVersion      = 0x6f;
@@ -60,12 +60,13 @@
 //        parameters.retargetSpacing              = 10 * WSDatesOneMinute;
         parameters.retargetInterval             = 10000;
         
-        WSBlockHeader *genesisHeader = [[WSBlockHeader alloc] initWithVersion:1
-                                                              previousBlockId:WSHash256Zero()
-                                                                   merkleRoot:WSHash256FromHex(@"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
-                                                                    timestamp:1296688602
-                                                                         bits:0x207fffff
-                                                                        nonce:2];
+        WSBlockHeader *genesisHeader = [[WSBlockHeader alloc] initWithParameters:parameters
+                                                                         version:1
+                                                                 previousBlockId:WSHash256Zero()
+                                                                      merkleRoot:WSHash256FromHex(@"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
+                                                                       timestamp:1296688602
+                                                                            bits:0x207fffff
+                                                                           nonce:2];
         
         NSAssert([genesisHeader.blockId isEqual:WSHash256FromHex(@"0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")], @"Bad genesis block id (regtest)");
         
@@ -81,11 +82,6 @@
         self.parameters = parameters;
     }
     return self;
-}
-
-- (WSParametersType)parametersType
-{
-    return WSParametersTypeRegtest;
 }
 
 @end

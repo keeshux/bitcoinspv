@@ -49,7 +49,7 @@
 
 - (void)testExplorers
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     WSWebExplorerObjectType objectType = WSWebExplorerObjectTypeTransaction;
     WSHash256 *hash = WSHash256FromHex(@"d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5");
@@ -59,7 +59,7 @@
                                     WSWebExplorerProviderBlockr: @"http://tbtc.blockr.io/tx/info/d5a5851dfa20a6404e4d4b7b6e0329c3952a29aa897f509b27457fb3c83920e5"};
 
     for (NSString *provider in [expURLStrings allKeys]) {
-        id<WSWebExplorer> explorer = [WSWebExplorerFactory explorerForProvider:provider];
+        id<WSWebExplorer> explorer = [WSWebExplorerFactory explorerForProvider:provider networkType:self.networkParameters.networkType];
         NSURL *url = [explorer URLForObjectType:objectType hash:hash];
         
         DDLogInfo(@"%@: %@", provider, [url absoluteURL]);

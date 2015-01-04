@@ -39,6 +39,7 @@
 #import "NSString+Base58.h"
 #import "NSString+Binary.h"
 #import "NSData+Base58.h"
+#import "NSData+Binary.h"
 
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
 
@@ -65,16 +66,17 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return [[self alloc] initWithData:data compressed:compressed];
 }
 
-+ (instancetype)keyWithWIF:(NSString *)wif
++ (instancetype)keyWithWIF:(NSString *)wif parameters:(id<WSParameters>)parameters
 {
     WSExceptionCheckIllegal(wif != nil, @"Nil WIF");
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
 
     NSData *encodedData = [[wif hexFromBase58Check] dataFromHex];
     uint8_t version = *(const uint8_t *)encodedData.bytes;
 
-    WSExceptionCheckIllegal(version == [WSCurrentParameters privateKeyVersion],
+    WSExceptionCheckIllegal(version == [parameters privateKeyVersion],
                             @"Unrecognized private key version (%x != %x)",
-                            version, [WSCurrentParameters privateKeyVersion]);
+                            version, [parameters privateKeyVersion]);
 
     WSExceptionCheckIllegal((encodedData.length == WSKeyEncodedCompressedLength) || (encodedData.length == WSKeyEncodedUncompressedLength),
                             @"Incorrect WIF key length (%u = %u | %u)",
@@ -146,32 +148,6 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED);
 }
 
-- (NSData *)encodedData
-{
-    if (!EC_KEY_check_key(self.key)) {
-        return nil;
-    }
-    
-    const BIGNUM *priv = EC_KEY_get0_private_key(self.key);
-    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:(WSKeyLength + 2)];
-
-    const uint8_t version = [WSCurrentParameters privateKeyVersion];
-    [data appendBytes:&version length:1];
-
-    data.length = WSKeyLength + 1;
-    BN_bn2bin(priv, (unsigned char *)data.mutableBytes + data.length - BN_num_bytes(priv));
-    if ([self isCompressed]) {
-        [data appendBytes:"\x01" length:1];
-    }
-    
-    return data;
-}
-
-- (NSString *)WIF
-{
-    return [[self encodedData] base58CheckString];
-}
-
 - (WSPublicKey *)publicKey
 {
     if (!EC_KEY_check_key(self.key)) {
@@ -187,9 +163,37 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return [WSPublicKey publicKeyWithData:pubKey];
 }
 
-- (WSAddress *)address
+- (NSData *)encodedDataWithParameters:(id<WSParameters>)parameters
 {
-    return [[self publicKey] address];
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    
+    if (!EC_KEY_check_key(self.key)) {
+        return nil;
+    }
+    
+    const BIGNUM *priv = EC_KEY_get0_private_key(self.key);
+    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:(WSKeyLength + 2)];
+
+    const uint8_t version = [parameters privateKeyVersion];
+    [data appendBytes:&version length:1];
+
+    data.length = WSKeyLength + 1;
+    BN_bn2bin(priv, (unsigned char *)data.mutableBytes + data.length - BN_num_bytes(priv));
+    if ([self isCompressed]) {
+        [data appendBytes:"\x01" length:1];
+    }
+    
+    return data;
+}
+
+- (NSString *)WIFWithParameters:(id<WSParameters>)parameters
+{
+    return [[self encodedDataWithParameters:parameters] base58CheckString];
+}
+
+- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
+{
+    return [[self publicKey] addressWithParameters:parameters];
 }
 
 - (NSData *)signatureForHash256:(WSHash256 *)hash256
@@ -277,7 +281,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 - (NSString *)description
 {
-    return [self WIF];
+    return [self.data hexString];
 }
 
 @end

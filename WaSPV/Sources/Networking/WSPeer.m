@@ -27,7 +27,6 @@
 
 #import "WSPeer.h"
 #import "WSProtocolDeserializer.h"
-#import "WSMessageFactory.h"
 #import "WSNetworkAddress.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
@@ -43,6 +42,7 @@
 
 @interface WSPeerParameters ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) dispatch_queue_t groupQueue;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
@@ -52,27 +52,31 @@
 
 @implementation WSPeerParameters
 
-- (instancetype)init
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    return [self initWithGroupQueue:dispatch_get_main_queue()
+    return [self initWithParameters:parameters
+                         groupQueue:dispatch_get_main_queue()
                          blockChain:nil
                shouldDownloadBlocks:YES
                 needsBloomFiltering:YES];
 }
 
-- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                        groupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(groupQueue != NULL, @"NULL groupQueue");
 
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.groupQueue = groupQueue;
         self.blockChain = blockChain;
         self.shouldDownloadBlocks = shouldDownloadBlocks;
         self.needsBloomFiltering = needsBloomFiltering;
-        self.port = [WSCurrentParameters peerPort];
+        self.port = [self.parameters peerPort];
     }
     return self;
 }
@@ -97,6 +101,7 @@
 }
 
 // only set on creation
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) dispatch_queue_t groupQueue;
 #ifdef WASPV_TEST_MESSAGE_QUEUE
 @property (nonatomic, strong) NSCondition *messageQueueCondition;
@@ -159,15 +164,15 @@
 
 @implementation WSPeer
 
-- (instancetype)initWithHost:(NSString *)host
+- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters
 {
-    return [self initWithHost:host parameters:[[WSPeerParameters alloc] init]];
+    return [self initWithHost:host peerParameters:[[WSPeerParameters alloc] initWithParameters:parameters]];
 }
 
-- (instancetype)initWithHost:(NSString *)host parameters:(WSPeerParameters *)parameters
+- (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters
 {
     WSExceptionCheckIllegal(host != nil, @"Nil host");
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(peerParameters != nil, @"Nil peerParameters");
     
     if ((self = [super init])) {
         self.writeTimeout = WSPeerWriteTimeout;
@@ -176,14 +181,15 @@
         self.messageQueue = [[NSMutableArray alloc] init];
 #endif
 
-        self.groupQueue = parameters.groupQueue;
-        self.blockChain = parameters.blockChain;
-        self.shouldDownloadBlocks = parameters.shouldDownloadBlocks;
-        self.needsBloomFiltering = parameters.needsBloomFiltering;
+        self.parameters = peerParameters.parameters;
+        self.groupQueue = peerParameters.groupQueue;
+        self.blockChain = peerParameters.blockChain;
+        self.shouldDownloadBlocks = peerParameters.shouldDownloadBlocks;
+        self.needsBloomFiltering = peerParameters.needsBloomFiltering;
 
         _peerStatus = WSPeerStatusDisconnected;
         _remoteHost = host;
-        _remotePort = parameters.port;
+        _remotePort = peerParameters.port;
 
         self.pendingBlockIds = [[NSCountedSet alloc] init];
         self.processingBlockIds = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * WSMessageBlocksMaxCount)];
@@ -431,6 +437,7 @@
         WSMessageVersion *message = [WSMessageVersion messageWithVersion:WSPeerProtocol
                                                                 services:WSPeerEnabledServices
                                                     remoteNetworkAddress:networkAddress
+                                                               localPort:[self.parameters peerPort]
                                                        relayTransactions:relayTransactions];
 
         _nonce = message.nonce;
@@ -851,7 +858,7 @@
         self.currentFilteredBlock = nil;
         self.currentFilteredTransactions = nil;
         
-        WSStorableBlock *checkpoint = [WSCurrentParameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
+        WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
         if (checkpoint) {
             DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
                        self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
@@ -1206,9 +1213,9 @@
     return [self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer];
 }
 
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters
 {
-    WSPeer *peer = [[WSPeer alloc] initWithHost:peerHost];
+    WSPeer *peer = [[WSPeer alloc] initWithHost:peerHost parameters:parameters];
     if (![self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer]) {
         return nil;
     }

@@ -45,6 +45,7 @@
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height;
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height work:(NSData *)work;
 
+- (id<WSParameters>)parameters;
 - (WSBlockHeader *)header;
 - (uint32_t)height;
 - (NSData *)workData;

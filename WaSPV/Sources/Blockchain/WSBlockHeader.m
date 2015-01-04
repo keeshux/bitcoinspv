@@ -35,6 +35,7 @@
 
 @interface WSBlockHeader ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, assign) uint32_t version;
 @property (nonatomic, strong) WSHash256 *previousBlockId;
 @property (nonatomic, strong) WSHash256 *merkleRoot;
@@ -51,11 +52,13 @@
 
 @implementation WSBlockHeader
 
-- (instancetype)initWithVersion:(uint32_t)version previousBlockId:(WSHash256 *)previousBlockId merkleRoot:(WSHash256 *)merkleRoot timestamp:(uint32_t)timestamp bits:(uint32_t)bits nonce:(uint32_t)nonce
+- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version previousBlockId:(WSHash256 *)previousBlockId merkleRoot:(WSHash256 *)merkleRoot timestamp:(uint32_t)timestamp bits:(uint32_t)bits nonce:(uint32_t)nonce
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(previousBlockId != nil, @"Nil previousBlockId");
     
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.version = version;
         self.previousBlockId = previousBlockId;
         self.merkleRoot = merkleRoot;
@@ -86,12 +89,12 @@
 
 - (NSData *)difficultyData
 {
-    return WSBlockGetDifficultyFromBits(self.bits);
+    return WSBlockGetDifficultyFromBits(self.parameters, self.bits);
 }
 
 - (NSString *)difficultyString
 {
-    return WSBlockGetDifficultyStringFromBits(self.bits);
+    return WSBlockGetDifficultyStringFromBits(self.parameters, self.bits);
 }
 
 - (NSData *)workData
@@ -143,7 +146,7 @@
     BN_init(&hash);
 
     WSBlockSetBits(&target, self.bits);
-    WSBlockSetBits(&maxTarget, [WSCurrentParameters maxProofOfWork]);
+    WSBlockSetBits(&maxTarget, [self.parameters maxProofOfWork]);
 
     // range out of [1, maxProofOfWork]
     if ((BN_cmp(&target, BN_value_one()) < 0) || (BN_cmp(&target, &maxTarget) > 0)) {
@@ -260,7 +263,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSBlockHeaderSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);
@@ -285,7 +288,7 @@
 
     const uint32_t nonce = [buffer uint32AtOffset:offset];
     
-    return [self initWithVersion:version previousBlockId:previousBlockId merkleRoot:merkleRoot timestamp:timestamp bits:bits nonce:nonce];
+    return [self initWithParameters:parameters version:version previousBlockId:previousBlockId merkleRoot:merkleRoot timestamp:timestamp bits:bits nonce:nonce];
 }
 
 #pragma mark WSIndentableDescription

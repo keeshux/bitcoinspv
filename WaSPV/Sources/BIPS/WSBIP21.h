@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol WSParameters;
 @class WSAddress;
 @class WSBIP21URLBuilder;
 
@@ -34,7 +35,7 @@ extern NSString *const WSBIP21URLScheme;
 
 @interface WSBIP21URL : NSObject
 
-+ (instancetype)URLWithString:(NSString *)string;
++ (instancetype)URLWithParameters:(id<WSParameters>)parameters string:(NSString *)string;
 - (instancetype)initWithBuilder:(WSBIP21URLBuilder *)builder;
 - (WSAddress *)address;
 - (NSString *)label;

@@ -31,70 +31,8 @@
 #import "WSBlockLocator.h"
 #import "WSFilteredBlock.h"
 
-static WSBlockHeader *WSMakeDummyHeader(WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
-{
-    BIGNUM bnLargest;
-    BIGNUM bnTarget;
-    BIGNUM bnWork;
-
-    BN_init(&bnLargest);
-    BN_init(&bnTarget);
-    BN_init(&bnWork);
-
-    BN_CTX *ctx = BN_CTX_new();
-    BN_set_bit(&bnLargest, 256);
-    BN_set_word(&bnWork, work);
-    BN_div(&bnTarget, NULL, &bnLargest, &bnWork, ctx);
-    BN_sub(&bnTarget, &bnTarget, BN_value_one());
-    BN_CTX_free(ctx);
-    
-    const uint32_t bits = WSBlockGetBits(&bnTarget);
-    
-//    DDLogCInfo(@"Largest: %s", BN_bn2dec(&bnLargest));
-//    DDLogCInfo(@"Target: %s", BN_bn2dec(&bnTarget));
-//    DDLogCInfo(@"Work: %s", BN_bn2dec(&bnWork));
-//    DDLogCInfo(@"Bits: %x", bits);
-
-    BN_free(&bnLargest);
-    BN_free(&bnTarget);
-    BN_free(&bnWork);
-
-    WSBlockHeader *header = [[WSBlockHeader alloc] initWithVersion:2
-                                                   previousBlockId:previousBlockId
-                                                        merkleRoot:WSHash256Zero()
-                                                         timestamp:WSCurrentTimestamp()
-                                                              bits:bits
-                                                             nonce:0];
-    
-    // hack id for testing
-    [header setValue:blockId forKey:@"blockId"];
-
-    return header;
-}
-
-static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
-{
-    NSMutableOrderedSet *txs = [[NSMutableOrderedSet alloc] initWithCapacity:3];
-    WSHash256 *outpointTxId = WSHash256FromHex(@"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-
-    for (NSUInteger i = 0; i < 1; ++i) {
-        NSMutableString *hex = [[blockId.data hexString] mutableCopy];
-        [hex replaceCharactersInRange:NSMakeRange(0, 2) withString:[NSString stringWithFormat:@"%u%u", i, i]];
-        [hex replaceCharactersInRange:NSMakeRange(2, 6) withString:@"ffffff"];
-        WSHash256 *txId = WSHash256FromHex(hex);
-        WSScript *script = [WSScript scriptWithAddress:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-        
-        WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithTxId:outpointTxId index:0];
-        WSSignedTransactionInput *input = [[WSSignedTransactionInput alloc] initWithOutpoint:outpoint script:script];
-        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:100000 script:script];
-
-        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithSignedInputs:[NSOrderedSet orderedSetWithObject:input] outputs:[NSOrderedSet orderedSetWithObject:output] error:NULL];
-        [tx setValue:txId forKey:@"txId"];
-        [txs addObject:tx];
-    }
-
-    return txs;
-}
+static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work);
+static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters, WSHash256 *blockId);
 
 @interface WSBlockChainTests : XCTestCase <WSBlockChainDelegate>
 
@@ -116,7 +54,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testHead
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     WSBlockChain *chain = [self chainWithLocalHeaders];
     WSHash256 *headId = WSHash256FromHex(@"00000000ede57f31cc598dc241d129ccb4d8168ef112afbdc870dc60a85f5dd3");
@@ -125,7 +63,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testIds
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     NSArray *expIds = @[@"00000000ede57f31cc598dc241d129ccb4d8168ef112afbdc870dc60a85f5dd3",
                         @"000000009b3bca4909f38313f2746120129cce4a699a1f552390955da470c5a9",
@@ -161,7 +99,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testPrevious
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     WSBlockChain *chain = [self chainWithLocalHeaders];
     WSStorableBlock *block = nil;
@@ -187,19 +125,19 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testEmptyLocator
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
     WSBlockLocator *locator = [chain currentLocator];
 
     DDLogInfo(@"Locator: %@", locator);
-    XCTAssertEqualObjects([locator.hashes lastObject], [WSCurrentParameters genesisBlockId]);
+    XCTAssertEqualObjects([locator.hashes lastObject], [self.networkParameters genesisBlockId]);
 }
 
 - (void)testLocator
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     NSArray *expHashes = @[@"00000000ede57f31cc598dc241d129ccb4d8168ef112afbdc870dc60a85f5dd3",
                            @"000000009b3bca4909f38313f2746120129cce4a699a1f552390955da470c5a9",
@@ -229,7 +167,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testWork
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     NSArray *expWork = @[@"90195689493",
                          @"85900656660",
@@ -267,12 +205,12 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testFilteredBlocks
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     // filtered block #21
     NSString *hex = @"01000000d35d5fa860dc70c8bdaf12f18e16d8b4cc29d141c28d59cc317fe5ed00000000507dae091a9657b6c073863ca71ba6989a2cf4417fb81e940668568a35d34a7119ec494dffff001d00effec30100000001507dae091a9657b6c073863ca71ba6989a2cf4417fb81e940668568a35d34a710101";
     
-    WSFilteredBlock *block = WSFilteredBlockFromHex(hex);
+    WSFilteredBlock *block = WSFilteredBlockFromHex(self.networkParameters, hex);
     WSBlockChain *chain = [self chainWithLocalHeaders];
     [chain addBlockWithHeader:block.header transactions:nil reorganizeBlock:NULL error:NULL];
     XCTAssertEqual(chain.currentHeight, 21);
@@ -282,10 +220,10 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (void)testReplace
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
-    WSBlockHeader *header = WSBlockHeaderFromHex(@"01000000a9c570a45d959023551f9a694ace9c12206174f21383f30949ca3b9b00000000eaf93dbbfb3551a1ff8b6bd5ba4cea7508e790c23cd07b9d9e791936a79d5fd4b3eb494dffff001d0385a7dd00");
-    WSSignedTransaction *transaction = WSTransactionFromHex(@"0100000002c60c5a1d539c43101b0d4d36fce86941d132d126670320a02cfeb55d733de76e01000000fdfe00004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53aeffffffff0efe1d2b69d50fc4271ac76671ac3f549617bde1cab71c715212fb062030725401000000fd000100493046022100bddd0d72c54fce23718d4450720e60a90d6c7c50af1c3caeb25dd49228a7233a022100c905f4bb5c624d594dbb364ffbeffc1f9e8ab72dac297b2f8fb1f07632fdf52801493046022100f8ff9b9fd434bf018c21725047b0205c4ab70bcc999c625c8c5573a836d7b525022100a7cfc4f741386c1b22d0e2a994139f52961d86d51332fc03d117bb422abb9123014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd2103082587f27afa0481c6af0e75bead2daabdd0ac17395563bd9282ed6ca00025db53aeffffffff0230cd23f7000000001976a91469611d4ddff939f5ef553f020ba3ba0f1d1d76d688ac032700000000000017a91431ecbf82d5dac9ec751e450fc38f098e3d630cb68700000000");
+    WSBlockHeader *header = WSBlockHeaderFromHex(self.networkParameters, @"01000000a9c570a45d959023551f9a694ace9c12206174f21383f30949ca3b9b00000000eaf93dbbfb3551a1ff8b6bd5ba4cea7508e790c23cd07b9d9e791936a79d5fd4b3eb494dffff001d0385a7dd00");
+    WSSignedTransaction *transaction = WSTransactionFromHex(self.networkParameters, @"0100000002c60c5a1d539c43101b0d4d36fce86941d132d126670320a02cfeb55d733de76e01000000fdfe00004830450220514685bdf8388e969bb19bdeff8be23cfbb346f096551ed7a9d919f4031881c5022100e5fd38b24c932fcade093c73216c7227aa5acd7c2619b7e6369de3269cf2c3a001483045022052ef60dc14532da93fa7acb82c897daf4d2ac56ddad779dff9f8519453484be5022100e6741933963ec1c09f41fc06bd48cc109d3647655cbfcbabafb5b2dea88dfcf8014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd21035bdd8633818888875bbc4232d384b411dc67f4efe11e6582de52d196adc6d29a53aeffffffff0efe1d2b69d50fc4271ac76671ac3f549617bde1cab71c715212fb062030725401000000fd000100493046022100bddd0d72c54fce23718d4450720e60a90d6c7c50af1c3caeb25dd49228a7233a022100c905f4bb5c624d594dbb364ffbeffc1f9e8ab72dac297b2f8fb1f07632fdf52801493046022100f8ff9b9fd434bf018c21725047b0205c4ab70bcc999c625c8c5573a836d7b525022100a7cfc4f741386c1b22d0e2a994139f52961d86d51332fc03d117bb422abb9123014c6952210387e679718c6a67f4f2c25a0b58df70067ec9f90c4297368e24fd5342027bec8521034a9ccd9aca88aa9d20c73289a075392e1cd67a5f33938a0443f530afa3675fcd2103082587f27afa0481c6af0e75bead2daabdd0ac17395563bd9282ed6ca00025db53aeffffffff0230cd23f7000000001976a91469611d4ddff939f5ef553f020ba3ba0f1d1d76d688ac032700000000000017a91431ecbf82d5dac9ec751e450fc38f098e3d630cb68700000000");
     WSStorableBlock *block;
     
     WSBlockChain *chain = [self chainWithLocalHeaders];
@@ -297,12 +235,12 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     DDLogInfo(@"BlockChain: %@", chain);
 }
 
-// transactions reorg needs WASPV_TEST_DUMMY_TXS
+// transactions reorg needs WASPV_TEST_DUMMY_TXS (sure?)
 - (void)testReorganize
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
-    WSHash256 *G = [WSCurrentParameters genesisBlockId];
+    WSHash256 *G = [self.networkParameters genesisBlockId];
     WSHash256 *H1 = WSHash256FromHex(@"1111111111111111111111111111111111111111111111111111111111111111");
     WSHash256 *H2 = WSHash256FromHex(@"2222222222222222222222222222222222222222222222222222222222222222");
     WSHash256 *H3 = WSHash256FromHex(@"3333333333333333333333333333333333333333333333333333333333333333");
@@ -318,13 +256,13 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 //    WSHash256 *HD = WSHash256FromHex(@"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
 //    WSHash256 *HE = WSHash256FromHex(@"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
 //    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:[self mockPathForFile:@"BlockChainTests-Reorganize.sqlite"] error:NULL];
 //    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
     chain.delegate = self;
     
-    self.wallet = [[WSHDWallet alloc] initWithSeed:WSSeedMake(@"one two three", 0.0)];
+    self.wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:WSSeedMake(@"one two three", 0.0)];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidRegisterTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         DDLogInfo(@"Registered transaction: %@", [note.userInfo[WSWalletTransactionKey] txId]);
@@ -342,7 +280,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     // G -> H1=10
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H1, G, 10) transactions:WSMakeDummyTransactions(H1) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 10) transactions:WSMakeDummyTransactions(self.networkParameters, H1) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -356,7 +294,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //   \
     //    \--> H2=2
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H2, G, 2) transactions:WSMakeDummyTransactions(H2) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H2, G, 2) transactions:WSMakeDummyTransactions(self.networkParameters, H2) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -365,7 +303,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     // skip duplicated H1 at same height
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H1, G, 1) transactions:WSMakeDummyTransactions(H1) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H1) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -380,7 +318,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     //    (H4) --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H5, H4, 1) transactions:WSMakeDummyTransactions(H5) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H5, H4, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H5) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -395,7 +333,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     //    (H3) --> H4=1 --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H4, H3, 1) transactions:WSMakeDummyTransactions(H4) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H4, H3, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H4) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -419,7 +357,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     // H5 is new fork head
     // work(H4) < work(H1) = (9 < 10), extend fork
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H3, H2, 5) transactions:WSMakeDummyTransactions(H3) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H3, H2, 5) transactions:WSMakeDummyTransactions(self.networkParameters, H3) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -432,7 +370,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //   \
     //    \--> H2=2 --> H3=5 --> H4=1 --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H6, H1, 7) transactions:WSMakeDummyTransactions(H6) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H6, H1, 7) transactions:WSMakeDummyTransactions(self.networkParameters, H6) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
     XCTAssertEqual(chain.currentHeight, 2);
     XCTAssertEqualObjects(chain.head.workString, @"4295032850");
@@ -447,7 +385,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //                   \
     //                    \---- H7=8
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H7, H3, 8) transactions:WSMakeDummyTransactions(H7) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H7, H3, 8) transactions:WSMakeDummyTransactions(self.networkParameters, H7) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
     XCTAssertEqual(chain.currentHeight, 2);
     XCTAssertEqualObjects(chain.head.workString, @"4295032850");
@@ -464,7 +402,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     // work(H8) > work(H6) = (21 > 17), reorganize
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H8, H5, 12) transactions:WSMakeDummyTransactions(H8) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H8, H5, 12) transactions:WSMakeDummyTransactions(self.networkParameters, H8) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
     XCTAssertEqual(chain.currentHeight, 5);
     XCTAssertEqualObjects(chain.head.workString, @"4295032854");
@@ -481,7 +419,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //                   \
     //                    \---- H7=8
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(HA, H9, 4) transactions:WSMakeDummyTransactions(HA) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, HA, H9, 4) transactions:WSMakeDummyTransactions(self.networkParameters, HA) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
     XCTAssertEqual(chain.currentHeight, 5);
     XCTAssertEqualObjects(chain.head.workString, @"4295032854");
@@ -512,7 +450,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     //
     // work(HA) > work(H8) = (38 > 21), reorganize
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(H9, H1, 24) transactions:WSMakeDummyTransactions(H9) error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H9, H1, 24) transactions:WSMakeDummyTransactions(self.networkParameters, H9) error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, HA);
     XCTAssertEqual(chain.currentHeight, 3);
     XCTAssertEqualObjects(chain.head.workString, @"4295032871");
@@ -571,7 +509,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 
 - (WSBlockChain *)chainWithLocalHeaders
 {
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
 
     // from height #1
@@ -598,7 +536,7 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
     
     NSError *error;
     for (NSString *hex in headers) {
-        WSBlockHeader *header = WSBlockHeaderFromHex(hex);
+        WSBlockHeader *header = WSBlockHeaderFromHex(self.networkParameters, hex);
 //        DDLogInfo(@"Header: %@", header);
         XCTAssertTrue([chain addBlockWithHeader:header reorganizeBlock:NULL error:&error], @"Unable to add block %@: %@", header.blockId, error);
     }
@@ -607,3 +545,69 @@ static NSOrderedSet *WSMakeDummyTransactions(WSHash256 *blockId)
 }
 
 @end
+
+static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
+{
+    BIGNUM bnLargest;
+    BIGNUM bnTarget;
+    BIGNUM bnWork;
+    
+    BN_init(&bnLargest);
+    BN_init(&bnTarget);
+    BN_init(&bnWork);
+    
+    BN_CTX *ctx = BN_CTX_new();
+    BN_set_bit(&bnLargest, 256);
+    BN_set_word(&bnWork, work);
+    BN_div(&bnTarget, NULL, &bnLargest, &bnWork, ctx);
+    BN_sub(&bnTarget, &bnTarget, BN_value_one());
+    BN_CTX_free(ctx);
+    
+    const uint32_t bits = WSBlockGetBits(&bnTarget);
+    
+    //    DDLogCInfo(@"Largest: %s", BN_bn2dec(&bnLargest));
+    //    DDLogCInfo(@"Target: %s", BN_bn2dec(&bnTarget));
+    //    DDLogCInfo(@"Work: %s", BN_bn2dec(&bnWork));
+    //    DDLogCInfo(@"Bits: %x", bits);
+    
+    BN_free(&bnLargest);
+    BN_free(&bnTarget);
+    BN_free(&bnWork);
+    
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:networkParameters
+                                                              version:2
+                                                      previousBlockId:previousBlockId
+                                                           merkleRoot:WSHash256Zero()
+                                                            timestamp:WSCurrentTimestamp()
+                                                                 bits:bits
+                                                                nonce:0];
+    
+    // hack id for testing
+    [header setValue:blockId forKey:@"blockId"];
+    
+    return header;
+}
+
+static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters, WSHash256 *blockId)
+{
+    NSMutableOrderedSet *txs = [[NSMutableOrderedSet alloc] initWithCapacity:3];
+    WSHash256 *outpointTxId = WSHash256FromHex(@"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    
+    for (NSUInteger i = 0; i < 1; ++i) {
+        NSMutableString *hex = [[blockId.data hexString] mutableCopy];
+        [hex replaceCharactersInRange:NSMakeRange(0, 2) withString:[NSString stringWithFormat:@"%u%u", i, i]];
+        [hex replaceCharactersInRange:NSMakeRange(2, 6) withString:@"ffffff"];
+        WSHash256 *txId = WSHash256FromHex(hex);
+        WSScript *script = [WSScript scriptWithAddress:WSAddressFromString(networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+        
+        WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithParameters:networkParameters txId:outpointTxId index:0];
+        WSSignedTransactionInput *input = [[WSSignedTransactionInput alloc] initWithOutpoint:outpoint script:script];
+        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithParameters:networkParameters script:script value:100000];
+        
+        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithSignedInputs:[NSOrderedSet orderedSetWithObject:input] outputs:[NSOrderedSet orderedSetWithObject:output] error:NULL];
+        [tx setValue:txId forKey:@"txId"];
+        [txs addObject:tx];
+    }
+    
+    return txs;
+}

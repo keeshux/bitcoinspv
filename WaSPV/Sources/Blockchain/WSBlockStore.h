@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol WSParameters;
 @class WSHash256;
 @class WSStorableBlock;
 @class WSSignedTransaction;
@@ -38,6 +39,7 @@
 //
 @protocol WSBlockStore <NSObject>
 
+- (id<WSParameters>)parameters;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId;
 

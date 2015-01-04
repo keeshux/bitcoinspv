@@ -87,6 +87,11 @@
 
 #pragma mark WSTransactionInput
 
+- (id<WSParameters>)parameters
+{
+    return self.outpoint.parameters;
+}
+
 - (BOOL)isCoinbase
 {
     return [self.outpoint isCoinbase];
@@ -99,7 +104,7 @@
 
 - (WSAddress *)address
 {
-    return [self.script standardInputAddress];
+    return [self.script standardInputAddressWithParameters:self.outpoint.parameters];
 }
 
 #pragma mark WSBufferEncoder
@@ -121,12 +126,12 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSUInteger offset = from;
     NSUInteger varIntLength;
     
-    WSTransactionOutPoint *outpoint = [[WSTransactionOutPoint alloc] initWithBuffer:buffer from:offset available:WSTransactionOutPointSize error:error];
+    WSTransactionOutPoint *outpoint = [[WSTransactionOutPoint alloc] initWithParameters:parameters buffer:buffer from:offset available:WSTransactionOutPointSize error:error];
     if (!outpoint) {
         return nil;
     }
@@ -137,10 +142,10 @@
     
     WSScript *script = nil;
     if ([outpoint isCoinbase]) {
-        script = [[WSCoinbaseScript alloc] initWithBuffer:buffer from:offset available:scriptLength error:error];
+        script = [[WSCoinbaseScript alloc] initWithParameters:parameters buffer:buffer from:offset available:scriptLength error:error];
     }
     else {
-        script = [[WSScript alloc] initWithBuffer:buffer from:offset available:scriptLength error:error];
+        script = [[WSScript alloc] initWithParameters:parameters buffer:buffer from:offset available:scriptLength error:error];
     }
     if (!script) {
         return nil;
@@ -186,7 +191,7 @@
     WSExceptionCheckIllegal(previousTransaction != nil, @"Nil previousTransaction");
     
     WSTransactionOutput *previousOutput = [previousTransaction outputAtIndex:outputIndex];
-    WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithTxId:previousTransaction.txId index:outputIndex];
+    WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithParameters:previousOutput.parameters txId:previousTransaction.txId index:outputIndex];
 
     return [self initWithPreviousOutput:previousOutput outpoint:outpoint sequence:sequence];
 }
@@ -242,6 +247,11 @@
 }
 
 #pragma mark WSTransactionInput
+
+- (id<WSParameters>)parameters
+{
+    return self.previousOutput.parameters;
+}
 
 - (WSScript *)script
 {

@@ -45,8 +45,8 @@ extern const NSUInteger WSBIP38KeyFlagsInvalid;
 @interface WSBIP38Key : NSObject
 
 - (instancetype)initWithEncrypted:(NSString *)encrypted;
-- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase; // ec = NO
-//- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase; // ec = NO
+//- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec;
 
 - (NSString *)encrypted;
 - (NSData *)encryptedData;
@@ -64,7 +64,7 @@ extern const NSUInteger WSBIP38KeyFlagsInvalid;
 
 @interface WSKey (BIP38)
 
-- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase; // ec = NO
-//- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase ec:(BOOL)ec;
+- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase; // ec = NO
+//- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase ec:(BOOL)ec;
 
 @end

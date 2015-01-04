@@ -34,6 +34,7 @@
 + (instancetype)messageWithVersion:(uint32_t)version
                           services:(uint64_t)services
               remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
+                         localPort:(uint16_t)localPort
                  relayTransactions:(uint8_t)relayTransactions;
 
 - (uint32_t)version;

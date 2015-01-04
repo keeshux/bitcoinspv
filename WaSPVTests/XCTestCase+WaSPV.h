@@ -43,6 +43,10 @@
 
 @interface XCTestCase (WaSPV)
 
+- (WSNetworkType)networkType;
+- (void)setNetworkType:(WSNetworkType)networkType;
+- (id<WSParameters>)networkParameters;
+
 - (NSString *)mockWalletMnemonic;
 - (WSSeed *)mockWalletSeed;
 - (NSString *)mockPathForFile:(NSString *)file;

@@ -33,10 +33,10 @@
 
 @interface WSParametersFactory ()
 
-@property (nonatomic, strong) id<WSParametersFactory> currentFactory;
 @property (nonatomic, strong) id<WSParametersFactory> mainFactory;
 @property (nonatomic, strong) id<WSParametersFactory> testnet3Factory;
 @property (nonatomic, strong) id<WSParametersFactory> regtestFactory;
+@property (nonatomic, strong) NSDictionary *mapping;
 
 @end
 
@@ -59,56 +59,18 @@
         self.testnet3Factory = [[WSParametersFactoryTestnet3 alloc] init];
         self.regtestFactory = [[WSParametersFactoryRegtest alloc] init];
 
-        // default to testnet3
-        self.parametersType = WSParametersTypeTestnet3;
+        self.mapping = @{@(WSNetworkTypeMain): [self.mainFactory parameters],
+                         @(WSNetworkTypeTestnet3): [self.testnet3Factory parameters],
+                         @(WSNetworkTypeRegtest): [self.regtestFactory parameters]};
     }
     return self;
 }
 
-- (void)setParametersType:(WSParametersType)parametersType
+- (id<WSParameters>)parametersForNetworkType:(WSNetworkType)networkType
 {
-    _parametersType = parametersType;
-    
-    switch (parametersType) {
-        case WSParametersTypeMain: {
-            self.currentFactory = self.mainFactory;
-            break;
-        }
-        case WSParametersTypeTestnet3: {
-            self.currentFactory = self.testnet3Factory;
-            break;
-        }
-        case WSParametersTypeRegtest: {
-            self.currentFactory = self.regtestFactory;
-            break;
-        }
-        default: {
-            WSExceptionCheckIllegal(NO, @"Unhandled parameters type: %d", parametersType);
-            break;
-        }
-    }
-}
-
-#pragma mark WSParametersFactory
-
-- (id<WSParameters>)parameters
-{
-    return [self.currentFactory parameters];
+    id<WSParameters> parameters = self.mapping[@(networkType)];
+    WSExceptionCheckIllegal(parameters != nil, @"Unhandled parameters type: %d", networkType);
+    return parameters;
 }
 
 @end
-
-NSString *WSParametersTypeString(WSParametersType type)
-{
-    static dispatch_once_t onceToken;
-    static NSMutableDictionary *strings;
-    
-    dispatch_once(&onceToken, ^{
-        strings = [[NSMutableDictionary alloc] initWithCapacity:3];
-        strings[@(WSParametersTypeMain)] = @"Main";
-        strings[@(WSParametersTypeTestnet3)] = @"Testnet3";
-        strings[@(WSParametersTypeRegtest)] = @"Regtest";
-    });
-    
-    return strings[@(type)];
-}

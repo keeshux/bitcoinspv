@@ -83,10 +83,10 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if ((self = [super initWithOriginalPayload:buffer])) {
-        self.transaction = [[WSSignedTransaction alloc] initWithBuffer:buffer from:from available:available error:error];
+    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
+        self.transaction = [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:from available:available error:error];
         if (!self.transaction) {
             return nil;
         }

@@ -48,7 +48,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     NSString *path = [self mockPathForFile:@"CoreDataStoreTests.sqlite"];
     self.manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
@@ -71,10 +71,10 @@
 
 - (void)testGenesis
 {
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:self.manager];
     [store truncate];
 
-    XCTAssertEqualObjects(store.head.blockId, [WSCurrentParameters genesisBlockId]);
+    XCTAssertEqualObjects(store.head.blockId, [self.networkParameters genesisBlockId]);
 }
 
 - (void)testAddHeaders
@@ -101,14 +101,14 @@
                          @"01000000489ac81592595a4004e14331cb096ffef12b1daf709f6378e9c3558d00000000c757bebd6f2c2c071a3cf739a4cf98b27441809790a5cf40652b46df8a98a473b0eb494dffff001d011aedb600",
                          @"01000000a9c570a45d959023551f9a694ace9c12206174f21383f30949ca3b9b00000000eaf93dbbfb3551a1ff8b6bd5ba4cea7508e790c23cd07b9d9e791936a79d5fd4b3eb494dffff001d0385a7dd00"];
 
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
-//    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:self.manager];
+//    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     [store truncate];
 
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
 
     for (NSString *hex in headers) {
-        WSBlockHeader *header = WSBlockHeaderFromHex(hex);
+        WSBlockHeader *header = WSBlockHeaderFromHex(self.networkParameters, hex);
 
         NSError *error;
         XCTAssertTrue([chain addBlockWithHeader:header reorganizeBlock:NULL error:&error], @"Unable to add block %@: %@", header.blockId, error);
@@ -130,7 +130,7 @@
 
 - (void)testAddBlockWithTxs
 {
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:self.manager];
     [store truncate];
 
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
@@ -140,12 +140,13 @@
     
     // height = 1
 
-    WSBlockHeader *checkpointHeader = [[WSBlockHeader alloc] initWithVersion:2
-                                                             previousBlockId:WSHash256FromHex(@"000000000000cee828ea1d5b5ad7e6c8739c5e74656a72887fe55d7b7befc6cb")
-                                                                  merkleRoot:WSHash256FromHex(@"868a616f05ea5fca111875e2fdce0ea1bb43e41ed88fea7f626cc70b7d0de98a")
-                                                                   timestamp:1404410452
-                                                                        bits:0x1b013164
-                                                                       nonce:2617465643];
+    WSBlockHeader *checkpointHeader = [[WSBlockHeader alloc] initWithParameters:self.networkParameters
+                                                                        version:2
+                                                                previousBlockId:WSHash256FromHex(@"000000000000cee828ea1d5b5ad7e6c8739c5e74656a72887fe55d7b7befc6cb")
+                                                                     merkleRoot:WSHash256FromHex(@"868a616f05ea5fca111875e2fdce0ea1bb43e41ed88fea7f626cc70b7d0de98a")
+                                                                      timestamp:1404410452
+                                                                           bits:0x1b013164
+                                                                          nonce:2617465643];
     DDLogInfo(@"Checkpoint: %@", checkpointHeader);
     XCTAssertEqualObjects(checkpointHeader.blockId, WSHash256FromHex(@"000000000000a7b4391d74a020b8d26d6fb843763756a125a1cccb357602d75b"));
     
@@ -156,10 +157,10 @@
     
     // height = 266642
     
-    WSFilteredBlock *block = WSFilteredBlockFromHex(@"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f");
+    WSFilteredBlock *block = WSFilteredBlockFromHex(self.networkParameters, @"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f");
     DDLogInfo(@"Filtered block: %@", block);
     XCTAssertEqualObjects(block.header.workString, @"235952213784977");
-    WSSignedTransaction *tx = WSTransactionFromHex(@"010000000459cbb78f55fda4d1eeef41180686f011c497469490a68c7d388dff7a152dabb1000000008c493046022100f0dbc62f00bda641833416e34f062234ccf9256daf21aad54ca3cebc87e714540221009e27727760cc2274d7e92d9e23fc781438d641bd934c44547ec8f16af4dd18fa0141042a65f36cfbd9f016597e219870bb741b9f5f0a1deaedafea569d6968c2d72b62a4bc8915584ba2bf690d92c737f7cda03a0c1377d9ed90977b044927892294f3ffffffffa8c4e4e1641eb32a2f897b2ec369fbfca77eb7bde119e9f67c49219f40de3137000000008b48304502210086089db5a7445103540ac25b071199828c2fcf4a596df68315788ca7da15563402207c1bef9a5dcb84a7670983688d292a615f217517fb3956d601d999384dfb89200141045d6a5319757ea49302cf7bc94499e0aace02cf336a7efc3b335909e473fe51a88d83aa027cee19ab6e8a1413ea5f5647a9b6dbfb50c23c1c16e4d7074bf9fb13fffffffff4fa614da159c2d0ab3f693e969a06f59a790814a0bcd5e8256346a0863308ed010000008a47304402204574cf17abe22196da2707ef28adf08d91ee43c70faa4ff80617df004f3a50e802207ff0fb1984ac78f6ad0f382f16d9d6a18d5afe4d62eeed854739b8c1ffaf62ef0141043811ceb31510fe4a317b7eb8ae78aa3a523725dcc46ba80101f41363fa189c26663e5abcb33feb11b2c1b12cffe72e14d93c536d3b75ff1d07b0514e121839f4ffffffff4f5e62ed298d294977cf290776c858fa19eeded8a555c85be31878f5c84ff552000000008a4730440220365b2950ea43338641151956a3af17e013d2b71251aa67cb43bf36cadfdfebb802205a815577a6cb347dbd803edc3141ac1e4e6f08d03634e6c6a683bbc19fb13fd30141046172813a3084d6cc3f838f10ae7583b685164a01dec67f1a9091fe5aa75c7d33fdcfd35842847aa4e85c891520507569aabb4cb5f91caf18ffcc10e809a810bcffffffff0229166400000000001976a9146ba6db5d885b4fcc24307d378664a8db3f9ace4488ace0730385000000001976a91488834d722528175119b77724652b9711cd7818c488ac00000000");
+    WSSignedTransaction *tx = WSTransactionFromHex(self.networkParameters, @"010000000459cbb78f55fda4d1eeef41180686f011c497469490a68c7d388dff7a152dabb1000000008c493046022100f0dbc62f00bda641833416e34f062234ccf9256daf21aad54ca3cebc87e714540221009e27727760cc2274d7e92d9e23fc781438d641bd934c44547ec8f16af4dd18fa0141042a65f36cfbd9f016597e219870bb741b9f5f0a1deaedafea569d6968c2d72b62a4bc8915584ba2bf690d92c737f7cda03a0c1377d9ed90977b044927892294f3ffffffffa8c4e4e1641eb32a2f897b2ec369fbfca77eb7bde119e9f67c49219f40de3137000000008b48304502210086089db5a7445103540ac25b071199828c2fcf4a596df68315788ca7da15563402207c1bef9a5dcb84a7670983688d292a615f217517fb3956d601d999384dfb89200141045d6a5319757ea49302cf7bc94499e0aace02cf336a7efc3b335909e473fe51a88d83aa027cee19ab6e8a1413ea5f5647a9b6dbfb50c23c1c16e4d7074bf9fb13fffffffff4fa614da159c2d0ab3f693e969a06f59a790814a0bcd5e8256346a0863308ed010000008a47304402204574cf17abe22196da2707ef28adf08d91ee43c70faa4ff80617df004f3a50e802207ff0fb1984ac78f6ad0f382f16d9d6a18d5afe4d62eeed854739b8c1ffaf62ef0141043811ceb31510fe4a317b7eb8ae78aa3a523725dcc46ba80101f41363fa189c26663e5abcb33feb11b2c1b12cffe72e14d93c536d3b75ff1d07b0514e121839f4ffffffff4f5e62ed298d294977cf290776c858fa19eeded8a555c85be31878f5c84ff552000000008a4730440220365b2950ea43338641151956a3af17e013d2b71251aa67cb43bf36cadfdfebb802205a815577a6cb347dbd803edc3141ac1e4e6f08d03634e6c6a683bbc19fb13fd30141046172813a3084d6cc3f838f10ae7583b685164a01dec67f1a9091fe5aa75c7d33fdcfd35842847aa4e85c891520507569aabb4cb5f91caf18ffcc10e809a810bcffffffff0229166400000000001976a9146ba6db5d885b4fcc24307d378664a8db3f9ace4488ace0730385000000001976a91488834d722528175119b77724652b9711cd7818c488ac00000000");
     DDLogInfo(@"Transaction: %@", tx);
 
     XCTAssertTrue([chain addBlockWithHeader:block.header transactions:[NSOrderedSet orderedSetWithObject:tx] reorganizeBlock:NULL error:&error], @"Unable to add block %@: %@", block.header.blockId, error);
@@ -174,7 +175,7 @@
 
 - (void)testPrint
 {
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:self.manager];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:self.manager];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
 
     DDLogInfo(@"Chain: %@", chain);

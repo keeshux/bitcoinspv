@@ -56,14 +56,14 @@
     self.transactions = txEntities;
 }
 
-- (WSStorableBlock *)toStorableBlock
+- (WSStorableBlock *)toStorableBlockWithParameters:(id<WSParameters>)parameters
 {
-    WSBlockHeader *header = [self.header toBlockHeader];
+    WSBlockHeader *header = [self.header toBlockHeaderWithParameters:parameters];
     const uint32_t height = (uint32_t)[self.height unsignedIntegerValue];
 
     NSMutableOrderedSet *transactions = [[NSMutableOrderedSet alloc] initWithCapacity:self.transactions.count];
     for (WSTransactionEntity *entity in self.transactions) {
-        WSSignedTransaction *tx = [entity toSignedTransaction];
+        WSSignedTransaction *tx = [entity toSignedTransactionWithParameters:parameters];
         [transactions addObject:tx];
     }
     

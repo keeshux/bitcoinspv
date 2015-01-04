@@ -79,7 +79,7 @@
         // https://www.biteasy.com/testnet/blocks/000000001af3b22a7598b10574deb6b3e2d596f36d62b0a49cb89a1f99ab81eb
         // https://www.biteasy.com/testnet/blocks/00000000db623a1752143f2f805c4527573570d9b4ca0a3cfe371e703ac429aa
         //
-        self.doValidate = (WSParametersGetCurrentType() == WSParametersTypeMain);
+        self.doValidate = ([self.store.parameters networkType] == WSNetworkTypeMain);
     }
     return self;
 }
@@ -123,7 +123,7 @@
 {
     NSMutableArray *hashes = [[NSMutableArray alloc] initWithCapacity:100];
     WSStorableBlock *block = self.head;
-    WSHash256 *genesisBlockId = [WSCurrentParameters genesisBlockId];
+    WSHash256 *genesisBlockId = [self.store.parameters genesisBlockId];
 
     NSInteger i = 0;
     NSInteger step = 1;
@@ -179,21 +179,25 @@
     WSStorableBlock *addedBlock = nil;
     
     if ([header.blockId isEqual:self.head.blockId]) {
-        if (![self.head.transactions isSubsetOfOrderedSet:transactions]) {
+
+        if ((!self.head.transactions && (transactions.count > 0)) ||
+            [self.head.transactions isSubsetOfOrderedSet:transactions]) {
+
+            DDLogDebug(@"Replacing head with newer block: %@", header.blockId);
+            WSStorableBlock *headParent = [self.head previousBlockInChain:self];
+            WSStorableBlock *newHead = [headParent buildNextBlockFromHeader:header transactions:transactions];
+
+            [self.store putBlock:newHead];
+            [self.store setHead:newHead];
+            
+            [self.delegate blockChain:self didReplaceHead:newHead];
+
+            return newHead;
+        }
+        else {
             DDLogDebug(@"Ignoring duplicated head: %@", header.blockId);
             return nil;
         }
-
-        DDLogDebug(@"Replacing head with newer block: %@", header.blockId);
-        WSStorableBlock *headParent = [self.head previousBlockInChain:self];
-        WSStorableBlock *newHead = [headParent buildNextBlockFromHeader:header transactions:transactions];
-
-        [self.store putBlock:newHead];
-        [self.store setHead:newHead];
-        
-        [self.delegate blockChain:self didReplaceHead:newHead];
-
-        return newHead;
     }
     if (connectOrphans && self.orphans[header.blockId]) {
         DDLogDebug(@"Ignoring known orphan: %@", header.blockId);

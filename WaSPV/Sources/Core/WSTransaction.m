@@ -193,7 +193,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSUInteger offset = from;
 
@@ -210,10 +210,11 @@
     
     NSMutableOrderedSet *inputs = [[NSMutableOrderedSet alloc] initWithCapacity:inputsCount];
     for (NSUInteger i = 0; i < inputsCount; ++i) {
-        WSSignedTransactionInput *input = [[WSSignedTransactionInput alloc] initWithBuffer:buffer
-                                                                                      from:offset
-                                                                                 available:(available - offset + from)
-                                                                                     error:error];
+        WSSignedTransactionInput *input = [[WSSignedTransactionInput alloc] initWithParameters:parameters
+                                                                                        buffer:buffer
+                                                                                          from:offset
+                                                                                     available:(available - offset + from)
+                                                                                         error:error];
         if (!input) {
             return nil;
         }
@@ -231,10 +232,11 @@
     
     NSMutableOrderedSet *outputs = [[NSMutableOrderedSet alloc] initWithCapacity:outputsCount];
     for (NSUInteger i = 0; i < outputsCount; ++i) {
-        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithBuffer:buffer
-                                                                             from:offset
-                                                                        available:(available - offset + from)
-                                                                            error:error];
+        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithParameters:parameters
+                                                                               buffer:buffer
+                                                                                 from:offset
+                                                                            available:(available - offset + from)
+                                                                                error:error];
         if (!output) {
             return nil;
         }
@@ -327,7 +329,7 @@
     }
 
     const uint64_t outputValue = inputValue - effectiveFee;
-    WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:outputValue address:address];
+    WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:outputValue];
     [self addOutput:output];
     return YES;
 }

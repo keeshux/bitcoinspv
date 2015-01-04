@@ -28,16 +28,22 @@
 #import "WSMessageFactory.h"
 #import "WSErrors.h"
 
+@interface WSMessageFactory ()
+
+@property (nonatomic, strong) id<WSParameters> parameters;
+
+@end
+
 @implementation WSMessageFactory
 
-+ (instancetype)sharedInstance
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    static WSMessageFactory *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    return instance;
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    
+    if ((self = [super init])) {
+        self.parameters = parameters;
+    }
+    return self;
 }
 
 - (id<WSMessage>)messageFromType:(NSString *)type payload:(WSBuffer *)payload error:(NSError *__autoreleasing *)error
@@ -57,7 +63,7 @@
         WSErrorSet(error, WSErrorCodeUndecodableMessage, @"Undecodable message '%@'", type);
         return nil;
     }
-    id<WSMessage> message = [[clazz alloc] initWithBuffer:payload from:0 available:payload.length error:error];
+    id<WSMessage> message = [[clazz alloc] initWithParameters:self.parameters buffer:payload from:0 available:payload.length error:error];
     if (message) {
         NSAssert(message.originalPayload, @"Decoded messages should retain original payload");
     }

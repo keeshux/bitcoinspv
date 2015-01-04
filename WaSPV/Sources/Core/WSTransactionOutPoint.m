@@ -33,26 +33,29 @@
 
 @interface WSTransactionOutPoint ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) WSHash256 *txId;
 @property (nonatomic, assign) uint32_t index;
 @property (nonatomic, strong) WSBuffer *buffer;
 
-- (instancetype)initWithTxId:(WSHash256 *)txId index:(uint32_t)index;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index;
 
 @end
 
 @implementation WSTransactionOutPoint
 
-+ (instancetype)outpointWithTxId:(WSHash256 *)txId index:(uint32_t)index
++ (instancetype)outpointWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index
 {
-    return [[self alloc] initWithTxId:txId index:index];
+    return [[self alloc] initWithParameters:parameters txId:txId index:index];
 }
 
-- (instancetype)initWithTxId:(WSHash256 *)txId index:(uint32_t)index
+- (instancetype)initWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(txId != nil, @"Nil txId");
     
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.txId = txId;
         self.index = index;
         
@@ -122,7 +125,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSTransactionOutPointSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSTransactionOutPointSize);
@@ -136,7 +139,7 @@
 
     const uint32_t index = [buffer uint32AtOffset:offset];
     
-    return [self initWithTxId:txId index:index];
+    return [self initWithParameters:parameters txId:txId index:index];
 }
 
 #pragma mark WSSized

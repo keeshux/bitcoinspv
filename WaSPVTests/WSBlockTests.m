@@ -52,7 +52,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 }
 
 - (void)tearDown
@@ -64,12 +64,13 @@
 - (void)testBlockHash
 {
     // height 125552
-    WSBlockHeader *block = [[WSBlockHeader alloc] initWithVersion:1
-                                                  previousBlockId:WSHash256FromHex(@"00000000000008a3a41b85b8b29ad444def299fee21793cd8b9e567eab02cd81")
-                                                       merkleRoot:WSHash256FromHex(@"2b12fcf1b09288fcaff797d71e950e71ae42b91e8bdb2304758dfcffc2b620e3")
-                                                        timestamp:1305998791
-                                                             bits:0x1a44b9f2
-                                                            nonce:2504433986];
+    WSBlockHeader *block = [[WSBlockHeader alloc] initWithParameters:self.networkParameters
+                                                             version:1
+                                                     previousBlockId:WSHash256FromHex(@"00000000000008a3a41b85b8b29ad444def299fee21793cd8b9e567eab02cd81")
+                                                          merkleRoot:WSHash256FromHex(@"2b12fcf1b09288fcaff797d71e950e71ae42b91e8bdb2304758dfcffc2b620e3")
+                                                           timestamp:1305998791
+                                                                bits:0x1a44b9f2
+                                                               nonce:2504433986];
 
     WSHash256 *expBlockId = WSHash256FromHex(@"00000000000000001e8d6829a8a21adc5d38d0a473b144b6765798e61f98bd1d");
     DDLogInfo(@"Block id: %@", block.blockId);
@@ -86,7 +87,7 @@
 
 - (void)testParseBlockHeader
 {
-    WSBlockHeader *header = WSBlockHeaderFromHex(@"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d00");
+    WSBlockHeader *header = WSBlockHeaderFromHex(self.networkParameters, @"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d00");
     DDLogInfo(@"Header: %@", header);
     
     WSHash256 *blockId = header.blockId;
@@ -96,7 +97,7 @@
 
 - (void)testParseBlock
 {
-    WSBlock *block = WSBlockFromHex(@"01000000c300ab8b147c7792994375e70c33168391cfd78db6a627926d0fb5a900000000da3f1c08e2d6ffe82fb99ffab4fc969ad014e7dabbd37cccc697cb573b39b939c9f2a749ffff001d0893788f0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0176ffffffff0100f2052a01000000434104c8808d044bc43f17bc8b1a0c332b082029d6e059d12f30b91df9dc844fc6651ad1527e0551b7fceaac302714e63de5677d7427344b958885373a0d82899054c5ac00000000");
+    WSBlock *block = WSBlockFromHex(self.networkParameters, @"01000000c300ab8b147c7792994375e70c33168391cfd78db6a627926d0fb5a900000000da3f1c08e2d6ffe82fb99ffab4fc969ad014e7dabbd37cccc697cb573b39b939c9f2a749ffff001d0893788f0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0176ffffffff0100f2052a01000000434104c8808d044bc43f17bc8b1a0c332b082029d6e059d12f30b91df9dc844fc6651ad1527e0551b7fceaac302714e63de5677d7427344b958885373a0d82899054c5ac00000000");
     DDLogInfo(@"Block: %@", block);
 
     XCTAssertEqualObjects(block.header.blockId, WSHash256FromHex(@"000000006950a126ea4be46f40412a2c40c580d075cbc57653fef2167aa5d295"));
@@ -105,7 +106,7 @@
 
 - (void)testParseFilteredBlock
 {
-    WSFilteredBlock *block = WSFilteredBlockFromHex(@"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f");
+    WSFilteredBlock *block = WSFilteredBlockFromHex(self.networkParameters, @"020000005bd7027635cbcca125a156377643b86f6dd2b820a0741d39b4a7000000000000fca15af0cbaae20e8cd6d8c613ca058b291f793da7925db7e30b71db349479353f9cb5536431011b8818102d12000000120763f91fe0bb2d89c0284588556f466123a1fb76cf591d7aa196115a1ed0cafa1fe750aeb68a59570d7be7f0b8f62698d6242b84db50bf6e314d10ca624789dd9a628ae55f7b1f7c652b99259503705b106c7cbe300e0a77054be720caec243668ff80caa26851ea1170462bf96e91e0bbe23da9949e1b0520e20983aca3406167febc07e28ca2163b9243f6878c53ceeeb71d18528f40bbc19c03dfd194e77f523e3d286d0856d951992ca24970abc98cd0b5a61bffe472583ecc60f06c3c033034b6b8b9d215df13bd46fcd8f26a3a12300a8f0213676ecd27ec8a51ecb18eeca10647a8a0c5466f5ac0d65623b7783eb83095379a15d99c7a86867fb951c098f8fbef7589f8bb9b09f290547af41eabb511037023359e8877a37574034c11b3f0acc28f3b97ecd78f3d9d3e96919a90d3067018fe981c10a0bb0148ddef696d74fa51489b4b1a3e03c0a888a71171b8c4936169ece50c71e7444281b305a92a2011c92a479b505340e1cdc48a0854536db8f2937a55a7cf07d2f59f26f6d3ed175b94b22798a73b723109901a30a94ad261c63a928acb8ca17a8019992515c074d1dfa3bd43935a1274b00c4d12fd87ee2ff0608d58d581e4e729af530b021808b863656bf47ece10a6c4f6a5a4173737a5cd113580d2f7e13bcd14201bea62b08a42110fb85b4e0e7116179b482a706edd4a8e975fe9b6df39931cc55ae6221d7cfc745b8d4234279fc7f3dc057f03b0ef29f942e929b9f52f28267f77fd98713c3f05a0de8922d1392ce26f60239865a38a8c94e5e4e7eb90a51245dc7a05ffffffff3f");
     DDLogInfo(@"Filtered block: %@", block);
 
     WSHash256 *blockId = block.header.blockId;
@@ -134,7 +135,7 @@
     for (NSString *blockBufferHex in blockBuffers) {
         NSError *error;
         WSBuffer *blockBuffer = WSBufferFromHex(blockBufferHex);
-        WSFilteredBlock *block = [[WSFilteredBlock alloc] initWithBuffer:blockBuffer from:0 available:blockBuffer.length error:&error];
+        WSFilteredBlock *block = [[WSFilteredBlock alloc] initWithParameters:self.networkParameters buffer:blockBuffer from:0 available:blockBuffer.length error:&error];
         XCTAssertNotNil(block, @"%@", error);
 
         DDLogInfo(@"Block: %@", block);
@@ -176,7 +177,7 @@
     for (NSString *hex in headers) {
         NSError *error;
         WSBuffer *buffer = WSBufferFromHex(hex);
-        WSBlockHeader *header = [[WSBlockHeader alloc] initWithBuffer:buffer from:0 available:buffer.length error:&error];
+        WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:self.networkParameters buffer:buffer from:0 available:buffer.length error:&error];
         XCTAssertNotNil(header, @"Error parsing header: %@", error);
         XCTAssertEqualObjects([[header toBuffer] hexString], hex);
 
@@ -195,7 +196,7 @@
     for (NSString *hex in blocks) {
         NSError *error;
         WSBuffer *buffer = WSBufferFromHex(hex);
-        WSFilteredBlock *block = [[WSFilteredBlock alloc] initWithBuffer:buffer from:0 available:buffer.length error:&error];
+        WSFilteredBlock *block = [[WSFilteredBlock alloc] initWithParameters:self.networkParameters buffer:buffer from:0 available:buffer.length error:&error];
         XCTAssertNotNil(block, @"%@", error);
 
         XCTAssertEqualObjects([[block toBuffer] hexString], hex, @"Reencoded block differs");
@@ -243,13 +244,13 @@
     const uint32_t bits = 406937553;
     DDLogInfo(@"Bits: %u", bits);
 
-    NSString *difficultyString = WSBlockGetDifficultyStringFromBits(bits);
+    NSString *difficultyString = WSBlockGetDifficultyStringFromBits(self.networkParameters, bits);
     DDLogInfo(@"Difficulty (float): %@", difficultyString);
     NSString *difficulty = [difficultyString componentsSeparatedByString:@"."][0];
     NSString *expDifficulty = @"16818461371";
     XCTAssertEqualObjects(difficulty, expDifficulty);
 
-    NSData *difficultyBytes = WSBlockGetDifficultyFromBits(bits);
+    NSData *difficultyBytes = WSBlockGetDifficultyFromBits(self.networkParameters, bits);
     NSString *difficultyHex = [difficultyBytes hexString];
     DDLogInfo(@"Difficulty (hex): %@", difficultyHex);
     BIGNUM *expDiffBN = NULL;
@@ -265,13 +266,13 @@
     // 44352
     NSString *retargetHex = @"010200000023dd3ee8947c37cc3c5ca446bb3ccfc3d9e2af04482d366b6db97537000000006092a5f1e1628c1da9b17a720fb5366271fced2686ee45bde664cc325f7f76d8886cda50f0ff0f1cf4cd2abd00";
     WSBuffer *retargetBuffer = WSBufferFromHex(retargetHex);
-    WSMessageHeaders *retargetMessage = [[WSMessageHeaders alloc] initWithBuffer:retargetBuffer from:0 available:retargetBuffer.length error:NULL];
+    WSMessageHeaders *retargetMessage = [[WSMessageHeaders alloc] initWithParameters:self.networkParameters buffer:retargetBuffer from:0 available:retargetBuffer.length error:NULL];
     WSBlockHeader *retargetHeader = [retargetMessage.headers lastObject];
     
     // 46367/8
     NSString *hex = @"0202000000cc01970b30d30f3b21edac6371b0ec834e2ee184e3f14208b793860c000000000c2ef7ce31fc1dc873632d5b6fa88c7a2f14b3ce003b6abbb80a661ed230eabe72cce350f0ff0f1c8535916c0002000000021e413f073bbbd6aa30ad5e68934f9da46887f1b2ac0424a935780300000000224525fe49331a807ef4aadf79308154db3c3ed8976f950478abbbb40ffc3e6285cce3506620081cc0fd8a7900";
     WSBuffer *buffer = WSBufferFromHex(hex);
-    WSMessageHeaders *message = [[WSMessageHeaders alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    WSMessageHeaders *message = [[WSMessageHeaders alloc] initWithParameters:self.networkParameters buffer:buffer from:0 available:buffer.length error:NULL];
     WSBlockHeader *previousHeader = message.headers[0];
     WSBlockHeader *header = message.headers[1];
     

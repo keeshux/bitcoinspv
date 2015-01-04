@@ -27,6 +27,7 @@
 
 #import "WSTransactionOutput.h"
 #import "WSScript.h"
+#import "WSAddress.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 
@@ -40,11 +41,25 @@
 
 @implementation WSTransactionOutput
 
-- (instancetype)initWithValue:(uint64_t)value address:(WSAddress *)address
+- (instancetype)initWithParameters:(id<WSParameters>)parameters script:(WSScript *)script value:(uint64_t)value
 {
     // 0 value is legit
+    WSExceptionCheckIllegal(script != nil, @"Nil script");
 //    WSExceptionCheckIllegal(value > 0, @"Zero value");
+    
+    if ((self = [super init])) {
+        self.value = value;
+        self.script = [script copy];
+        self.address = [script standardOutputAddressWithParameters:parameters];
+    }
+    return self;
+}
+
+- (instancetype)initWithAddress:(WSAddress *)address value:(uint64_t)value
+{
+    // 0 value is legit
     WSExceptionCheckIllegal(address != nil, @"Nil address");
+//    WSExceptionCheckIllegal(value > 0, @"Zero value");
     
     if ((self = [super init])) {
         self.value = value;
@@ -54,18 +69,9 @@
     return self;
 }
 
-- (instancetype)initWithValue:(uint64_t)value script:(WSScript *)script
+- (id<WSParameters>)parameters
 {
-    // 0 value is legit
-//    WSExceptionCheckIllegal(value > 0, @"Zero value");
-    WSExceptionCheckIllegal(script != nil, @"Nil script");
-    
-    if ((self = [super init])) {
-        self.value = value;
-        self.script = [script copy];
-        self.address = [script standardOutputAddress];
-    }
-    return self;
+    return self.address.parameters;
 }
 
 - (NSString *)description
@@ -92,7 +98,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSUInteger offset = from;
     NSUInteger varIntLength;
@@ -103,12 +109,12 @@
     const NSUInteger scriptLength = (NSUInteger)[buffer varIntAtOffset:offset length:&varIntLength];
     offset += varIntLength;
     
-    WSScript *script = [[WSScript alloc] initWithBuffer:buffer from:offset available:scriptLength error:error];
+    WSScript *script = [[WSScript alloc] initWithParameters:parameters buffer:buffer from:offset available:scriptLength error:error];
     if (!script) {
         return nil;
     }
     
-    return [self initWithValue:value script:script];
+    return [self initWithParameters:parameters script:script value:value];
 }
 
 #pragma mark WSSized

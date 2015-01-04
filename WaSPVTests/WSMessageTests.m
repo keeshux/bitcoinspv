@@ -32,6 +32,7 @@
 #import "WSNetworkAddress.h"
 #import "WSConfig.h"
 #import "WSBlockLocator.h"
+#import "WSPeer.h"
 #import "WSProtocolDeserializer.h"
 
 @interface WSMessageTests : XCTestCase
@@ -44,7 +45,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 }
 
 - (void)tearDown
@@ -75,7 +76,8 @@
 - (void)testDeserializer
 {
     NSError *error;
-    WSProtocolDeserializer *deserializer = [[WSProtocolDeserializer alloc] init];
+    WSPeer *dummyPeer = [[WSPeer alloc] initWithHost:@"0.0.0.0" parameters:self.networkParameters];
+    WSProtocolDeserializer *deserializer = [[WSProtocolDeserializer alloc] initWithPeer:dummyPeer];
     NSArray *parts = @[[@"0b11" dataFromHex],
                        [@"090776" dataFromHex],
                        [@"657261636b000000000000" dataFromHex],
@@ -126,7 +128,7 @@
 {
     WSBuffer *buffer = WSBufferFromHex(@"010000000000000000000000000000000000ffffbdfbda11479d");
     NSError *error;
-    WSNetworkAddress *address = [[WSNetworkAddress alloc] initWithBuffer:buffer from:0 available:buffer.length error:&error];
+    WSNetworkAddress *address = [[WSNetworkAddress alloc] initWithParameters:self.networkParameters buffer:buffer from:0 available:buffer.length error:&error];
     XCTAssertNotNil(address, @"Error parsing address: %@", error);
 
     DDLogInfo(@"Address: %@", address);

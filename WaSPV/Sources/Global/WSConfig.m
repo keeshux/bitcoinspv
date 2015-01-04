@@ -30,7 +30,7 @@
 #pragma mark - Library
 
 NSString *const         WSClientName                                = @"WaSPV";
-NSString *const         WSClientVersion                             = @"0.2.1";
+NSString *const         WSClientVersion                             = @"0.3";
 
 NSBundle *WSClientBundle(Class clazz)
 {

@@ -48,7 +48,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.seed = WSSeedMakeNow([self mockWalletMnemonic]);
 }
@@ -80,11 +80,11 @@
 
 - (void)testChain
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed];
     
     NSArray *chains = @[[wallet valueForKey:@"_externalChain"],
                         [wallet valueForKey:@"_internalChain"]];
-    WSAddress *target = WSAddressFromString(@"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
+    WSAddress *target = WSAddressFromString(self.networkParameters, @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
 
     BOOL found = NO;
     NSUInteger c = 0;
@@ -109,7 +109,7 @@
 
 - (void)testGeneration
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:25];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed gapLimit:25];
 
     NSArray *expReceives = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
                              @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
@@ -126,12 +126,12 @@
 
     for (int i = 0; i < expReceives.count; ++i) {
         WSAddress *receive = wallet.allReceiveAddresses[i];
-        WSAddress *expReceive = WSAddressFromString(expReceives[i]);
+        WSAddress *expReceive = WSAddressFromString(self.networkParameters, expReceives[i]);
         DDLogInfo(@"Receive address: %@", receive);
         XCTAssertEqualObjects(receive, expReceive);
 
         WSAddress *change = wallet.allChangeAddresses[i];
-        WSAddress *expChange = WSAddressFromString(expChanges[i]);
+        WSAddress *expChange = WSAddressFromString(self.networkParameters, expChanges[i]);
         DDLogInfo(@"Change address : %@", change);
         XCTAssertEqualObjects(change, expChange);
 
@@ -149,7 +149,7 @@
 
 - (void)testGenerationUsedAddresses
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed gapLimit:2];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed gapLimit:2];
     DDLogInfo(@"");
 
     NSMutableSet *usedAddresses = [wallet valueForKey:@"_usedAddresses"];
@@ -157,24 +157,24 @@
     XCTAssertFalse([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
 
-    [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
     XCTAssertFalse([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
 
-    [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(@"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT")];
     XCTAssertFalse([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
     
-    [usedAddresses addObject:WSAddressFromString(@"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT")];
-    [usedAddresses addObject:WSAddressFromString(@"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH")];
-    [usedAddresses addObject:WSAddressFromString(@"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo")];
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
     
-    [usedAddresses addObject:WSAddressFromString(@"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR")];
+    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR")];
     XCTAssertTrue([wallet generateAddressesIfNeeded]);
     DDLogInfo(@"");
 }
@@ -191,12 +191,12 @@
                           @"8b84151eaab153071ac2a7b255dc8bcaf2a33d21b9d79874405c15c4a3bcddbb",
                           @"a905b3814244e7710ce5ec696193c4b87111a788a8c0033e1a4b9b4851fa746d"];
 
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:self.seed];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed];
     
     NSMutableArray *txs = [[NSMutableArray alloc] initWithCapacity:expTxHexes.count];
     NSUInteger i = 0;
     for (NSString *expTxHex in expTxHexes) {
-        WSSignedTransaction *tx = WSTransactionFromHex(expTxHex);
+        WSSignedTransaction *tx = WSTransactionFromHex(self.networkParameters, expTxHex);
         [txs addObject:tx];
 
         DDLogInfo(@"Tx #%u: %@", txs.count, tx);

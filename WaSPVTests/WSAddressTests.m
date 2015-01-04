@@ -39,7 +39,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 }
 
 - (void)tearDown
@@ -68,7 +68,7 @@
 - (void)testAddressValidity
 {
     NSString *address = @"1B6MVKEANZNLGoKntWvyu1yneaLLENYJTW";
-    XCTAssertNotNil(WSAddressFromString(address), @"Invalid address");
+    XCTAssertNotNil(WSAddressFromString(self.networkParameters, address), @"Invalid address");
     
     NSString *revAddress = [[address dataFromBase58Check] base58CheckString];
     XCTAssertEqualObjects(revAddress, address, @"Non-revertible address");

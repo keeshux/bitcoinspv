@@ -49,6 +49,7 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
 
 @interface WSBIP32Key ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, assign) uint32_t version;
 @property (nonatomic, assign) uint8_t depth;
 @property (nonatomic, assign) uint32_t parentFingerprint;
@@ -56,38 +57,42 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
 @property (nonatomic, copy) NSData *chainData;
 @property (nonatomic, copy) NSData *keyData;
 
-- (instancetype)initWithVersion:(uint32_t)version
-                          depth:(uint8_t)depth
-              parentFingerprint:(uint32_t)parentFingerprint
-                          child:(uint32_t)child
-                      chainData:(NSData *)chainData
-                        keyData:(NSData *)keyData;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                             depth:(uint8_t)depth
+                 parentFingerprint:(uint32_t)parentFingerprint
+                             child:(uint32_t)child
+                         chainData:(NSData *)chainData
+                           keyData:(NSData *)keyData;
 
 @end
 
 @implementation WSBIP32Key
 
-- (instancetype)initWithPrivateVersionAndDepth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
+- (instancetype)initPrivateWithParameters:(id<WSParameters>)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
 {
-    return [self initWithVersion:[WSCurrentParameters bip32PrivateKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
+    return [self initWithParameters:parameters version:[parameters bip32PrivateKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
 }
 
-- (instancetype)initWithPublicVersionAndDepth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
+- (instancetype)initPublicWithParameters:(id<WSParameters>)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
 {
-    return [self initWithVersion:[WSCurrentParameters bip32PublicKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
+    return [self initWithParameters:parameters version:[parameters bip32PublicKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
 }
 
-- (instancetype)initWithVersion:(uint32_t)version
-                          depth:(uint8_t)depth
-              parentFingerprint:(uint32_t)parentFingerprint
-                          child:(uint32_t)child
-                      chainData:(NSData *)chainData
-                        keyData:(NSData *)keyData
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                             depth:(uint8_t)depth
+                 parentFingerprint:(uint32_t)parentFingerprint
+                             child:(uint32_t)child
+                         chainData:(NSData *)chainData
+                           keyData:(NSData *)keyData
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(chainData != nil, @"Nil chainData");
     WSExceptionCheckIllegal(keyData != nil, @"Nil keyData");
 
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.version = version;
         self.depth = depth;
         self.parentFingerprint = parentFingerprint;
@@ -100,12 +105,12 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
 
 - (BOOL)isPrivate
 {
-    return (self.version == [WSCurrentParameters bip32PrivateKeyVersion]);
+    return (self.version == [self.parameters bip32PrivateKeyVersion]);
 }
 
 - (BOOL)isPublic
 {
-    return (self.version == [WSCurrentParameters bip32PublicKeyVersion]);
+    return (self.version == [self.parameters bip32PublicKeyVersion]);
 }
 
 - (WSKey *)privateKey

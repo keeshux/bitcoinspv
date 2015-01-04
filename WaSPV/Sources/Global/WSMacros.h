@@ -55,25 +55,6 @@ extern const int ddLogLevel;
 @class WSBIP21URL;
 @class WSBIP38Key;
 
-#pragma mark - Parameters
-
-#define WSCurrentParameters [[WSParametersFactory sharedInstance] parameters]
-
-static inline WSParametersType WSParametersGetCurrentType()
-{
-    return [WSParametersFactory sharedInstance].parametersType;
-}
-
-static inline NSString *WSParametersGetCurrentTypeString()
-{
-    return WSParametersTypeString(WSParametersGetCurrentType());
-}
-
-static inline void WSParametersSetCurrentType(WSParametersType type)
-{
-    [WSParametersFactory sharedInstance].parametersType = type;
-}
-
 #pragma mark - Utils
 
 static inline NSString *WSStringOptionalEx(BOOL condition, id object, NSString *format)
@@ -123,13 +104,13 @@ WSBuffer *WSBufferFromHex(NSString *hex);
 WSMutableBuffer *WSMutableBufferFromHex(NSString *hex);
 
 WSKey *WSKeyFromHex(NSString *hex);
-WSKey *WSKeyFromWIF(NSString *wif);
+WSKey *WSKeyFromWIF(id<WSParameters> parameters, NSString *wif);
 WSPublicKey *WSPublicKeyFromHex(NSString *hex);
 
-WSAddress *WSAddressFromString(NSString *string);
-WSAddress *WSAddressFromHex(NSString *hexString);
-WSAddress *WSAddressP2PKHFromHash160(WSHash160 *hash160);
-WSAddress *WSAddressP2SHFromHash160(WSHash160 *hash160);
+WSAddress *WSAddressFromString(id<WSParameters> parameters, NSString *string);
+WSAddress *WSAddressFromHex(id<WSParameters> parameters, NSString *hexString);
+WSAddress *WSAddressP2PKHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
+WSAddress *WSAddressP2SHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
 
 WSInventory *WSInventoryTx(WSHash256 *hash);
 WSInventory *WSInventoryTxFromHex(NSString *hex);
@@ -138,7 +119,7 @@ WSInventory *WSInventoryBlockFromHex(NSString *hex);
 WSInventory *WSInventoryFilteredBlock(WSHash256 *hash);
 WSInventory *WSInventoryFilteredBlockFromHex(NSString *hex);
 
-WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t services);
+WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services);
 
 WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
 WSSeed *WSSeedMakeUnknown(NSString *mnemonic);
@@ -156,13 +137,13 @@ uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 
 WSScript *WSScriptFromHex(NSString *hex);
 WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex);
-WSSignedTransaction *WSTransactionFromHex(NSString *hex);
-WSBlockHeader *WSBlockHeaderFromHex(NSString *hex);
-WSBlock *WSBlockFromHex(NSString *hex);
+WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NSString *hex);
+WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex);
+WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex);
 WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
-WSFilteredBlock *WSFilteredBlockFromHex(NSString *hex);
+WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex);
 
-WSBIP21URL *WSBIP21URLFromString(NSString *string);
+WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string);
 WSBIP38Key *WSBIP38KeyFromString(NSString *string);
 
 NSString *WSCurrentQueueLabel();

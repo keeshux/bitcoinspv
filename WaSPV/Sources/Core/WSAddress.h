@@ -27,12 +27,14 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol WSParameters;
 @class WSHash160;
 
 @interface WSAddress : NSObject <NSCopying>
 
-- (instancetype)initWithVersion:(uint8_t)version hash160:(WSHash160 *)hash160;
-- (instancetype)initWithEncoded:(NSString *)encoded;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint8_t)version hash160:(WSHash160 *)hash160;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters encoded:(NSString *)encoded;
+- (id<WSParameters>)parameters;
 - (uint8_t)version;
 - (WSHash160 *)hash160;
 - (NSString *)encoded;

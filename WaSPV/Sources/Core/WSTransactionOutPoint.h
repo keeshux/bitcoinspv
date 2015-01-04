@@ -30,11 +30,13 @@
 #import "WSBuffer.h"
 #import "WSSized.h"
 
+@protocol WSParameters;
 @class WSHash256;
 
 @interface WSTransactionOutPoint : NSObject <NSCopying, WSBufferEncoder, WSBufferDecoder, WSSized>
 
-+ (instancetype)outpointWithTxId:(WSHash256 *)txId index:(uint32_t)index;
++ (instancetype)outpointWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index;
+- (id<WSParameters>)parameters;
 - (WSHash256 *)txId;
 - (uint32_t)index;
 - (BOOL)isCoinbase;

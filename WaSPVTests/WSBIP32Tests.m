@@ -42,7 +42,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 }
 
 - (void)tearDown
@@ -54,7 +54,7 @@
 - (void)testVector1
 {
     NSData *keyData = [@"000102030405060708090a0b0c0d0e0f" dataFromHex];
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     NSArray *paths = @[@"m",
                        @"m/0'",
@@ -83,7 +83,7 @@
 - (void)testVector2
 {
     NSData *keyData = [@"fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542" dataFromHex];
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     NSArray *paths = @[@"m",
                        @"m/0",
@@ -112,7 +112,7 @@
 - (void)testVector2Recursive
 {
     NSData *keyData = [@"fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542" dataFromHex];
-    id<WSBIP32Keyring> bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    id<WSBIP32Keyring> bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     NSArray *nodes = @[@"m",
                        @"0",
@@ -163,7 +163,7 @@
 - (void)testPublicDerivation
 {
     NSData *keyData = [@"fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542" dataFromHex];
-    id<WSBIP32Keyring> bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    id<WSBIP32Keyring> bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     id<WSBIP32PublicKeyring> bip32Public = nil;
     id<WSBIP32Keyring> parent = nil;
     NSMutableArray *keys = [[NSMutableArray alloc] init];
@@ -209,7 +209,7 @@
     NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256];
 
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     DDLogInfo(@"Mnemonic SHA256: %@", [keyData hexString]);
     
@@ -221,7 +221,7 @@
     DDLogInfo(@"\tChain: %@", chain);
     XCTAssertEqualObjects(chain, expChain);
     
-    NSString *privateKey = [[extendedPrivateKey privateKey] WIF];
+    NSString *privateKey = [[extendedPrivateKey privateKey] WIFWithParameters:self.networkParameters];
     NSString *expPrivateKey = @"L29Lv3Mb3hq1VnYd8jnUekA6KUaVDecdFDUMUKDBp9exgmVhsLHU";
     DDLogInfo(@"\tKey: %@", privateKey);
     XCTAssertEqualObjects(privateKey, expPrivateKey);
@@ -256,7 +256,7 @@
         CCHmac(kCCHmacAlgSHA256, mnemonic.UTF8String, mnemonic.length, keyData.bytes, keyData.length, keyData.mutableBytes);
     }
     
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     DDLogInfo(@"Mnemonic SHA256: %@", [keyData hexString]);
     
@@ -268,7 +268,7 @@
     DDLogInfo(@"\tChain: %@", chain);
     XCTAssertEqualObjects(chain, expChain);
     
-    NSString *privateKey = [[extendedPrivateKey privateKey] WIF];
+    NSString *privateKey = [[extendedPrivateKey privateKey] WIFWithParameters:self.networkParameters];
     NSString *expPrivateKey = @"KxPKLeFLbwrd2JbCXqiu6nJm8T9QBrcmxpgHuiS9qg7F48b9ceBR";
     DDLogInfo(@"\tKey: %@", privateKey);
     XCTAssertEqualObjects(privateKey, expPrivateKey);
@@ -297,7 +297,7 @@
 {
     NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     
     NSArray *expected = @[@"1Jw5NY8HQbhU4REtAFWeHuex9o5ht8USki",
                           @"17k1Sda8JwCMKZZbFMepayFnGKQZpc71dd",
@@ -318,16 +318,16 @@
     for (uint32_t i = 0; i < 10; ++i) {
         id<WSBIP32Keyring> keyring = [chain keyringForAccount:i];
         WSPublicKey *pubKey = [[keyring extendedPublicKey] publicKey];
-        WSAddress *address = [pubKey address];
+        WSAddress *address = [pubKey addressWithParameters:self.networkParameters];
         DDLogInfo(@"m/%d/1/%d: %@", account, i, address);
         
         id<WSBIP32PublicKeyring> pubKeyring = [pubChain publicKeyringForAccount:i];
         WSPublicKey *publicPubKey = [[pubKeyring extendedPublicKey] publicKey];
-        WSAddress *publicAddress = [publicPubKey address];
+        WSAddress *publicAddress = [publicPubKey addressWithParameters:self.networkParameters];
         DDLogInfo(@"m/%d/1/%d: %@", account, i, publicAddress);
         
         XCTAssertEqualObjects(address, publicAddress, @"i = %d", i);
-        XCTAssertEqualObjects(address, WSAddressFromString(expected[i]), @"i = %d", i);
+        XCTAssertEqualObjects(address, WSAddressFromString(self.networkParameters, expected[i]), @"i = %d", i);
     }
 }
 
@@ -335,7 +335,7 @@
 {
     NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
-    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithData:keyData];
+    WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
     const NSUInteger count = 100;
     NSTimeInterval startTime;
     

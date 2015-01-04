@@ -53,7 +53,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeRegtest);
+    WSParametersSetCurrentType(WSNetworkTypeRegtest);
 }
 
 - (void)tearDown

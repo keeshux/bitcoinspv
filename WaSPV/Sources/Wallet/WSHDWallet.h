@@ -29,6 +29,7 @@
 
 #import "WSWallet.h"
 
+@protocol WSParameters;
 @class WSSeed;
 
 #pragma mark -
@@ -39,9 +40,10 @@ extern NSString *const WSHDWalletDefaultChainsPath;
 
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
-- (instancetype)initWithSeed:(WSSeed *)seed;
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath;
+- (id<WSParameters>)parameters;
 - (WSSeed *)seed;
 - (NSUInteger)gapLimit;
 
@@ -54,7 +56,7 @@ extern NSString *const WSHDWalletDefaultChainsPath;
 // the wallet, you should only use the following method and explicity
 // provide the seed each time you reload a serialized wallet.
 //
-+ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed;
-+ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
++ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed;
++ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
 
 @end

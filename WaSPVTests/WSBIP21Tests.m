@@ -37,7 +37,7 @@
 - (void)setUp {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 }
 
 - (void)tearDown {
@@ -48,37 +48,37 @@
 - (void)testParse
 {
     WSBIP21URL *url;
-    WSAddress *address = WSAddressFromString(@"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42");
+    WSAddress *address = WSAddressFromString(self.networkParameters, @"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42");
     NSString *label = @"Luke-Jr";
     NSString *message = @"Donation for project xyz";
     
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42");
     DDLogInfo(@"%@", url);
     XCTAssertEqualObjects(url.address, address);
 
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?label=Luke-Jr");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?label=Luke-Jr");
     DDLogInfo(@"%@", url);
     XCTAssertEqualObjects(url.address, address);
     XCTAssertEqualObjects(url.label, label);
 
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=20.3& label=Luke-Jr");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=20.3& label=Luke-Jr");
     DDLogInfo(@"%@", url);
 //    XCTAssertNil(url);
 
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=20.3&label=Luke-Jr");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=20.3&label=Luke-Jr");
     DDLogInfo(@"%@", url);
     XCTAssertEqualObjects(url.address, address);
     XCTAssertEqualObjects(url.label, label);
     XCTAssertEqual(url.amount, 2030000000LL);
     
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz");
     DDLogInfo(@"%@", url);
     XCTAssertEqualObjects(url.address, address);
     XCTAssertEqual(url.amount, 5000000000LL);
     XCTAssertEqualObjects(url.label, label);
     XCTAssertEqualObjects(url.message, message);
 
-    url = WSBIP21URLFromString(@"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?req-somethingyoudontunderstand=50&req-somethingelseyoudontget=999");
+    url = WSBIP21URLFromString(self.networkParameters, @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?req-somethingyoudontunderstand=50&req-somethingelseyoudontget=999");
     DDLogInfo(@"%@", url);
     XCTAssertEqualObjects(url.address, address);
     XCTAssertEqual(url.amount, 0LL);
@@ -94,7 +94,7 @@
     NSString *string;
     
     string = @"bitcoin:1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42?label=Hello%20Coin!&amount=76.2582";
-    url = [[[[[WSBIP21URLBuilder builder] address:WSAddressFromString(@"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42")] amount:7625820000LL] label:@"Hello Coin!"] build];
+    url = [[[[[WSBIP21URLBuilder builder] address:WSAddressFromString(self.networkParameters, @"1LrVBAV2evGWhN5f9o1V2CmVtKcVstHd42")] amount:7625820000LL] label:@"Hello Coin!"] build];
     DDLogInfo(@"%@", url.string);
     XCTAssertEqualObjects(url.string, string);
 

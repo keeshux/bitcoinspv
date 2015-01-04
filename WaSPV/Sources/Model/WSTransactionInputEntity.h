@@ -42,6 +42,6 @@
 @property (nonatomic, retain) WSTransactionEntity *transaction;
 
 - (void)copyFromSignedInput:(WSSignedTransactionInput *)input;
-- (WSSignedTransactionInput *)toSignedInput;
+- (WSSignedTransactionInput *)toSignedInputWithParameters:(id<WSParameters>)parameters;
 
 @end

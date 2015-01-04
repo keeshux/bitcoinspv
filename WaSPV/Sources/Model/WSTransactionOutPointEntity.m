@@ -43,12 +43,12 @@
     self.index = @(outpoint.index);
 }
 
-- (WSTransactionOutPoint *)toOutpoint
+- (WSTransactionOutPoint *)toOutpointWithParameters:(id<WSParameters>)parameters
 {
     WSHash256 *txId = WSHash256FromData(self.txIdData);
     const uint32_t index = (uint32_t)[self.index unsignedIntegerValue];
     
-    return [WSTransactionOutPoint outpointWithTxId:txId index:index];
+    return [WSTransactionOutPoint outpointWithParameters:parameters txId:txId index:index];
 }
 
 @end

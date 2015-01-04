@@ -53,6 +53,8 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
 
 @interface WSWebExplorerBiteasy ()
 
+@property (nonatomic, assign) WSNetworkType networkType;
+
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
                              handler:(void (^)(WSSignableTransactionInput *, BOOL, BOOL *))handler
@@ -65,14 +67,14 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
 
 - (NSString *)networkName
 {
-    switch (WSParametersGetCurrentType()) {
-        case WSParametersTypeMain: {
+    switch (self.networkType) {
+        case WSNetworkTypeMain: {
             return WSWebExplorerBiteasyNetworkMain;
         }
-        case WSParametersTypeTestnet3: {
+        case WSNetworkTypeTestnet3: {
             return WSWebExplorerBiteasyNetworkTest;
         }
-        case WSParametersTypeRegtest: {
+        case WSNetworkTypeRegtest: {
             WSExceptionRaiseUnsupported(@"Regtest network is not supported");
         }
     }
@@ -123,11 +125,13 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
     WSExceptionCheckIllegal(completion != NULL, @"NULL completion");
     WSExceptionCheckIllegal(failure != NULL, @"NULL failure");
     
+    id<WSParameters> parameters = toAddress.parameters;
+
     if (maxTxSize == 0) {
         maxTxSize = WSTransactionMaxSize;
     }
     
-    WSAddress *fromAddress = [fromKey address];
+    WSAddress *fromAddress = [fromKey addressWithParameters:parameters];
     __block WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
     __block NSUInteger numberOfTransactions = 0;
     
@@ -214,6 +218,8 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
     NSParameterAssert(completion);
     NSParameterAssert(failure);
     
+    id<WSParameters> parameters = address.parameters;
+
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyBaseAPIFormat, [self networkName]]];
     NSString *path = [NSString stringWithFormat:WSWebExplorerBiteasyUnspentPathFormat, address, page, WSWebExplorerBiteasyUnspentPerPage];
     
@@ -226,7 +232,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
         
         for (NSDictionary *jsonOutput in jsonOutputs) {
             const uint64_t previousValue = [jsonOutput[@"value"] unsignedLongLongValue];
-            WSAddress *previousAddress = WSAddressFromString(jsonOutput[@"to_address"]);
+            WSAddress *previousAddress = WSAddressFromString(parameters, jsonOutput[@"to_address"]);
             
             NSAssert([previousAddress isEqual:address], @"Output address should be searched address (%@ != %@)",
                      previousAddress, address);
@@ -234,8 +240,8 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
             WSHash256 *previousTxId = WSHash256FromHex(jsonOutput[@"transaction_hash"]);
             const uint32_t previousIndex = (uint32_t)[jsonOutput[@"transaction_index"] unsignedIntegerValue];
             
-            WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithValue:previousValue address:previousAddress];
-            WSTransactionOutPoint *previousOutpoint = [WSTransactionOutPoint outpointWithTxId:previousTxId index:previousIndex];
+            WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithAddress:previousAddress value:previousValue];
+            WSTransactionOutPoint *previousOutpoint = [WSTransactionOutPoint outpointWithParameters:parameters txId:previousTxId index:previousIndex];
             WSSignableTransactionInput *input = [[WSSignableTransactionInput alloc] initWithPreviousOutput:previousOutput outpoint:previousOutpoint];
             
             const BOOL isLast = (isLastPage && (jsonOutput == [jsonOutputs lastObject]));

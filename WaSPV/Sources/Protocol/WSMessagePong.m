@@ -80,14 +80,14 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < sizeof(uint64_t)) {
         WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, sizeof(uint64_t));
         return nil;
     }
     
-    if ((self = [super initWithOriginalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
         self.nonce = [buffer uint64AtOffset:from];
     }
     return self;

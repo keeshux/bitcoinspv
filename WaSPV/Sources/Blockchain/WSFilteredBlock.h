@@ -39,6 +39,7 @@
 @interface WSFilteredBlock : NSObject <WSBufferEncoder, WSBufferDecoder, WSIndentableDescription>
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header partialMerkleTree:(WSPartialMerkleTree *)partialMerkleTree;
+- (id<WSParameters>)parameters;
 - (WSBlockHeader *)header;
 - (WSPartialMerkleTree *)partialMerkleTree;
 - (BOOL)containsTransactionWithId:(WSHash256 *)txId;

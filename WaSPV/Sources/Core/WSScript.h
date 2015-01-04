@@ -109,10 +109,10 @@ NSInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
 - (BOOL)isPay2PubKey;
 - (BOOL)isPay2ScriptHash;
 
-- (WSAddress *)standardInputAddress;    // nil if non-standard script
-- (WSAddress *)standardOutputAddress;   // nil if non-standard script
-- (WSAddress *)standardAddress;         // any of the above
-- (WSAddress *)addressFromHash;
+- (WSAddress *)standardInputAddressWithParameters:(id<WSParameters>)parameters;     // nil if non-standard script
+- (WSAddress *)standardOutputAddressWithParameters:(id<WSParameters>)parameters;    // nil if non-standard script
+- (WSAddress *)standardAddressWithParameters:(id<WSParameters>)parameters;          // any of the above
+- (WSAddress *)addressFromHashWithParameters:(id<WSParameters>)parameters;
 
 @end
 

@@ -29,10 +29,12 @@
 #import "WSErrors.h"
 
 #import "WSAbstractMessage.h"
+#import "WSParameters.h"
 #import "WSHash256.h"
 
 @interface WSAbstractMessage ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) WSBuffer *originalPayload;
 
 @end
@@ -44,13 +46,15 @@
     return [[self alloc] init];
 }
 
-- (instancetype)init
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    return [self initWithOriginalPayload:nil];
+    return [self initWithParameters:parameters originalPayload:nil];
 }
 
-- (instancetype)initWithOriginalPayload:(WSBuffer *)originalPayload
+- (instancetype)initWithParameters:(id<WSParameters>)parameters originalPayload:(WSBuffer *)originalPayload
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    
     if ((self = [super init])) {
         if (originalPayload) {
             self.originalPayload = [[WSBuffer alloc] initWithData:originalPayload.data];
@@ -69,7 +73,7 @@
     
     // header (magic, type, length, checksum)
     
-    [buffer appendUint32:[WSCurrentParameters magicNumber]];
+    [buffer appendUint32:[self.parameters magicNumber]];
     [buffer appendNullPaddedString:self.messageType length:12];
     
     NSData *payloadData = payload.data;

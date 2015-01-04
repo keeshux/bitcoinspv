@@ -29,25 +29,15 @@
 
 #import "WSParameters.h"
 
-typedef enum {
-    WSParametersTypeMain = 1,
-    WSParametersTypeTestnet3,
-    WSParametersTypeRegtest
-} WSParametersType;
-
 @protocol WSParametersFactory <NSObject>
 
 - (id<WSParameters>)parameters;
-- (WSParametersType)parametersType;
 
 @end
 
-NSString *WSParametersTypeString(WSParametersType type);
-
-@interface WSParametersFactory : NSObject <WSParametersFactory>
-
-@property (nonatomic, assign) WSParametersType parametersType;
+@interface WSParametersFactory : NSObject
 
 + (instancetype)sharedInstance;
+- (id<WSParameters>)parametersForNetworkType:(WSNetworkType)networkType;
 
 @end

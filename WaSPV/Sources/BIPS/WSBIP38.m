@@ -106,13 +106,14 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
     return self;
 }
 
-- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase
+- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase
 {
-    return [self initWithKey:key passphrase:passphrase ec:NO];
+    return [self initWithParameters:parameters key:key passphrase:passphrase ec:NO];
 }
 
-- (instancetype)initWithKey:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec
+- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(key != nil, @"Nil key");
     WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
 
@@ -123,7 +124,7 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
         uint8_t flags = WSBIP38KeyFlagsNonEC;
 
         NSData *password = normalize_passphrase(passphrase);
-        WSAddress *address = [key address];
+        WSAddress *address = [key addressWithParameters:parameters];
         NSData *addressData = [address.encoded dataUsingEncoding:NSUTF8StringEncoding];
         NSData *salt = [[addressData hash256] subdataWithRange:NSMakeRange(0, 4)];
 
@@ -315,16 +316,17 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 @implementation WSKey (BIP38)
 
-- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase
+- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase
 {
-    return [self encryptedBIP38KeyWithPassphrase:passphrase ec:NO];
+    return [self encryptedBIP38KeyWithParameters:parameters passphrase:passphrase ec:NO];
 }
 
-- (WSBIP38Key *)encryptedBIP38KeyWithPassphrase:(NSString *)passphrase ec:(BOOL)ec
+- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
 
-    return [[WSBIP38Key alloc] initWithKey:self passphrase:passphrase ec:ec];
+    return [[WSBIP38Key alloc] initWithParameters:parameters key:self passphrase:passphrase ec:ec];
 }
 
 @end

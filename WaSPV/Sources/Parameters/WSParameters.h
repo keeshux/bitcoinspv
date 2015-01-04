@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSNetworkType.h"
+
 @class WSHash256;
 @class WSFilteredBlock;
 @class WSStorableBlock;
@@ -35,6 +37,7 @@
 
 @protocol WSParameters <NSObject>
 
+- (WSNetworkType)networkType;
 - (uint32_t)magicNumber;
 - (uint8_t)publicKeyAddressVersion;
 - (uint8_t)scriptAddressVersion;
@@ -50,10 +53,10 @@
 - (uint32_t)retargetInterval;
 - (WSFilteredBlock *)genesisBlock;
 - (WSHash256 *)genesisBlockId;
+- (NSArray *)dnsSeeds;
 - (NSArray *)checkpoints;
 - (WSStorableBlock *)checkpointAtHeight:(uint32_t)height;
 - (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp;
-- (NSArray *)dnsSeeds;
 
 @end
 
@@ -76,6 +79,7 @@
 @property (nonatomic, assign) uint32_t retargetInterval;
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 
+- (instancetype)initWithNetworkType:(WSNetworkType)networkType;
 - (void)loadCheckpointsFromHex:(NSString *)hex;
 - (void)addDnsSeed:(NSString *)dnsSeed;
 

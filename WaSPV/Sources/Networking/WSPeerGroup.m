@@ -51,6 +51,7 @@
     WSPeer *_downloadPeer;
 }
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) WSPeerGroupNotifier *notifier;
 @property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSConnectionPool *pool;
@@ -146,6 +147,7 @@
     WSExceptionCheckIllegal(pool != nil, @"Nil pool");
     
     if ((self = [super init])) {
+        self.parameters = store.parameters;
         self.notifier = [[WSPeerGroupNotifier alloc] initWithPeerGroup:self];
         self.store = store;
         self.pool = pool;
@@ -340,7 +342,7 @@
         return;
     }
     
-    for (NSString *dns in [WSCurrentParameters dnsSeeds]) {
+    for (NSString *dns in [self.parameters dnsSeeds]) {
         DDLogInfo(@"Resolving seed: %@", dns);
 
         @synchronized (self.queue) {
@@ -436,12 +438,13 @@
 {
     NSParameterAssert(host);
     
-    WSPeerParameters *parameters = [[WSPeerParameters alloc] initWithGroupQueue:self.queue
-                                                                     blockChain:self.blockChain
-                                                           shouldDownloadBlocks:[self shouldDownloadBlocks]
-                                                            needsBloomFiltering:[self needsBloomFiltering]];
+    WSPeerParameters *peerParameters = [[WSPeerParameters alloc] initWithParameters:self.parameters
+                                                                         groupQueue:self.queue
+                                                                         blockChain:self.blockChain
+                                                               shouldDownloadBlocks:[self shouldDownloadBlocks]
+                                                                needsBloomFiltering:[self needsBloomFiltering]];
 
-    WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:parameters];
+    WSPeer *peer = [[WSPeer alloc] initWithHost:host peerParameters:peerParameters];
     peer.delegate = self;
     @synchronized (self.queue) {
         [self.pendingPeers addObject:peer];
@@ -606,7 +609,7 @@
         }
         
         const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
-        const NSUInteger retargetInterval = [WSCurrentParameters retargetInterval];
+        const NSUInteger retargetInterval = [self.parameters retargetInterval];
 
         // increase fp rate as we approach current height
         NSUInteger filterRateGap = 0;
@@ -1193,7 +1196,7 @@
 - (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
 {
     @synchronized (self.queue) {
-        WSStorableBlock *expected = [WSCurrentParameters checkpointAtHeight:(uint32_t)(self.currentHeight + 1)];
+        WSStorableBlock *expected = [self.parameters checkpointAtHeight:(uint32_t)(self.currentHeight + 1)];
         if (!expected) {
             return nil;
         }

@@ -38,6 +38,7 @@
 
 @interface WSMutableParameters ()
 
+@property (nonatomic, assign) WSNetworkType networkType;
 @property (nonatomic, strong) NSMutableArray *dnsSeeds;
 @property (nonatomic, strong) NSArray *checkpoints;
 @property (nonatomic, strong) NSDictionary *checkpointsByHeight;
@@ -46,9 +47,10 @@
 
 @implementation WSMutableParameters
 
-- (instancetype)init
+- (instancetype)initWithNetworkType:(WSNetworkType)networkType
 {
     if ((self = [super init])) {
+        self.networkType = networkType;
         self.dnsSeeds = [[NSMutableArray alloc] init];
         self.checkpoints = nil;
     }
@@ -71,10 +73,11 @@
 
     NSUInteger offset = 0;
     while (offset < buffer.length) {
-        WSStorableBlock *block = [[WSStorableBlock alloc] initWithBuffer:buffer
-                                                                    from:offset
-                                                               available:(buffer.length - offset)
-                                                                   error:NULL];
+        WSStorableBlock *block = [[WSStorableBlock alloc] initWithParameters:self
+                                                                      buffer:buffer
+                                                                        from:offset
+                                                                   available:(buffer.length - offset)
+                                                                       error:NULL];
         [checkpoints addObject:block];
         checkpointsByHeight[@(block.height)] = block;
 

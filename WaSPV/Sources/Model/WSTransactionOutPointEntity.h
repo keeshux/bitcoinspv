@@ -31,6 +31,7 @@
 #import "WSTransactionOutPoint.h"
 
 @class WSTransactionInputEntity;
+@protocol WSParameters;
 
 @interface WSTransactionOutPointEntity : NSManagedObject
 
@@ -39,6 +40,6 @@
 @property (nonatomic, retain) WSTransactionInputEntity *input;
 
 - (void)copyFromOutpoint:(WSTransactionOutPoint *)outpoint;
-- (WSTransactionOutPoint *)toOutpoint;
+- (WSTransactionOutPoint *)toOutpointWithParameters:(id<WSParameters>)parameters;
 
 @end

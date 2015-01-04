@@ -39,6 +39,7 @@
 
 @interface WSMemoryBlockStore ()
 
+@property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 @property (nonatomic, strong) NSMutableDictionary *blocks;          // WSHash256 -> WSStorableBlock
 @property (nonatomic, strong) NSMutableDictionary *txIdsToBlocks;   // WSHash256 -> WSStorableBlock
 @property (nonatomic, weak) WSStorableBlock *head;
@@ -49,19 +50,27 @@
 
 - (instancetype)init
 {
-    WSExceptionRaiseUnsupported(@"Use initWithGenesisBlock");
+    WSExceptionRaiseUnsupported(@"Use initWithParameters");
     return nil;
 }
 
-- (instancetype)initWithGenesisBlock
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+
     if ((self = [super init])) {
+        self.genesisBlock = [parameters genesisBlock];
         [self truncate];
     }
     return self;
 }
 
 #pragma mark WSBlockStore
+
+- (id<WSParameters>)parameters
+{
+    return self.head.parameters;
+}
 
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId
 {
@@ -150,8 +159,7 @@
     self.blocks = [[NSMutableDictionary alloc] init];
     self.txIdsToBlocks = [[NSMutableDictionary alloc] init];
     
-    WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
-    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
+    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:self.genesisBlock.header transactions:nil height:0];
     [self putBlock:block];
     self.head = block;
 }

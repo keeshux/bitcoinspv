@@ -123,9 +123,11 @@
     return WSHash160FromData([[self encodedData] hash160]);
 }
 
-- (WSAddress *)address
+- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
 {
-    return WSAddressP2PKHFromHash160([self hash160]);
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    
+    return WSAddressP2PKHFromHash160(parameters, [self hash160]);
 }
 
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature

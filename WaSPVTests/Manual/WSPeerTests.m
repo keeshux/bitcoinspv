@@ -63,7 +63,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.pool = [[WSConnectionPool alloc] init];
     self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
@@ -230,7 +230,7 @@
 
 - (void)testGetdataFilteredBlockAll
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
 //    NSArray *hashes = @[@"00000000467b46cf63182d0e27b1ce131b126de360f0b192ee1a63616dbb98ee",
 //                        @"00000000e49a264880bfdec87f968d23ea8aaff4264becdabe5d90a3242631ed",

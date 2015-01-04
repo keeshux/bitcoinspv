@@ -31,6 +31,7 @@
 #import "WSBlockHeader.h"
 
 @class WSStorableBlockEntity;
+@protocol WSParameters;
 
 @interface WSBlockHeaderEntity : NSManagedObject
 
@@ -44,6 +45,6 @@
 @property (nonatomic, retain) WSStorableBlockEntity *block;
 
 - (void)copyFromBlockHeader:(WSBlockHeader *)header;
-- (WSBlockHeader *)toBlockHeader;
+- (WSBlockHeader *)toBlockHeaderWithParameters:(id<WSParameters>)parameters;
 
 @end

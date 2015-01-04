@@ -78,18 +78,18 @@
     self.lockTime = @(transaction.lockTime);
 }
 
-- (WSSignedTransaction *)toSignedTransaction
+- (WSSignedTransaction *)toSignedTransactionWithParameters:(id<WSParameters>)parameters
 {
     const uint32_t version = (uint32_t)[self.version unsignedIntegerValue];
 
     NSMutableOrderedSet *signedInputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.inputs.count];
     for (WSTransactionInputEntity *entity in self.inputs) {
-        [signedInputs addObject:[entity toSignedInput]];
+        [signedInputs addObject:[entity toSignedInputWithParameters:parameters]];
     }
 
     NSMutableOrderedSet *outputs = [[NSMutableOrderedSet alloc] initWithCapacity:self.outputs.count];
     for (WSTransactionOutputEntity *entity in self.outputs) {
-        [outputs addObject:[entity toOutput]];
+        [outputs addObject:[entity toOutputWithParameters:parameters]];
     }
 
     const uint32_t lockTime = (uint32_t)[self.lockTime unsignedIntegerValue];

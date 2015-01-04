@@ -31,6 +31,8 @@
 #import "WSHash256.h"
 #import "NSData+Binary.h"
 
+@protocol WSParameters;
+
 //
 // "Compact" is a way to represent a 256-bit number as 32-bit.
 //
@@ -102,5 +104,5 @@ static inline void WSBlockWorkFromData(BIGNUM *work, NSData *data)
     BN_bin2bn(data.bytes, (int)data.length, work);
 }
 
-NSData *WSBlockGetDifficultyFromBits(uint32_t bits);
-NSString *WSBlockGetDifficultyStringFromBits(uint32_t bits);
+NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits);
+NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits);

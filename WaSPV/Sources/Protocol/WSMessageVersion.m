@@ -44,19 +44,19 @@
 @property (nonatomic, assign) uint32_t lastBlockHeight;
 @property (nonatomic, assign) uint8_t relayTransactions;
 
-- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress relayTransactions:(uint8_t)relayTransactions;
+- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions;
 + (NSString *)userAgent;
 
 @end
 
 @implementation WSMessageVersion
 
-+ (instancetype)messageWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress relayTransactions:(uint8_t)relayTransactions
++ (instancetype)messageWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions
 {
-    return [[self alloc] initWithVersion:version services:services remoteNetworkAddress:remoteNetworkAddress relayTransactions:relayTransactions];
+    return [[self alloc] initWithVersion:version services:services remoteNetworkAddress:remoteNetworkAddress localPort:localPort relayTransactions:relayTransactions];
 }
 
-- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress relayTransactions:(uint8_t)relayTransactions
+- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions
 {
     WSExceptionCheckIllegal(remoteNetworkAddress != nil, @"Nil remoteNetworkAddress");
 
@@ -65,7 +65,7 @@
         self.services = services;
         self.timestamp = WSCurrentTimestamp();
         self.remoteNetworkAddress = remoteNetworkAddress;
-        self.localNetworkAddress = WSNetworkAddressMake(WSMessageVersionLocalhost, self.services);
+        self.localNetworkAddress = WSNetworkAddressMake(WSMessageVersionLocalhost, localPort, self.services);
         self.nonce = ((uint64_t)mrand48() << 32) | (uint32_t)mrand48(); // random nonce
         self.userAgent = [[self class] userAgent];
         self.lastBlockHeight = 0;
@@ -129,7 +129,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < 85) {
         WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, 85);
@@ -137,7 +137,7 @@
     }
     
     NSUInteger offset = from;
-    if ((self = [super initWithOriginalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
         self.version = [buffer uint32AtOffset:offset];
         offset += sizeof(uint32_t);
 

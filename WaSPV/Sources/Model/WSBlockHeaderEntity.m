@@ -54,7 +54,7 @@
     self.nonce = @(header.nonce);
 }
 
-- (WSBlockHeader *)toBlockHeader
+- (WSBlockHeader *)toBlockHeaderWithParameters:(id<WSParameters>)parameters
 {
     const uint32_t version = (uint32_t)[self.version unsignedIntegerValue];
     WSHash256 *previousBlockId = WSHash256FromData(self.previousBlockIdData);
@@ -66,12 +66,13 @@
     const uint32_t bits = (uint32_t)[self.bits unsignedIntegerValue];
     const uint32_t nonce = (uint32_t)[self.nonce unsignedIntegerValue];
 
-    WSBlockHeader *header = [[WSBlockHeader alloc] initWithVersion:version
-                                                   previousBlockId:previousBlockId
-                                                        merkleRoot:merkleRoot
-                                                         timestamp:timestamp
-                                                              bits:bits
-                                                             nonce:nonce];
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:parameters
+                                                              version:version
+                                                      previousBlockId:previousBlockId
+                                                           merkleRoot:merkleRoot
+                                                            timestamp:timestamp
+                                                                 bits:bits
+                                                                nonce:nonce];
 
     WSHash256 *expectedBlockId = WSHash256FromData(self.blockIdData);
 

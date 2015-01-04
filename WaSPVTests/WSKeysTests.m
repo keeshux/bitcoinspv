@@ -48,7 +48,7 @@
 
 - (void)testWIF
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
     
     NSString *hex = @"B365D41461E4961337A4F407F70B7A61FA8C1BE90175215F1FADF65D0623E116";
     NSString *compressed = @"L3ESHJjRLKEwxydy2smiZMPkTWfXfRThRKKwaDqcdm2jRVwu3si3";
@@ -63,15 +63,15 @@
     NSData *uncompressedData = [uncompressed dataFromBase58Check];
     DDLogInfo(@"Uncompressed: %@ (%u bytes)", [uncompressedData hexString], uncompressedData.length);
 
-    WSKey *keyCOM = WSKeyFromWIF(compressed);
+    WSKey *keyCOM = WSKeyFromWIF(self.networkParameters, compressed);
     XCTAssertTrue([keyCOM isCompressed]);
-    NSData *encodedCOM = [keyCOM encodedData];
+    NSData *encodedCOM = [keyCOM encodedDataWithParameters:self.networkParameters];
     DDLogInfo(@"Key (compressed)  : %@ (%u bytes)", [encodedCOM hexString], encodedCOM.length);
     XCTAssertEqualObjects(keyCOM.data, privateData);
 
-    WSKey *keyUC = WSKeyFromWIF(uncompressed);
+    WSKey *keyUC = WSKeyFromWIF(self.networkParameters, uncompressed);
     XCTAssertFalse([keyUC isCompressed]);
-    NSData *encodedUC = [keyUC encodedData];
+    NSData *encodedUC = [keyUC encodedDataWithParameters:self.networkParameters];
     DDLogInfo(@"Key (uncompressed): %@ (%u bytes)", [encodedUC hexString], encodedUC.length);
     XCTAssertEqualObjects(keyUC.data, privateData);
 
@@ -85,39 +85,39 @@
     
     XCTAssertEqualObjects(testKeyCompressed.data, keyCOM.data);
     XCTAssertEqualObjects(testKeyCompressed.data, keyUC.data);
-    XCTAssertEqualObjects(testKeyCompressed.encodedData, keyCOM.encodedData);
+    XCTAssertEqualObjects([testKeyCompressed encodedDataWithParameters:self.networkParameters], [keyCOM encodedDataWithParameters:self.networkParameters]);
 
     XCTAssertEqualObjects(testKeyUncompressed.data, keyCOM.data);
     XCTAssertEqualObjects(testKeyUncompressed.data, keyUC.data);
-    XCTAssertEqualObjects(testKeyUncompressed.encodedData, keyUC.encodedData);
+    XCTAssertEqualObjects([testKeyUncompressed encodedDataWithParameters:self.networkParameters], [keyUC encodedDataWithParameters:self.networkParameters]);
 
-    XCTAssertNotEqualObjects(testKeyCompressed.encodedData, keyUC.encodedData);
-    XCTAssertNotEqualObjects(testKeyUncompressed.encodedData, keyCOM.encodedData);
+    XCTAssertNotEqualObjects([testKeyCompressed encodedDataWithParameters:self.networkParameters], [keyUC encodedDataWithParameters:self.networkParameters]);
+    XCTAssertNotEqualObjects([testKeyUncompressed encodedDataWithParameters:self.networkParameters], [keyCOM encodedDataWithParameters:self.networkParameters]);
 }
 
 - (void)testPrivateFromWIF
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     NSString *wif = @"cQukrUmHpU3Wp4qMr1ziAL6ztr3r8bvdhNJ5mGAq8wnmAMscYZid";
     DDLogInfo(@"Key (WIF): %@", wif);
     DDLogInfo(@"Key (hex): %@", [wif hexFromBase58Check]);
     
-    WSKey *key = WSKeyFromWIF(wif);
+    WSKey *key = WSKeyFromWIF(self.networkParameters, wif);
     DDLogInfo(@"Key (WIF): %@", key);
 
-    XCTAssertEqualObjects([key WIF], wif);
+    XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], wif);
 }
 
 - (void)testAddressFromPubKeys
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     NSArray *pubHexes = @[@"02fcba7ecf41bc7e1be4ee122d9d22e3333671eb0a3a87b5cdf099d59874e1940f",
                           @"042a65f36cfbd9f016597e219870bb741b9f5f0a1deaedafea569d6968c2d72b62a4bc8915584ba2bf690d92c737f7cda03a0c1377d9ed90977b044927892294f3"];
     
-    NSArray *expAddresses = @[WSAddressFromString(@"1Nro9WkpaKm9axmcfPVp79dAJU1Gx7VmMZ"),
-                              WSAddressFromString(@"1QU41PkTSwfDETtcMU8jhWz3dreH4F369")];
+    NSArray *expAddresses = @[WSAddressFromString(self.networkParameters, @"1Nro9WkpaKm9axmcfPVp79dAJU1Gx7VmMZ"),
+                              WSAddressFromString(self.networkParameters, @"1QU41PkTSwfDETtcMU8jhWz3dreH4F369")];
     
     NSUInteger i = 0;
     for (NSString *pubHex in pubHexes) {
@@ -127,7 +127,7 @@
         DDLogInfo(@"PubData: %@", [[pubKey encodedData] hexString]);
         DDLogInfo(@"Hash160: %@", [pubKey hash160]);
         
-        WSAddress *address = [pubKey address];
+        WSAddress *address = [pubKey addressWithParameters:self.networkParameters];
         DDLogInfo(@"Address: %@", address);
         XCTAssertEqualObjects(address, expAddresses[i], @"Address %d", i);
         
@@ -140,9 +140,9 @@
 //
 - (void)testTxSignedInput
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
-    WSKey *privKey = WSKeyFromWIF(@"cQukrUmHpU3Wp4qMr1ziAL6ztr3r8bvdhNJ5mGAq8wnmAMscYZid");
+    WSKey *privKey = WSKeyFromWIF(self.networkParameters, @"cQukrUmHpU3Wp4qMr1ziAL6ztr3r8bvdhNJ5mGAq8wnmAMscYZid");
     NSString *pubHex = @"02ceab68fe2441c3e6f5ffa05c53fe43292cef05462a53021fa359b4bbfdfc27e3";
     
     WSPublicKey *pubKey = WSPublicKeyFromHex(pubHex);
@@ -151,8 +151,8 @@
     DDLogInfo(@"Public key (from private): %@", pubKeyFromPriv);
     XCTAssertEqualObjects(pubKey.encodedData, pubKeyFromPriv.encodedData);
 
-    WSAddress *expAddress = WSAddressFromString(@"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
-    WSAddress *address = [pubKey address];
+    WSAddress *expAddress = WSAddressFromString(self.networkParameters, @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
+    WSAddress *address = [pubKey addressWithParameters:self.networkParameters];
     DDLogInfo(@"Address : %@", address);
     DDLogInfo(@"Expected: %@", expAddress);
     XCTAssertEqualObjects(address, expAddress);

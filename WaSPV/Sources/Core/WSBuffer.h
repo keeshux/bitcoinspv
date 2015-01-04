@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol WSParameters;
 @class WSHash256;
 @class WSHash160;
 @class WSNetworkAddress;
@@ -95,7 +96,7 @@
 
 @protocol WSBufferDecoder <NSObject>
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError **)error;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError **)error;
 
 @end
 

@@ -28,6 +28,7 @@
 #import "WSProtocolDeserializer.h"
 #import "WSMessageFactory.h"
 #import "WSHash256.h"
+#import "WSPeer.h"
 #import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
@@ -35,6 +36,7 @@
 @interface WSProtocolDeserializer ()
 
 @property (nonatomic, weak) WSPeer *peer;
+@property (nonatomic, strong) WSMessageFactory *factory;
 @property (nonatomic, strong) NSMutableData *buffer;
 @property (nonatomic, strong) WSMutableBuffer *builtHeader;
 @property (nonatomic, strong) WSMutableBuffer *builtPayload;
@@ -48,13 +50,17 @@
 
 - (instancetype)init
 {
-    return [self initWithPeer:nil];
+    WSExceptionRaiseUnsupported(@"Use initWithPeer:");
+    return nil;
 }
 
 - (instancetype)initWithPeer:(WSPeer *)peer
 {
+    WSExceptionCheckIllegal(peer != nil, @"Nil peer");
+    
     if ((self = [super init])) {
         self.peer = peer;
+        self.factory = [[WSMessageFactory alloc] initWithParameters:self.peer.parameters];
         self.buffer = [[NSMutableData alloc] init];
         self.builtHeader = [[WSMutableBuffer alloc] init];
         self.builtPayload = [[WSMutableBuffer alloc] init];
@@ -121,7 +127,7 @@
         
         // consume one byte at a time, up to the magic number that starts a new message header
         while ((self.builtHeader.length >= sizeof(uint32_t)) &&
-               ([self.builtHeader uint32AtOffset:0] != [WSCurrentParameters magicNumber])) {
+               ([self.builtHeader uint32AtOffset:0] != [self.peer.parameters magicNumber])) {
 #if DEBUG
             printf("%c", *(const char *)self.builtHeader.bytes);
 #endif
@@ -205,9 +211,7 @@
 
     *keepParsing = NO;
 
-    return [[WSMessageFactory sharedInstance] messageFromType:messageType
-                                                      payload:self.builtPayload
-                                                        error:error];
+    return [self.factory messageFromType:messageType payload:self.builtPayload error:error];
 }
 
 - (void)resetPartialMessage

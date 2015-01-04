@@ -30,15 +30,17 @@
 #import "WSBuffer.h"
 #import "WSSized.h"
 
+@protocol WSParameters;
 @class WSScript;
 @class WSAddress;
 
 @interface WSTransactionOutput : NSObject <WSBufferEncoder, WSBufferDecoder, WSSized>
 
-- (instancetype)initWithValue:(uint64_t)value script:(WSScript *)script;
-- (instancetype)initWithValue:(uint64_t)value address:(WSAddress *)address;
-- (uint64_t)value;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters script:(WSScript *)script value:(uint64_t)value;
+- (instancetype)initWithAddress:(WSAddress *)address value:(uint64_t)value;
+- (id<WSParameters>)parameters;
 - (WSScript *)script;
 - (WSAddress *)address;
+- (uint64_t)value;
 
 @end

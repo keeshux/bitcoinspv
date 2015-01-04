@@ -35,6 +35,12 @@ static NSString *const WSWebExplorerBlockchainObjectPathFormat     = @"%@/%@";
 static NSString *const WSWebExplorerBlockchainObjectBlock          = @"block";
 static NSString *const WSWebExplorerBlockchainObjectTransaction    = @"tx";
 
+@interface WSWebExplorerBlockchain ()
+
+@property (nonatomic, assign) WSNetworkType networkType;
+
+@end
+
 @implementation WSWebExplorerBlockchain
 
 #pragma mark WSWebExplorer
@@ -50,7 +56,7 @@ static NSString *const WSWebExplorerBlockchainObjectTransaction    = @"tx";
     
     NSString *object = nil;
     
-    if (WSParametersGetCurrentType() != WSParametersTypeMain) {
+    if (self.networkType != WSNetworkTypeMain) {
         return nil;
     }
     

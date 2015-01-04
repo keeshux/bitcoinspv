@@ -141,6 +141,11 @@
 
 #pragma mark Intrinsic
 
+- (id<WSParameters>)parameters
+{
+    return self.header.parameters;
+}
+
 - (WSHash256 *)blockId
 {
     return self.header.blockId;
@@ -153,7 +158,7 @@
 
 - (BOOL)isTransitionBlock
 {
-    return (self.height % [WSCurrentParameters retargetInterval] == 0);
+    return (self.height % [self.parameters retargetInterval] == 0);
 }
 
 - (BOOL)hasMoreWorkThanBlock:(WSStorableBlock *)block
@@ -216,7 +221,7 @@
     }
 
     WSStorableBlock *retargetBlock = previousBlock;
-    const uint32_t retargetInterval = [WSCurrentParameters retargetInterval];
+    const uint32_t retargetInterval = [self.parameters retargetInterval];
     for (NSUInteger i = 1; i < retargetInterval; ++i) {
         retargetBlock = [retargetBlock previousBlockInChain:blockChain];
     }
@@ -234,8 +239,8 @@
     NSParameterAssert(retargetBlock);
     
     uint32_t span = previousBlock.header.timestamp - retargetBlock.header.timestamp;
-    const uint32_t minRetargetTimespan = [WSCurrentParameters minRetargetTimespan];
-    const uint32_t maxRetargetTimespan = [WSCurrentParameters maxRetargetTimespan];
+    const uint32_t minRetargetTimespan = [self.parameters minRetargetTimespan];
+    const uint32_t maxRetargetTimespan = [self.parameters maxRetargetTimespan];
     if (span < minRetargetTimespan) {
         span = minRetargetTimespan;
     }
@@ -259,9 +264,9 @@
     BN_CTX_start(ctx);
 
     WSBlockSetBits(&bnTarget, retargetBlock.header.bits);
-    WSBlockSetBits(&bnMaxTarget, [WSCurrentParameters maxProofOfWork]);
+    WSBlockSetBits(&bnMaxTarget, [self.parameters maxProofOfWork]);
     BN_set_word(&bnSpan, span);
-    BN_set_word(&bnRetargetSpan, [WSCurrentParameters retargetTimespan]);
+    BN_set_word(&bnRetargetSpan, [self.parameters retargetTimespan]);
     BN_mul(&bnTargetXSpan, &bnTarget, &bnSpan, ctx);
     BN_div(&bnTarget, NULL, &bnTargetXSpan, &bnRetargetSpan, ctx);
 
@@ -313,7 +318,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSBlockHeaderSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);
@@ -321,7 +326,7 @@
     }
     NSUInteger offset = from;
     
-    WSBlockHeader *header = [[WSBlockHeader alloc] initWithBuffer:buffer from:offset available:available error:error];
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:offset available:available error:error];
     if (!header) {
         return nil;
     }

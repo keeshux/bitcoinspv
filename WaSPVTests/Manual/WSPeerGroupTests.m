@@ -54,7 +54,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.blockStore = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
     self.pool = [[WSConnectionPool alloc] init];

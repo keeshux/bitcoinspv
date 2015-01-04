@@ -19,7 +19,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 }
 
 - (void)tearDown
@@ -39,10 +39,10 @@
     DDLogInfo(@"Hex (eff): %@", [key.data hexString]);
     DDLogInfo(@"Hex (exp): %@", [hex lowercaseString]);
     XCTAssertEqualObjects(key.data, [hex dataFromHex]);
-    DDLogInfo(@"WIF: %@", [key WIF]);
-    XCTAssertEqualObjects([key WIF], uncompressed);
+    DDLogInfo(@"WIF: %@", [key WIFWithParameters:self.networkParameters]);
+    XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], uncompressed);
     
-    WSBIP38Key *bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrase];
+    WSBIP38Key *bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrase];
     DDLogInfo(@"BIP38: %@", bip38Key);
     XCTAssertEqualObjects(bip38Key.encrypted, encrypted);
 }
@@ -63,8 +63,8 @@
     DDLogInfo(@"Hex (eff): %@", [key.data hexString]);
     DDLogInfo(@"Hex (exp): %@", [hex lowercaseString]);
     XCTAssertEqualObjects(key.data, [hex dataFromHex]);
-    DDLogInfo(@"WIF: %@", [key WIF]);
-    XCTAssertEqualObjects([key WIF], uncompressed);
+    DDLogInfo(@"WIF: %@", [key WIFWithParameters:self.networkParameters]);
+    XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], uncompressed);
 }
 
 - (void)testVectorNonECUncompressed
@@ -86,20 +86,20 @@
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
 
-        key = [WSKey keyWithWIF:decryptedWIFs[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        key = [WSKey keyWithWIF:decryptedWIFs[i] parameters:self.networkParameters];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
 
 //        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
+        bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrases[i]];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
     }
 }
 
@@ -122,20 +122,20 @@
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
         
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
 
-        key = [WSKey keyWithWIF:decryptedWIFs[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        key = [WSKey keyWithWIF:decryptedWIFs[i] parameters:self.networkParameters];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
 
-//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:NO];
-        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i]];
+//        bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrases[i] ec:NO];
+        bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrases[i]];
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
     }
 }
 
@@ -162,22 +162,22 @@
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
         
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
         
-        key = [WSKey keyWithWIF:decryptedWIFs[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        key = [WSKey keyWithWIF:decryptedWIFs[i] parameters:self.networkParameters];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
         
-//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:YES];
+//        bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrases[i] ec:YES];
 //        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 //        
 //        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
 //        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-//        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
-//        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+//        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+//        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
     }
 }
 
@@ -204,22 +204,22 @@
         XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
         
         key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
         
-        key = [WSKey keyWithWIF:decryptedWIFs[i]];
-        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
+        key = [WSKey keyWithWIF:decryptedWIFs[i] parameters:self.networkParameters];
         XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
         
-//        bip38Key = [key encryptedBIP38KeyWithPassphrase:passphrases[i] ec:YES];
+//        bip38Key = [key encryptedBIP38KeyWithParameters:self.networkParameters passphrase:passphrases[i] ec:YES];
 //        XCTAssertEqualObjects(bip38Key.encrypted, encrypted[i]);
 //
 //        key = [bip38Key decryptedKeyWithPassphrase:passphrases[i]];
 //        XCTAssertEqualObjects(key.data, [decryptedHexes[i] dataFromHex]);
-//        XCTAssertEqualObjects(key.WIF, decryptedWIFs[i]);
-//        XCTAssertEqualObjects(key.address.encoded, addresses[i]);
+//        XCTAssertEqualObjects([key WIFWithParameters:self.networkParameters], decryptedWIFs[i]);
+//        XCTAssertEqualObjects([key addressWithParameters:self.networkParameters].encoded, addresses[i]);
     }
 }
 

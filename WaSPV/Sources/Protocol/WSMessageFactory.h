@@ -29,9 +29,13 @@
 
 #import "WSMessage.h"
 
+@protocol WSParameters;
+
 @interface WSMessageFactory : NSObject
 
-+ (instancetype)sharedInstance;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (id<WSParameters>)parameters;
+
 - (id<WSMessage>)messageFromType:(NSString *)type payload:(WSBuffer *)payload error:(NSError **)error;
 
 @end

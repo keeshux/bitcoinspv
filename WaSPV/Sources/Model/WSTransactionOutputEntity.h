@@ -32,14 +32,15 @@
 
 @class WSTransactionEntity;
 @class WSTransactionInputEntity;
+@protocol WSParameters;
 
 @interface WSTransactionOutputEntity : NSManagedObject
 
-@property (nonatomic, retain) NSNumber * value;
 @property (nonatomic, retain) NSData * scriptData;
+@property (nonatomic, retain) NSNumber * value;
 @property (nonatomic, retain) WSTransactionEntity *transaction;
 
 - (void)copyFromOutput:(WSTransactionOutput *)output;
-- (WSTransactionOutput *)toOutput;
+- (WSTransactionOutput *)toOutputWithParameters:(id<WSParameters>)parameters;
 
 @end

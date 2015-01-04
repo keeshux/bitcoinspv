@@ -65,24 +65,27 @@
 
 @implementation WSHDKeyring
 
-- (instancetype)initWithMnemonic:(NSString *)mnemonic
+- (instancetype)initWithParameters:(id<WSParameters>)parameters mnemonic:(NSString *)mnemonic
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
 
     NSData *keyData = [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:mnemonic];
-    return [self initWithData:keyData];
+    return [self initWithParameters:parameters data:keyData];
 }
 
-- (instancetype)initWithSeed:(WSSeed *)seed
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
 
     NSData *keyData = [seed derivedKeyData];
-    return [self initWithData:keyData];
+    return [self initWithParameters:parameters data:keyData];
 }
 
-- (instancetype)initWithData:(NSData *)data
+- (instancetype)initWithParameters:(id<WSParameters>)parameters data:(NSData *)data
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(data != nil, @"Nil data");
 
     NSMutableData *I = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
@@ -90,11 +93,12 @@
     NSData *keyData = [NSData dataWithBytesNoCopy:(unsigned char *)I.bytes length:32 freeWhenDone:NO];
     NSData *chainData = [NSData dataWithBytesNoCopy:((unsigned char *)I.bytes + 32) length:32 freeWhenDone:NO];
 
-    WSBIP32Key *key = [[WSBIP32Key alloc] initWithPrivateVersionAndDepth:0
-                                                       parentFingerprint:0x0
-                                                                   child:0
-                                                               chainData:chainData
-                                                                 keyData:keyData];
+    WSBIP32Key *key = [[WSBIP32Key alloc] initPrivateWithParameters:parameters
+                                                              depth:0
+                                                  parentFingerprint:0x0
+                                                              child:0
+                                                          chainData:chainData
+                                                            keyData:keyData];
 
     return [self initWithExtendedPrivateKey:key];
 }
@@ -109,13 +113,19 @@
 
         WSPublicKey *publicKey = [WSPublicKey publicKeyWithPrivateData:self.extendedPrivateKey.keyData];
 
-        self.extendedPublicKey = [[WSBIP32Key alloc] initWithPublicVersionAndDepth:self.extendedPrivateKey.depth
-                                                                 parentFingerprint:self.extendedPrivateKey.parentFingerprint
-                                                                             child:self.extendedPrivateKey.child
-                                                                         chainData:self.extendedPrivateKey.chainData
-                                                                           keyData:[publicKey encodedData]];
+        self.extendedPublicKey = [[WSBIP32Key alloc] initPublicWithParameters:self.parameters
+                                                                        depth:self.extendedPrivateKey.depth
+                                                            parentFingerprint:self.extendedPrivateKey.parentFingerprint
+                                                                        child:self.extendedPrivateKey.child
+                                                                    chainData:self.extendedPrivateKey.chainData
+                                                                      keyData:[publicKey encodedData]];
     }
     return self;
+}
+
+- (id<WSParameters>)parameters
+{
+    return self.extendedPrivateKey.parameters;
 }
 
 #pragma mark WSBIP32Keyring
@@ -160,11 +170,12 @@
         ++depth;
     }
     
-    WSBIP32Key *key = [[WSBIP32Key alloc] initWithPrivateVersionAndDepth:depth
-                                                       parentFingerprint:parentFingerprint
-                                                                   child:child
-                                                               chainData:chainData
-                                                                 keyData:keyData];
+    WSBIP32Key *key = [[WSBIP32Key alloc] initPrivateWithParameters:self.parameters
+                                                              depth:depth
+                                                  parentFingerprint:parentFingerprint
+                                                              child:child
+                                                          chainData:chainData
+                                                            keyData:keyData];
 
     return [[WSHDKeyring alloc] initWithExtendedPrivateKey:key];
 }
@@ -186,7 +197,7 @@
 
 - (WSAddress *)address
 {
-    return [[self publicKey] address];
+    return [[self publicKey] addressWithParameters:self.parameters];
 }
 
 - (id<WSBIP32Keyring>)keyringForAccount:(uint32_t)account
@@ -260,6 +271,11 @@
     return self;
 }
 
+- (id<WSParameters>)parameters
+{
+    return self.extendedPublicKey.parameters;
+}
+
 #pragma mark WSBIP32PublicKeyring
 
 - (id<WSBIP32PublicKeyring>)publicKeyringAtPath:(NSString *)path
@@ -304,11 +320,12 @@
         ++depth;
     }
     
-    WSBIP32Key *key = [[WSBIP32Key alloc] initWithPublicVersionAndDepth:depth
-                                                      parentFingerprint:parentFingerprint
-                                                                  child:child
-                                                              chainData:chainData
-                                                                keyData:keyData];
+    WSBIP32Key *key = [[WSBIP32Key alloc] initPublicWithParameters:self.parameters
+                                                             depth:depth
+                                                 parentFingerprint:parentFingerprint
+                                                             child:child
+                                                         chainData:chainData
+                                                           keyData:keyData];
 
     return [[WSHDPublicKeyring alloc] initWithExtendedPublicKey:key];
 }
@@ -320,7 +337,7 @@
 
 - (WSAddress *)address
 {
-    return [[self publicKey] address];
+    return [[self publicKey] addressWithParameters:self.parameters];
 }
 
 - (id<WSBIP32PublicKeyring>)publicKeyringForAccount:(uint32_t)account

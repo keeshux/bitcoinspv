@@ -31,6 +31,7 @@
 #import "WSMessageFactory.h"
 #import "WSInventory.h"
 
+@protocol WSParameters;
 @class WSBloomFilter;
 @class WSSignedTransaction;
 @class WSBlockLocator;
@@ -53,7 +54,9 @@ typedef enum {
 
 @property (nonatomic, assign) uint16_t port; // default network port
 
-- (instancetype)initWithGroupQueue:(dispatch_queue_t)groupQueue
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                        groupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering;
@@ -85,8 +88,10 @@ typedef enum {
 @property (atomic, assign) NSTimeInterval writeTimeout;
 @property (atomic, weak) id<WSPeerDelegate> delegate;
 
-- (instancetype)initWithHost:(NSString *)host;
-- (instancetype)initWithHost:(NSString *)host parameters:(WSPeerParameters *)parameters;
+- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters;
+- (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters;
+
+- (id<WSParameters>)parameters;
 
 // connection
 - (BOOL)isConnected; // should be == (peerStatus != WSPeerDisconnected)
@@ -152,6 +157,6 @@ typedef enum {
 @interface WSConnectionPool (Peer)
 
 - (BOOL)openConnectionToPeer:(WSPeer *)peer;
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost;
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters;
 
 @end

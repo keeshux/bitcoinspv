@@ -53,7 +53,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 @interface WSHDWallet () {
 
     // essential backup data
-    WSParametersType _parametersType;
+    WSNetworkType _networkType;
     NSUInteger _gapLimit;
 
     // serialized for convenience
@@ -80,6 +80,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
     uint64_t _confirmedBalance;
 }
 
+@property (nonatomic, strong) id<WSParameters> parameters;
+
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead forced:(BOOL)forced;
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead internal:(BOOL)internal forced:(BOOL)forced;
 //- (void)cleanTransientStructures;
@@ -103,7 +105,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (id<WSBIP32Keyring>)safeInternalChain;
 
 - (void)setPath:(NSString *)path;
-- (void)loadSensitiveDataWithSeed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
+- (void)loadSensitiveDataWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
 - (void)rebuildTransientStructures;
 - (void)unloadSensitiveData;
 
@@ -115,24 +117,26 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 @implementation WSHDWallet
 
-- (instancetype)initWithSeed:(WSSeed *)seed
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
 {
-    return [self initWithSeed:seed gapLimit:WSHDWalletDefaultGapLimit];
+    return [self initWithParameters:parameters seed:seed gapLimit:WSHDWalletDefaultGapLimit];
 }
 
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit
 {
-    return [self initWithSeed:seed gapLimit:gapLimit chainsPath:WSHDWalletDefaultChainsPath];
+    return [self initWithParameters:parameters seed:seed gapLimit:gapLimit chainsPath:WSHDWalletDefaultChainsPath];
 }
 
-- (instancetype)initWithSeed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
     WSExceptionCheckIllegal(gapLimit > 0, @"Non-positive gapLimit");
     WSExceptionCheckIllegal(chainsPath != nil, @"Nil chainsPath");
     
     if ((self = [self init])) {
-        _parametersType = WSParametersGetCurrentType();
+        self.parameters = parameters;
+        _networkType = parameters.networkType;
         _gapLimit = gapLimit;
 
         _allExternalAddresses = [[NSMutableOrderedSet alloc] init];
@@ -143,7 +147,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         _usedAddresses = [[NSMutableSet alloc] init];
         _metadataByTxId = [[NSMutableDictionary alloc] init];
         
-        [self loadSensitiveDataWithSeed:seed chainsPath:chainsPath];
+        [self loadSensitiveDataWithParameters:parameters seed:seed chainsPath:chainsPath];
         [self rebuildTransientStructures];
     }
     return self;
@@ -258,14 +262,14 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (WSAddress *)receiveAddress
 {
     @synchronized (self) {
-        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] address];
+        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] addressWithParameters:self.parameters];
     }
 }
 
 - (WSAddress *)changeAddress
 {
     @synchronized (self) {
-        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] address];
+        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] addressWithParameters:self.parameters];
     }
 }
 
@@ -447,7 +451,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         WSExceptionCheckIllegal(address != nil, @"Nil address");
         WSExceptionCheckIllegal(value > 0, @"Zero value");
 
-        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:value address:address];
+        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
         return [self buildTransactionWithOutputs:[NSOrderedSet orderedSetWithObject:output] fee:fee error:error];
     }
 }
@@ -470,7 +474,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             const uint64_t value = [valueNumber unsignedLongLongValue];
             WSAddress *address = addresses[i];
             
-            WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:value address:address];
+            WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
             [outputs addObject:output];
             
             ++i;
@@ -526,7 +530,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         
         const uint64_t change = gathered - (needed + effectiveFee);
         if (change >= WSTransactionMinOutValue) {
-            WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:change address:self.changeAddress];
+            WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:self.changeAddress value:change];
             [builder addOutput:output];
         }
         else {
@@ -565,7 +569,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         const NSUInteger estimatedTxSize = WSTransactionTypicalSize(builder.signableInputs.count, 1);
         const uint64_t effectiveFee = MAX(fee, WSTransactionStandardRelayFee(estimatedTxSize));
         
-        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithValue:(gathered - effectiveFee) address:address];
+        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:(gathered - effectiveFee)];
         [builder addOutput:output];
         
         NSAssert(gathered == self.balance, @"Transaction doesn't spend full balance (%llu != %llu)",
@@ -628,12 +632,12 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
     }
 }
 
-+ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed
++ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
 {
-    return [self loadFromPath:path seed:seed chainsPath:WSHDWalletDefaultChainsPath];
+    return [self loadFromPath:path parameters:parameters seed:seed chainsPath:WSHDWalletDefaultChainsPath];
 }
 
-+ (instancetype)loadFromPath:(NSString *)path seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
++ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
 {
     WSExceptionCheckIllegal(path != nil, @"Nil path");
     WSExceptionCheckIllegal(seed != nil, @"Nil seed");
@@ -645,20 +649,21 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             return nil;
         }
         wallet.path = path;
-        [wallet loadSensitiveDataWithSeed:seed chainsPath:chainsPath];
+        [wallet loadSensitiveDataWithParameters:parameters seed:seed chainsPath:chainsPath];
         [wallet rebuildTransientStructures];
         return wallet;
     }
 }
 
-- (void)loadSensitiveDataWithSeed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
+- (void)loadSensitiveDataWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
 {
-    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
-    WSExceptionCheckIllegal(chainsPath != nil, @"Nil chainsPath");
+    NSParameterAssert(parameters);
+    NSParameterAssert(seed);
+    NSParameterAssert(chainsPath);
     
     @synchronized (self) {
         _seed = seed;
-        WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithData:[_seed derivedKeyData]];
+        WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithParameters:parameters data:[_seed derivedKeyData]];
         _externalChain = [keyring keyringAtPath:[NSString stringWithFormat:@"%@/0", chainsPath]];
         _internalChain = [keyring keyringAtPath:[NSString stringWithFormat:@"%@/1", chainsPath]];
     }
@@ -783,7 +788,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         const NSUInteger firstGenAccount = targetAddresses.count;
         const NSUInteger lastGenAccount = accountOfFirstUnusedAddress + watchedCount; // excluded
         for (NSUInteger i = firstGenAccount; i < lastGenAccount; ++i) {
-            WSAddress *address = [[targetChain publicKeyForAccount:(uint32_t)i] address];
+            WSAddress *address = [[targetChain publicKeyForAccount:(uint32_t)i] addressWithParameters:self.parameters];
             [targetAddresses addObject:address];
         }
         
@@ -1283,7 +1288,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             // own outputs are unspent outputs
             uint32_t index = 0;
             for (WSTransactionOutput *output in tx.outputs) {
-                WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithTxId:tx.txId index:index];
+                WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithParameters:self.parameters txId:tx.txId index:index];
                 if ([self isWalletAddress:output.address] && ![spentOutpoints containsObject:outpoint]) {
                     [unspentOutpoints addObject:outpoint];
                 }
@@ -1370,20 +1375,20 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 #pragma mark AutoCoding
 
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    if ((self = [super initWithCoder:aDecoder])) {
-        WSExceptionCheckIllegal(_parametersType == WSParametersGetCurrentType(),
-                                @"Wallet created on '%@' network (current: '%@')",
-                                WSParametersTypeString(_parametersType),
-                                WSParametersGetCurrentTypeString());
-    }
-    return self;
-}
+//- (id)initWithCoder:(NSCoder *)aDecoder
+//{
+//    if ((self = [super initWithCoder:aDecoder])) {
+//        WSExceptionCheckIllegal(_networkType == WSParametersGetCurrentType(),
+//                                @"Wallet created on '%@' network (current: '%@')",
+//                                WSNetworkTypeString(_networkType),
+//                                WSParametersGetCurrentTypeString());
+//    }
+//    return self;
+//}
 
 + (NSDictionary *)codableProperties
 {
-    return @{@"_parametersType": [NSNumber class],
+    return @{@"_networkType": [NSNumber class],
              @"_gapLimit": [NSNumber class],
              @"_allExternalAddresses": [NSMutableOrderedSet class],
              @"_allInternalAddresses": [NSMutableOrderedSet class],

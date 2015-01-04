@@ -37,6 +37,12 @@ static NSString *const WSWebExplorerBlockExplorerObjectPathFormat      = @"%@/%@
 static NSString *const WSWebExplorerBlockExplorerObjectBlock           = @"block";
 static NSString *const WSWebExplorerBlockExplorerObjectTransaction     = @"tx";
 
+@interface WSWebExplorerBlockExplorer ()
+
+@property (nonatomic, assign) WSNetworkType networkType;
+
+@end
+
 @implementation WSWebExplorerBlockExplorer
 
 #pragma mark WSWebExplorer
@@ -53,16 +59,16 @@ static NSString *const WSWebExplorerBlockExplorerObjectTransaction     = @"tx";
     NSString *network = nil;
     NSString *object = nil;
     
-    switch (WSParametersGetCurrentType()) {
-        case WSParametersTypeMain: {
+    switch (self.networkType) {
+        case WSNetworkTypeMain: {
             network = WSWebExplorerBlockExplorerNetworkMain;
             break;
         }
-        case WSParametersTypeTestnet3: {
+        case WSNetworkTypeTestnet3: {
             network = WSWebExplorerBlockExplorerNetworkTest;
             break;
         }
-        case WSParametersTypeRegtest: {
+        case WSNetworkTypeRegtest: {
             return nil;
         }
     }

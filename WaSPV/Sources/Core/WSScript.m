@@ -54,11 +54,11 @@
 
 @property (nonatomic, strong) NSArray *chunks;
 
-- (WSAddress *)addressFromScriptSig;
-- (WSAddress *)addressFromScriptMultisig;
-- (WSAddress *)addressFromPay2PubKeyHash;
-- (WSAddress *)addressFromPay2ScriptHash;
-- (WSAddress *)addressFromPay2PubKey;
+- (WSAddress *)addressFromScriptSigWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressFromScriptMultisigWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressFromPay2ScriptHashWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressFromPay2PubKeyWithParameters:(id<WSParameters>)parameters;
 
 @end
 
@@ -193,7 +193,7 @@
 
     WSScriptChunk *chunkRedeem = [self.chunks lastObject];
     WSBuffer *chunkRedeemBuffer = [[WSBuffer alloc] initWithData:chunkRedeem.pushData];
-    WSScript *localRedeemScript = [[WSScript alloc] initWithBuffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
+    WSScript *localRedeemScript = [[WSScript alloc] initWithParameters:nil buffer:chunkRedeemBuffer from:0 available:chunkRedeemBuffer.length error:NULL];
 
     NSUInteger outNumberOfSignatures;
     NSArray *localPublicKeys;
@@ -304,38 +304,46 @@
 
 #pragma mark Standard address
 
-- (WSAddress *)standardInputAddress
+- (WSAddress *)standardInputAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSAddress *address = [self addressFromScriptSig];
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    
+    WSAddress *address = [self addressFromScriptSigWithParameters:parameters];
     if (!address) {
-        address = [self addressFromScriptMultisig];
+        address = [self addressFromScriptMultisigWithParameters:parameters];
     }
     return address;
 }
             
-- (WSAddress *)standardOutputAddress
+- (WSAddress *)standardOutputAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSAddress *address = [self addressFromPay2PubKeyHash];
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+
+    WSAddress *address = [self addressFromPay2PubKeyHashWithParameters:parameters];
     if (!address) {
-        address = [self addressFromPay2PubKey];
+        address = [self addressFromPay2PubKeyWithParameters:parameters];
     }
     if (!address) {
-        address = [self addressFromPay2ScriptHash];
+        address = [self addressFromPay2ScriptHashWithParameters:parameters];
     }
     return address;
 }
 
-- (WSAddress *)standardAddress
+- (WSAddress *)standardAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSAddress *address = [self standardInputAddress];
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+
+    WSAddress *address = [self standardInputAddressWithParameters:parameters];
     if (!address) {
-        address = [self standardOutputAddress];
+        address = [self standardOutputAddressWithParameters:parameters];
     }
     return address;
 }
 
-- (WSAddress *)addressFromScriptSig
+- (WSAddress *)addressFromScriptSigWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+    
     if (self.chunks.count != 2) {
         return nil;
     }
@@ -349,47 +357,58 @@
     if (!localPublicKey) {
         return nil;
     }
-    return WSAddressP2PKHFromHash160([localPublicKey hash160]);
+    return WSAddressP2PKHFromHash160(parameters, [localPublicKey hash160]);
 }
 
-- (WSAddress *)addressFromScriptMultisig
+- (WSAddress *)addressFromScriptMultisigWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+
     WSScript *redeemScript;
     if (![self isScriptSigWithSignatures:NULL publicKeys:NULL redeemScript:&redeemScript]) {
         return nil;
     }
-    return WSAddressP2SHFromHash160([[redeemScript toBuffer] computeHash160]);
+    return WSAddressP2SHFromHash160(parameters, [[redeemScript toBuffer] computeHash160]);
 }
 
-- (WSAddress *)addressFromPay2PubKeyHash
+- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+
     if (![self isPay2PubKeyHash]) {
         return nil;
     }
     NSData *hash160 = [self.chunks[2] pushData];
-    return WSAddressP2PKHFromHash160(WSHash160FromData(hash160));
+    return WSAddressP2PKHFromHash160(parameters, WSHash160FromData(hash160));
 }
 
-- (WSAddress *)addressFromPay2ScriptHash
+- (WSAddress *)addressFromPay2ScriptHashWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+
     if (![self isPay2ScriptHash]) {
         return nil;
     }
     NSData *hash160 = [self.chunks[1] pushData];
-    return WSAddressP2SHFromHash160(WSHash160FromData(hash160));
+    return WSAddressP2SHFromHash160(parameters, WSHash160FromData(hash160));
 }
 
-- (WSAddress *)addressFromPay2PubKey
+- (WSAddress *)addressFromPay2PubKeyWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+
     if (![self isPay2PubKey]) {
         return nil;
     }
-    return [[WSPublicKey publicKeyWithData:[self.chunks[0] pushData]] address];
+    WSPublicKey *pubKey = [WSPublicKey publicKeyWithData:[self.chunks[0] pushData]];
+    return [pubKey addressWithParameters:parameters];
 }
 
-- (WSAddress *)addressFromHash
+- (WSAddress *)addressFromHashWithParameters:(id<WSParameters>)parameters
 {
-    return WSAddressP2SHFromHash160([[self toBuffer] computeHash160]);
+    NSParameterAssert(parameters);
+
+    return WSAddressP2SHFromHash160(parameters, [[self toBuffer] computeHash160]);
 }
 
 #pragma mark NSCopying
@@ -419,7 +438,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSData *scriptData = [buffer dataAtOffset:from length:available];
 
@@ -620,7 +639,7 @@
     //
     // https://en.bitcoin.it/wiki/Script#Standard_Transaction_to_Bitcoin_address_.28pay-to-pubkey-hash.29
     //
-    if (address.version == [WSCurrentParameters publicKeyAddressVersion]) {
+    if (address.version == [address.parameters publicKeyAddressVersion]) {
         [self appendOpcode:WSScriptOpcode_DUP];
         [self appendOpcode:WSScriptOpcode_HASH160];
         [self appendPushData:address.hash160.data];
@@ -632,7 +651,7 @@
     //
     // https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
     //
-    else if (address.version == [WSCurrentParameters scriptAddressVersion]) {
+    else if (address.version == [address.parameters scriptAddressVersion]) {
         [self appendOpcode:WSScriptOpcode_HASH160];
         [self appendPushData:address.hash160.data];
         [self appendOpcode:WSScriptOpcode_EQUAL];
@@ -693,7 +712,7 @@
 
     WSBuffer *buffer = [[WSBuffer alloc] initWithData:coinbaseData];
 
-    return [self initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [self initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
 - (BOOL)isPushDataOnly
@@ -814,9 +833,9 @@
 //
 // https://github.com/bitcoin/bips/blob/master/bip-0034.mediawiki
 //
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if ((self = [super initWithBuffer:buffer from:from available:available error:error])) {
+    if ((self = [super initWithParameters:parameters buffer:buffer from:from available:available error:error])) {
         self.coinbaseData = [buffer.data subdataWithRange:NSMakeRange(from, available)];
 
         if (self.chunks.count > 0) {

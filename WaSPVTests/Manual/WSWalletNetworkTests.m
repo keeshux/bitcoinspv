@@ -116,7 +116,7 @@
 
 - (void)testSync
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -143,7 +143,7 @@
 
 - (void)testSyncPerformanceAndDroppedBlocks
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -169,7 +169,7 @@
 
 - (void)testRescan
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -196,7 +196,7 @@
 
 - (void)testChain
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.currentStore = [self networkStore];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.currentStore];
@@ -206,7 +206,7 @@
 
 - (void)testWallet
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -235,7 +235,7 @@
 
 - (void)testSignedTransaction
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -276,7 +276,7 @@
 
 - (void)testPublishTransactionSingleInput
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -309,7 +309,7 @@
 
 - (void)testPublishTransactionMultipleInputs
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -355,7 +355,7 @@
 
 - (void)testSweep
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.currentStore = [self networkStore];
     self.currentWalletPath = [self networkWalletPath];
@@ -396,7 +396,7 @@
 - (id<WSBlockStore>)networkStore
 {
     NSString *path = nil;
-    if (WSParametersGetCurrentType() == WSParametersTypeMain) {
+    if (WSParametersGetCurrentType() == WSNetworkTypeMain) {
         path = self.storeMainPath;
     }
     else {
@@ -409,7 +409,7 @@
 - (NSString *)networkWalletPath
 {
     NSString *path = nil;
-    if (WSParametersGetCurrentType() == WSParametersTypeMain) {
+    if (WSParametersGetCurrentType() == WSNetworkTypeMain) {
         path = self.walletMainPath;
     }
     else {

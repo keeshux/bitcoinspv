@@ -32,23 +32,23 @@
 
 @implementation WSTransactionOutputEntity
 
-@dynamic value;
 @dynamic scriptData;
+@dynamic value;
 @dynamic transaction;
 
 - (void)copyFromOutput:(WSTransactionOutput *)output
 {
-    self.value = @(output.value);
     self.scriptData = [[output.script toBuffer] data];
+    self.value = @(output.value);
 }
 
-- (WSTransactionOutput *)toOutput
+- (WSTransactionOutput *)toOutputWithParameters:(id<WSParameters>)parameters
 {
-    const uint64_t value = (uint64_t)[self.value unsignedLongLongValue];
     WSBuffer *scriptBuffer = [[WSBuffer alloc] initWithData:self.scriptData];
-    WSScript *script = [[WSScript alloc] initWithBuffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];
+    WSScript *script = [[WSScript alloc] initWithParameters:nil buffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];
+    const uint64_t value = (uint64_t)[self.value unsignedLongLongValue];
 
-    return [[WSTransactionOutput alloc] initWithValue:value script:script];
+    return [[WSTransactionOutput alloc] initWithParameters:parameters script:script value:value];
 }
 
 @end

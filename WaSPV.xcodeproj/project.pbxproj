@@ -29,6 +29,7 @@
 		0EA147281A55B80F00AA400D /* WSWebTicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA147271A55B80F00AA400D /* WSWebTicker.m */; };
 		0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */; };
 		0EA1472E1A55C2B900AA400D /* WSWebTickerBlockchain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */; };
+		0EA9FB831A5906FF00A7FFCC /* WSNetworkType.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
@@ -235,6 +236,8 @@
 		0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBitstamp.m; sourceTree = "<group>"; };
 		0EA1472C1A55C2B900AA400D /* WSWebTickerBlockchain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBlockchain.h; sourceTree = "<group>"; };
 		0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBlockchain.m; sourceTree = "<group>"; };
+		0EA9FB811A5906FF00A7FFCC /* WSNetworkType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSNetworkType.h; sourceTree = "<group>"; };
+		0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSNetworkType.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebExplorer.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
@@ -741,6 +744,8 @@
 		8C8ADFAC196786CA007787ED /* Parameters */ = {
 			isa = PBXGroup;
 			children = (
+				0EA9FB811A5906FF00A7FFCC /* WSNetworkType.h */,
+				0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */,
 				8C8ADFAD196786CA007787ED /* WSParameters.h */,
 				8C8ADFAE196786CA007787ED /* WSParameters.m */,
 				8C40245019853B54008FDC5F /* WSParametersFactory.h */,
@@ -1214,6 +1219,7 @@
 			files = (
 				8C8AE003196786CA007787ED /* WSErrors.m in Sources */,
 				8C9D4464196C10CE00E4C31C /* WSMessageGetheaders.m in Sources */,
+				0EA9FB831A5906FF00A7FFCC /* WSNetworkType.m in Sources */,
 				8C937E2D19699B760009B169 /* WSAbstractMessage.m in Sources */,
 				8C8AE00D196786CA007787ED /* WSMessageMempool.m in Sources */,
 				8C8AE000196786CA007787ED /* WSFilteredBlock.m in Sources */,

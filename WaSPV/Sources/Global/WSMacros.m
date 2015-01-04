@@ -136,9 +136,9 @@ inline WSKey *WSKeyFromHex(NSString *hex)
     return [WSKey keyWithData:[hex dataFromHex]];
 }
 
-inline WSKey *WSKeyFromWIF(NSString *wif)
+inline WSKey *WSKeyFromWIF(id<WSParameters> parameters, NSString *wif)
 {
-    return [WSKey keyWithWIF:wif];
+    return [WSKey keyWithWIF:wif parameters:parameters];
 }
 
 inline WSPublicKey *WSPublicKeyFromHex(NSString *hex)
@@ -146,24 +146,24 @@ inline WSPublicKey *WSPublicKeyFromHex(NSString *hex)
     return [WSPublicKey publicKeyWithData:[hex dataFromHex]];
 }
 
-inline WSAddress *WSAddressFromString(NSString *string)
+inline WSAddress *WSAddressFromString(id<WSParameters> parameters, NSString *string)
 {
-    return [[WSAddress alloc] initWithEncoded:string];
+    return [[WSAddress alloc] initWithParameters:parameters encoded:string];
 }
 
-inline WSAddress *WSAddressFromHex(NSString *hexString)
+inline WSAddress *WSAddressFromHex(id<WSParameters> parameters, NSString *hexString)
 {
-    return WSAddressFromString([hexString base58CheckFromHex]);
+    return WSAddressFromString(parameters, [hexString base58CheckFromHex]);
 }
 
-inline WSAddress *WSAddressP2PKHFromHash160(WSHash160 *hash160)
+inline WSAddress *WSAddressP2PKHFromHash160(id<WSParameters> parameters, WSHash160 *hash160)
 {
-    return [[WSAddress alloc] initWithVersion:[WSCurrentParameters publicKeyAddressVersion] hash160:hash160];
+    return [[WSAddress alloc] initWithParameters:parameters version:[parameters publicKeyAddressVersion] hash160:hash160];
 }
 
-inline WSAddress *WSAddressP2SHFromHash160(WSHash160 *hash160)
+inline WSAddress *WSAddressP2SHFromHash160(id<WSParameters> parameters, WSHash160 *hash160)
 {
-    return [[WSAddress alloc] initWithVersion:[WSCurrentParameters scriptAddressVersion] hash160:hash160];
+    return [[WSAddress alloc] initWithParameters:parameters version:[parameters scriptAddressVersion] hash160:hash160];
 }
 
 inline WSInventory *WSInventoryTx(WSHash256 *hash)
@@ -196,9 +196,9 @@ inline WSInventory *WSInventoryFilteredBlockFromHex(NSString *hex)
     return WSInventoryFilteredBlock(WSHash256FromHex(hex));
 }
 
-inline WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint64_t services)
+inline WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services)
 {
-    return [[WSNetworkAddress alloc] initWithServices:services ipv4Address:address port:[WSCurrentParameters peerPort]];
+    return [[WSNetworkAddress alloc] initWithServices:services ipv4Address:address port:port];
 }
 
 inline WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime)
@@ -291,54 +291,54 @@ inline WSScript *WSScriptFromHex(NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSScript alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
 inline WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSCoinbaseScript alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSCoinbaseScript alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSSignedTransaction *WSTransactionFromHex(NSString *hex)
+inline WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSSignedTransaction alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBlockHeader *WSBlockHeaderFromHex(NSString *hex)
+inline WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSBlockHeader alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBlock *WSBlockFromHex(NSString *hex)
+inline WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSBlock alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
 inline WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSPartialMerkleTree alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSPartialMerkleTree alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSFilteredBlock *WSFilteredBlockFromHex(NSString *hex)
+inline WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
-    return [[WSFilteredBlock alloc] initWithBuffer:buffer from:0 available:buffer.length error:NULL];
+    return [[WSFilteredBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBIP21URL *WSBIP21URLFromString(NSString *string)
+inline WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string)
 {
-    return [WSBIP21URL URLWithString:string];
+    return [WSBIP21URL URLWithParameters:parameters string:string];
 }
 
 inline WSBIP38Key *WSBIP38KeyFromString(NSString *string)

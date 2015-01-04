@@ -27,11 +27,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSNetworkType.h"
+
 @class WSHash256;
 @class WSKey;
 @class WSBIP38Key;
 @class WSAddress;
 @class WSSignedTransaction;
+
+#pragma mark -
 
 extern NSString *const WSWebExplorerProviderBiteasy;
 extern NSString *const WSWebExplorerProviderBlockExplorer;
@@ -42,7 +46,7 @@ extern NSString *const WSWebExplorerProviderBlockchain;
 
 @interface WSWebExplorerFactory : NSObject
 
-+ (id<WSWebExplorer>)explorerForProvider:(NSString *)provider;
++ (id<WSWebExplorer>)explorerForProvider:(NSString *)provider networkType:(WSNetworkType)networkType;
 
 @end
 
@@ -56,6 +60,9 @@ typedef enum {
 @protocol WSWebExplorer <NSObject>
 
 - (NSString *)provider;
+- (WSNetworkType)networkType;
+- (void)setNetworkType:(WSNetworkType)networkType;
+
 - (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash;
 
 - (void)buildSweepTransactionsFromKey:(WSKey *)fromKey

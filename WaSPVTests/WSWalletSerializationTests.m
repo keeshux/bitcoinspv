@@ -49,13 +49,13 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     self.path = [self mockPathForFile:@"WalletSerializationTests.wallet"];
 
     NSString *mnemonic = [self mockWalletMnemonic];
     WSSeed *seed = WSSeedMakeNow(mnemonic);
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:WALLET_GAP_LIMIT];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:seed gapLimit:WALLET_GAP_LIMIT];
     [self saveWallet:wallet];
 }
 
@@ -128,7 +128,7 @@
 {
     WSHDWallet *wallet = [self loadWallet];
 
-    WSAddress *expAddress = WSAddressFromString(@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP");
+    WSAddress *expAddress = WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP");
     WSKey *key = nil;
     WSAddress *address = nil;
 
@@ -136,7 +136,7 @@
 
     key = [wallet privateKeyForAddress:expAddress];
     XCTAssertNotNil(key);
-    address = [key address];
+    address = [key addressWithParameters:self.networkParameters];
     DDLogInfo(@"Address (eff): %@", address);
     DDLogInfo(@"Address (exp): %@", expAddress);
     XCTAssertEqualObjects(address, expAddress);
@@ -145,7 +145,7 @@
 
     key = [wallet privateKeyForAddress:expAddress];
     XCTAssertNotNil(key);
-    address = [key address];
+    address = [key addressWithParameters:self.networkParameters];
     DDLogInfo(@"Deserialized address (eff): %@", address);
     DDLogInfo(@"Deserialized address (exp): %@", expAddress);
     XCTAssertEqualObjects(address, expAddress);
@@ -158,7 +158,7 @@
 
 - (WSHDWallet *)loadWallet
 {
-    return [WSHDWallet loadFromPath:self.path seed:[self mockWalletSeed]];
+    return [WSHDWallet loadFromPath:self.path parameters:self.networkParameters seed:[self mockWalletSeed]];
 }
 
 - (WSHDWallet *)rehashWallet:(WSHDWallet *)wallet

@@ -45,7 +45,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
 
     self.hosts = @[@"107.170.104.227",
                    @"95.78.127.77",

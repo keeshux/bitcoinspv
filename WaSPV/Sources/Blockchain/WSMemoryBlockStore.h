@@ -29,8 +29,10 @@
 
 #import "WSBlockStore.h"
 
+@class WSFilteredBlock;
+
 @interface WSMemoryBlockStore : NSObject <WSBlockStore>
 
-- (instancetype)initWithGenesisBlock;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
 
 @end

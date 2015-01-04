@@ -38,6 +38,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 
 @interface WSBIP21URLBuilder ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, copy) NSString *label;
 @property (nonatomic, strong) WSAddress *address;
 @property (nonatomic, copy) NSString *message;
@@ -106,19 +107,20 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 @property (nonatomic, assign) uint64_t amount;
 @property (nonatomic, copy) NSDictionary *others;
 
-- (instancetype)initWithString:(NSString *)string;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters string:(NSString *)string;
 
 @end
 
 @implementation WSBIP21URL
 
-+ (instancetype)URLWithString:(NSString *)string
++ (instancetype)URLWithParameters:(id<WSParameters>)parameters string:(NSString *)string
 {
-    return [[self alloc] initWithString:string];
+    return [[self alloc] initWithParameters:parameters string:string];
 }
 
-- (instancetype)initWithString:(NSString *)string
+- (instancetype)initWithParameters:(id<WSParameters>)parameters string:(NSString *)string
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(string != nil, @"Nil string");
 
     NSRegularExpression *rx = [NSRegularExpression regularExpressionWithPattern:WSBIP21URLRegex options:0 error:NULL];
@@ -131,7 +133,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
     NSTextCheckingResult *result = [matches firstObject];
 
     NSString *addressString = [string substringWithRange:[result rangeAtIndex:1]];
-    WSAddress *address = [[WSAddress alloc] initWithEncoded:addressString];
+    WSAddress *address = [[WSAddress alloc] initWithParameters:parameters encoded:addressString];
     if (!address) {
         DDLogDebug(@"Invalid address '%@' in URL (%@)", addressString, string);
         return nil;

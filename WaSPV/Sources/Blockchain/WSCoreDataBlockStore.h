@@ -30,12 +30,13 @@
 #import "WSBlockStore.h"
 
 @class WSCoreDataManager;
+@class WSFilteredBlock;
 
 #pragma mark -
 
 @interface WSCoreDataBlockStore : NSObject <WSBlockStore>
 
-- (instancetype)initWithManager:(WSCoreDataManager *)manager;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters manager:(WSCoreDataManager *)manager;
 - (WSCoreDataManager *)manager;
 
 @end

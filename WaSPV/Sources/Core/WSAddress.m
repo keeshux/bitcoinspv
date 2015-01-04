@@ -37,6 +37,7 @@
 
 @interface WSAddress ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, assign) uint8_t version;
 @property (nonatomic, strong) WSHash160 *hash160;
 @property (nonatomic, strong) NSString *encoded;
@@ -45,14 +46,16 @@
 
 @implementation WSAddress
 
-- (instancetype)initWithVersion:(uint8_t)version hash160:(WSHash160 *)hash160
+- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint8_t)version hash160:(WSHash160 *)hash160
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(hash160 != nil, @"Nil hash160");
-    WSExceptionCheckIllegal((version == [WSCurrentParameters publicKeyAddressVersion]) ||
-                            (version == [WSCurrentParameters scriptAddressVersion]),
+    WSExceptionCheckIllegal((version == [parameters publicKeyAddressVersion]) ||
+                            (version == [parameters scriptAddressVersion]),
                              @"Unrecognized address version (%u)", version);
 
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.version = version;
         self.hash160 = hash160;
 
@@ -64,8 +67,9 @@
     return self;
 }
 
-- (instancetype)initWithEncoded:(NSString *)encoded
+- (instancetype)initWithParameters:(id<WSParameters>)parameters encoded:(NSString *)encoded
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(encoded != nil, @"Nil encoded");
     
     NSData *data = [encoded dataFromBase58Check];
@@ -75,8 +79,8 @@
     }
     
     const uint8_t version = *(const uint8_t *)data.bytes;
-    if ((version != [WSCurrentParameters publicKeyAddressVersion]) &&
-        (version != [WSCurrentParameters scriptAddressVersion])) {
+    if ((version != [parameters publicKeyAddressVersion]) &&
+        (version != [parameters scriptAddressVersion])) {
         
         DDLogVerbose(@"Unrecognized Bitcoin address version (%u)", version);
         return nil;
@@ -85,6 +89,7 @@
     NSData *hash160Data = [data subdataWithRange:NSMakeRange(1, data.length - 1)];
     
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.version = version;
         self.hash160 = WSHash160FromData(hash160Data);
         self.encoded = [encoded copy];

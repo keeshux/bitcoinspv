@@ -31,8 +31,26 @@
 
 // XXX: I know, but CFRunLoopStop is useless and category properties are overkill
 static volatile BOOL running;
+static id<WSParameters> networkParameters;
 
 @implementation XCTestCase (WaSPV)
+
+- (WSNetworkType)networkType
+{
+    return [networkParameters networkType];
+}
+
+- (void)setNetworkType:(WSNetworkType)networkType
+{
+    networkParameters = [[WSParametersFactory sharedInstance] parametersForNetworkType:networkType];
+}
+
+- (id<WSParameters>)networkParameters
+{
+    NSAssert(networkParameters, @"Forgot to set networkType?");
+    
+    return networkParameters;
+}
 
 - (NSString *)mockWalletMnemonic
 {

@@ -48,16 +48,16 @@
     self.scriptData = [[input.script toBuffer] data];
 }
 
-- (WSSignedTransactionInput *)toSignedInput
+- (WSSignedTransactionInput *)toSignedInputWithParameters:(id<WSParameters>)parameters
 {
-    WSTransactionOutPoint *outpoint = [self.outpoint toOutpoint];
+    WSTransactionOutPoint *outpoint = [self.outpoint toOutpointWithParameters:parameters];
     WSBuffer *scriptBuffer = [[WSBuffer alloc] initWithData:self.scriptData];
     WSScript *script = nil;
     if (outpoint.isCoinbase) {
         script = [WSCoinbaseScript scriptWithCoinbaseData:self.scriptData];
     }
     else {
-        script = [[WSScript alloc] initWithBuffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];
+        script = [[WSScript alloc] initWithParameters:nil buffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];
     }
     const uint32_t sequence = (uint32_t)[self.sequence unsignedIntegerValue];
 

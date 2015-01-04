@@ -85,7 +85,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithBuffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSFilteredBlockBaseSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSFilteredBlockBaseSize);
@@ -94,7 +94,7 @@
     NSUInteger offset = from;
     NSUInteger varIntLength;
     
-    WSBlockHeader *header = [[WSBlockHeader alloc] initWithBuffer:buffer from:offset available:available error:error];
+    WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:offset available:available error:error];
     if (!header) {
         return nil;
     }
@@ -105,7 +105,7 @@
 
     NSMutableOrderedSet *transactions = [[NSMutableOrderedSet alloc] initWithCapacity:txCount];
     for (NSUInteger i = 0; i < txCount; ++i) {
-        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithBuffer:buffer from:offset available:(available - offset + from) error:error];
+        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:offset available:(available - offset + from) error:error];
         if (!tx) {
             return nil;
         }

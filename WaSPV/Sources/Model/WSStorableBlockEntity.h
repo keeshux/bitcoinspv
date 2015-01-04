@@ -33,6 +33,7 @@
 
 @class WSBlockHeaderEntity;
 @class WSTransactionEntity;
+@protocol WSParameters;
 
 @interface WSStorableBlockEntity : NSManagedObject
 
@@ -42,7 +43,7 @@
 @property (nonatomic, retain) NSOrderedSet *transactions;
 
 - (void)copyFromStorableBlock:(WSStorableBlock *)block;
-- (WSStorableBlock *)toStorableBlock;
+- (WSStorableBlock *)toStorableBlockWithParameters:(id<WSParameters>)parameters;
 
 @end
 

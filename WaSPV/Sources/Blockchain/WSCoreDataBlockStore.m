@@ -43,6 +43,7 @@
 
 @interface WSCoreDataBlockStore ()
 
+@property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 @property (nonatomic, strong) WSCoreDataManager *manager;
 @property (nonatomic, strong) WSStorableBlock *head;
 @property (nonatomic, strong) NSMutableDictionary *cachedBlockEntities;         // NSData -> WSStorableBlockEntity
@@ -58,13 +59,17 @@
 
 - (instancetype)init
 {
-    WSExceptionRaiseUnsupported(@"Use initWithManager:");
+    WSExceptionRaiseUnsupported(@"Use initWithParameters:manager:");
     return nil;
 }
 
-- (instancetype)initWithManager:(WSCoreDataManager *)manager
+- (instancetype)initWithParameters:(id<WSParameters>)parameters manager:(WSCoreDataManager *)manager
 {
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(manager != nil, @"Nil manager");
+    
     if ((self = [super init])) {
+        self.genesisBlock = [parameters genesisBlock];
         self.manager = manager;
         self.cachedBlockEntities = [[NSMutableDictionary alloc] init];
         self.cachedTxIdsToBlockEntities = [[NSMutableDictionary alloc] init];
@@ -89,7 +94,7 @@
             }
             else {
                 WSStorableBlockEntity *headEntity = [blockEntities firstObject];
-                self.head = [headEntity toStorableBlock];
+                self.head = [headEntity toStorableBlockWithParameters:self.parameters];
 
                 for (WSStorableBlockEntity *blockEntity in blockEntities) {
                     self.cachedBlockEntities[blockEntity.header.blockIdData] = blockEntity;
@@ -106,6 +111,11 @@
 
 #pragma mark WSBlockStore
 
+- (id<WSParameters>)parameters
+{
+    return self.head.parameters;
+}
+
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId
 {
     WSExceptionCheckIllegal(blockId != nil, @"Nil blockId");
@@ -117,7 +127,7 @@
         }];
     }
 
-    return [blockEntity toStorableBlock];
+    return [blockEntity toStorableBlockWithParameters:self.parameters];
 }
 
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
@@ -141,7 +151,7 @@
         return nil;
     }
     
-    return [txEntity toSignedTransaction];
+    return [txEntity toSignedTransactionWithParameters:self.parameters];
 }
 
 - (void)putBlock:(WSStorableBlock *)block
@@ -248,8 +258,7 @@
 
 - (void)unsafeInsertGenesisBlock
 {
-    WSFilteredBlock *genesisBlock = [WSCurrentParameters genesisBlock];
-    self.head = [[WSStorableBlock alloc] initWithHeader:genesisBlock.header transactions:nil height:0];
+    self.head = [[WSStorableBlock alloc] initWithHeader:self.genesisBlock.header transactions:nil height:0];
     
     WSStorableBlockEntity *headEntity = [[WSStorableBlockEntity alloc] initWithContext:self.manager.context];
     [headEntity copyFromStorableBlock:self.head];

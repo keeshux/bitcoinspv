@@ -62,28 +62,28 @@
 
 - (void)testSerializeMain
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     [self privateTestSerialize];
 }
 
 - (void)testDeserializeMain
 {
-    WSParametersSetCurrentType(WSParametersTypeMain);
+    self.networkType = WSNetworkTypeMain;
 
     [self privateTestDeserialize];
 }
 
 - (void)testSerializeTestnet3
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     [self privateTestSerialize];
 }
 
 - (void)testDeserializeTestnet3
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.networkType = WSNetworkTypeTestnet3;
     
     [self privateTestDeserialize];
 }

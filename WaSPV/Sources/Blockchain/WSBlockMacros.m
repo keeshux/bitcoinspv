@@ -32,12 +32,14 @@
 // difficulty = maxTarget / target > 1.0
 // maxDifficulty = maxTarget / maxTarget = 1.0
 //
-static inline void WSBlockGetDifficultyInteger(BIGNUM *diffInteger, BIGNUM *diffFraction, const BIGNUM *target)
+static inline void WSBlockGetDifficultyInteger(id<WSParameters> parameters, BIGNUM *diffInteger, BIGNUM *diffFraction, const BIGNUM *target)
 {
+    NSCParameterAssert(parameters);
+    
     BIGNUM maxTarget;
     
     BN_init(&maxTarget);
-    WSBlockSetBits(&maxTarget, [WSCurrentParameters maxProofOfWork]);
+    WSBlockSetBits(&maxTarget, [parameters maxProofOfWork]);
     
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
@@ -48,7 +50,7 @@ static inline void WSBlockGetDifficultyInteger(BIGNUM *diffInteger, BIGNUM *diff
     BN_free(&maxTarget);
 }
 
-NSData *WSBlockGetDifficultyFromBits(uint32_t bits)
+NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits)
 {
     BIGNUM target;
     BIGNUM diffInteger;
@@ -59,7 +61,7 @@ NSData *WSBlockGetDifficultyFromBits(uint32_t bits)
     BN_init(&diffFraction);
     
     WSBlockSetBits(&target, bits);
-    WSBlockGetDifficultyInteger(&diffInteger, &diffFraction, &target);
+    WSBlockGetDifficultyInteger(parameters, &diffInteger, &diffFraction, &target);
     NSData *difficulty = WSBlockDataFromWork(&diffInteger);
     
     BN_free(&target);
@@ -69,7 +71,7 @@ NSData *WSBlockGetDifficultyFromBits(uint32_t bits)
     return difficulty;
 }
 
-NSString *WSBlockGetDifficultyStringFromBits(uint32_t bits)
+NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits)
 {
     BIGNUM target;
     BIGNUM diffInteger;
@@ -82,7 +84,7 @@ NSString *WSBlockGetDifficultyStringFromBits(uint32_t bits)
     WSBlockSetBits(&target, bits);
 //    WSBlockGetDifficultyInteger(&diffInteger, &diffFraction, &target);
 //    NSString *string = [NSString stringWithFormat:@"%s.%s", BN_bn2dec(&diffInteger), BN_bn2dec(&diffFraction)];
-    WSBlockGetDifficultyInteger(&diffInteger, NULL, &target);
+    WSBlockGetDifficultyInteger(parameters, &diffInteger, NULL, &target);
     NSString *string = [NSString stringWithUTF8String:BN_bn2dec(&diffInteger)];
     
     BN_free(&target);
