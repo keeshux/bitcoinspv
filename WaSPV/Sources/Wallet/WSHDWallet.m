@@ -648,6 +648,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         if (![wallet isKindOfClass:[WSHDWallet class]]) {
             return nil;
         }
+        wallet.parameters = parameters;
         wallet.path = path;
         [wallet loadSensitiveDataWithParameters:parameters seed:seed chainsPath:chainsPath];
         [wallet rebuildTransientStructures];
