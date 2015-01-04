@@ -34,7 +34,7 @@
 
 @interface WSAbstractMessage : NSObject <WSMessage, WSIndentableDescription>
 
-+ (instancetype)message;
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters originalPayload:(WSBuffer *)originalPayload;
 

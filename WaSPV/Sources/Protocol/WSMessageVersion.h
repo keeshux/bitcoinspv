@@ -31,11 +31,12 @@
 
 @interface WSMessageVersion : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithVersion:(uint32_t)version
-                          services:(uint64_t)services
-              remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
-                         localPort:(uint16_t)localPort
-                 relayTransactions:(uint8_t)relayTransactions;
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters
+                              version:(uint32_t)version
+                             services:(uint64_t)services
+                 remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
+                            localPort:(uint16_t)localPort
+                    relayTransactions:(uint8_t)relayTransactions;
 
 - (uint32_t)version;
 - (uint64_t)services;

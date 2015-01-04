@@ -34,22 +34,22 @@
 
 @property (nonatomic, strong) WSSignedTransaction *transaction;
 
-- (instancetype)initWithTransaction:(WSSignedTransaction *)transaction;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction;
 
 @end
 
 @implementation WSMessageTx
 
-+ (instancetype)messageWithTransaction:(WSSignedTransaction *)transaction
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction
 {
-    return [[self alloc] initWithTransaction:transaction];
+    return [[self alloc] initWithParameters:parameters transaction:transaction];
 }
 
-- (instancetype)initWithTransaction:(WSSignedTransaction *)transaction
+- (instancetype)initWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction
 {
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
     
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.transaction = transaction;
     }
     return self;

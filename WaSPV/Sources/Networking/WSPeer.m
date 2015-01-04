@@ -434,11 +434,12 @@
     
     dispatch_async(self.connectionQueue, ^{
         WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithServices:_remoteServices ipv4Address:self.remoteAddress port:_remotePort];
-        WSMessageVersion *message = [WSMessageVersion messageWithVersion:WSPeerProtocol
-                                                                services:WSPeerEnabledServices
-                                                    remoteNetworkAddress:networkAddress
-                                                               localPort:[self.parameters peerPort]
-                                                       relayTransactions:relayTransactions];
+        WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
+                                                                    version:WSPeerProtocol
+                                                                   services:WSPeerEnabledServices
+                                                       remoteNetworkAddress:networkAddress
+                                                                  localPort:[self.parameters peerPort]
+                                                          relayTransactions:relayTransactions];
 
         _nonce = message.nonce;
         _connectionStartTime = [NSDate timeIntervalSinceReferenceDate];
@@ -459,7 +460,7 @@
             }
         }
         
-        [self unsafeSendMessage:[WSMessageVerack message]];
+        [self unsafeSendMessage:[WSMessageVerack messageWithParameters:self.parameters]];
         @synchronized (self) {
             _didSendVerack = YES;
         }
@@ -480,7 +481,7 @@
     WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
 
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageInv messageWithInventories:inventories]];
+        [self unsafeSendMessage:[WSMessageInv messageWithParameters:self.parameters inventories:inventories]];
     });
 }
 
@@ -546,9 +547,9 @@
             });
         }
 
-        [self unsafeSendMessage:[WSMessageGetdata messageWithInventories:inventories]];
+        [self unsafeSendMessage:[WSMessageGetdata messageWithParameters:self.parameters inventories:inventories]];
         if (willRequestFilteredBlocks) {
-            [self unsafeSendMessage:[WSMessagePing message]];
+            [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
         }
     });
 }
@@ -559,7 +560,7 @@
     WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
 
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageNotfound messageWithInventories:inventories]];
+        [self unsafeSendMessage:[WSMessageNotfound messageWithParameters:self.parameters inventories:inventories]];
     });
 }
 
@@ -569,7 +570,7 @@
     WSExceptionCheckIllegal(locator != nil, @"Nil locator");
     
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageGetblocks messageWithVersion:WSPeerProtocol locator:locator hashStop:hashStop]];
+        [self unsafeSendMessage:[WSMessageGetblocks messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
     });
 }
 
@@ -579,7 +580,7 @@
     WSExceptionCheckIllegal(locator != nil, @"Nil locator");
     
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageGetheaders messageWithVersion:WSPeerProtocol locator:locator hashStop:hashStop]];
+        [self unsafeSendMessage:[WSMessageGetheaders messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
     });
 }
 
@@ -589,7 +590,7 @@
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
 
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageTx messageWithTransaction:transaction]];
+        [self unsafeSendMessage:[WSMessageTx messageWithParameters:self.parameters transaction:transaction]];
     });
 }
 
@@ -598,7 +599,7 @@
     NSAssert(self.connectionQueue, @"Not connected");
     
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageGetaddr message]];
+        [self unsafeSendMessage:[WSMessageGetaddr messageWithParameters:self.parameters]];
     });
 }
 
@@ -607,7 +608,7 @@
     NSAssert(self.connectionQueue, @"Not connected");
     
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessageMempool message]];
+        [self unsafeSendMessage:[WSMessageMempool messageWithParameters:self.parameters]];
     });
 }
 
@@ -619,7 +620,7 @@
         @synchronized (self) {
             NSAssert(_nonce, @"Nonce not set, is handshake complete?");
         }
-        [self unsafeSendMessage:[WSMessagePing message]];
+        [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
     });
 }
 
@@ -628,7 +629,7 @@
     NSAssert(self.connectionQueue, @"Not connected");
     
     dispatch_async(self.connectionQueue, ^{
-        [self unsafeSendMessage:[WSMessagePong messageWithNonce:nonce]];
+        [self unsafeSendMessage:[WSMessagePong messageWithParameters:self.parameters nonce:nonce]];
     });
 }
 
@@ -641,7 +642,7 @@
         @synchronized (self) {
             _filteredBlockCount = 0;
         }
-        [self unsafeSendMessage:[WSMessageFilterload messageWithFilter:filter]];
+        [self unsafeSendMessage:[WSMessageFilterload messageWithParameters:self.parameters filter:filter]];
     });
 }
 

@@ -32,20 +32,20 @@
 
 @property (nonatomic, assign) uint64_t nonce;
 
-- (instancetype)initWithNonce:(uint64_t)nonce;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce;
 
 @end
 
 @implementation WSMessagePong
 
-+ (instancetype)messageWithNonce:(uint64_t)nonce
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce
 {
-    return [[self alloc] initWithNonce:nonce];
+    return [[self alloc] initWithParameters:parameters nonce:nonce];
 }
 
-- (instancetype)initWithNonce:(uint64_t)nonce
+- (instancetype)initWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce
 {
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.nonce = nonce;
     }
     return self;

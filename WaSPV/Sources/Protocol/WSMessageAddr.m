@@ -36,23 +36,23 @@
 @property (nonatomic, strong) NSArray *addresses;
 @property (nonatomic, strong) NSArray *timestamps;
 
-- (instancetype)initWithAddresses:(NSArray *)addresses timestamps:(NSArray *)timestamps;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps;
 
 @end
 
 @implementation WSMessageAddr
 
-+ (instancetype)messageWithAddresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
 {
-    return [[self alloc] initWithAddresses:addresses timestamps:timestamps];
+    return [[self alloc] initWithParameters:parameters addresses:addresses timestamps:timestamps];
 }
 
-- (instancetype)initWithAddresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
+- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
 {
     WSExceptionCheckIllegal((addresses.count > 0) && (timestamps.count > 0), @"Empty addresses or timestamps");
     WSExceptionCheckIllegal(addresses.count == timestamps.count, @"Addresses count and timestamps count do not match");
 
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.addresses = addresses;
         self.timestamps = timestamps;
     }

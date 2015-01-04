@@ -33,23 +33,23 @@
 
 @property (nonatomic, strong) NSArray *inventories;
 
-- (instancetype)initWithInventories:(NSArray *)inventories;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories;
 
 @end
 
 @implementation WSAbstractMessageInventoryBased
 
-+ (instancetype)messageWithInventories:(NSArray *)inventories
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories
 {
-    return [[self alloc] initWithInventories:inventories];
+    return [[self alloc] initWithParameters:parameters inventories:inventories];
 }
 
-- (instancetype)initWithInventories:(NSArray *)inventories
+- (instancetype)initWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories
 {
     WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
     WSExceptionCheckIllegal(inventories.count <= WSMessageMaxInventories, @"Too many inventories (%u > %u)", inventories.count, WSMessageMaxInventories);
     
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.inventories = inventories;
     }
     return self;

@@ -37,22 +37,22 @@
 @property (nonatomic, strong) WSBlockLocator *locator;
 @property (nonatomic, strong) WSHash256 *hashStop;
 
-- (instancetype)initWithVersion:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
 
 @end
 
 @implementation WSAbstractMessageLocatorBased
 
-+ (instancetype)messageWithVersion:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
-    return [[self alloc] initWithVersion:version locator:locator hashStop:hashStop];
+    return [[self alloc] initWithParameters:parameters version:version locator:locator hashStop:hashStop];
 }
 
-- (instancetype)initWithVersion:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
+- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
     WSExceptionCheckIllegal(locator != nil, @"Nil locator");
     
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.version = version;
         self.locator = locator;
         self.hashStop = (hashStop ? hashStop : WSHash256Zero());

@@ -32,22 +32,22 @@
 
 @property (nonatomic, strong) WSBloomFilter *filter;
 
-- (instancetype)initWithFilter:(WSBloomFilter *)filter;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters filter:(WSBloomFilter *)filter;
 
 @end
 
 @implementation WSMessageFilterload
 
-+ (instancetype)messageWithFilter:(WSBloomFilter *)filter
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters filter:(WSBloomFilter *)filter
 {
-    return [[self alloc] initWithFilter:filter];
+    return [[self alloc] initWithParameters:parameters filter:filter];
 }
 
-- (instancetype)initWithFilter:(WSBloomFilter *)filter
+- (instancetype)initWithParameters:(id<WSParameters>)parameters filter:(WSBloomFilter *)filter
 {
     WSExceptionCheckIllegal(filter != nil, @"Nil filter");
 
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.filter = filter;
     }
     return self;

@@ -34,24 +34,24 @@
 @property (nonatomic, assign) uint8_t code;
 @property (nonatomic, copy) NSString *reason;
 
-- (instancetype)initWithMessage:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
 
 @end
 
 @implementation WSMessageReject
 
-+ (instancetype)messageWithMessage:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
 {
-    return [[self alloc] initWithMessage:message code:code reason:reason];
+    return [[self alloc] initWithParameters:parameters message:message code:code reason:reason];
 }
 
-- (instancetype)initWithMessage:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
+- (instancetype)initWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
 {
     WSExceptionCheckIllegal(message != nil, @"Nil message");
     WSExceptionCheckIllegal(code <= 0x4f, @"Code > 0x4f");
     WSExceptionCheckIllegal(reason != nil, @"Nil reason");
     
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.message = message;
         self.code = code;
         self.reason = reason;

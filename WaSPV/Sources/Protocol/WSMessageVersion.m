@@ -44,23 +44,39 @@
 @property (nonatomic, assign) uint32_t lastBlockHeight;
 @property (nonatomic, assign) uint8_t relayTransactions;
 
-- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                          services:(uint64_t)services
+              remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
+                         localPort:(uint16_t)localPort
+                 relayTransactions:(uint8_t)relayTransactions;
+
 + (NSString *)userAgent;
 
 @end
 
 @implementation WSMessageVersion
 
-+ (instancetype)messageWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters
+                              version:(uint32_t)version
+                             services:(uint64_t)services
+                 remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
+                            localPort:(uint16_t)localPort
+                    relayTransactions:(uint8_t)relayTransactions
 {
-    return [[self alloc] initWithVersion:version services:services remoteNetworkAddress:remoteNetworkAddress localPort:localPort relayTransactions:relayTransactions];
+    return [[self alloc] initWithParameters:parameters version:version services:services remoteNetworkAddress:remoteNetworkAddress localPort:localPort relayTransactions:relayTransactions];
 }
 
-- (instancetype)initWithVersion:(uint32_t)version services:(uint64_t)services remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress localPort:(uint16_t)localPort relayTransactions:(uint8_t)relayTransactions
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                          services:(uint64_t)services
+              remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
+                         localPort:(uint16_t)localPort
+                 relayTransactions:(uint8_t)relayTransactions
 {
     WSExceptionCheckIllegal(remoteNetworkAddress != nil, @"Nil remoteNetworkAddress");
 
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.version = version;
         self.services = services;
         self.timestamp = WSCurrentTimestamp();

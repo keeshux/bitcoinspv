@@ -41,9 +41,15 @@
 
 @implementation WSAbstractMessage
 
-+ (instancetype)message
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters
 {
-    return [[self alloc] init];
+    return [[self alloc] initWithParameters:parameters];
+}
+
+- (instancetype)init
+{
+    WSExceptionRaiseUnsupported(@"Use initWithParameters:");
+    return nil;
 }
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
@@ -56,6 +62,7 @@
     WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     
     if ((self = [super init])) {
+        self.parameters = parameters;
         if (originalPayload) {
             self.originalPayload = [[WSBuffer alloc] initWithData:originalPayload.data];
         }
@@ -65,6 +72,8 @@
 
 - (WSBuffer *)toNetworkBufferWithHeaderLength:(NSUInteger *)headerLength
 {
+    NSAssert(self.parameters, @"Message built without network parameters");
+
     WSBuffer *payload = [self toBuffer];
     NSAssert(payload, @"Payload can be empty but not nil");
 
