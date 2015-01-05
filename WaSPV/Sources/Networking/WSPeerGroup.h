@@ -66,6 +66,7 @@
 // connection
 - (BOOL)startConnections;
 - (BOOL)stopConnections;
+- (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock;
 - (BOOL)isStarted;
 - (BOOL)isConnected;
 

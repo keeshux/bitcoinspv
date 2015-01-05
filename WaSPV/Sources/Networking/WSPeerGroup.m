@@ -243,9 +243,44 @@
 - (BOOL)stopConnections
 {
     @synchronized (self.queue) {
+        self.keepDownloading = NO;
         self.keepConnected = NO;
         [self disconnect];
         return YES;
+    }
+}
+
+- (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock
+{
+    @synchronized (self.queue) {
+        if ([self isConnected]) {
+            __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                
+                if (completionBlock) {
+                    completionBlock();
+                }
+            }];
+            
+            //
+            // WARNING
+            //
+            // do not nil peerGroup strong references until disconnection!
+            //
+            // WSPeer objects would not call peer:didDisconnectWithError: because peerGroup is
+            // their (weak) delegate and would be deallocated prematurely
+            //
+            // as a consequence, peerGroup wouldn't exist anymore and would never report
+            // any WSPeerGroupDidDisconnectNotification resulting in completionBlock
+            // never called
+            //
+            [self stopConnections];
+        }
+        else {
+            if (completionBlock) {
+                completionBlock();
+            }
+        }
     }
 }
 
@@ -559,10 +594,6 @@
 - (BOOL)stopBlockChainDownload
 {
     @synchronized (self.queue) {
-        if (!self.keepDownloading) {
-            DDLogVerbose(@"Ignoring call because not downloading");
-            return NO;
-        }
         self.keepDownloading = NO;
         if (self.downloadPeer) {
 
