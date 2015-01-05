@@ -261,14 +261,16 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (WSAddress *)receiveAddress
 {
     @synchronized (self) {
-        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] addressWithParameters:self.parameters];
+//        return [[self.safeExternalChain publicKeyForAccount:_currentExternalAccount] addressWithParameters:self.parameters];
+        return _allExternalAddresses[_currentExternalAccount];
     }
 }
 
 - (WSAddress *)changeAddress
 {
     @synchronized (self) {
-        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] addressWithParameters:self.parameters];
+//        return [[self.safeInternalChain publicKeyForAccount:_currentInternalAccount] addressWithParameters:self.parameters];
+        return _allInternalAddresses[_currentInternalAccount];
     }
 }
 
