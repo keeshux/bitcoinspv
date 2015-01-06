@@ -104,7 +104,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (id<WSBIP32Keyring>)safeInternalChain;
 
 - (void)setPath:(NSString *)path;
-- (void)loadSensitiveDataWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
+- (void)loadSensitiveDataWithSeed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
 - (void)rebuildTransientStructures;
 - (void)unloadSensitiveData;
 
@@ -146,7 +146,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         _usedAddresses = [[NSMutableSet alloc] init];
         _metadataByTxId = [[NSMutableDictionary alloc] init];
         
-        [self loadSensitiveDataWithParameters:parameters seed:seed chainsPath:chainsPath];
+        [self loadSensitiveDataWithSeed:seed chainsPath:chainsPath];
         [self rebuildTransientStructures];
     }
     return self;
@@ -649,23 +649,30 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         if (![wallet isKindOfClass:[WSHDWallet class]]) {
             return nil;
         }
-        wallet.parameters = parameters;
+
+        // safe check on singletons
+        WSExceptionCheckIllegal(parameters == wallet.parameters,
+                                @"Wallet created on '%@' network (expected: '%@')",
+                                WSNetworkTypeString([wallet.parameters networkType]),
+                                WSNetworkTypeString([parameters networkType]));
+
         wallet.path = path;
-        [wallet loadSensitiveDataWithParameters:parameters seed:seed chainsPath:chainsPath];
+        [wallet loadSensitiveDataWithSeed:seed chainsPath:chainsPath];
         [wallet rebuildTransientStructures];
         return wallet;
     }
 }
 
-- (void)loadSensitiveDataWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
+- (void)loadSensitiveDataWithSeed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
 {
-    NSParameterAssert(parameters);
     NSParameterAssert(seed);
     NSParameterAssert(chainsPath);
     
+    NSAssert(self.parameters, @"Parameters not set (check init* and loadFromPath*)");
+
     @synchronized (self) {
         _seed = seed;
-        WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithParameters:parameters data:[_seed derivedKeyData]];
+        WSHDKeyring *keyring = [[WSHDKeyring alloc] initWithParameters:self.parameters data:[_seed derivedKeyData]];
         _externalChain = [keyring keyringAtPath:[NSString stringWithFormat:@"%@/0", chainsPath]];
         _internalChain = [keyring keyringAtPath:[NSString stringWithFormat:@"%@/1", chainsPath]];
     }
@@ -1377,16 +1384,13 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 #pragma mark AutoCoding
 
-//- (id)initWithCoder:(NSCoder *)aDecoder
-//{
-//    if ((self = [super initWithCoder:aDecoder])) {
-//        WSExceptionCheckIllegal(_networkType == WSParametersGetCurrentType(),
-//                                @"Wallet created on '%@' network (current: '%@')",
-//                                WSNetworkTypeString(_networkType),
-//                                WSParametersGetCurrentTypeString());
-//    }
-//    return self;
-//}
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if ((self = [super initWithCoder:aDecoder])) {
+        self.parameters = WSParametersForNetworkType(_networkType);
+    }
+    return self;
+}
 
 + (NSDictionary *)codableProperties
 {

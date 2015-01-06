@@ -151,6 +151,13 @@
     XCTAssertEqualObjects(address, expAddress);
 }
 
+- (void)testNetworkMismatch
+{
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:self.path parameters:WSParametersForNetworkType(WSNetworkTypeTestnet3) seed:[self mockWalletSeed]];
+
+    XCTAssertTrue(wallet);
+}
+
 - (void)saveWallet:(WSHDWallet *)wallet
 {
     [wallet saveToPath:self.path];
