@@ -250,37 +250,46 @@
     }
 }
 
+//
+// WARNING
+//
+// do not nil peerGroup strong references until disconnection!
+//
+// WSPeer objects would not call peer:didDisconnectWithError: because peerGroup is
+// their (weak) delegate and would be deallocated prematurely
+//
+// as a consequence, peerGroup wouldn't exist anymore and would never report
+// any WSPeerGroupDidDisconnectNotification resulting in completionBlock
+// never called
+//
 - (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock
 {
+    __block id observer;
+    __block void (^onceCompletionBlock)() = completionBlock;
+    BOOL notConnected = NO;
+
     @synchronized (self.queue) {
+        [self stopConnections];
+
         if ([self isConnected]) {
-            __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-                [[NSNotificationCenter defaultCenter] removeObserver:observer];
-                
-                if (completionBlock) {
-                    completionBlock();
+            observer = [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+                if (observer) {
+                    [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                }
+                if (onceCompletionBlock) {
+                    onceCompletionBlock();
+                    onceCompletionBlock = NULL;
                 }
             }];
-            
-            //
-            // WARNING
-            //
-            // do not nil peerGroup strong references until disconnection!
-            //
-            // WSPeer objects would not call peer:didDisconnectWithError: because peerGroup is
-            // their (weak) delegate and would be deallocated prematurely
-            //
-            // as a consequence, peerGroup wouldn't exist anymore and would never report
-            // any WSPeerGroupDidDisconnectNotification resulting in completionBlock
-            // never called
-            //
-            [self stopConnections];
         }
         else {
-            if (completionBlock) {
-                completionBlock();
-            }
+            notConnected = YES;
         }
+    }
+    
+    if (notConnected && onceCompletionBlock) {
+        onceCompletionBlock();
+        onceCompletionBlock = NULL;
     }
 }
 
