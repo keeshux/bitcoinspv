@@ -59,8 +59,9 @@
         DDLogDebug(@"\t%@", entity.name);
     }
     
+    NSURL *storeURL = [[NSURL fileURLWithPath:path] absoluteURL];
     NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
-    NSPersistentStore *store = [[self class] createPersistentStoreWithURL:[NSURL fileURLWithPath:path] forCoordinator:coordinator error:error];
+    NSPersistentStore *store = [[self class] createPersistentStoreWithURL:storeURL forCoordinator:coordinator error:error];
     if (!store) {
         return nil;
     }
@@ -89,8 +90,8 @@
     NSPersistentStore *store = [coordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                          configuration:nil
                                                                    URL:url
-                                                               options:@{NSMigratePersistentStoresAutomaticallyOption:@(YES),
-                                                                         NSInferMappingModelAutomaticallyOption:@(YES)}
+                                                               options:@{NSMigratePersistentStoresAutomaticallyOption: @(YES),
+                                                                         NSInferMappingModelAutomaticallyOption: @(YES)}
                                                                  error:&localError];
 
     if (!store) {
