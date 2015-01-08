@@ -37,14 +37,14 @@
 - (void)setUp
 {
     [super setUp];
-
+    
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     WSMutableBuffer *checkpoints = [[WSMutableBuffer alloc] initWithCapacity:(128 * 1024)];
 
     [nc addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
         
-        if (block.height % (10 * [WSCurrentParameters retargetInterval]) == 0) {
+        if (block.height % (10 * [self.networkParameters retargetInterval]) == 0) {
             DDLogInfo(@"Checkpoint at #%u: %@", block.height, block);
             [block appendToMutableBuffer:checkpoints];
         }
@@ -92,7 +92,7 @@
 
 - (void)privateTestSerialize
 {
-    WSMemoryBlockStore *store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    WSMemoryBlockStore *store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store];
 //    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:1386098130];
 //    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:WSTimestampFromISODate(@"2014-08-03")];
@@ -121,7 +121,7 @@
 
     NSUInteger offset = 0;
     while (offset < checkpoints.length) {
-        WSStorableBlock *block = [[WSStorableBlock alloc] initWithBuffer:checkpoints from:offset available:(checkpoints.length - offset) error:NULL];
+        WSStorableBlock *block = [[WSStorableBlock alloc] initWithParameters:self.networkParameters buffer:checkpoints from:offset available:(checkpoints.length - offset) error:NULL];
         DDLogInfo(@"%@", block);
         offset += [block estimatedSize];
     }
@@ -130,7 +130,7 @@
 
 - (NSString *)filename
 {
-    NSString *filename = [self mockPathForFile:[NSString stringWithFormat:@"WaSPV-%@.checkpoints", WSParametersGetCurrentTypeString()]];
+    NSString *filename = [self mockPathForFile:[NSString stringWithFormat:@"WaSPV-%@.checkpoints", WSNetworkTypeString([self.networkParameters networkType])]];
     DDLogInfo(@"File: %@", filename);
     return filename;
 }
