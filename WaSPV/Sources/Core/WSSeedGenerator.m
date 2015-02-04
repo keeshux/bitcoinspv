@@ -75,6 +75,11 @@
     return _bip39;
 }
 
+- (NSArray *)wordList
+{
+    return [self.bip39 wordList];
+}
+
 - (void)unloadWords
 {
     DDLogInfo(@"Unloading mnemonic wordList");

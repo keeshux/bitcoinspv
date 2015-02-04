@@ -37,6 +37,8 @@
 - (NSString *)mnemonicFromData:(NSData *)data error:(NSError **)error;
 - (NSData *)dataFromMnemonic:(NSString *)mnemonic error:(NSError **)error;
 - (NSData *)deriveKeyDataFromMnemonic:(NSString *)mnemonic;
+
+- (NSArray *)wordList;
 - (void)unloadWords;
 
 @end

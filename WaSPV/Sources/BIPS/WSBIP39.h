@@ -43,6 +43,7 @@ extern const NSUInteger         WSBIP39SaltPrefixLength;
 @interface WSBIP39 : NSObject
 
 - (instancetype)initWithWordListNoCopy:(NSArray *)wordList;
+- (NSArray *)wordList;
 
 - (NSString *)generateRandomMnemonicWithEntropyLength:(uint32_t)entropyLength;
 - (NSString *)mnemonicFromData:(NSData *)data error:(NSError **)error;
