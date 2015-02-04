@@ -42,6 +42,7 @@ NSString *const WSPeerGroupDidUpdateDownloadNotification        = @"WSPeerGroupD
 NSString *const WSPeerGroupDidFinishDownloadNotification        = @"WSPeerGroupDidFinishDownloadNotification";
 NSString *const WSPeerGroupDidFailDownloadNotification          = @"WSPeerGroupDidFailDownloadNotification";
 NSString *const WSPeerGroupDidDownloadBlockNotification         = @"WSPeerGroupDidDownloadBlockNotification";
+NSString *const WSPeerGroupWillRescanNotification               = @"WSPeerGroupWillRescanNotification";
 NSString *const WSPeerGroupDownloadFromHeightKey                = @"FromHeight";
 NSString *const WSPeerGroupDownloadToHeightKey                  = @"ToHeight";
 NSString *const WSPeerGroupDownloadCurrentHeightKey             = @"CurrentHeight";
@@ -188,6 +189,11 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
+}
+
+- (void)notifyRescan
+{
+    [self notifyWithName:WSPeerGroupWillRescanNotification userInfo:nil];
 }
 
 - (BOOL)didNotifyDownloadStarted

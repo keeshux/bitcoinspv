@@ -41,6 +41,7 @@ extern NSString *const WSPeerGroupDidUpdateDownloadNotification;
 extern NSString *const WSPeerGroupDidFinishDownloadNotification;
 extern NSString *const WSPeerGroupDidFailDownloadNotification;
 extern NSString *const WSPeerGroupDidDownloadBlockNotification;
+extern NSString *const WSPeerGroupWillRescanNotification;
 extern NSString *const WSPeerGroupDownloadFromHeightKey;
 extern NSString *const WSPeerGroupDownloadToHeightKey;
 extern NSString *const WSPeerGroupDownloadCurrentHeightKey;
@@ -69,6 +70,7 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyDownloadFailedWithError:(NSError *)error;
 - (void)notifyBlockAdded:(WSStorableBlock *)block;
 - (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished;
+- (void)notifyRescan;
 
 - (BOOL)didNotifyDownloadStarted;
 

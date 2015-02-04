@@ -942,6 +942,8 @@
                     }
 
                     DDLogDebug(@"Rescan, truncate complete");
+                    
+                    [self.notifier notifyRescan];
                 }
 
                 // restart sync on new download peer
