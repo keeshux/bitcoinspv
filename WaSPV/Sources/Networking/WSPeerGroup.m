@@ -84,7 +84,7 @@
 - (void)connect;
 - (void)disconnect;
 - (NSArray *)disconnectedHostsInHosts:(NSArray *)hosts;
-- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback;
+- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback failure:(void (^)(NSError *))failure;
 - (void)triggerConnectionsFromSeed:(NSString *)seed hosts:(NSArray *)hosts;
 - (void)triggerConnectionsFromInactive;
 - (void)openConnectionToPeerHost:(NSString *)host;
@@ -92,6 +92,7 @@
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)reinsertInactiveHostWithLowestPriority:(NSString *)host;
 - (void)removeInactiveHost:(NSString *)host;
+- (BOOL)isPendingHost:(NSString *)host;
 
 - (void)loadFilterAndStartDownload;
 - (void)resetBloomFilter;
@@ -332,14 +333,9 @@
             if (self.inactiveHosts.count > 0) {
                 [self triggerConnectionsFromInactive];
             }
-            else {
+            else if (self.pendingPeers.count == 0) {
                 [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
                     @synchronized (self.queue) {
-                        if (newHosts.count == 0) {
-                            DDLogDebug(@"No resolved peers from %@", seed);
-                            return;
-                        }
-
                         DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
                         DDLogDebug(@"%@", newHosts);
 
@@ -354,6 +350,8 @@
                         DDLogDebug(@"%@", newHosts);
                         [self triggerConnectionsFromSeed:seed hosts:newHosts];
                     }
+                } failure:^(NSError *error) {
+                    DDLogError(@"DNS discovery failed: %@", error);
                 }];
             }
         }
@@ -372,13 +370,17 @@
         for (WSPeer *peer in self.connectedPeers) {
             [disconnected removeObject:peer.remoteHost];
         }
+        for (WSPeer *peer in self.pendingPeers) {
+            [disconnected removeObject:peer.remoteHost];
+        }
         return disconnected;
     }
 }
 
-- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback
+- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback failure:(void (^)(NSError *))failure
 {
     NSParameterAssert(resolutionCallback);
+    NSParameterAssert(failure);
 
     // if discovery ongoing, fall back to current inactive hosts
     BOOL ongoing = NO;
@@ -389,7 +391,7 @@
         }
     }
     if (ongoing) {
-        resolutionCallback(nil, nil);
+        failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
         return;
     }
     
@@ -450,16 +452,11 @@
 
                 DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
 
-                //
-                // IMPORTANT: trigger callback even with empty hosts, function caller
-                // expects a response anyway
-                //
-                // e.g. [self connect] is triggering connections in resolutionCallback
-                // and it won't if callback is not invoked
-                //
-                dispatch_async(self.queue, ^{
-                    resolutionCallback(dns, hosts);
-                });
+                if (hosts.count > 0) {
+                    dispatch_async(self.queue, ^{
+                        resolutionCallback(dns, hosts);
+                    });
+                }
             }
         });
     }
@@ -470,42 +467,48 @@
     NSParameterAssert(seed);
     NSParameterAssert(hosts.count > 0);
     
-    NSUInteger triggered = 0;
+    NSMutableArray *triggeredHosts = [[NSMutableArray alloc] init];
     
     @synchronized (self.queue) {
         for (NSString *host in hosts) {
-            const NSUInteger activeConnections = [self.pool numberOfConnections];
-            if (activeConnections >= WSPeerGroupMaxConnectionsMultiplier * self.maxConnections) {
-                DDLogVerbose(@"Reached max connections (%u >= %u)", activeConnections, self.maxConnections);
+            if ([self isPendingHost:host]) {
+                continue;
+            }
+            if (self.pendingPeers.count >= self.maxConnections) {
+                DDLogVerbose(@"Reached max connection attempts (%u >= %u)", self.pendingPeers.count, self.maxConnections);
                 break;
             }
             
             [self openConnectionToPeerHost:host];
-            ++triggered;
+            [triggeredHosts addObject:host];
         }
+        [self.inactiveHosts removeObjectsInArray:triggeredHosts];
     }
     
-    DDLogInfo(@"Triggered %u new connections from %@", triggered, seed);
+    DDLogInfo(@"Triggered %u new connections from %@", triggeredHosts.count, seed);
 }
 
 - (void)triggerConnectionsFromInactive
 {
-    NSUInteger triggered = 0;
+    NSMutableArray *triggeredHosts = [[NSMutableArray alloc] init];
 
     @synchronized (self.queue) {
         for (NSString *host in self.inactiveHosts) {
-            const NSUInteger activeConnections = [self.pool numberOfConnections];
-            if (activeConnections >= WSPeerGroupMaxConnectionsMultiplier * self.maxConnections) {
-                DDLogVerbose(@"Reached max connections (%u >= %u)", activeConnections, self.maxConnections);
+            if ([self isPendingHost:host]) {
+                continue;
+            }
+            if (self.pendingPeers.count >= self.maxConnections) {
+                DDLogVerbose(@"Reached max connection attempts (%u >= %u)", self.pendingPeers.count, self.maxConnections);
                 break;
             }
 
             [self openConnectionToPeerHost:host];
-            ++triggered;
+            [triggeredHosts addObject:host];
         }
+        [self.inactiveHosts removeObjectsInArray:triggeredHosts];
     }
 
-    DDLogInfo(@"Triggered %u new connections from inactive", triggered);
+    DDLogInfo(@"Triggered %u new connections from inactive", triggeredHosts.count);
 }
 
 - (void)openConnectionToPeerHost:(NSString *)host
@@ -580,6 +583,18 @@
         [self.inactiveHosts removeObject:host];
         
         DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveHosts.count);
+    }
+}
+
+- (BOOL)isPendingHost:(NSString *)host
+{
+    @synchronized (self.queue) {
+        for (WSPeer *peer in self.pendingPeers) {
+            if ([peer.remoteHost isEqualToString:host]) {
+                return YES;
+            }
+        }
+        return NO;
     }
 }
 
@@ -1195,11 +1210,11 @@
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
-    DDLogDebug(@">>> %@", addresses);
+//    DDLogDebug(@">>> %@", addresses);
     
     @synchronized (self.queue) {
         for (WSNetworkAddress *address in addresses) {
-            [self.inactiveHosts insertObject:WSNetworkHostFromIPv4(address.ipv4Address) atIndex:0];
+            [self.inactiveHosts addObject:WSNetworkHostFromIPv4(address.ipv4Address)];
         }
         if (self.connectedPeers.count < self.maxConnections) {
             [self triggerConnectionsFromInactive];

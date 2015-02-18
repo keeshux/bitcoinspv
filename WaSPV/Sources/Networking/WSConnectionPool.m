@@ -181,6 +181,17 @@
     }
 }
 
+- (NSSet *)handledHosts
+{
+    @synchronized (self.handlers) {
+        NSMutableSet *hosts = [[NSMutableSet alloc] initWithCapacity:self.handlers.count];
+        for (WSConnectionHandler *handler in self.handlers) {
+            [hosts addObject:handler.host];
+        }
+        return hosts;
+    }
+}
+
 - (void)runBlock:(void (^)())block
 {
     dispatch_async(self.queue, block);

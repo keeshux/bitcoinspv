@@ -70,6 +70,7 @@
 - (void)closeAllConnections;
 
 - (NSUInteger)numberOfConnections;
+- (NSSet *)handledHosts;
 
 // execute in pool thread
 - (void)runBlock:(void (^)())block;
