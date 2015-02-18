@@ -43,6 +43,7 @@
 #import "WSTransaction.h"
 #import "WSBlockLocator.h"
 #import "WSInventory.h"
+#import "WSNetworkAddress.h"
 #import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
@@ -84,11 +85,13 @@
 - (void)disconnect;
 - (NSArray *)disconnectedHostsInHosts:(NSArray *)hosts;
 - (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback;
-- (void)triggerConnectionsFromSeed:(NSString *)seed;
+- (void)triggerConnectionsFromSeed:(NSString *)seed hosts:(NSArray *)hosts;
+- (void)triggerConnectionsFromInactive;
 - (void)openConnectionToPeerHost:(NSString *)host;
 - (WSPeer *)bestPeer;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)reinsertInactiveHostWithLowestPriority:(NSString *)host;
+- (void)removeInactiveHost:(NSString *)host;
 
 - (void)loadFilterAndStartDownload;
 - (void)resetBloomFilter;
@@ -321,24 +324,38 @@
                 [self.inactiveHosts addObjectsFromArray:newHosts];
 
                 DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveHosts.count);
-                [self triggerConnectionsFromSeed:nil];
+                DDLogDebug(@"%@", self.inactiveHosts);
+                [self triggerConnectionsFromInactive];
             }
         }
         else {
-            [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
-                @synchronized (self.queue) {
-                    if (newHosts.count > 0) {
+            if (self.inactiveHosts.count > 0) {
+                [self triggerConnectionsFromInactive];
+            }
+            else {
+                [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
+                    @synchronized (self.queue) {
+                        if (newHosts.count == 0) {
+                            DDLogDebug(@"No resolved peers from %@", seed);
+                            return;
+                        }
+
                         DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
-//                        DDLogVerbose(@"New peers addresses: %@", newHosts);
+                        DDLogDebug(@"%@", newHosts);
 
                         newHosts = [self disconnectedHostsInHosts:newHosts];
-                        [self.inactiveHosts addObjectsFromArray:newHosts];
-                    }
+                        if (newHosts.count == 0) {
+                            DDLogDebug(@"All discovered peers are already connected");
+                            return;
+                        }
 
-                    DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveHosts.count);
-                    [self triggerConnectionsFromSeed:seed];
-                }
-            }];
+                        [self.inactiveHosts addObjectsFromArray:newHosts];
+                        DDLogInfo(@"Connecting to discovered non-connected peers (available: %u)", newHosts.count);
+                        DDLogDebug(@"%@", newHosts);
+                        [self triggerConnectionsFromSeed:seed hosts:newHosts];
+                    }
+                }];
+            }
         }
     });
 }
@@ -448,14 +465,37 @@
     }
 }
 
-- (void)triggerConnectionsFromSeed:(NSString *)seed
+- (void)triggerConnectionsFromSeed:(NSString *)seed hosts:(NSArray *)hosts
+{
+    NSParameterAssert(seed);
+    NSParameterAssert(hosts.count > 0);
+    
+    NSUInteger triggered = 0;
+    
+    @synchronized (self.queue) {
+        for (NSString *host in hosts) {
+            const NSUInteger activeConnections = [self.pool numberOfConnections];
+            if (activeConnections >= WSPeerGroupMaxConnectionsMultiplier * self.maxConnections) {
+                DDLogVerbose(@"Reached max connections (%u >= %u)", activeConnections, self.maxConnections);
+                break;
+            }
+            
+            [self openConnectionToPeerHost:host];
+            ++triggered;
+        }
+    }
+    
+    DDLogInfo(@"Triggered %u new connections from %@", triggered, seed);
+}
+
+- (void)triggerConnectionsFromInactive
 {
     NSUInteger triggered = 0;
 
     @synchronized (self.queue) {
         for (NSString *host in self.inactiveHosts) {
             const NSUInteger activeConnections = [self.pool numberOfConnections];
-            if (activeConnections >= self.maxConnections) {
+            if (activeConnections >= WSPeerGroupMaxConnectionsMultiplier * self.maxConnections) {
                 DDLogVerbose(@"Reached max connections (%u >= %u)", activeConnections, self.maxConnections);
                 break;
             }
@@ -465,7 +505,7 @@
         }
     }
 
-    DDLogInfo(@"Triggered %u new connections%@", triggered, WSStringOptional(seed, @" from %@"));
+    DDLogInfo(@"Triggered %u new connections from inactive", triggered);
 }
 
 - (void)openConnectionToPeerHost:(NSString *)host
@@ -530,8 +570,16 @@
         [self.inactiveHosts removeObject:host];
         [self.inactiveHosts addObject:host];
 
-        DDLogVerbose(@"Reinserted at %u/%u", [self.inactiveHosts indexOfObject:host], self.inactiveHosts.count - 1);
-        DDLogVerbose(@"Inactive hosts: %@", self.inactiveHosts);
+        DDLogDebug(@"Reinserted at %u/%u (available: %u)", [self.inactiveHosts indexOfObject:host], self.inactiveHosts.count - 1, self.inactiveHosts.count);
+    }
+}
+
+- (void)removeInactiveHost:(NSString *)host
+{
+    @synchronized (self.queue) {
+        [self.inactiveHosts removeObject:host];
+        
+        DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveHosts.count);
     }
 }
 
@@ -862,6 +910,8 @@
             return;
         }
         
+        [peer sendGetaddr];
+        
         // find/improve download peer from now on
         
         // NOTE: to start download immediately, download peer is initially set to first
@@ -914,7 +964,8 @@
 
         if (error && (error.domain == WSErrorDomain)) {
             DDLogDebug(@"Disconnection due to known error (%@)", error);
-            [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+//            [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+            [self removeInactiveHost:peer.remoteHost];
         }
 
         if (peer == self.downloadPeer) {
@@ -924,6 +975,7 @@
             if (self.downloadPeer) {
                 DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
                 
+#warning FIXME: rescan, why not to do these stuff regardless of downloadPeer existence?
                 if (error.code == WSErrorCodePeerGroupRescan) {
                     [self.notifier notifyDownloadFailedWithError:error];
                     
@@ -973,7 +1025,8 @@
 
             // reconnect if persistent
             if (self.keepConnected) {
-                if (self.connectionFailures >= self.maxConnectionFailures) {
+//                if (self.connectionFailures >= self.maxConnectionFailures) {
+                if (self.connectionFailures == self.maxConnectionFailures) {
                     DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
                     [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
                     return;
@@ -981,11 +1034,14 @@
 
                 if ([[self class] isHardNetworkError:error]) {
                     DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
-                    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+//                    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+                    [self removeInactiveHost:peer.remoteHost];
                 }
 
-                DDLogInfo(@"Searching for new peers");
-                [self connect];
+                if (self.connectedPeers.count < self.maxConnections) {
+                    DDLogInfo(@"Searching for new peers");
+                    [self connect];
+                }
             }
         }
     }
@@ -1139,8 +1195,16 @@
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
+    DDLogDebug(@">>> %@", addresses);
     
-#warning TODO: add to inactive addresses (cap inactive count)
+    @synchronized (self.queue) {
+        for (WSNetworkAddress *address in addresses) {
+            [self.inactiveHosts insertObject:WSNetworkHostFromIPv4(address.ipv4Address) atIndex:0];
+        }
+        if (self.connectedPeers.count < self.maxConnections) {
+            [self triggerConnectionsFromInactive];
+        }
+    }
 }
 
 - (void)peer:(WSPeer *)peer didReceivePongMesage:(WSMessagePong *)pong
@@ -1359,7 +1423,8 @@
 
 - (void)handleMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
 {
-    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+//    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
+    [self removeInactiveHost:peer.remoteHost];
     [self.pool closeConnectionForProcessor:peer error:error];
 }
 

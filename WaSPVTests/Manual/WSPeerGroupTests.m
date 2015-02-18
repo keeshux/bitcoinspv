@@ -56,7 +56,7 @@
 
     self.networkType = WSNetworkTypeTestnet3;
     
-    self.blockStore = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    self.blockStore = [[WSMemoryBlockStore alloc] initWithParameters:WSParametersForNetworkType(WSNetworkTypeTestnet3)];
     self.pool = [[WSConnectionPool alloc] init];
 }
 
@@ -103,10 +103,10 @@
 - (void)testPersistentConnection
 {
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.blockStore pool:self.pool];
-    peerGroup.maxConnections = 10;
-    peerGroup.maxConnectionFailures = 3;
+    peerGroup.maxConnections = 3;
+    peerGroup.maxConnectionFailures = 20;
     [peerGroup startConnections];
-    [self runForSeconds:20.0];
+    [self runForever];
 }
 
 - (void)testDownloadPeerSelection
