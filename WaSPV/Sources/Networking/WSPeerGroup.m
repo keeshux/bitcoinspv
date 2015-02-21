@@ -521,7 +521,8 @@
             [self.inactiveAddresses removeObjectsInRange:NSMakeRange(WSPeerGroupMaxInactivePeers, self.inactiveAddresses.count - WSPeerGroupMaxInactivePeers)];
         }
         
-        DDLogDebug(@"Sorted inactive addresses: %@", self.inactiveAddresses);
+        DDLogDebug(@"Sorted %u inactive addresses", self.inactiveAddresses.count);
+//        DDLogDebug(@">>> %@", self.inactiveAddresses);
         
         for (WSNetworkAddress *address in self.inactiveAddresses) {
             if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
