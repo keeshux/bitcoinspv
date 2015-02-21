@@ -277,9 +277,9 @@
 
         if ([self isConnected]) {
             observer = [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-                if (observer) {
+//                if (observer) {
                     [[NSNotificationCenter defaultCenter] removeObserver:observer];
-                }
+//                }
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
                     onceCompletionBlock = NULL;
