@@ -66,6 +66,7 @@
 @property (nonatomic, assign) NSUInteger activeDnsResolutions;
 @property (nonatomic, assign) NSUInteger connectionFailures;
 @property (nonatomic, strong) NSMutableOrderedSet *inactiveHosts;           // NSString
+@property (nonatomic, strong) NSMutableSet *misbehavingHosts;               // NSString
 @property (nonatomic, strong) NSMutableSet *pendingPeers;                   // WSPeer
 @property (nonatomic, strong) NSMutableSet *connectedPeers;                 // WSPeer
 @property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSSignedTransaction
@@ -189,6 +190,7 @@
         self.keepConnected = NO;
         self.connectionFailures = 0;
         self.inactiveHosts = [[NSMutableOrderedSet alloc] init];
+        self.misbehavingHosts = [[NSMutableSet alloc] init];
         self.pendingPeers = [[NSMutableSet alloc] init];
         self.connectedPeers = [[NSMutableSet alloc] init];
         self.publishedTransactions = [[NSMutableDictionary alloc] init];
@@ -471,7 +473,7 @@
     
     @synchronized (self.queue) {
         for (NSString *host in hosts) {
-            if ([self isPendingHost:host]) {
+            if ([self isPendingHost:host] || [self.misbehavingHosts containsObject:host]) {
                 continue;
             }
             if (self.pendingPeers.count >= self.maxConnections) {
@@ -494,7 +496,7 @@
 
     @synchronized (self.queue) {
         for (NSString *host in self.inactiveHosts) {
-            if ([self isPendingHost:host]) {
+            if ([self isPendingHost:host] || [self.misbehavingHosts containsObject:host]) {
                 continue;
             }
             if (self.pendingPeers.count >= self.maxConnections) {
@@ -1439,7 +1441,8 @@
 - (void)handleMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
 {
 //    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
-    [self removeInactiveHost:peer.remoteHost];
+//    [self removeInactiveHost:peer.remoteHost];
+    [self.misbehavingHosts addObject:peer.remoteHost];
     [self.pool closeConnectionForProcessor:peer error:error];
 }
 
