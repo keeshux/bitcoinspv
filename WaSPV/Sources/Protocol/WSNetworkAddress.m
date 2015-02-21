@@ -84,6 +84,23 @@
     return _host;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    WSNetworkAddress *address = object;
+    return [address.host isEqualToString:self.host];
+}
+
+- (NSUInteger)hash
+{
+    return [self.host hash];
+}
+
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"%@:%u", self.host, self.port];
