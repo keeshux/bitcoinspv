@@ -105,7 +105,7 @@
         }
         offset += varIntLength;
         
-        const NSUInteger expectedLength = varIntLength + count * (sizeof(uint32_t) + WSNetworkAddressLength);
+        const NSUInteger expectedLength = varIntLength + count * WSNetworkAddressLength;
         if (available < expectedLength) {
             WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, expectedLength);
             return nil;
