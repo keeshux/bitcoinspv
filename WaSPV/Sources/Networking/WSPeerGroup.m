@@ -45,6 +45,7 @@
 #import "WSInventory.h"
 #import "WSNetworkAddress.h"
 #import "WSConfig.h"
+#import "WSBitcoin.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
 
@@ -1215,9 +1216,16 @@
 //    DDLogDebug(@">>> %@", addresses);
     
     @synchronized (self.queue) {
+        const uint32_t minTimestamp = WSCurrentTimestamp() - WSDatesOneHour * WSPeerGroupMaxPeerHours;
+        NSUInteger retained = 0;
         for (WSNetworkAddress *address in addresses) {
-            [self.inactiveHosts addObject:WSNetworkHostFromIPv4(address.ipv4Address)];
+            if (address.timestamp >= minTimestamp) {
+                [self.inactiveHosts addObject:WSNetworkHostFromIPv4(address.ipv4Address)];
+                ++retained;
+            }
         }
+        DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
+
         if (self.connectedPeers.count < self.maxConnections) {
             [self triggerConnectionsFromInactive];
         }
