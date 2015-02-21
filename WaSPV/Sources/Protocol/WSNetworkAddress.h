@@ -38,5 +38,6 @@
 - (NSData *)ipv6Address;
 - (uint32_t)ipv4Address;
 - (uint16_t)port;
+- (NSString *)host;
 
 @end
