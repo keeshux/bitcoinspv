@@ -975,7 +975,7 @@
         self.connectionFailures = 0;
 
         // group gets connected on first connection
-        [self.notifier notifyPeerConnected:peer];
+        [self.notifier notifyPeerConnected:peer reachedMaxConnections:[self hasReachedMaxConnections]];
         if (self.connectedPeers.count == 1) {
             [self.notifier notifyConnected];
         }

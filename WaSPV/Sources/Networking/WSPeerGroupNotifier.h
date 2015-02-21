@@ -35,6 +35,10 @@
 
 extern NSString *const WSPeerGroupDidConnectNotification;
 extern NSString *const WSPeerGroupDidDisconnectNotification;
+extern NSString *const WSPeerGroupPeerDidConnectNotification;
+extern NSString *const WSPeerGroupPeerDidDisconnectNotification;
+extern NSString *const WSPeerGroupPeerHostKey;
+extern NSString *const WSPeerGroupReachedMaxConnectionsKey;
 
 extern NSString *const WSPeerGroupDidStartDownloadNotification;
 extern NSString *const WSPeerGroupDidUpdateDownloadNotification;
@@ -63,7 +67,7 @@ extern NSString *const WSPeerGroupErrorKey;
 
 - (void)notifyConnected;
 - (void)notifyDisconnected;
-- (void)notifyPeerConnected:(WSPeer *)peer;
+- (void)notifyPeerConnected:(WSPeer *)peer reachedMaxConnections:(BOOL)reachedMaxConnections;
 - (void)notifyPeerDisconnected:(WSPeer *)peer;
 - (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight;
 - (void)notifyDownloadFinished;

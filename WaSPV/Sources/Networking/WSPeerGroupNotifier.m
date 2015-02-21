@@ -36,6 +36,10 @@
 
 NSString *const WSPeerGroupDidConnectNotification               = @"WSPeerGroupDidConnectNotification";
 NSString *const WSPeerGroupDidDisconnectNotification            = @"WSPeerGroupDidDisconnectNotification";
+NSString *const WSPeerGroupPeerDidConnectNotification           = @"WSPeerGroupPeerDidConnectNotification";
+NSString *const WSPeerGroupPeerDidDisconnectNotification        = @"WSPeerGroupPeerDidDisconnectNotification";
+NSString *const WSPeerGroupPeerHostKey                          = @"PeerHost";
+NSString *const WSPeerGroupReachedMaxConnectionsKey             = @"ReachedMaxConnections";
 
 NSString *const WSPeerGroupDidStartDownloadNotification         = @"WSPeerGroupDidStartDownloadNotification";
 NSString *const WSPeerGroupDidUpdateDownloadNotification        = @"WSPeerGroupDidUpdateDownloadNotification";
@@ -94,12 +98,15 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     [self notifyWithName:WSPeerGroupDidDisconnectNotification userInfo:nil];
 }
 
-- (void)notifyPeerConnected:(WSPeer *)peer
+- (void)notifyPeerConnected:(WSPeer *)peer reachedMaxConnections:(BOOL)reachedMaxConnections
 {
+    [self notifyWithName:WSPeerGroupPeerDidConnectNotification userInfo:@{WSPeerGroupPeerHostKey: peer.remoteHost,
+                                                                          WSPeerGroupReachedMaxConnectionsKey: @(reachedMaxConnections)}];
 }
 
 - (void)notifyPeerDisconnected:(WSPeer *)peer
 {
+    [self notifyWithName:WSPeerGroupPeerDidDisconnectNotification userInfo:@{WSPeerGroupPeerHostKey: peer.remoteHost}];
 }
 
 - (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight
