@@ -61,7 +61,8 @@ extern const NSUInteger         WSPeerGroupDefaultMaxConnectionFailures;
 extern const NSTimeInterval     WSPeerGroupDefaultReconnectionDelay;
 //extern const NSTimeInterval     WSPeerGroupDefaultPingInterval;
 extern const NSTimeInterval     WSPeerGroupDefaultRequestTimeout;
-extern const NSUInteger         WSPeerGroupMaxPeerHours;
+//extern const NSUInteger         WSPeerGroupMaxPeerHours;
+extern const NSUInteger         WSPeerGroupMaxInactivePeers;
 
 extern const double             WSPeerGroupDefaultBFRateMin;
 extern const double             WSPeerGroupDefaultBFRateDelta;

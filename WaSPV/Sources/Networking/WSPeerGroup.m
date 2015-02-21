@@ -516,6 +516,11 @@
             }
         }];
         
+        // cap total
+        if (self.inactiveAddresses.count > WSPeerGroupMaxInactivePeers) {
+            [self.inactiveAddresses removeObjectsInRange:NSMakeRange(WSPeerGroupMaxInactivePeers, self.inactiveAddresses.count - WSPeerGroupMaxInactivePeers)];
+        }
+        
         DDLogDebug(@"Sorted inactive addresses: %@", self.inactiveAddresses);
         
         for (WSNetworkAddress *address in self.inactiveAddresses) {
