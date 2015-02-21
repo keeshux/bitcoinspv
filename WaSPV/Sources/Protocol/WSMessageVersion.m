@@ -81,7 +81,7 @@
         self.services = services;
         self.timestamp = WSCurrentTimestamp();
         self.remoteNetworkAddress = remoteNetworkAddress;
-        self.localNetworkAddress = WSNetworkAddressMake(WSMessageVersionLocalhost, localPort, self.services);
+        self.localNetworkAddress = WSNetworkAddressMake(WSMessageVersionLocalhost, localPort, self.services, 0);
         self.nonce = ((uint64_t)mrand48() << 32) | (uint32_t)mrand48(); // random nonce
         self.userAgent = [[self class] userAgent];
         self.lastBlockHeight = 0;
@@ -162,12 +162,18 @@
 
         self.timestamp = [buffer uint64AtOffset:offset];
         offset += sizeof(uint64_t);
+        
+        // https://en.bitcoin.it/wiki/Protocol_documentation#Network_address
+        //
+        // the Time (version >= 31402). Not present in version message.
+        //
+        // will have to parse manually
 
-        self.remoteNetworkAddress = [buffer networkAddressAtOffset:offset];
-        offset += WSNetworkAddressLength;
+        self.remoteNetworkAddress = [buffer legacyNetworkAddressAtOffset:offset];
+        offset += WSNetworkAddressLegacyLength;
 
-        self.localNetworkAddress = [buffer networkAddressAtOffset:offset];
-        offset += WSNetworkAddressLength;
+        self.localNetworkAddress = [buffer legacyNetworkAddressAtOffset:offset];
+        offset += WSNetworkAddressLegacyLength;
 
         self.nonce = [buffer uint64AtOffset:offset];
         offset += sizeof(uint64_t);

@@ -167,6 +167,17 @@
     return address;
 }
 
+- (WSNetworkAddress *)legacyNetworkAddressAtOffset:(NSUInteger)offset
+{
+    NSError *error;
+    WSNetworkAddress *address = [[WSNetworkAddress alloc] initWithParameters:nil buffer:self from:offset available:WSNetworkAddressLegacyLength error:&error];
+    if (!address) {
+        DDLogDebug(@"Malformed legacy network address (%@)", error);
+        return nil;
+    }
+    return address;
+}
+
 - (WSInventory *)inventoryAtOffset:(NSUInteger)offset
 {
     NSError *error;

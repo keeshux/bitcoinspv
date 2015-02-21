@@ -33,6 +33,7 @@
 
 @interface WSNetworkAddress ()
 
+@property (nonatomic, assign) uint32_t timestamp;
 @property (nonatomic, assign) uint64_t services;
 @property (nonatomic, strong) NSData *ipv6Address;
 @property (nonatomic, assign) uint32_t ipv4Address;
@@ -44,11 +45,12 @@
 
 @implementation WSNetworkAddress
 
-- (instancetype)initWithServices:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port
+- (instancetype)initWithTimestamp:(uint32_t)timestamp services:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port
 {
     WSExceptionCheckIllegal(ipv6Address.length == 16, @"ipv6Address must be 16 bytes long");
     
     if ((self = [super init])) {
+        self.timestamp = timestamp;
         self.services = services;
         self.ipv6Address = ipv6Address;
         self.ipv4Address = WSNetworkIPv4FromIPv6(ipv6Address);
@@ -57,9 +59,10 @@
     return self;
 }
 
-- (instancetype)initWithServices:(uint64_t)services ipv4Address:(uint32_t)ipv4Address port:(uint16_t)port
+- (instancetype)initWithTimestamp:(uint32_t)timestamp services:(uint64_t)services ipv4Address:(uint32_t)ipv4Address port:(uint16_t)port
 {
     if ((self = [super init])) {
+        self.timestamp = timestamp;
         self.services = services;
         self.ipv6Address = WSNetworkIPv6FromIPv4(ipv4Address);
         self.ipv4Address = ipv4Address;
@@ -92,6 +95,9 @@
 {
     const uint16_t networkPort = CFSwapInt16HostToBig(self.port);
     
+    if (self.timestamp > 0) {
+        [buffer appendUint32:self.timestamp];
+    }
     [buffer appendUint64:self.services];
     [buffer appendData:self.ipv6Address];
     [buffer appendBytes:&networkPort length:sizeof(networkPort)];
@@ -108,13 +114,20 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if (available < WSNetworkAddressLength) {
-        WSErrorSetNotEnoughBytes(error, [self class], available, WSNetworkAddressLength);
+    if (available < WSNetworkAddressLegacyLength) {
+        WSErrorSetNotEnoughBytes(error, [self class], available, WSNetworkAddressLegacyLength);
         return nil;
     }
 
     NSUInteger offset = from;
 
+    // legacy/version addresses don't have a timestamp (< 31402)
+    uint32_t timestamp = 0;
+    if (available == WSNetworkAddressLength) {
+        timestamp = CFSwapInt32LittleToHost([buffer uint32AtOffset:offset]);
+        offset += sizeof(uint32_t);
+    }
+    
     const uint64_t services = CFSwapInt64LittleToHost([buffer uint64AtOffset:offset]);
     offset += sizeof(uint64_t);
 
@@ -123,7 +136,7 @@
 
     const uint16_t port = CFSwapInt16BigToHost([buffer uint16AtOffset:offset]);
 
-    return [self initWithServices:services ipv6Address:ipv6Address port:port];
+    return [self initWithTimestamp:timestamp services:services ipv6Address:ipv6Address port:port];
 }
 
 @end

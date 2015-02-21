@@ -34,27 +34,24 @@
 @interface WSMessageAddr ()
 
 @property (nonatomic, strong) NSArray *addresses;
-@property (nonatomic, strong) NSArray *timestamps;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses;
 
 @end
 
 @implementation WSMessageAddr
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
++ (instancetype)messageWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses
 {
-    return [[self alloc] initWithParameters:parameters addresses:addresses timestamps:timestamps];
+    return [[self alloc] initWithParameters:parameters addresses:addresses];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses timestamps:(NSArray *)timestamps
+- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses
 {
-    WSExceptionCheckIllegal((addresses.count > 0) && (timestamps.count > 0), @"Empty addresses or timestamps");
-    WSExceptionCheckIllegal(addresses.count == timestamps.count, @"Addresses count and timestamps count do not match");
+    WSExceptionCheckIllegal(addresses.count > 0, @"Empty addresses");
 
     if ((self = [super initWithParameters:parameters])) {
         self.addresses = addresses;
-        self.timestamps = timestamps;
     }
     return self;
 }
@@ -77,12 +74,8 @@
 {
     [buffer appendVarInt:self.addresses.count];
 
-    NSUInteger i = 0;
     for (WSNetworkAddress *address in self.addresses) {
-        const uint32_t timestamp = (uint32_t)[self.timestamps[i] unsignedIntegerValue];
-        [buffer appendUint32:timestamp];
         [buffer appendNetworkAddress:address];
-        ++i;
     }
 }
 
@@ -119,19 +112,13 @@
         }
 
         NSMutableArray *addresses = [[NSMutableArray alloc] initWithCapacity:count];
-        NSMutableArray *timestamps = [[NSMutableArray alloc] initWithCapacity:count];
         for (NSUInteger i = 0; i < count; ++i) {
-            const uint32_t timestamp = [buffer uint32AtOffset:offset];
-            offset += sizeof(uint32_t);
-
             WSNetworkAddress *address = [buffer networkAddressAtOffset:offset];
             offset += WSNetworkAddressLength;
 
             [addresses addObject:address];
-            [timestamps addObject:@(timestamp)];
         }
         self.addresses = addresses;
-        self.timestamps = timestamps;
     }
     return self;
 }

@@ -31,8 +31,9 @@
 
 @interface WSNetworkAddress : NSObject <WSBufferEncoder, WSBufferDecoder>
 
-- (instancetype)initWithServices:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port;
-- (instancetype)initWithServices:(uint64_t)services ipv4Address:(uint32_t)ipv4Address port:(uint16_t)port;
+- (instancetype)initWithTimestamp:(uint32_t)timestamp services:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port;
+- (instancetype)initWithTimestamp:(uint32_t)timestamp services:(uint64_t)services ipv4Address:(uint32_t)ipv4Address port:(uint16_t)port;
+- (uint32_t)timestamp;
 - (uint64_t)services;
 - (NSData *)ipv6Address;
 - (uint32_t)ipv4Address;

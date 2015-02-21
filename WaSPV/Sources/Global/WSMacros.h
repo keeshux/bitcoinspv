@@ -121,7 +121,7 @@ WSInventory *WSInventoryBlockFromHex(NSString *hex);
 WSInventory *WSInventoryFilteredBlock(WSHash256 *hash);
 WSInventory *WSInventoryFilteredBlockFromHex(NSString *hex);
 
-WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services);
+WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services, uint32_t timestamp);
 
 WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime);
 WSSeed *WSSeedMakeUnknown(NSString *mnemonic);

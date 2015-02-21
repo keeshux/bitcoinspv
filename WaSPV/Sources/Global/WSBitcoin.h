@@ -48,6 +48,7 @@ extern const NSUInteger         WSHash160Length;
 extern const NSUInteger         WSHash256Length;
 extern const NSUInteger         WSAddressLength;
 extern const NSUInteger         WSNetworkAddressLength;
+extern const NSUInteger         WSNetworkAddressLegacyLength;
 extern const NSUInteger         WSInventoryLength;
 
 #pragma mark - Blocks

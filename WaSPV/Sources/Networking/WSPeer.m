@@ -433,7 +433,7 @@
     NSAssert(self.connectionQueue, @"Not connected");
     
     dispatch_async(self.connectionQueue, ^{
-        WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithServices:_remoteServices ipv4Address:self.remoteAddress port:_remotePort];
+        WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:_remoteServices ipv4Address:self.remoteAddress port:_remotePort];
         WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
                                                                     version:WSPeerProtocol
                                                                    services:WSPeerEnabledServices

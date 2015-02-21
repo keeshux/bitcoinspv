@@ -202,9 +202,9 @@ inline WSInventory *WSInventoryFilteredBlockFromHex(NSString *hex)
     return WSInventoryFilteredBlock(WSHash256FromHex(hex));
 }
 
-inline WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services)
+inline WSNetworkAddress *WSNetworkAddressMake(uint32_t address, uint16_t port, uint64_t services, uint32_t timestamp)
 {
-    return [[WSNetworkAddress alloc] initWithServices:services ipv4Address:address port:port];
+    return [[WSNetworkAddress alloc] initWithTimestamp:timestamp services:services ipv4Address:address port:port];
 }
 
 inline WSSeed *WSSeedMake(NSString *mnemonic, NSTimeInterval creationTime)

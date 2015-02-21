@@ -45,7 +45,8 @@ const NSUInteger        WSPublicKeyCompressedLength             = 33;
 const NSUInteger        WSHash160Length                         = 160 / 8; // 20
 const NSUInteger        WSHash256Length                         = 256 / 8; // 32
 const NSUInteger        WSAddressLength                         = 1 + WSHash160Length; // 1-byte version prefix
-const NSUInteger        WSNetworkAddressLength                  = 26;
+const NSUInteger        WSNetworkAddressLength                  = 30;
+const NSUInteger        WSNetworkAddressLegacyLength            = 26;
 const NSUInteger        WSInventoryLength                       = 36;
 
 #pragma mark - Blocks

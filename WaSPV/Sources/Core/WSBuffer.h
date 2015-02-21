@@ -48,6 +48,7 @@
 - (uint64_t)varIntAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
 - (NSString *)stringAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
 - (WSNetworkAddress *)networkAddressAtOffset:(NSUInteger)offset;
+- (WSNetworkAddress *)legacyNetworkAddressAtOffset:(NSUInteger)offset;
 - (WSInventory *)inventoryAtOffset:(NSUInteger)offset;
 - (WSHash256 *)hash256AtOffset:(NSUInteger)offset;
 - (NSData *)varDataAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
