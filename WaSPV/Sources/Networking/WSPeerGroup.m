@@ -1058,33 +1058,32 @@
         if (peer == self.downloadPeer) {
             DDLogDebug(@"Peer %@ was download peer", peer);
 
+            if (error.code == WSErrorCodePeerGroupRescan) {
+                [self.notifier notifyDownloadFailedWithError:error];
+                
+                DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+                
+                [self.store truncate];
+                [self.wallet removeAllTransactions];
+                
+                self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+                NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+                for (WSPeer *peer in self.pendingPeers) {
+                    [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                }
+                for (WSPeer *peer in self.connectedPeers) {
+                    [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                }
+                
+                DDLogDebug(@"Rescan, truncate complete");
+                
+                [self.notifier notifyRescan];
+            }
+            
             self.downloadPeer = [self bestPeer];
             if (self.downloadPeer) {
                 DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
                 
-#warning FIXME: rescan, why not to do these stuff regardless of downloadPeer existence?
-                if (error.code == WSErrorCodePeerGroupRescan) {
-                    [self.notifier notifyDownloadFailedWithError:error];
-                    
-                    DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
-
-                    [self.store truncate];
-                    [self.wallet removeAllTransactions];
-
-                    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
-                    NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-                    for (WSPeer *peer in self.pendingPeers) {
-                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-                    }
-                    for (WSPeer *peer in self.connectedPeers) {
-                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-                    }
-
-                    DDLogDebug(@"Rescan, truncate complete");
-                    
-                    [self.notifier notifyRescan];
-                }
-
                 // restart sync on new download peer
                 if (self.keepDownloading && ![self isSynced]) {
                     [self loadFilterAndStartDownload];
