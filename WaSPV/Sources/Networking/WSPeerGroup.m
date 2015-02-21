@@ -484,7 +484,6 @@
                 continue;
             }
             if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
-//                DDLogDebug(@"Reached max connections (%u)", self.maxConnections);
                 break;
             }
             
@@ -524,19 +523,42 @@
         DDLogDebug(@"Sorted %u inactive addresses", self.inactiveAddresses.count);
 //        DDLogDebug(@">>> %@", self.inactiveAddresses);
         
-        for (WSNetworkAddress *address in self.inactiveAddresses) {
+//        // sequential
+//        for (WSNetworkAddress *address in self.inactiveAddresses) {
+//            if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
+//                continue;
+//            }
+//            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+//                break;
+//            }
+//
+//            [self openConnectionToPeerHost:address.host];
+//            [triggered addObject:address];
+//        }
+//        [self.inactiveAddresses removeObjectsInArray:triggered];
+
+        // randomic
+        while (self.inactiveAddresses.count > 0) {
+
+            //
+            // taken from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRPeerManager.m
+            //
+            // prefer recent from inactive (higher probability of retrieving lower offsets)
+            //
+            WSNetworkAddress *address = self.inactiveAddresses[(NSUInteger)(pow(lrand48() % self.inactiveAddresses.count, 2) / self.inactiveAddresses.count)];
+            
             if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
                 continue;
             }
             if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
-//                DDLogDebug(@"Reached max connections (%u)", self.maxConnections);
                 break;
             }
-
+            
             [self openConnectionToPeerHost:address.host];
             [triggered addObject:address];
+
+            [self.inactiveAddresses removeObject:address];
         }
-        [self.inactiveAddresses removeObjectsInArray:triggered];
     }
 
     DDLogInfo(@"Triggered %u new connections from inactive", triggered.count);
