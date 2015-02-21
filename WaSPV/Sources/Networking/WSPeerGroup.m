@@ -477,8 +477,8 @@
             if ([self isPendingHost:host] || [self.misbehavingHosts containsObject:host]) {
                 continue;
             }
-            if (self.pendingPeers.count >= self.maxConnections) {
-                DDLogVerbose(@"Reached max connection attempts (%u >= %u)", self.pendingPeers.count, self.maxConnections);
+            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+                DDLogVerbose(@"Reached max connections (%u)", self.maxConnections);
                 break;
             }
             
@@ -500,8 +500,8 @@
             if ([self isPendingHost:host] || [self.misbehavingHosts containsObject:host]) {
                 continue;
             }
-            if (self.pendingPeers.count >= self.maxConnections) {
-                DDLogVerbose(@"Reached max connection attempts (%u >= %u)", self.pendingPeers.count, self.maxConnections);
+            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+                DDLogVerbose(@"Reached max connections (%u)", self.maxConnections);
                 break;
             }
 
