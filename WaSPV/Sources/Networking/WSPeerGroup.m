@@ -92,7 +92,6 @@
 - (void)openConnectionToPeerHost:(NSString *)host;
 - (WSPeer *)bestPeer;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
-- (void)reinsertInactiveHostWithLowestPriority:(NSString *)host;
 - (void)removeInactiveHost:(NSString *)host;
 - (BOOL)isPendingHost:(NSString *)host;
 
@@ -569,18 +568,6 @@
     });
 }
 
-- (void)reinsertInactiveHostWithLowestPriority:(NSString *)host
-{
-    @synchronized (self.queue) {
-        DDLogDebug(@"Reinsert %@ with lowest priority", host);
-
-        [self.inactiveHosts removeObject:host];
-        [self.inactiveHosts addObject:host];
-
-        DDLogDebug(@"Reinserted at %u/%u (available: %u)", [self.inactiveHosts indexOfObject:host], self.inactiveHosts.count - 1, self.inactiveHosts.count);
-    }
-}
-
 - (void)removeInactiveHost:(NSString *)host
 {
     @synchronized (self.queue) {
@@ -983,7 +970,6 @@
 
         if (error && (error.domain == WSErrorDomain)) {
             DDLogDebug(@"Disconnection due to known error (%@)", error);
-//            [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
             [self removeInactiveHost:peer.remoteHost];
         }
 
@@ -1053,7 +1039,6 @@
 
                 if ([[self class] isHardNetworkError:error]) {
                     DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
-//                    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
                     [self removeInactiveHost:peer.remoteHost];
                 }
 
@@ -1450,8 +1435,6 @@
 
 - (void)handleMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
 {
-//    [self reinsertInactiveHostWithLowestPriority:peer.remoteHost];
-//    [self removeInactiveHost:peer.remoteHost];
     [self.misbehavingHosts addObject:peer.remoteHost];
     [self.pool closeConnectionForProcessor:peer error:error];
 }
