@@ -323,20 +323,21 @@
         }
 
         if (self.peerHosts.count > 0) {
-            @synchronized (self.queue) {
-                NSArray *newHosts = [self disconnectedHostsInHosts:self.peerHosts];
-                [self.inactiveHosts addObjectsFromArray:newHosts];
+            NSArray *newHosts = [self disconnectedHostsInHosts:self.peerHosts];
+            [self.inactiveHosts addObjectsFromArray:newHosts];
 
-                DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveHosts.count);
-                DDLogDebug(@"%@", self.inactiveHosts);
-                [self triggerConnectionsFromInactive];
-            }
+            DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveHosts.count);
+            DDLogDebug(@"%@", self.inactiveHosts);
+            [self triggerConnectionsFromInactive];
         }
         else {
             if (self.inactiveHosts.count > 0) {
                 [self triggerConnectionsFromInactive];
+                return;
             }
-            else if (self.pendingPeers.count == 0) {
+
+            // first bootstrap is from DNS
+            if ((self.connectedPeers.count == 0) && (self.pendingPeers.count == 0)) {
                 [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
                     @synchronized (self.queue) {
                         DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
