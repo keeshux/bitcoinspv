@@ -1219,10 +1219,11 @@
         const uint32_t minTimestamp = WSCurrentTimestamp() - WSDatesOneHour * WSPeerGroupMaxPeerHours;
         NSUInteger retained = 0;
         for (WSNetworkAddress *address in addresses) {
-            if (address.timestamp >= minTimestamp) {
-                [self.inactiveHosts addObject:WSNetworkHostFromIPv4(address.ipv4Address)];
-                ++retained;
+            if (address.timestamp < minTimestamp) {
+                continue;
             }
+            [self.inactiveHosts addObject:WSNetworkHostFromIPv4(address.ipv4Address)];
+            ++retained;
         }
         DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
 

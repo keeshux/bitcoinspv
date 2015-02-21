@@ -58,7 +58,7 @@ const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures     = 20;
 const NSTimeInterval    WSPeerGroupDefaultReconnectionDelay         = 10.0;
 //const NSTimeInterval    WSPeerGroupDefaultPingInterval              = 5.0;
 const NSTimeInterval    WSPeerGroupDefaultRequestTimeout            = 15.0;
-const NSUInteger        WSPeerGroupMaxPeerHours                     = 2;
+const NSUInteger        WSPeerGroupMaxPeerHours                     = 4;
 
 const double            WSPeerGroupDefaultBFRateMin                 = 0.0001;
 const double            WSPeerGroupDefaultBFRateDelta               = 0.0004;
