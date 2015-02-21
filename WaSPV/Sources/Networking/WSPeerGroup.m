@@ -502,6 +502,22 @@
     NSMutableArray *triggered = [[NSMutableArray alloc] init];
 
     @synchronized (self.queue) {
+
+        // recent first
+        [self.inactiveAddresses sortUsingComparator:^NSComparisonResult(WSNetworkAddress *a1, WSNetworkAddress *a2) {
+            if (a1.timestamp > a2.timestamp) {
+                return NSOrderedAscending;
+            }
+            else if (a1.timestamp < a2.timestamp) {
+                return NSOrderedDescending;
+            }
+            else {
+                return NSOrderedSame;
+            }
+        }];
+        
+        DDLogDebug(@"Sorted inactive addresses: %@", self.inactiveAddresses);
+        
         for (WSNetworkAddress *address in self.inactiveAddresses) {
             if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
                 continue;
@@ -1240,16 +1256,18 @@
 //    DDLogDebug(@">>> %@", addresses);
     
     @synchronized (self.queue) {
-        const uint32_t minTimestamp = WSCurrentTimestamp() - WSDatesOneHour * WSPeerGroupMaxPeerHours;
-        NSUInteger retained = 0;
-        for (WSNetworkAddress *address in addresses) {
-            if (address.timestamp < minTimestamp) {
-                continue;
-            }
-            [self.inactiveAddresses addObject:address];
-            ++retained;
-        }
-        DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
+//        const uint32_t minTimestamp = WSCurrentTimestamp() - WSDatesOneHour * WSPeerGroupMaxPeerHours;
+//        NSUInteger retained = 0;
+//        for (WSNetworkAddress *address in addresses) {
+//            if (address.timestamp < minTimestamp) {
+//                continue;
+//            }
+//            [self.inactiveAddresses addObject:address];
+//            ++retained;
+//        }
+//        DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
+
+        [self.inactiveAddresses addObjectsFromArray:addresses];
 
         if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
             [self triggerConnectionsFromInactive];
