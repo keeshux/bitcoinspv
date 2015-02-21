@@ -103,7 +103,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%@:%u", self.host, self.port];
+    return [NSString stringWithFormat:@"%@:%u (%@)", self.host, self.port, [NSDate dateWithTimeIntervalSince1970:self.timestamp]];
 }
 
 #pragma mark WSBufferEncoder
