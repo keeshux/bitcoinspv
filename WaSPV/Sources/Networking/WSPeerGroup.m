@@ -873,6 +873,19 @@
     }
 }
 
+- (BOOL)reconnectForDownload
+{
+    @synchronized (self.queue) {
+        if (!self.isConnected) {
+            DDLogVerbose(@"Ignoring call because not connected");
+            return NO;
+        }
+        [self.pool closeConnectionForProcessor:self.downloadPeer
+                                         error:WSErrorMake(WSErrorCodePeerGroupSync, @"Rehashing download peer")];
+        return YES;
+    }
+}
+
 - (BOOL)rescan
 {
     @synchronized (self.queue) {
