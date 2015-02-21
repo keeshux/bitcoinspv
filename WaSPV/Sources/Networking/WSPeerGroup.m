@@ -1210,7 +1210,7 @@
     [self handleReceivedTransaction:transaction fromPeer:peer];
 }
 
-- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses
+- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
 //    DDLogDebug(@">>> %@", addresses);
@@ -1227,7 +1227,7 @@
         }
         DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
 
-        if (self.connectedPeers.count < self.maxConnections) {
+        if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
             [self triggerConnectionsFromInactive];
         }
     }

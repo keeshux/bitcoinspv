@@ -727,8 +727,10 @@
 - (void)receiveAddrMessage:(WSMessageAddr *)message
 {
     DDLogDebug(@"%@ Received %u addresses", self, message.addresses.count);
+    
+    const BOOL isLastRelay = ((message.addresses.count > 1) && (message.addresses.count < WSMessageAddrMaxCount));
 
-    [self.delegate peer:self didReceiveAddresses:message.addresses];
+    [self.delegate peer:self didReceiveAddresses:message.addresses isLastRelay:isLastRelay];
 }
 
 - (void)receiveInvMessage:(WSMessageInv *)message

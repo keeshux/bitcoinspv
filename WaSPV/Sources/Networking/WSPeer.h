@@ -144,7 +144,7 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block;
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction;
-- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses; // WSAddress
+- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay; // WSAddress
 - (void)peer:(WSPeer *)peer didReceivePongMesage:(WSMessagePong *)pong;
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message;
