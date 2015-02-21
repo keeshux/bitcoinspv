@@ -315,6 +315,20 @@
     }
 }
 
+- (NSUInteger)numberOfConnections
+{
+    @synchronized (self.queue) {
+        return self.connectedPeers.count;
+    }
+}
+
+- (BOOL)hasReachedMaxConnections
+{
+    @synchronized (self.queue) {
+        return (self.connectedPeers.count == self.maxConnections);
+    }
+}
+
 - (void)connect
 {
     dispatch_async(self.queue, ^{

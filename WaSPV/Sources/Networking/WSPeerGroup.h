@@ -69,6 +69,8 @@
 - (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock;
 - (BOOL)isStarted;
 - (BOOL)isConnected;
+- (NSUInteger)numberOfConnections;
+- (BOOL)hasReachedMaxConnections;
 
 // sync
 - (BOOL)startBlockChainDownload;
