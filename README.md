@@ -85,7 +85,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'WaSPV', '~> 0.3'
+    pod 'WaSPV', '~> 0.4'
 
 and run on the terminal:
 

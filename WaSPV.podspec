@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name              = 'WaSPV'
-    s.version           = '0.3'
+    s.version           = '0.4'
     s.license           = 'GPL'
 
     s.summary           = 'A native Bitcoin SPV client library for iOS with BIP32 support.'
