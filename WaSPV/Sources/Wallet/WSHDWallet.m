@@ -691,7 +691,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         }
         
         [self recalculateSpendsAndBalance];
-        [self generateAddressesWithLookAhead:_gapLimit forced:YES];
+        [self generateAddressesWithLookAhead:(4 * _gapLimit) forced:YES];
         
         const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
         DDLogDebug(@"Rebuilt wallet transient structures in %.3fs", rebuildTime);
