@@ -1228,7 +1228,6 @@
     @synchronized (self.queue) {
         if (peer == self.downloadPeer) {
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
-
         }
 
         WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error];
