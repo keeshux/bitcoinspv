@@ -83,6 +83,7 @@
 
 // interaction
 - (NSUInteger)currentHeight;
+- (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
 - (void)runExclusiveBlock:(void (^)())block;
 

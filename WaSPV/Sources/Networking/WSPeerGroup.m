@@ -940,6 +940,11 @@
     }
 }
 
+- (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet
+{
+    return (self.wallet == wallet);
+}
+
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction
 {
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
