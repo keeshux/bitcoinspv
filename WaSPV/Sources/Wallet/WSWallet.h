@@ -95,7 +95,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 
 #pragma mark -
 
-@protocol WSSynchronizableWallet <NSObject>
+@protocol WSSynchronizableWallet <WSWallet>
 
 - (uint32_t)earliestKeyTimestamp;
 - (NSOrderedSet *)allReceiveAddresses;

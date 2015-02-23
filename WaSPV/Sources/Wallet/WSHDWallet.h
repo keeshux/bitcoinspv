@@ -36,7 +36,7 @@
 
 extern NSString *const WSHDWalletDefaultChainsPath;
 
-@interface WSHDWallet : NSObject <WSWallet, WSSynchronizableWallet>
+@interface WSHDWallet : NSObject <WSSynchronizableWallet>
 
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
