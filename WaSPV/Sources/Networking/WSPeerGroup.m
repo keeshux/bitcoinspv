@@ -609,10 +609,10 @@
                 continue;
             }
             
-            // min ping or max chain height
+            // max chain height or min ping
             if (!bestPeer ||
-                ((peer.connectionTime < bestPeer.connectionTime) && (peer.lastBlockHeight >= bestPeer.lastBlockHeight)) ||
-                (peer.lastBlockHeight > bestPeer.lastBlockHeight)) {
+                (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
+                ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
                 
                 bestPeer = peer;
             }
@@ -1057,8 +1057,12 @@
         // download peer is set but not best, if synced disconnect and switch to new best after disconnection
         else {
 
-            // WARNING: disconnecting during download is a major waste of time and bandwidth
-            if ([self isSynced]) {
+            // WARNING
+            //
+            // disconnecting during download is a major waste of time and bandwidth
+            // only force disconnection if current download peer is behind best peer
+            //
+            if ([self isSynced] || (bestPeer.lastBlockHeight > self.downloadPeer.lastBlockHeight)) {
                 [self.pool closeConnectionForProcessor:self.downloadPeer
                                                  error:WSErrorMake(WSErrorCodePeerGroupSync, @"Found a better download peer than %@", self.downloadPeer)];
             }
