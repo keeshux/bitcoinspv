@@ -729,9 +729,8 @@
         DDLogInfo(@"Preparing for blockchain sync");
 
         [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
-            if (![self.notifier didNotifyDownloadStarted]) {
-                [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
-            }
+            [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
+
             self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
             
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -739,9 +738,7 @@
                 [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
             });
         } syncedBlock:^(NSUInteger height) {
-            if (![self.notifier didNotifyDownloadStarted]) {
-                [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
-            }
+            [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
             
             DDLogInfo(@"Blockchain is synced");
             
@@ -1094,49 +1091,48 @@
         if (peer == self.downloadPeer) {
             DDLogDebug(@"Peer %@ was download peer", peer);
 
-            if (error.code == WSErrorCodePeerGroupRescan) {
-                [self.notifier notifyDownloadFailedWithError:error];
-                
-                DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
-                
-                [self.store truncate];
-                [self.wallet removeAllTransactions];
-                
-                self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
-                NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-                for (WSPeer *peer in self.pendingPeers) {
-                    [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+            if (self.connectedPeers.count == 0) {
+                self.downloadPeer = nil;
+                if (!self.keepDownloading) {
+                    [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
                 }
-                for (WSPeer *peer in self.connectedPeers) {
-                    [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                else {
+                    [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupSync, @"No more peers for download")];
                 }
-                
-                DDLogDebug(@"Rescan, truncate complete");
-                
-                [self.notifier notifyRescan];
             }
-            
-            self.downloadPeer = [self bestPeer];
-            if (self.downloadPeer) {
-                DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+            else {
+                [self.notifier notifyDownloadFailedWithError:error];
+
+                if (error.code == WSErrorCodePeerGroupRescan) {
+                    DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+                    
+                    [self.store truncate];
+                    [self.wallet removeAllTransactions];
+                    
+                    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+                    NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+                    for (WSPeer *peer in self.pendingPeers) {
+                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                    }
+                    for (WSPeer *peer in self.connectedPeers) {
+                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+                    }
+                    
+                    DDLogDebug(@"Rescan, truncate complete");
+                    [self.notifier notifyRescan];
+                }
                 
+                self.downloadPeer = [self bestPeer];
+                NSAssert(self.downloadPeer, @"Connected peers > 0 at this point");
+                DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+
                 // restart sync on new download peer
                 if (self.keepDownloading && ![self isSynced]) {
                     [self loadFilterAndStartDownload];
                 }
             }
-            else if (!self.keepDownloading) {
-                DDLogDebug(@"Download stopped");
-                
-                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
-            }
-            else {
-                DDLogDebug(@"No more peers for download");
-                
-                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupSync, @"No more peers for download")];
-            }
         }
-    
+
         // give up if no error (disconnected intentionally)
         if (!error) {
             DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
