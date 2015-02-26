@@ -1125,12 +1125,13 @@
                 }
                 
                 self.downloadPeer = [self bestPeer];
-                NSAssert(self.downloadPeer, @"Connected peers > 0 at this point");
-                DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+                if (self.downloadPeer) {
+                    DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
-                // restart sync on new download peer
-                if (self.keepDownloading && ![self isSynced]) {
-                    [self loadFilterAndStartDownload];
+                    // restart sync on new download peer
+                    if (self.keepDownloading && ![self isSynced]) {
+                        [self loadFilterAndStartDownload];
+                    }
                 }
             }
         }
