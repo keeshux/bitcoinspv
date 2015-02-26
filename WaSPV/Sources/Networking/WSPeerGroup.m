@@ -939,6 +939,8 @@
 
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet
 {
+    WSExceptionCheckIllegal(wallet != nil, @"Nil wallet");
+    
     return (self.wallet == wallet);
 }
 
