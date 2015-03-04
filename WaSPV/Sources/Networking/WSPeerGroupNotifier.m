@@ -186,10 +186,12 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         DDLogInfo(@"Download progress = %u/%u (%.2f%%)", currentHeight, toHeight, 100.0 * progress);
     }
     
-    [self notifyWithName:WSPeerGroupDidUpdateDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
-                                                                             WSPeerGroupDownloadToHeightKey: @(toHeight),
-                                                                             WSPeerGroupDownloadCurrentHeightKey: @(currentHeight),
-                                                                             WSPeerGroupDownloadProgressKey: @(progress)}];
+    if (self.didNotifyDownloadStarted) {
+        [self notifyWithName:WSPeerGroupDidUpdateDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
+                                                                                 WSPeerGroupDownloadToHeightKey: @(toHeight),
+                                                                                 WSPeerGroupDownloadCurrentHeightKey: @(currentHeight),
+                                                                                 WSPeerGroupDownloadProgressKey: @(progress)}];
+    }
 }
 
 - (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished
