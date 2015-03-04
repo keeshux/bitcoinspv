@@ -30,7 +30,7 @@ Grouped by area:
     * Hashes used everywhere for transaction and block ids, addresses, checksums etc. ([WSHash256](WaSPV/Sources/Core/WSHash256.h), [WSHash160](WaSPV/Sources/Core/WSHash160.h)).
     * ECDSA keys wrappers, able to also import WIF private keys ([WSKey](WaSPV/Sources/Core/WSKey.h), [WSPublicKey](WaSPV/Sources/Core/WSPublicKey.h)).
     * Scripts as the key part of the Bitcoin transaction system ([WSScript](WaSPV/Sources/Core/WSScript.h)).
-    * Transaction family clsses will help you decode binary transactions or build/sign your own from inputs, outputs and keys ([WSTransaction](WaSPV/Sources/Core/WSTransaction.h)).
+    * Transaction family classes will help you decode binary transactions or build/sign your own from inputs, outputs and keys ([WSTransaction](WaSPV/Sources/Core/WSTransaction.h)).
     * Addresses are just a shorter way to visualize a transaction script, all standard forms (P2PK, P2PKH, P2SH) are supported ([WSAddress](WaSPV/Sources/Core/WSAddress.h)).
     * An extensive implementation of a BIP32 HD keyring ([WSHDKeyring](WaSPV/Sources/Core/WSHDKeyring.h)).
 
