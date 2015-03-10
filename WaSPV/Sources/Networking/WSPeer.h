@@ -105,6 +105,8 @@ typedef enum {
 - (uint64_t)services;
 - (uint64_t)timestamp;
 - (uint32_t)lastBlockHeight;
+- (NSUInteger)sentBytes;
+- (NSUInteger)receivedBytes;
 - (void)cleanUpConnectionData;
 
 // protocol
@@ -149,6 +151,8 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message;
 - (void)peerDidRequestFilterReload:(WSPeer *)peer;
+- (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes;
+- (void)peer:(WSPeer *)peer didReceiveNumberOfBytes:(NSUInteger)numberOfBytes;
 
 @end
 

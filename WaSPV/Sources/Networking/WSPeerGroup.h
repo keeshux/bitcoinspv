@@ -32,9 +32,26 @@
 #import "WSReachability.h"
 #import "WSBlockChain.h"
 
+@protocol WSParameters;
 @class WSConnectionPool;
 @protocol WSBlockStore;
 @protocol WSSynchronizableWallet;
+
+#pragma mark -
+
+@interface WSPeerGroupStatus : NSObject
+
+- (id<WSParameters>)parameters;
+- (BOOL)isConnected;
+- (BOOL)isSyncing;
+- (NSUInteger)currentHeight;
+- (NSUInteger)targetHeight;
+- (NSUInteger)sentBytes;
+- (NSUInteger)receivedBytes;
+
+@end
+
+#pragma mark -
 
 @interface WSPeerGroup : NSObject <WSPeerDelegate, WSReachabilityDelegate>
 
@@ -82,6 +99,7 @@
 - (BOOL)rescan;
 
 // interaction
+- (WSPeerGroupStatus *)status;
 - (NSUInteger)currentHeight;
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;

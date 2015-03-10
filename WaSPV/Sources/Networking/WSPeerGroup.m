@@ -49,6 +49,24 @@
 #import "WSMacros.h"
 #import "WSErrors.h"
 
+@interface WSPeerGroupStatus ()
+
+@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, assign) BOOL isConnected;
+@property (nonatomic, assign) BOOL isSyncing;
+@property (nonatomic, assign) NSUInteger currentHeight;
+@property (nonatomic, assign) NSUInteger targetHeight;
+@property (nonatomic, assign) NSUInteger sentBytes;
+@property (nonatomic, assign) NSUInteger receivedBytes;
+
+@end
+
+@implementation WSPeerGroupStatus
+
+@end
+
+#pragma mark -
+
 @interface WSPeerGroup () {
     WSPeer *_downloadPeer;
 }
@@ -71,6 +89,8 @@
 @property (nonatomic, strong) NSMutableSet *pendingPeers;                   // WSPeer
 @property (nonatomic, strong) NSMutableSet *connectedPeers;                 // WSPeer
 @property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSSignedTransaction
+@property (nonatomic, assign) NSUInteger sentBytes;
+@property (nonatomic, assign) NSUInteger receivedBytes;
 
 // sync
 @property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
@@ -930,6 +950,22 @@
 
 #pragma mark Interaction
 
+- (WSPeerGroupStatus *)status
+{
+    @synchronized (self.queue) {
+        WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
+        status.parameters = self.parameters;
+        status.isConnected = [self isConnected];
+        if (status.isConnected) {
+            status.currentHeight = self.blockChain.currentHeight;
+            status.targetHeight = self.downloadPeer.lastBlockHeight;
+        }
+        status.sentBytes = self.sentBytes;
+        status.receivedBytes = self.receivedBytes;
+        return status;
+    }
+}
+
 - (NSUInteger)currentHeight
 {
     @synchronized (self.queue) {
@@ -1410,6 +1446,20 @@
 
         [self reloadBloomFilter];
         [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+    }
+}
+
+- (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes
+{
+    @synchronized (self.queue) {
+        self.sentBytes += numberOfBytes;
+    }
+}
+
+- (void)peer:(WSPeer *)peer didReceiveNumberOfBytes:(NSUInteger)numberOfBytes
+{
+    @synchronized (self.queue) {
+        self.receivedBytes += numberOfBytes;
     }
 }
 

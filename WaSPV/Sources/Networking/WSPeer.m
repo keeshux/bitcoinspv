@@ -97,6 +97,8 @@
     NSTimeInterval _connectionTime;
     NSTimeInterval _lastSeenTimestamp;
     WSMessageVersion *_receivedVersion;
+    NSUInteger _sentBytes;
+    NSUInteger _receivedBytes;
     BOOL _isDownloadPeer;
 }
 
@@ -159,6 +161,8 @@
 // utils
 - (void)unsafeSendMessage:(id<WSMessage>)message;
 - (BOOL)tryFinishHandshake;
+- (void)didSendNumberOfBytes:(NSUInteger)numberOfBytes;
+- (void)didReceiveNumberOfBytes:(NSUInteger)numberOfBytes;
 
 @end
 
@@ -271,6 +275,7 @@
 
 - (void)processData:(NSData *)data
 {
+    [self didReceiveNumberOfBytes:data.length];
     [self.deserializer appendData:data];
     
     NSError *error;
@@ -392,6 +397,20 @@
 - (uint32_t)lastBlockHeight
 {
     return self.receivedVersion.lastBlockHeight;
+}
+
+- (NSUInteger)sentBytes
+{
+    @synchronized (self) {
+        return _sentBytes;
+    }
+}
+
+- (NSUInteger)receivedBytes
+{
+    @synchronized (self) {
+        return _receivedBytes;
+    }
 }
 
 //
@@ -1166,6 +1185,7 @@
     DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
     
     [self.writer writeData:buffer.data timeout:WSPeerWriteTimeout];
+    [self didSendNumberOfBytes:buffer.length];
 }
 
 - (BOOL)tryFinishHandshake
@@ -1186,6 +1206,28 @@
     });
     
     return YES;
+}
+
+- (void)didSendNumberOfBytes:(NSUInteger)numberOfBytes
+{
+    @synchronized (self) {
+        _sentBytes += numberOfBytes;
+
+        dispatch_async(self.groupQueue, ^{
+            [self.delegate peer:self didSendNumberOfBytes:numberOfBytes];
+        });
+    }
+}
+
+- (void)didReceiveNumberOfBytes:(NSUInteger)numberOfBytes
+{
+    @synchronized (self) {
+        _receivedBytes += numberOfBytes;
+
+        dispatch_async(self.groupQueue, ^{
+            [self.delegate peer:self didReceiveNumberOfBytes:numberOfBytes];
+        });
+    }
 }
 
 #pragma mark Testing
