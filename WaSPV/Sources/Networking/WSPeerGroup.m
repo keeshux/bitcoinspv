@@ -1126,6 +1126,25 @@
             [self removeInactiveHost:peer.remoteHost];
         }
 
+        if (error.code == WSErrorCodePeerGroupRescan) {
+            DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+            
+            [self.store truncate];
+            [self.wallet removeAllTransactions];
+            
+            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+            NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+            for (WSPeer *peer in self.pendingPeers) {
+                [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+            }
+            for (WSPeer *peer in self.connectedPeers) {
+                [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+            }
+            
+            DDLogDebug(@"Rescan, truncate complete");
+            [self.notifier notifyRescan];
+        }
+        
         if (peer == self.downloadPeer) {
             DDLogDebug(@"Peer %@ was download peer", peer);
 
@@ -1141,25 +1160,6 @@
             else {
                 [self.notifier notifyDownloadFailedWithError:error];
 
-                if (error.code == WSErrorCodePeerGroupRescan) {
-                    DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
-                    
-                    [self.store truncate];
-                    [self.wallet removeAllTransactions];
-                    
-                    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
-                    NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-                    for (WSPeer *peer in self.pendingPeers) {
-                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-                    }
-                    for (WSPeer *peer in self.connectedPeers) {
-                        [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-                    }
-                    
-                    DDLogDebug(@"Rescan, truncate complete");
-                    [self.notifier notifyRescan];
-                }
-                
                 self.downloadPeer = [self bestPeer];
                 if (self.downloadPeer) {
                     DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
