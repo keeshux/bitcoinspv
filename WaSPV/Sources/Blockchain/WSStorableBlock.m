@@ -158,7 +158,7 @@
 
 - (BOOL)isTransitionBlock
 {
-    return (self.height % [self.parameters retargetInterval] == 0);
+    return ((self.height > 0) && (self.height % [self.parameters retargetInterval] == 0));
 }
 
 - (BOOL)hasMoreWorkThanBlock:(WSStorableBlock *)block
