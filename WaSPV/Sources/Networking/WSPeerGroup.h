@@ -46,6 +46,7 @@
 - (BOOL)isSyncing;
 - (NSUInteger)currentHeight;
 - (NSUInteger)targetHeight;
+- (NSArray *)recentBlocks;
 - (NSUInteger)sentBytes;
 - (NSUInteger)receivedBytes;
 

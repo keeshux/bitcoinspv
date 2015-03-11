@@ -56,6 +56,7 @@
 @property (nonatomic, assign) BOOL isSyncing;
 @property (nonatomic, assign) NSUInteger currentHeight;
 @property (nonatomic, assign) NSUInteger targetHeight;
+@property (nonatomic, strong) NSArray *recentBlocks;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
 
@@ -963,6 +964,15 @@
             status.currentHeight = self.blockChain.currentHeight;
             status.targetHeight = self.downloadPeer.lastBlockHeight;
         }
+
+        NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:self.numberOfRetainedRecentBlocks];
+        WSStorableBlock *block = self.blockChain.head;
+        while (block && (recentBlocks.count < self.numberOfRetainedRecentBlocks)) {
+            [recentBlocks addObject:block];
+            block = [block previousBlockInChain:self.blockChain];
+        }
+        status.recentBlocks = recentBlocks;
+
         status.sentBytes = self.sentBytes;
         status.receivedBytes = self.receivedBytes;
         return status;
