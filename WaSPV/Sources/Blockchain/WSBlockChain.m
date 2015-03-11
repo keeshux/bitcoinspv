@@ -336,7 +336,7 @@
         DDLogDebug(@"Pruning at transition %u", self.head.height);
         
         const NSTimeInterval startTime = [NSDate timeIntervalSinceReferenceDate];
-        [self.store removeBlocksBelowHeight:(self.head.height - self.numberOfRetainedBlocksAfterPruning)];
+        [self.store removeBlocksBelowHeight:(self.head.height - self.numberOfRetainedBlocksAfterPruning + 1)];
         
         DDLogDebug(@"Pruned in %.3fs", [NSDate timeIntervalSinceReferenceDate] - startTime);
     }
