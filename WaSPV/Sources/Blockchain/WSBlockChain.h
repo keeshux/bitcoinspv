@@ -47,7 +47,8 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 //
 @interface WSBlockChain : NSObject <WSIndentableDescription>
 
-@property (nonatomic, assign) BOOL pruneAtTransitions; // YES
+@property (nonatomic, assign) BOOL prunesAtTransitions; // YES
+@property (nonatomic, assign) NSUInteger numberOfRetainedBlocksAfterPruning; // 0
 @property (nonatomic, weak) id<WSBlockChainDelegate> delegate;
 
 - (instancetype)initWithStore:(id<WSBlockStore>)blockStore;

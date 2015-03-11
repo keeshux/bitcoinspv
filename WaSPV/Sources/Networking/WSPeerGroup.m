@@ -204,6 +204,7 @@
         self.bloomFilterObservedRateMax = WSPeerGroupDefaultBFObservedRateMax;
         self.bloomFilterLowPassRatio = WSPeerGroupDefaultBFLowPassRatio;
         self.bloomFilterTxsPerBlock = WSPeerGroupDefaultBFTxsPerBlock;
+        self.numberOfRetainedRecentBlocks = 0;
 
         // peer related
         self.headersOnly = NO;
@@ -356,6 +357,8 @@
             DDLogInfo(@"Network offline, not connecting");
             return;
         }
+        
+        self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
 
         if (self.peerHosts.count > 0) {
             NSArray *newAddresses = [self disconnectedAddressesWithHosts:self.peerHosts];

@@ -66,7 +66,8 @@
     if ((self = [super init])) {
         self.store = blockStore;
         self.orphans = [[NSMutableDictionary alloc] init];
-        self.pruneAtTransitions = YES;
+        self.prunesAtTransitions = YES;
+        self.numberOfRetainedBlocksAfterPruning = 0;
 
         //
         // test networks (testnet3/regtest) validates blocks in
@@ -225,7 +226,7 @@
         [self.store setHead:newHead];
 
 #warning XXX: is this really safe?
-        if (self.pruneAtTransitions) {
+        if (self.prunesAtTransitions) {
             [self pruneBlocksIfAtTransition];
         }
 
@@ -335,7 +336,7 @@
         DDLogDebug(@"Pruning at transition %u", self.head.height);
         
         const NSTimeInterval startTime = [NSDate timeIntervalSinceReferenceDate];
-        [self.store removeBlocksBelowHeight:self.head.height];
+        [self.store removeBlocksBelowHeight:(self.head.height - self.numberOfRetainedBlocksAfterPruning)];
         
         DDLogDebug(@"Pruned in %.3fs", [NSDate timeIntervalSinceReferenceDate] - startTime);
     }
