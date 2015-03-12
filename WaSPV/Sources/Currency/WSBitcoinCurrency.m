@@ -30,6 +30,7 @@
 
 NSString *const WSBitcoinCurrencyCodeBTC            = @"BTC";
 NSString *const WSBitcoinCurrencyCodeMilliBTC       = @"mBTC";
+NSString *const WSBitcoinCurrencyCodeBits           = @"bits";
 NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 @interface WSBitcoinCurrency ()
@@ -52,6 +53,7 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
     dispatch_once(&onceToken, ^{
         currencies = @{WSBitcoinCurrencyCodeBTC: [[self alloc] initWithCode:WSBitcoinCurrencyCodeBTC powerOf10:8],
                        WSBitcoinCurrencyCodeMilliBTC: [[self alloc] initWithCode:WSBitcoinCurrencyCodeMilliBTC powerOf10:5],
+                       WSBitcoinCurrencyCodeBits: [[self alloc] initWithCode:WSBitcoinCurrencyCodeBits powerOf10:2],
                        WSBitcoinCurrencyCodeSatoshi: [[self alloc] initWithCode:WSBitcoinCurrencyCodeSatoshi powerOf10:0]};
     });
     return currencies[code];

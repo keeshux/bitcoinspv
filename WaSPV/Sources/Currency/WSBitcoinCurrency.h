@@ -31,6 +31,7 @@
 
 extern NSString *const WSBitcoinCurrencyCodeBTC;
 extern NSString *const WSBitcoinCurrencyCodeMilliBTC;
+extern NSString *const WSBitcoinCurrencyCodeBits;
 extern NSString *const WSBitcoinCurrencyCodeSatoshi;
 
 @interface WSBitcoinCurrency : NSObject <WSCurrency>
