@@ -960,8 +960,8 @@
         WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
         status.parameters = self.parameters;
         status.isConnected = [self isConnected];
+        status.currentHeight = self.blockChain.currentHeight;
         if (status.isConnected) {
-            status.currentHeight = self.blockChain.currentHeight;
             status.targetHeight = self.downloadPeer.lastBlockHeight;
         }
 
