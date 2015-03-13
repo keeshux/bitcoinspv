@@ -102,7 +102,7 @@
 @property (nonatomic, strong) WSBloomFilter *bloomFilter; // immutable, thread-safe
 @property (nonatomic, assign) NSUInteger observedFilterHeight;
 @property (nonatomic, assign) double observedFalsePositiveRate;
-@property (nonatomic, assign) NSTimeInterval lastDownloadedBlockTime;
+@property (nonatomic, assign) NSTimeInterval lastKeepAliveTime;
 
 - (void)connect;
 - (void)disconnect;
@@ -755,7 +755,7 @@
         [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
             [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
 
-            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
+            self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
@@ -935,7 +935,7 @@
     const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
 
     @synchronized (self.queue) {
-        const NSTimeInterval elapsed = now - self.lastDownloadedBlockTime;
+        const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
 
         if (elapsed < self.requestTimeout) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -1216,6 +1216,15 @@
     }
 }
 
+- (void)peerDidKeepAlive:(WSPeer *)peer
+{
+    @synchronized (self.queue) {
+        if (peer == self.downloadPeer) {
+            self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
+        }
+    }
+}
+
 - (void)peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header
 {
     DDLogVerbose(@"Received header from %@: %@", peer, header);
@@ -1225,10 +1234,6 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
-        if (peer == self.downloadPeer) {
-            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
-        }
-
         WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:header error:&error];
         if (expected) {
             [self.pool closeConnectionForProcessor:peer error:error];
@@ -1266,11 +1271,6 @@
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
 #warning FIXME: handle full blocks, blockchain not extending in full blocks mode
-    @synchronized (self.queue) {
-        if (peer == self.downloadPeer) {
-            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
-        }
-    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
@@ -1283,10 +1283,6 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
-        if (peer == self.downloadPeer) {
-            self.lastDownloadedBlockTime = [NSDate timeIntervalSinceReferenceDate];
-        }
-
         WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error];
         if (expected) {
             [self.pool closeConnectionForProcessor:peer error:error];

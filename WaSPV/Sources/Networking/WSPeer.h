@@ -142,6 +142,7 @@ typedef enum {
 
 - (void)peerDidConnect:(WSPeer *)peer;
 - (void)peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error;
+- (void)peerDidKeepAlive:(WSPeer *)peer;
 - (void)peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header;
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block;
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;

@@ -671,6 +671,10 @@
 {
     NSParameterAssert(message);
     
+    dispatch_async(self.groupQueue, ^{
+        [self.delegate peerDidKeepAlive:self];
+    });
+    
     if (message.originalPayload.length < 1024) {
         DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalPayload.length);
     }
