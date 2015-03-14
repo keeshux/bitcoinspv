@@ -1359,23 +1359,12 @@
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
-//    DDLogDebug(@">>> %@", addresses);
     
     @synchronized (self.queue) {
-//        const uint32_t minTimestamp = WSCurrentTimestamp() - WSDatesOneHour * WSPeerGroupMaxPeerHours;
-//        NSUInteger retained = 0;
-//        for (WSNetworkAddress *address in addresses) {
-//            if (address.timestamp < minTimestamp) {
-//                continue;
-//            }
-//            [self.inactiveAddresses addObject:address];
-//            ++retained;
-//        }
-//        DDLogDebug(@"Retained %u recent addresses (< %u hours)", retained, WSPeerGroupMaxPeerHours);
-
         [self.inactiveAddresses addObjectsFromArray:addresses];
 
-        if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
+//        if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
+        if (self.connectedPeers.count < self.maxConnections) {
             [self triggerConnectionsFromInactive];
         }
     }
