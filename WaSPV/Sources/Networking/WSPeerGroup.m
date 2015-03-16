@@ -537,7 +537,7 @@
         [self.inactiveAddresses removeObjectsInArray:triggered];
     }
     
-    DDLogInfo(@"Triggered %u new connections from %@", triggered.count, seed);
+    DDLogDebug(@"Triggered %u new connections from %@", triggered.count, seed);
 }
 
 - (void)triggerConnectionsFromInactive
@@ -605,7 +605,7 @@
         }
     }
 
-    DDLogInfo(@"Triggered %u new connections from inactive", triggered.count);
+    DDLogDebug(@"Triggered %u new connections from inactive", triggered.count);
 }
 
 - (void)openConnectionToPeerHost:(NSString *)host

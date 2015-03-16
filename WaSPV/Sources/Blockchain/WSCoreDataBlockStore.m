@@ -231,7 +231,7 @@
 {
     [self.manager.context performBlock:^{
         if ([self.manager.context save:NULL]) {
-            DDLogInfo(@"Saved store to %@", self.manager.storeURL);
+            DDLogDebug(@"Saved store to %@", self.manager.storeURL);
         }
         else {
             DDLogError(@"Failed to save store to %@", self.manager.storeURL);
