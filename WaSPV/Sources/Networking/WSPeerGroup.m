@@ -353,12 +353,18 @@
 
 - (void)connect
 {
-    dispatch_async(self.queue, ^{
+    @synchronized (self.queue) {
+        if (self.connectionFailures == self.maxConnectionFailures) {
+            DDLogInfo(@"Too many disconnections, not connecting");
+            return;
+        }
         if (![self.reachability isReachable]) {
             DDLogInfo(@"Network offline, not connecting");
             return;
         }
-        
+    }
+    
+    dispatch_async(self.queue, ^{
         self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
 
         if (self.peerHosts.count > 0) {
@@ -1191,11 +1197,14 @@
         }
         else {
             ++self.connectionFailures;
-            DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+            if (self.connectionFailures > self.maxConnectionFailures) {
+                return;
+            }
 
             // reconnect if persistent
             if (self.keepConnected) {
-//                if (self.connectionFailures >= self.maxConnectionFailures) {
+                DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+
                 if (self.connectionFailures == self.maxConnectionFailures) {
                     DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
                     [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
@@ -1652,9 +1661,11 @@
     
     @synchronized (self.queue) {
         if (self.keepConnected && [reachability isReachable]) {
+            DDLogDebug(@"Network is reachable, connecting...");
             [self connect];
         }
         else {
+            DDLogDebug(@"Network is unreachable, disconnecting...");
             [self disconnect];
         }
     }
