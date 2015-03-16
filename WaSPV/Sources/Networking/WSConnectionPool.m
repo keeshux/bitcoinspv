@@ -92,11 +92,18 @@
 
 - (instancetype)initWithLabel:(NSString *)label
 {
+    if (!label) {
+        label = [[self class] description];
+    }
+    return [self initWithQueue:dispatch_queue_create(label.UTF8String, NULL)];
+}
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue
+{
+    NSParameterAssert(queue);
+    
     if ((self = [super init])) {
-        if (!label) {
-            label = [[self class] description];
-        }
-        self.queue = dispatch_queue_create(label.UTF8String, NULL);
+        self.queue = queue;
         self.handlers = [[NSMutableArray alloc] init];
         self.handlersByIdentifier = [[NSMutableDictionary alloc] init];
         self.connectionTimeout = 5.0;

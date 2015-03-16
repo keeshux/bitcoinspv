@@ -60,6 +60,7 @@
 
 - (instancetype)init;
 - (instancetype)initWithLabel:(NSString *)label;
+- (instancetype)initWithQueue:(dispatch_queue_t)queue;
 - (dispatch_queue_t)queue;
 
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
