@@ -54,7 +54,7 @@ const NSUInteger        WSPeerEnabledServices                       = 0;        
 const NSUInteger        WSPeerMaxFilteredBlockCount                 = 2000;
 
 const NSUInteger        WSPeerGroupDefaultMaxConnections            = 3;
-const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures     = 20;
+const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures     = 15;
 const NSTimeInterval    WSPeerGroupDefaultReconnectionDelay         = 10.0;
 //const NSTimeInterval    WSPeerGroupDefaultPingInterval              = 5.0;
 const NSTimeInterval    WSPeerGroupDefaultRequestTimeout            = 5.0;
