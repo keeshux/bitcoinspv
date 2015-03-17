@@ -50,7 +50,7 @@ extern NSString *const WSWalletTransactionKey;
 extern NSString *const WSWalletTransactionsMetadataKey;
 
 //
-// must be thread-safe
+// thread-safety: required
 //
 @protocol WSWallet <WSIndentableDescription>
 

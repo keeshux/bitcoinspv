@@ -35,7 +35,7 @@
 #pragma mark -
 
 //
-// must be thread-safe
+// thread-safety: not required
 //
 @protocol WSBlockStore <NSObject>
 

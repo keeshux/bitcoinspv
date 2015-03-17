@@ -31,7 +31,7 @@
 #pragma mark -
 
 //
-// must be thread-safe
+// thread-safety: required
 //
 @protocol WSConnectionWriter <NSObject>
 
@@ -52,7 +52,7 @@
 #pragma mark -
 
 //
-// thread-safe
+// thread-safe: yes
 //
 @interface WSConnectionPool : NSObject <GCDAsyncSocketDelegate>
 

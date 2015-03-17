@@ -76,42 +76,36 @@
 {
     WSExceptionCheckIllegal(blockId != nil, @"Nil blockId");
     
-    @synchronized (self) {
-        return self.blocks[blockId];
-    }
+    return self.blocks[blockId];
 }
 
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
 {
     WSExceptionCheckIllegal(txId != nil, @"Nil txId");
     
-    @synchronized (self) {
-        WSStorableBlock *block = self.txIdsToBlocks[txId];
-        if (!block) {
-            return nil;
-        }
-        for (WSSignedTransaction *tx in block.transactions) {
-            if ([tx.txId isEqual:txId]) {
-                return tx;
-            }
-        }
+    WSStorableBlock *block = self.txIdsToBlocks[txId];
+    if (!block) {
         return nil;
     }
+    for (WSSignedTransaction *tx in block.transactions) {
+        if ([tx.txId isEqual:txId]) {
+            return tx;
+        }
+    }
+    return nil;
 }
 
 - (void)putBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block != nil, @"Nil block");
 
-    @synchronized (self) {
-        WSHash256 *blockId = block.blockId;
-        if (self.blocks[blockId]) {
-            DDLogWarn(@"Replacing block %@", blockId);
-        }
-        self.blocks[blockId] = block;
-        for (WSSignedTransaction *tx in block.transactions) {
-            self.txIdsToBlocks[tx.txId] = block;
-        }
+    WSHash256 *blockId = block.blockId;
+    if (self.blocks[blockId]) {
+        DDLogWarn(@"Replacing block %@", blockId);
+    }
+    self.blocks[blockId] = block;
+    for (WSSignedTransaction *tx in block.transactions) {
+        self.txIdsToBlocks[tx.txId] = block;
     }
 }
 
@@ -127,19 +121,17 @@
 
 - (NSArray *)removeBlocksWithPredicate:(NSPredicate *)predicate
 {
-    @synchronized (self) {
-        NSMutableArray *removedBlockIds = [[NSMutableArray alloc] initWithCapacity:self.blocks.count];
-        WSHash256 *blockId = self.head.blockId;
-        while (blockId) {
-            WSStorableBlock *block = self.blocks[blockId];
-            if ([predicate evaluateWithObject:block]) {
-                [removedBlockIds addObject:block.blockId];
-            }
-            blockId = block.previousBlockId;
+    NSMutableArray *removedBlockIds = [[NSMutableArray alloc] initWithCapacity:self.blocks.count];
+    WSHash256 *blockId = self.head.blockId;
+    while (blockId) {
+        WSStorableBlock *block = self.blocks[blockId];
+        if ([predicate evaluateWithObject:block]) {
+            [removedBlockIds addObject:block.blockId];
         }
-        [self.blocks removeObjectsForKeys:removedBlockIds];
-        return removedBlockIds;
+        blockId = block.previousBlockId;
     }
+    [self.blocks removeObjectsForKeys:removedBlockIds];
+    return removedBlockIds;
 }
 
 - (void)setHead:(WSStorableBlock *)head

@@ -61,6 +61,9 @@ extern NSString *const WSPeerGroupErrorKey;
 
 #pragma mark -
 
+//
+// thread-safe: no
+//
 @interface WSPeerGroupNotifier : NSObject
 
 - (instancetype)initWithPeerGroup:(WSPeerGroup *)peerGroup;

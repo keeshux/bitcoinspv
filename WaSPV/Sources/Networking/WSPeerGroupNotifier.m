@@ -113,13 +113,11 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     DDLogInfo(@"Started download, status = %u/%u", fromHeight, toHeight);
 
-    @synchronized (self) {
-        self.syncFromHeight = fromHeight;
-        self.syncToHeight = toHeight;
+    self.syncFromHeight = fromHeight;
+    self.syncToHeight = toHeight;
 
-        if (self.syncTaskId == UIBackgroundTaskInvalid) {
-            self.syncTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{}];
-        }
+    if (self.syncTaskId == UIBackgroundTaskInvalid) {
+        self.syncTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{}];
     }
     
     [self notifyWithName:WSPeerGroupDidStartDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
@@ -128,19 +126,15 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyDownloadFinished
 {
-    NSUInteger fromHeight = 0;
-    NSUInteger toHeight = 0;
-    @synchronized (self) {
-        fromHeight = self.syncFromHeight;
-        toHeight = self.syncToHeight;
+    const NSUInteger fromHeight = self.syncFromHeight;
+    const NSUInteger toHeight = self.syncToHeight;
 
-        self.syncFromHeight = NSNotFound;
-        self.syncToHeight = NSNotFound;
-    
-        if (self.syncTaskId != UIBackgroundTaskInvalid) {
-            [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
-            self.syncTaskId = UIBackgroundTaskInvalid;
-        }
+    self.syncFromHeight = NSNotFound;
+    self.syncToHeight = NSNotFound;
+
+    if (self.syncTaskId != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
+        self.syncTaskId = UIBackgroundTaskInvalid;
     }
 
     DDLogInfo(@"Finished download, %u -> %u", fromHeight, toHeight);
@@ -153,14 +147,12 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     DDLogError(@"Download failed%@", WSStringOptional(error, @" (%@)"));
     
-    @synchronized (self) {
-        self.syncFromHeight = NSNotFound;
-        self.syncToHeight = NSNotFound;
+    self.syncFromHeight = NSNotFound;
+    self.syncToHeight = NSNotFound;
 
-        if (self.syncTaskId != UIBackgroundTaskInvalid) {
-            [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
-            self.syncTaskId = UIBackgroundTaskInvalid;
-        }
+    if (self.syncTaskId != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
+        self.syncTaskId = UIBackgroundTaskInvalid;
     }
     
     [self notifyWithName:WSPeerGroupDidFailDownloadNotification userInfo:(error ? @{WSPeerGroupErrorKey: error} : nil)];
@@ -168,12 +160,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyBlockAdded:(WSStorableBlock *)block
 {
-    NSUInteger fromHeight = 0;
-    NSUInteger toHeight = 0;
-    @synchronized (self) {
-        fromHeight = self.syncFromHeight;
-        toHeight = self.syncToHeight;
-    }
+    const NSUInteger fromHeight = self.syncFromHeight;
+    const NSUInteger toHeight = self.syncToHeight;
 
     const NSUInteger currentHeight = block.height;
     const NSUInteger blocksLeft = toHeight - block.height;
@@ -207,9 +195,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (BOOL)didNotifyDownloadStarted
 {
-    @synchronized (self) {
-        return (self.syncFromHeight != NSNotFound);
-    }
+    return (self.syncFromHeight != NSNotFound);
 }
 
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo

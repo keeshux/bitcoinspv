@@ -43,7 +43,7 @@
 typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArray *);
 
 //
-// WARNING: this is NOT thread-safe, just a business wrapper around a block store
+// thread-safe: no (just a business wrapper around a block store)
 //
 @interface WSBlockChain : NSObject <WSIndentableDescription>
 
