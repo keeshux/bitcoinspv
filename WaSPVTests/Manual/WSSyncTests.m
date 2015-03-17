@@ -393,20 +393,20 @@
 
 - (id<WSBlockStore>)memoryStore
 {
-    return [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    return [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
 }
 
 - (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating
 {
     NSString *path = nil;
-    if (WSParametersGetCurrentType() == WSNetworkTypeMain) {
+    if (self.networkType == WSNetworkTypeMain) {
         path = self.mainPath;
     }
     else {
         path = self.testPath;
     }
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:manager];
     if (truncating) {
         [store truncate];
     }
