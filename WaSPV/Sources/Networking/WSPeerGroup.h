@@ -78,9 +78,9 @@
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
 
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool;
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool wallet:(id<WSSynchronizableWallet>)wallet;
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store;
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
 
 // connection
 - (BOOL)startConnections;

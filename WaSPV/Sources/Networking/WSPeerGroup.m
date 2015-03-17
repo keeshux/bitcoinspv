@@ -74,11 +74,11 @@
 
 @property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) WSPeerGroupNotifier *notifier;
-@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSConnectionPool *pool;
+@property (nonatomic, strong) dispatch_queue_t queue;
+@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
-@property (nonatomic, strong) dispatch_queue_t queue;
 @property (nonatomic, strong) WSReachability *reachability;
 
 // connection
@@ -143,43 +143,58 @@
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store
 {
-    return [self initWithBlockStore:store pool:[[WSConnectionPool alloc] init]];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    NSString *className = [self.class description];
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+
+    return [self initWithPool:pool queue:queue blockStore:store];
 }
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
-    return [self initWithBlockStore:store pool:[[WSConnectionPool alloc] init] fastCatchUpTimestamp:fastCatchUpTimestamp];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    NSString *className = [self.class description];
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+
+    return [self initWithPool:pool queue:queue blockStore:store fastCatchUpTimestamp:fastCatchUpTimestamp];
 }
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    return [self initWithBlockStore:store pool:[[WSConnectionPool alloc] init] wallet:wallet];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    NSString *className = [self.class description];
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+
+    return [self initWithPool:pool queue:queue blockStore:store wallet:wallet];
 }
 
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store
 {
-    return [self initWithBlockStore:store pool:pool wallet:nil];
+    return [self initWithPool:pool queue:queue blockStore:store wallet:nil];
 }
 
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
-    if ((self = [self initWithBlockStore:store pool:pool wallet:nil])) {
+    if ((self = [self initWithPool:pool queue:queue blockStore:store wallet:nil])) {
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
     }
     return self;
 }
 
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store pool:(WSConnectionPool *)pool wallet:(id<WSSynchronizableWallet>)wallet
+- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    WSExceptionCheckIllegal(store != nil, @"Nil store");
     WSExceptionCheckIllegal(pool != nil, @"Nil pool");
+    WSExceptionCheckIllegal(queue != NULL, @"NULL queue");
+    WSExceptionCheckIllegal(store != nil, @"Nil store");
     
     if ((self = [super init])) {
         self.parameters = store.parameters;
         self.notifier = [[WSPeerGroupNotifier alloc] initWithPeerGroup:self];
-        self.store = store;
         self.pool = pool;
         self.pool.connectionTimeout = WSPeerConnectTimeout;
+        self.queue = queue;
+
+        self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         if (wallet) {
             self.wallet = wallet;
@@ -189,8 +204,6 @@
             self.fastCatchUpTimestamp = 0; // block #0
         }
 
-        NSString *className = [self.class description];
-        self.queue = dispatch_queue_create(className.UTF8String, NULL);
         self.reachability = [WSReachability reachabilityForInternetConnection];
         self.reachability.delegate = self;
         self.reachability.delegateQueue = self.queue;
