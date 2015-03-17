@@ -145,7 +145,7 @@
 {
     WSConnectionPool *pool = [[WSConnectionPool alloc] init];
     NSString *className = [self.class description];
-    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
     return [self initWithPool:pool queue:queue blockStore:store];
 }
@@ -154,7 +154,7 @@
 {
     WSConnectionPool *pool = [[WSConnectionPool alloc] init];
     NSString *className = [self.class description];
-    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
     return [self initWithPool:pool queue:queue blockStore:store fastCatchUpTimestamp:fastCatchUpTimestamp];
 }
@@ -163,7 +163,7 @@
 {
     WSConnectionPool *pool = [[WSConnectionPool alloc] init];
     NSString *className = [self.class description];
-    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, NULL);
+    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
     return [self initWithPool:pool queue:queue blockStore:store wallet:wallet];
 }
@@ -375,9 +375,7 @@
             DDLogInfo(@"Network offline, not connecting");
             return;
         }
-    }
-    
-    dispatch_async(self.queue, ^{
+
         self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
 
         if (self.peerHosts.count > 0) {
@@ -417,10 +415,12 @@
                     [self triggerConnectionsFromSeed:seed addresses:newAddresses];
                 }
             } failure:^(NSError *error) {
-                DDLogError(@"DNS discovery failed: %@", error);
+                @synchronized (self.queue) {
+                    DDLogError(@"DNS discovery failed: %@", error);
+                }
             }];
         }
-    });
+    }
 }
 
 - (void)disconnect
@@ -457,7 +457,9 @@
         }
     }
     if (ongoing) {
-        failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
+        dispatch_async(self.queue, ^{
+            failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
+        });
         return;
     }
     
@@ -468,7 +470,7 @@
             ++self.activeDnsResolutions;
         }
 
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             CFHostRef host = CFHostCreateWithName(NULL, (__bridge CFStringRef)dns);
             if (!CFHostStartInfoResolution(host, kCFHostAddresses, NULL)) {
                 DDLogError(@"Error during resolution of %@", dns);
