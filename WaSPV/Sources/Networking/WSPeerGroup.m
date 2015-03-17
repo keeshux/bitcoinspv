@@ -126,7 +126,7 @@
 - (BOOL)needsBloomFiltering;
 - (void)detectDownloadTimeout;
 
-- (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError **)error;
+- (BOOL)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError **)error;
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReplacedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
@@ -1243,8 +1243,7 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
-        WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:header error:&error];
-        if (expected) {
+        if (![self validateHeaderAgainstCheckpoints:header error:&error]) {
             [self.pool closeConnectionForProcessor:peer error:error];
             return;
         }
@@ -1292,8 +1291,7 @@
     __weak WSPeerGroup *weakSelf = self;
 
     @synchronized (self.queue) {
-        WSStorableBlock *expected = [self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error];
-        if (expected) {
+        if (![self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error]) {
             [self.pool closeConnectionForProcessor:peer error:error];
             return;
         }
@@ -1472,15 +1470,15 @@
 
 #pragma mark Handlers
 
-- (WSStorableBlock *)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
+- (BOOL)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
 {
     @synchronized (self.queue) {
         WSStorableBlock *expected = [self.parameters checkpointAtHeight:(uint32_t)(self.currentHeight + 1)];
         if (!expected) {
-            return nil;
+            return YES;
         }
-        if ([header isEqual:expected.header]) {
-            return nil;
+        if ([header.blockId isEqual:expected.header.blockId]) {
+            return YES;
         }
 
         DDLogError(@"Checkpoint validation failed at %u", expected.height);
@@ -1491,7 +1489,7 @@
             *error = WSErrorMake(WSErrorCodePeerGroupRescan, @"Checkpoint validation failed at %u (%@ != %@)",
                                  expected.height, header.blockId, expected.blockId);
         }
-        return expected;
+        return NO;
     }
 }
 
