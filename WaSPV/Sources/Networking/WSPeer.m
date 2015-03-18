@@ -85,22 +85,37 @@
 
 #pragma mark -
 
-@interface WSPeer () {
-    WSPeerStatus _peerStatus;
-    BOOL _didReceiveVerack;
-    BOOL _didSendVerack;
-    NSString *_remoteHost;
-    uint16_t _remotePort;
-    uint64_t _remoteServices;
-    uint64_t _nonce;
-    NSTimeInterval _connectionStartTime;
-    NSTimeInterval _connectionTime;
-    NSTimeInterval _lastSeenTimestamp;
-    WSMessageVersion *_receivedVersion;
-    NSUInteger _sentBytes;
-    NSUInteger _receivedBytes;
-    BOOL _isDownloadPeer;
+@interface WSPeerInfo ()
+
+@property (nonatomic, copy) NSString *host;
+@property (nonatomic, assign) uint16_t port;
+
+@end
+
+@implementation WSPeerInfo
+
+- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port
+{
+    WSExceptionCheckIllegal(host != nil, @"Nil host");
+    WSExceptionCheckIllegal(port > 0, @"Non-positive port");
+    
+    if ((self = [super init])) {
+        self.host = host;
+        self.port = port;
+    }
+    return self;
 }
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"(%@:%u)", self.host, self.port];
+}
+
+@end
+
+#pragma mark -
+
+@interface WSPeer ()
 
 // only set on creation
 @property (nonatomic, strong) id<WSParameters> parameters;
@@ -110,12 +125,21 @@
 @property (nonatomic, strong) NSMutableArray *messageQueue;
 #endif
 
-// only set on pool thread
-@property (nonatomic, strong) dispatch_queue_t connectionQueue;
-@property (nonatomic, strong) WSProtocolDeserializer *deserializer;
-@property (nonatomic, strong) id<WSConnectionWriter> writer;
+// internal state (current or self.groupQueue)
+@property (nonatomic, assign) WSPeerStatus peerStatus;
+@property (nonatomic, assign) BOOL didReceiveVerack;
+@property (nonatomic, assign) BOOL didSendVerack;
+@property (nonatomic, copy) NSString *remoteHost;
+@property (nonatomic, assign) uint16_t remotePort;
+@property (nonatomic, assign) uint64_t remoteServices;
+@property (nonatomic, assign) uint64_t nonce;
+@property (nonatomic, assign) NSTimeInterval connectionStartTime;
+@property (nonatomic, assign) NSTimeInterval connectionTime;
+@property (nonatomic, assign) NSTimeInterval lastSeenTimestamp;
+@property (nonatomic, strong) WSMessageVersion *receivedVersion;
 
-// sync status (shared by WSPeerGroup, guarded by self.groupQueue)
+// sync state (current or self.groupQueue)
+@property (nonatomic, strong) dispatch_queue_t connectionQueue;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
@@ -126,6 +150,12 @@
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
 @property (nonatomic, strong) NSMutableOrderedSet *currentFilteredTransactions;
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
+
+// connection state (self.connectionQueue)
+@property (nonatomic, strong) WSProtocolDeserializer *deserializer;
+@property (nonatomic, strong) id<WSConnectionWriter> writer;
+@property (nonatomic, assign) NSUInteger sentBytes;
+@property (nonatomic, assign) NSUInteger receivedBytes;
 
 // protocol
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions;
@@ -158,7 +188,7 @@
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
 
-// utils
+// helpers
 - (void)unsafeSendMessage:(id<WSMessage>)message;
 - (BOOL)tryFinishHandshake;
 - (void)didSendNumberOfBytes:(NSUInteger)numberOfBytes;
@@ -191,9 +221,9 @@
         self.shouldDownloadBlocks = peerParameters.shouldDownloadBlocks;
         self.needsBloomFiltering = peerParameters.needsBloomFiltering;
 
-        _peerStatus = WSPeerStatusDisconnected;
-        _remoteHost = host;
-        _remotePort = peerParameters.port;
+        self.peerStatus = WSPeerStatusDisconnected;
+        self.remoteHost = host;
+        self.remotePort = peerParameters.port;
 
         self.pendingBlockIds = [[NSCountedSet alloc] init];
         self.processingBlockIds = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * WSMessageBlocksMaxCount)];
@@ -210,9 +240,7 @@
         return NO;
     }
     WSPeer *peer = object;
-    @synchronized (self) {
-        return ((peer.remoteAddress == self.remoteAddress) && (peer.remotePort == self.remotePort));
-    }
+    return ((peer.remoteAddress == self.remoteAddress) && (peer.remotePort == self.remotePort));
 }
 
 //
@@ -225,51 +253,48 @@
     static const uint32_t prime = 0x01000193;
     static const uint32_t offset = 0x811c9dc5;
 
+    const uint32_t remoteAddress = self.remoteAddress;
     uint32_t hash = offset;
-    @synchronized (self) {
-        const uint32_t remoteAddress = self.remoteAddress;
-        hash = (hash ^ ((remoteAddress >> 24) & 0xff)) * prime;
-        hash = (hash ^ ((remoteAddress >> 16) & 0xff)) * prime;
-        hash = (hash ^ ((remoteAddress >> 8) & 0xff)) * prime;
-        hash = (hash ^ (remoteAddress & 0xff)) * prime;
-        hash = (hash ^ ((_remotePort >> 8) & 0xff)) * prime;
-        hash = (hash ^ (_remotePort & 0xff)) * prime;
-    }
+    hash = (hash ^ ((remoteAddress >> 24) & 0xff)) * prime;
+    hash = (hash ^ ((remoteAddress >> 16) & 0xff)) * prime;
+    hash = (hash ^ ((remoteAddress >> 8) & 0xff)) * prime;
+    hash = (hash ^ (remoteAddress & 0xff)) * prime;
+    hash = (hash ^ ((self.remotePort >> 8) & 0xff)) * prime;
+    hash = (hash ^ (self.remotePort & 0xff)) * prime;
     return hash;
 }
 
 - (NSString *)description
 {
-    @synchronized (self) {
-        return [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
-    }
+    return [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
 }
 
 #pragma mark WSConnectionProcessor (connection queue)
 
 - (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port queue:(dispatch_queue_t)queue
 {
-    @synchronized (self) {
-        NSAssert([host isEqualToString:_remoteHost], @"Connected host differs from remoteHost");
-        NSAssert(port == _remotePort, @"Connected port differs from remotePort");
-    
+    dispatch_sync(self.groupQueue, ^{
+        NSAssert([host isEqualToString:self.remoteHost], @"Connected host differs from remoteHost");
+        NSAssert(port == self.remotePort, @"Connected port differs from remotePort");
+
         self.connectionQueue = queue;
-        _peerStatus = WSPeerStatusConnecting;
-        _didReceiveVerack = NO;
-        _didSendVerack = NO;
-        _remoteHost = host;
-        _remotePort = port;
-        _remoteServices = 0;
-        _nonce = mrand48();
-        _connectionStartTime = DBL_MAX;
-        _connectionTime = DBL_MAX;
-        _lastSeenTimestamp = NSTimeIntervalSince1970;
-        _receivedVersion = nil;
-    }
+        self.peerStatus = WSPeerStatusConnecting;
+        self.didReceiveVerack = NO;
+        self.didSendVerack = NO;
+        self.remoteHost = host;
+        self.remotePort = port;
+        self.remoteServices = 0;
+        self.nonce = mrand48();
+        self.connectionStartTime = DBL_MAX;
+        self.connectionTime = DBL_MAX;
+        self.lastSeenTimestamp = NSTimeIntervalSince1970;
+        self.receivedVersion = nil;
 
-    DDLogDebug(@"%@ Connection opened", self);
+        DDLogDebug(@"%@ Connection opened", self);
+    });
 
-    self.deserializer = [[WSProtocolDeserializer alloc] initWithPeer:self];
+    WSPeerInfo *peerInfo = [[WSPeerInfo alloc] initWithHost:host port:port];
+    self.deserializer = [[WSProtocolDeserializer alloc] initWithParameters:self.parameters peerInfo:peerInfo];
     [self sendVersionMessageWithRelayTransactions:(uint8_t)![self needsBloomFiltering]];
 }
 
@@ -283,7 +308,9 @@
     do {
         message = [self.deserializer parseMessageWithError:&error];
         if (message) {
-            [self receiveMessage:message];
+            dispatch_async(self.groupQueue, ^{
+                [self receiveMessage:message];
+            });
         }
         else if (error) {
             DDLogError(@"%@ Error deserializing message: %@", self, error);
@@ -298,85 +325,42 @@
 {
     DDLogDebug(@"%@ Connection closed%@", self, WSStringOptional(error, @" (%@)"));
     
-    @synchronized (self) {
-        _peerStatus = WSPeerStatusDisconnected;
-    }
+    dispatch_sync(self.groupQueue, ^{
+        self.peerStatus = WSPeerStatusDisconnected;
+    });
 
     dispatch_async(self.groupQueue, ^{
         [self.delegate peer:self didDisconnectWithError:error];
     });
 }
 
-#pragma mark Connection
+#pragma mark State
+
+- (WSPeerInfo *)peerInfo
+{
+    return [[WSPeerInfo alloc] initWithHost:self.remoteHost port:self.remotePort];
+}
 
 - (BOOL)isConnected
 {
-    @synchronized (self) {
-        NSAssert((self.connectionQueue != NULL) == (_peerStatus != WSPeerStatusDisconnected),
-                 @"Connection queue must not be NULL as long as a connection is active");
-        
-        return (self.connectionQueue != NULL);
-    }
-}
-
-- (WSPeerStatus)peerStatus
-{
-    @synchronized (self) {
-        return _peerStatus;
-    }
-}
-
-- (NSString *)remoteHost
-{
-    @synchronized (self) {
-        return _remoteHost;
-    }
+    NSAssert((self.connectionQueue != NULL) == (_peerStatus != WSPeerStatusDisconnected),
+             @"Connection queue must not be NULL as long as a connection is active");
+    
+    return (self.connectionQueue != NULL);
 }
 
 - (uint32_t)remoteAddress
 {
-    @synchronized (self) {
-        return WSNetworkIPv4FromHost(_remoteHost);
-    }
-}
-
-- (uint16_t)remotePort
-{
-    @synchronized (self) {
-        return _remotePort;
-    }
-}
-
-- (NSTimeInterval)connectionTime
-{
-    @synchronized (self) {
-        return _connectionTime;
-    }
-}
-
-- (NSTimeInterval)lastSeenTimestamp
-{
-    @synchronized (self) {
-        return _lastSeenTimestamp;
-    }
+    return WSNetworkIPv4FromHost(self.remoteHost);
 }
 
 - (WSMessageVersion *)receivedVersion
 {
-    @synchronized (self) {
-        if (!_receivedVersion) {
-            DDLogWarn(@"%@ Reading version while disconnected", self);
-            return nil;
-        }
-        return _receivedVersion;
+    if (!_receivedVersion) {
+        DDLogWarn(@"%@ Reading version while disconnected", self);
+        return nil;
     }
-}
-
-- (void)setReceivedVersion:(WSMessageVersion *)receivedVersion
-{
-    @synchronized (self) {
-        _receivedVersion = receivedVersion;
-    }
+    return _receivedVersion;
 }
 
 - (uint32_t)version
@@ -399,20 +383,6 @@
     return self.receivedVersion.lastBlockHeight;
 }
 
-- (NSUInteger)sentBytes
-{
-    @synchronized (self) {
-        return _sentBytes;
-    }
-}
-
-- (NSUInteger)receivedBytes
-{
-    @synchronized (self) {
-        return _receivedBytes;
-    }
-}
-
 //
 // VERY IMPORTANT: since the delegate (peer group) is the master peer controller, let it also do the
 // clean up in didDisconnectWithError.
@@ -426,43 +396,45 @@
 //
 - (void)cleanUpConnectionData
 {
-    self.deserializer = nil;
-    
-    @synchronized (self) {
-//        self.connectionQueue = NULL;
-//        self.delegate = nil;
-//        
-//        _remoteHost = nil;
-//        _remotePort = 0;
-//        _remoteServices = 0;
-//        _nonce = 0;
-//        _pingTime = DBL_MAX;
-//        _lastSeenTimestamp = NSTimeIntervalSince1970;
-//        _receivedVersion = nil;
-
-        [self.pendingBlockIds removeAllObjects];
-        [self.processingBlockIds removeAllObjects];
+    if (self.connectionQueue) {
+        dispatch_sync(self.connectionQueue, ^{
+            self.deserializer = nil;
+        });
     }
+    
+//    self.connectionQueue = NULL;
+//    self.delegate = nil;
+//    
+//    self.remoteHost = nil;
+//    self.remotePort = 0;
+//    self.remoteServices = 0;
+//    self.nonce = 0;
+//    self.pingTime = DBL_MAX;
+//    self.lastSeenTimestamp = NSTimeIntervalSince1970;
+//    self.receivedVersion = nil;
+
+    [self.pendingBlockIds removeAllObjects];
+    [self.processingBlockIds removeAllObjects];
 }
 
-#pragma mark Protocol: send* (connection queue)
+#pragma mark Protocol: send*
 
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions
 {
     NSAssert(self.connectionQueue, @"Not connected");
     
+    WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:self.remoteServices ipv4Address:self.remoteAddress port:self.remotePort];
+    WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
+                                                                version:WSPeerProtocol
+                                                               services:WSPeerEnabledServices
+                                                   remoteNetworkAddress:networkAddress
+                                                              localPort:[self.parameters peerPort]
+                                                      relayTransactions:relayTransactions];
+    
+    self.nonce = message.nonce;
+    self.connectionStartTime = [NSDate timeIntervalSinceReferenceDate];
+    
     dispatch_async(self.connectionQueue, ^{
-        WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:_remoteServices ipv4Address:self.remoteAddress port:_remotePort];
-        WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
-                                                                    version:WSPeerProtocol
-                                                                   services:WSPeerEnabledServices
-                                                       remoteNetworkAddress:networkAddress
-                                                                  localPort:[self.parameters peerPort]
-                                                          relayTransactions:relayTransactions];
-
-        _nonce = message.nonce;
-        _connectionStartTime = [NSDate timeIntervalSinceReferenceDate];
-
         [self unsafeSendMessage:message];
     });
 }
@@ -471,19 +443,18 @@
 {
     NSAssert(self.connectionQueue, @"Not connected");
 
+    if (self.didSendVerack) {
+        DDLogWarn(@"%@ Unexpected 'verack' sending", self);
+        return;
+    }
+    
     dispatch_async(self.connectionQueue, ^{
-        @synchronized (self) {
-            if (_didSendVerack) {
-                DDLogWarn(@"%@ Unexpected 'verack' sending", self);
-                return;
-            }
-        }
-        
         [self unsafeSendMessage:[WSMessageVerack messageWithParameters:self.parameters]];
-        @synchronized (self) {
-            _didSendVerack = YES;
-        }
-        [self tryFinishHandshake];
+
+        dispatch_sync(self.groupQueue, ^{
+            self.didSendVerack = YES;
+            [self tryFinishHandshake];
+        });
     });
 }
 
@@ -537,23 +508,21 @@
 
     BOOL shouldReloadBloomFilter = NO;
 
-    @synchronized (self) {
-        [self.pendingBlockIds addObjectsFromArray:blockHashes];
-        [self.processingBlockIds addObjectsFromArray:blockHashes];
+    [self.pendingBlockIds addObjectsFromArray:blockHashes];
+    [self.processingBlockIds addObjectsFromArray:blockHashes];
 
-        if ([self needsBloomFiltering]) {
-            DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, _filteredBlockCount, self.blockChain.currentHeight);
-            
-            if (_filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
-                DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
-                           blockHashes.count, _filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
+    if ([self needsBloomFiltering]) {
+        DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, self.filteredBlockCount, self.blockChain.currentHeight);
+        
+        if (self.filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
+            DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
+                       blockHashes.count, self.filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
 
-                shouldReloadBloomFilter = YES;
-            }
-            else {
-                DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
-                _filteredBlockCount += blockHashes.count;
-            }
+            shouldReloadBloomFilter = YES;
+        }
+        else {
+            DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
+            self.filteredBlockCount += blockHashes.count;
         }
     }
 
@@ -634,11 +603,9 @@
 - (void)sendPingMessage
 {
     NSAssert(self.connectionQueue, @"Not connected");
+    NSAssert(self.nonce, @"Nonce not set, is handshake complete?");
     
     dispatch_async(self.connectionQueue, ^{
-        @synchronized (self) {
-            NSAssert(_nonce, @"Nonce not set, is handshake complete?");
-        }
         [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
     });
 }
@@ -658,22 +625,20 @@
     WSExceptionCheckIllegal(filter != nil, @"Nil filter");
 
     dispatch_async(self.connectionQueue, ^{
-        @synchronized (self) {
-            _filteredBlockCount = 0;
-        }
+        dispatch_sync(self.groupQueue, ^{
+            self.filteredBlockCount = 0;
+        });
         [self unsafeSendMessage:[WSMessageFilterload messageWithParameters:self.parameters filter:filter]];
     });
 }
 
-#pragma mark Protocol: receive* (group queue)
+#pragma mark Protocol: receive*
 
 - (void)receiveMessage:(id<WSMessage>)message
 {
     NSParameterAssert(message);
     
-    dispatch_async(self.groupQueue, ^{
-        [self.delegate peerDidKeepAlive:self];
-    });
+    [self.delegate peerDidKeepAlive:self];
     
     if (message.originalPayload.length < 1024) {
         DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalPayload.length);
@@ -687,18 +652,12 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         
-        // execute in peer group queue (don't lock connection queue)
-        dispatch_async(self.groupQueue, ^{
+        // stop reading txs for current merkleblock
+        if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
+            [self endCurrentFilteredBlock];
+        }
         
-            // stop reading txs for current merkleblock
-            @synchronized (self.groupQueue) {
-                if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
-                    [self endCurrentFilteredBlock];
-                }
-            }
-            
-            [self performSelector:selector withObject:message];
-        });
+        [self performSelector:selector withObject:message];
         
 #pragma clang diagnostic pop
     }
@@ -734,14 +693,12 @@
 
 - (void)receiveVerackMessage:(WSMessageVerack *)message
 {
-    @synchronized (self) {
-        if (_didReceiveVerack) {
-            DDLogWarn(@"%@ Unexpected 'verack' received", self);
-            return;
-        }
-        _connectionTime = [NSDate timeIntervalSinceReferenceDate] - _connectionStartTime;
-        _didReceiveVerack = YES;
+    if (self.didReceiveVerack) {
+        DDLogWarn(@"%@ Unexpected 'verack' received", self);
+        return;
     }
+    self.connectionTime = [NSDate timeIntervalSinceReferenceDate] - self.connectionStartTime;
+    self.didReceiveVerack = YES;
     DDLogDebug(@"%@ Got 'verack' in %.3fs", self, self.connectionTime);
     
     [self tryFinishHandshake];
@@ -856,78 +813,60 @@
 
 #pragma mark Sync
 
-- (BOOL)isDownloadPeer
-{
-    @synchronized (self.groupQueue) {
-        return _isDownloadPeer;
-    }
-}
-
-- (void)setIsDownloadPeer:(BOOL)isDownloadPeer
-{
-    @synchronized (self.groupQueue) {
-        _isDownloadPeer = isDownloadPeer;
-    }
-}
-
 - (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock syncedBlock:(void (^)(NSUInteger))syncedBlock
 {
-    @synchronized (self.groupQueue) {
-        NSAssert(self.isDownloadPeer, @"Not download peer");
-        NSAssert(self.isConnected, @"Syncing with disconnected peer?");
-        
-        if ([self numberOfBlocksLeft] == 0) {
-            if (syncedBlock) {
-                syncedBlock(self.blockChain.currentHeight);
-            }
-            return NO;
+    NSAssert(self.isDownloadPeer, @"Not download peer");
+    NSAssert(self.isConnected, @"Syncing with disconnected peer?");
+    
+    if ([self numberOfBlocksLeft] == 0) {
+        if (syncedBlock) {
+            syncedBlock(self.blockChain.currentHeight);
         }
-        
-        self.fastCatchUpTimestamp = fastCatchUpTimestamp;
-        self.currentFilteredBlock = nil;
-        self.currentFilteredTransactions = nil;
-        
-        WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
-        if (checkpoint) {
-            DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
-                       self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
-            
-            [self.blockChain addCheckpoint:checkpoint error:NULL];
-        }
-        else {
-            DDLogDebug(@"%@ No fast catch-up checkpoint", self);
-        }
-        
-        if (prestartBlock) {
-            const NSUInteger fromHeight = self.blockChain.currentHeight;
-            const NSUInteger toHeight = self.lastBlockHeight;
-
-            prestartBlock(fromHeight, toHeight);
-        }
-        
-        WSBlockLocator *locator = [self.blockChain currentLocator];
-
-        if (![self shouldDownloadBlocks] || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
-            [self requestHeadersWithLocator:locator];
-        }
-        else {
-            [self requestBlocksWithLocator:locator];
-        }
-        
-        return YES;
+        return NO;
     }
+    
+    self.fastCatchUpTimestamp = fastCatchUpTimestamp;
+    self.currentFilteredBlock = nil;
+    self.currentFilteredTransactions = nil;
+    
+    WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
+    if (checkpoint) {
+        DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
+                   self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
+        
+        [self.blockChain addCheckpoint:checkpoint error:NULL];
+    }
+    else {
+        DDLogDebug(@"%@ No fast catch-up checkpoint", self);
+    }
+    
+    if (prestartBlock) {
+        const NSUInteger fromHeight = self.blockChain.currentHeight;
+        const NSUInteger toHeight = self.lastBlockHeight;
+
+        prestartBlock(fromHeight, toHeight);
+    }
+    
+    WSBlockLocator *locator = [self.blockChain currentLocator];
+
+    if (![self shouldDownloadBlocks] || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
+        [self requestHeadersWithLocator:locator];
+    }
+    else {
+        [self requestBlocksWithLocator:locator];
+    }
+    
+    return YES;
 }
 
 - (NSUInteger)numberOfBlocksLeft
 {
-    @synchronized (self.groupQueue) {
-        NSAssert(self.isDownloadPeer, @"Not download peer");
-        
-        if (self.blockChain.currentHeight >= self.lastBlockHeight) {
-            return 0;
-        }
-        return (self.lastBlockHeight - self.blockChain.currentHeight);
+    NSAssert(self.isDownloadPeer, @"Not download peer");
+    
+    if (self.blockChain.currentHeight >= self.lastBlockHeight) {
+        return 0;
     }
+    return (self.lastBlockHeight - self.blockChain.currentHeight);
 }
 
 - (void)requestOutdatedBlocks
@@ -963,13 +902,10 @@
     // that's why processingBlockIds should reach 1000 at most (2 * max)
     //
 
-    NSArray *outdatedIds = nil;
-    @synchronized (self) {
 //        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
 //                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
 
-        outdatedIds = [self.processingBlockIds array];
-    }
+    NSArray *outdatedIds = [self.processingBlockIds array];
     
 #warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
 
@@ -986,56 +922,52 @@
 {
     WSExceptionCheckIllegal(blockChain != nil, @"Nil blockChain");
     
-    @synchronized (self) {
-        self.blockChain = blockChain;
-    }
+    self.blockChain = blockChain;
 }
 
-#pragma mark Sync automation (group queue)
+#pragma mark Sync automation
 
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
 {
     NSParameterAssert(headers.count > 0);
     
-    @synchronized (self.groupQueue) {
-        if (self.isDownloadPeer) {
-            const NSUInteger currentHeight = self.blockChain.currentHeight;
-            
-            DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
-                       self, currentHeight, self.lastBlockHeight);
-            
-            WSBlockHeader *firstHeader = [headers firstObject];
-            WSBlockHeader *lastHeader = [headers lastObject];
-            WSBlockHeader *lastHeaderBeforeFCU = nil;
-            
-            // infer the header we'll stop at
-            for (WSBlockHeader *header in headers) {
-                if (header.timestamp >= self.fastCatchUpTimestamp) {
-                    break;
-                }
-                lastHeaderBeforeFCU = header;
+    if (self.isDownloadPeer) {
+        const NSUInteger currentHeight = self.blockChain.currentHeight;
+        
+        DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
+                   self, currentHeight, self.lastBlockHeight);
+        
+        WSBlockHeader *firstHeader = [headers firstObject];
+        WSBlockHeader *lastHeader = [headers lastObject];
+        WSBlockHeader *lastHeaderBeforeFCU = nil;
+        
+        // infer the header we'll stop at
+        for (WSBlockHeader *header in headers) {
+            if (header.timestamp >= self.fastCatchUpTimestamp) {
+                break;
             }
-            
-            // we won't cross fast catch-up, request more headers
-            if (![self shouldDownloadBlocks] || (lastHeaderBeforeFCU == lastHeader)) {
-                WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
-                [self requestHeadersWithLocator:locator];
-            }
-            // we will cross fast catch-up, request blocks from crossing point
-            else {
+            lastHeaderBeforeFCU = header;
+        }
+        
+        // we won't cross fast catch-up, request more headers
+        if (![self shouldDownloadBlocks] || (lastHeaderBeforeFCU == lastHeader)) {
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
+            [self requestHeadersWithLocator:locator];
+        }
+        // we will cross fast catch-up, request blocks from crossing point
+        else {
 
-                // all current headers are beyond catch-up, request blocks after chain head
-                if (!lastHeaderBeforeFCU) {
-                    lastHeaderBeforeFCU = self.blockChain.head.header;
-                }
-                
-                DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
-                          self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
-                          [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
-                
-                WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
-                [self requestBlocksWithLocator:locator];
+            // all current headers are beyond catch-up, request blocks after chain head
+            if (!lastHeaderBeforeFCU) {
+                lastHeaderBeforeFCU = self.blockChain.head.header;
             }
+            
+            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
+                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
+                      [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
+            
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
+            [self requestBlocksWithLocator:locator];
         }
     }
 }
@@ -1044,19 +976,17 @@
 {
     NSParameterAssert(hashes.count > 0);
     
-    @synchronized (self.groupQueue) {
-        if (self.isDownloadPeer && (hashes.count >= WSMessageBlocksMaxCount)) {
-            const NSUInteger currentHeight = self.blockChain.currentHeight;
-            
-            DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
-                       self, currentHeight, self.lastBlockHeight);
-            
-            WSHash256 *firstId = [hashes firstObject];
-            WSHash256 *lastId = [hashes lastObject];
-            
-            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
-            [self requestBlocksWithLocator:locator];
-        }
+    if (self.isDownloadPeer && (hashes.count >= WSMessageBlocksMaxCount)) {
+        const NSUInteger currentHeight = self.blockChain.currentHeight;
+        
+        DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
+                   self, currentHeight, self.lastBlockHeight);
+        
+        WSHash256 *firstId = [hashes firstObject];
+        WSHash256 *lastId = [hashes lastObject];
+        
+        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
+        [self requestBlocksWithLocator:locator];
     }
 }
 
@@ -1076,16 +1006,14 @@
 {
     NSParameterAssert(headers.count > 0);
     
-    @synchronized (self.groupQueue) {
-        for (WSBlockHeader *header in headers) {
-            
-            // download peer should stop requesting headers when fast catch-up reached
-            if ([self shouldDownloadBlocks] && self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
-                break;
-            }
-            
-            [self.delegate peer:self didReceiveHeader:header];
+    for (WSBlockHeader *header in headers) {
+        
+        // download peer should stop requesting headers when fast catch-up reached
+        if ([self shouldDownloadBlocks] && self.isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
+            break;
         }
+        
+        [self.delegate peer:self didReceiveHeader:header];
     }
 }
 
@@ -1093,10 +1021,8 @@
 {
     NSParameterAssert(filteredBlock);
 
-    @synchronized (self.groupQueue) {
-        self.currentFilteredBlock = filteredBlock;
-        self.currentFilteredTransactions = [[NSMutableOrderedSet alloc] init];
-    }
+    self.currentFilteredBlock = filteredBlock;
+    self.currentFilteredTransactions = [[NSMutableOrderedSet alloc] init];
 }
 
 - (BOOL)addTransactionToCurrentFilteredBlock:(WSSignedTransaction *)transaction outdated:(BOOL *)outdated
@@ -1104,78 +1030,72 @@
     NSParameterAssert(transaction);
     NSParameterAssert(outdated);
     
-    @synchronized (self.groupQueue) {
-        if (!self.currentFilteredBlock) {
-            DDLogDebug(@"%@ Transaction %@ outside filtered block", self, transaction.txId);
-            return NO;
-        }
-
-        // only accept txs from most recently requested block
-        @synchronized (self) {
-            WSHash256 *blockId = self.currentFilteredBlock.header.blockId;
-            if ([self.pendingBlockIds countForObject:blockId] > 1) {
-                DDLogDebug(@"%@ Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
-                           self, transaction.txId, blockId);
-
-                *outdated = YES;
-                return NO;
-            }
-        }
-        
-        if (![self.currentFilteredBlock containsTransactionWithId:transaction.txId]) {
-            DDLogDebug(@"%@ Transaction %@ is not contained in filtered block %@",
-                       self, transaction.txId, self.currentFilteredBlock.header.blockId);
-
-            return NO;
-        }
-
-        DDLogVerbose(@"%@ Adding transaction %@ to filtered block %@",
-                     self, transaction.txId, self.currentFilteredBlock.header.blockId);
-
-        [self.currentFilteredTransactions addObject:transaction];
-
-        return YES;
+    if (!self.currentFilteredBlock) {
+        DDLogDebug(@"%@ Transaction %@ outside filtered block", self, transaction.txId);
+        return NO;
     }
+
+    // only accept txs from most recently requested block
+    WSHash256 *blockId = self.currentFilteredBlock.header.blockId;
+    if ([self.pendingBlockIds countForObject:blockId] > 1) {
+        DDLogDebug(@"%@ Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
+                   self, transaction.txId, blockId);
+
+        *outdated = YES;
+        return NO;
+    }
+    
+    if (![self.currentFilteredBlock containsTransactionWithId:transaction.txId]) {
+        DDLogDebug(@"%@ Transaction %@ is not contained in filtered block %@",
+                   self, transaction.txId, self.currentFilteredBlock.header.blockId);
+
+        return NO;
+    }
+
+    DDLogVerbose(@"%@ Adding transaction %@ to filtered block %@",
+                 self, transaction.txId, self.currentFilteredBlock.header.blockId);
+
+    [self.currentFilteredTransactions addObject:transaction];
+
+    return YES;
 }
 
 - (void)endCurrentFilteredBlock
 {
-    @synchronized (self.groupQueue) {
-        WSFilteredBlock *filteredBlock = self.currentFilteredBlock;
-        NSOrderedSet *transactions = self.currentFilteredTransactions;
-        NSAssert(filteredBlock && transactions, @"Nil filteredBlock or transactions");
+    WSFilteredBlock *filteredBlock = self.currentFilteredBlock;
+    NSOrderedSet *transactions = self.currentFilteredTransactions;
+    NSAssert(filteredBlock && transactions, @"Nil filteredBlock or transactions");
 
-        self.currentFilteredBlock = nil;
-        self.currentFilteredTransactions = nil;
-        
-        // only accept most recently requested block
-        @synchronized (self) {
-            WSHash256 *blockId = filteredBlock.header.blockId;
+    self.currentFilteredBlock = nil;
+    self.currentFilteredTransactions = nil;
+    
+    // only accept most recently requested block
+    WSHash256 *blockId = filteredBlock.header.blockId;
 
-            [self.pendingBlockIds removeObject:blockId];
+    [self.pendingBlockIds removeObject:blockId];
 
-            if ([self.pendingBlockIds containsObject:blockId]) {
-                DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
-                return;
-            }
-
-            [self.processingBlockIds removeObject:blockId];
-        }
-
-        [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
+    if ([self.pendingBlockIds containsObject:blockId]) {
+        DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
+        return;
     }
+
+    [self.processingBlockIds removeObject:blockId];
+
+    [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
 }
 
-#pragma mark Utils (unsafe)
+#pragma mark Helpers
 
-// run this from connection queue
+// connection queue
 - (void)unsafeSendMessage:(id<WSMessage>)message
 {
-    @synchronized (self) {
-        if (_peerStatus == WSPeerStatusDisconnected) {
-            DDLogWarn(@"%@ Not connected", self);
-            return;
-        }
+    __block WSPeerStatus peerStatus;
+    dispatch_sync(self.groupQueue, ^{
+        peerStatus = self.peerStatus;
+    });
+    if (peerStatus == WSPeerStatusDisconnected) {
+        DDLogWarn(@"%@ Not connected", self);
+        return;
     }
     
     NSUInteger headerLength;
@@ -1192,46 +1112,41 @@
     [self didSendNumberOfBytes:buffer.length];
 }
 
+// group queue
 - (BOOL)tryFinishHandshake
 {
-    @synchronized (self) {
-        if ((_peerStatus != WSPeerStatusConnecting) || !_didSendVerack || !_didReceiveVerack) {
-            return NO;
-        }
-        
-        _peerStatus = WSPeerStatusConnected;
-        _lastSeenTimestamp = WSCurrentTimestamp();
+    if ((self.peerStatus != WSPeerStatusConnecting) || !self.didSendVerack || !self.didReceiveVerack) {
+        return NO;
     }
+    
+    self.peerStatus = WSPeerStatusConnected;
+    self.lastSeenTimestamp = WSCurrentTimestamp();
     
     DDLogDebug(@"%@ Handshake complete", self);
     
-    dispatch_async(self.groupQueue, ^{
-        [self.delegate peerDidConnect:self];
-    });
+    [self.delegate peerDidConnect:self];
     
     return YES;
 }
 
+// connection queue
 - (void)didSendNumberOfBytes:(NSUInteger)numberOfBytes
 {
-    @synchronized (self) {
-        _sentBytes += numberOfBytes;
+    self.sentBytes += numberOfBytes;
 
-        dispatch_async(self.groupQueue, ^{
-            [self.delegate peer:self didSendNumberOfBytes:numberOfBytes];
-        });
-    }
+    dispatch_async(self.groupQueue, ^{
+        [self.delegate peer:self didSendNumberOfBytes:numberOfBytes];
+    });
 }
 
+// connection queue
 - (void)didReceiveNumberOfBytes:(NSUInteger)numberOfBytes
 {
-    @synchronized (self) {
-        _receivedBytes += numberOfBytes;
+    self.receivedBytes += numberOfBytes;
 
-        dispatch_async(self.groupQueue, ^{
-            [self.delegate peer:self didReceiveNumberOfBytes:numberOfBytes];
-        });
-    }
+    dispatch_async(self.groupQueue, ^{
+        [self.delegate peer:self didReceiveNumberOfBytes:numberOfBytes];
+    });
 }
 
 #pragma mark Testing

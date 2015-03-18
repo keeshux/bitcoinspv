@@ -35,7 +35,8 @@
 
 @interface WSProtocolDeserializer ()
 
-@property (nonatomic, weak) WSPeer *peer;
+@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSPeerInfo *peerInfo;
 @property (nonatomic, strong) WSMessageFactory *factory;
 @property (nonatomic, strong) NSMutableData *buffer;
 @property (nonatomic, strong) WSMutableBuffer *builtHeader;
@@ -50,17 +51,19 @@
 
 - (instancetype)init
 {
-    WSExceptionRaiseUnsupported(@"Use initWithPeer:");
+    WSExceptionRaiseUnsupported(@"Use initWithPeerInfo:parameters:");
     return nil;
 }
 
-- (instancetype)initWithPeer:(WSPeer *)peer
+- (instancetype)initWithParameters:(id<WSParameters>)parameters peerInfo:(WSPeerInfo *)peerInfo
 {
-    WSExceptionCheckIllegal(peer != nil, @"Nil peer");
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(peerInfo != nil, @"Nil peerInfo");
     
     if ((self = [super init])) {
-        self.peer = peer;
-        self.factory = [[WSMessageFactory alloc] initWithParameters:self.peer.parameters];
+        self.parameters = parameters;
+        self.peerInfo = peerInfo;
+        self.factory = [[WSMessageFactory alloc] initWithParameters:self.parameters];
         self.buffer = [[NSMutableData alloc] init];
         self.builtHeader = [[WSMutableBuffer alloc] init];
         self.builtPayload = [[WSMutableBuffer alloc] init];
@@ -127,7 +130,7 @@
         
         // consume one byte at a time, up to the magic number that starts a new message header
         while ((self.builtHeader.length >= sizeof(uint32_t)) &&
-               ([self.builtHeader uint32AtOffset:0] != [self.peer.parameters magicNumber])) {
+               ([self.builtHeader uint32AtOffset:0] != [self.parameters magicNumber])) {
 #if DEBUG
             printf("%c", *(const char *)self.builtHeader.bytes);
 #endif
@@ -199,13 +202,13 @@
     
     NSAssert(self.builtHeader.length == WSMessageHeaderLength, @"Unexpected header length (%u != %u)", self.builtHeader.length, WSMessageHeaderLength);
     
-    DDLogVerbose(@"%@ Deserialized header: %@", self.peer, [self.builtHeader hexString]);
+    DDLogVerbose(@"%@ Deserialized header: %@", self.peerInfo, [self.builtHeader hexString]);
     if (ddLogLevel >= LOG_LEVEL_VERBOSE) {
         if (self.builtPayload.length <= 4096) {
-            DDLogVerbose(@"%@ Deserialized payload: %@", self.peer, [self.builtPayload hexString]);
+            DDLogVerbose(@"%@ Deserialized payload: %@", self.peerInfo, [self.builtPayload hexString]);
         }
         else {
-            DDLogVerbose(@"%@ Deserialized payload: %u bytes (too long to display)", self.peer, self.builtPayload.length);
+            DDLogVerbose(@"%@ Deserialized payload: %u bytes (too long to display)", self.peerInfo, self.builtPayload.length);
         }
     }
 

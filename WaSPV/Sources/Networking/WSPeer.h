@@ -70,15 +70,18 @@ typedef enum {
 
 #pragma mark -
 
+@interface WSPeerInfo : NSObject
+
+- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port;
+- (NSString *)host;
+- (uint16_t)port;
+
+@end
+
+#pragma mark -
+
 //
-// WSPeer runs mainly (not only) in WSConnectionPool queue (connectionQueue)
-// and WSPeerGroup queue (groupQueue).
-//
-// Data is sent/received on connectionQueue but complex parsed messages are
-// then handled on groupQueue by WSPeer itself or WSPeerGroup (delegate).
-//
-// This way the connection is not locked during WSPeerGroup business logic
-// execution.
+// All is done on groupQueue except data that is sent/received on connectionQueue.
 //
 
 @protocol WSPeerDelegate;
@@ -94,8 +97,9 @@ typedef enum {
 - (id<WSParameters>)parameters;
 
 // connection
-- (BOOL)isConnected; // should be == (peerStatus != WSPeerDisconnected)
 - (WSPeerStatus)peerStatus;
+- (WSPeerInfo *)peerInfo;
+- (BOOL)isConnected; // should be == (peerStatus != WSPeerDisconnected)
 - (NSString *)remoteHost;
 - (uint32_t)remoteAddress;
 - (uint16_t)remotePort;
@@ -105,9 +109,9 @@ typedef enum {
 - (uint64_t)services;
 - (uint64_t)timestamp;
 - (uint32_t)lastBlockHeight;
+- (void)cleanUpConnectionData;
 - (NSUInteger)sentBytes;
 - (NSUInteger)receivedBytes;
-- (void)cleanUpConnectionData;
 
 // protocol
 - (void)sendInvMessageWithInventory:(WSInventory *)inventory;

@@ -27,7 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class WSPeer;
+@class WSPeerInfo;
+@protocol WSParameters;
 @protocol WSMessage;
 
 #pragma mark -
@@ -35,7 +36,7 @@
 @interface WSProtocolDeserializer : NSObject
 
 - (instancetype)init;
-- (instancetype)initWithPeer:(WSPeer *)peer;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters peerInfo:(WSPeerInfo *)peerInfo;
 - (void)appendData:(NSData *)data;
 - (id<WSMessage>)parseMessageWithError:(NSError **)error;
 - (void)resetBuffers;
