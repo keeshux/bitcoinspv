@@ -106,17 +106,18 @@
 
 - (void)connect;
 - (void)disconnect;
-- (NSArray *)disconnectedAddressesWithHosts:(NSArray *)hosts;
 - (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback failure:(void (^)(NSError *))failure;
 - (void)triggerConnectionsFromSeed:(NSString *)seed addresses:(NSArray *)addresses;
 - (void)triggerConnectionsFromInactive;
 - (void)openConnectionToPeerHost:(NSString *)host;
-- (WSPeer *)bestPeer;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
+- (NSArray *)disconnectedAddressesWithHosts:(NSArray *)hosts;
 - (void)removeInactiveHost:(NSString *)host;
 - (BOOL)isInactiveHost:(NSString *)host;
 - (BOOL)isPendingHost:(NSString *)host;
 - (BOOL)isConnectedHost:(NSString *)host;
+- (WSPeer *)bestPeer;
++ (BOOL)isHardNetworkError:(NSError *)error;
 
 - (void)loadFilterAndStartDownload;
 - (void)resetBloomFilter;
@@ -135,7 +136,9 @@
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
 
-+ (BOOL)isHardNetworkError:(NSError *)error;
+- (BOOL)unsafeIsConnected;
+- (BOOL)unsafeHasReachedMaxConnections;
+- (BOOL)unsafeIsSynced;
 
 @end
 
@@ -253,44 +256,25 @@
     [self.reachability stopNotifier];
 }
 
-#pragma mark Properties
-
-- (WSPeer *)downloadPeer
-{
-    @synchronized (self.queue) {
-        NSAssert(!_downloadPeer || _downloadPeer.isDownloadPeer, @"%@ is not download peer", _downloadPeer);
-        return _downloadPeer;
-    }
-}
-
-- (void)setDownloadPeer:(WSPeer *)downloadPeer
-{
-    @synchronized (self.queue) {
-        _downloadPeer.isDownloadPeer = NO;
-        _downloadPeer = downloadPeer;
-        _downloadPeer.isDownloadPeer = YES;
-    }
-}
-
 #pragma mark Connection
 
 - (BOOL)startConnections
 {
-    @synchronized (self.queue) {
+    dispatch_sync(self.queue, ^{
         self.keepConnected = YES;
         [self connect];
-        return YES;
-    }
+    });
+    return YES;
 }
 
 - (BOOL)stopConnections
 {
-    @synchronized (self.queue) {
+    dispatch_sync(self.queue, ^{
         self.keepDownloading = NO;
         self.keepConnected = NO;
         [self disconnect];
-        return YES;
-    }
+    });
+    return YES;
 }
 
 //
@@ -309,16 +293,19 @@
 {
     __block id observer;
     __block void (^onceCompletionBlock)() = completionBlock;
-    BOOL notConnected = NO;
+    __block BOOL notConnected = NO;
 
-    @synchronized (self.queue) {
-        [self stopConnections];
+    dispatch_sync(self.queue, ^{
+        self.keepDownloading = NO;
+        self.keepConnected = NO;
+        [self disconnect];
 
-        if ([self isConnected]) {
-            observer = [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-//                if (observer) {
-                    [[NSNotificationCenter defaultCenter] removeObserver:observer];
-//                }
+        if ([self unsafeIsConnected]) {
+            __weak NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+
+            observer = [nc addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+                [nc removeObserver:observer];
+
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
                     onceCompletionBlock = NULL;
@@ -328,7 +315,7 @@
         else {
             notConnected = YES;
         }
-    }
+    });
     
     if (notConnected && onceCompletionBlock) {
         onceCompletionBlock();
@@ -338,406 +325,49 @@
 
 - (BOOL)isStarted
 {
-    @synchronized (self.queue) {
-        return self.keepConnected;
-    }
+    __block BOOL isStarted;
+    dispatch_sync(self.queue, ^{
+        isStarted = self.keepConnected;
+    });
+    return isStarted;
 }
 
 - (BOOL)isConnected
 {
-    @synchronized (self.queue) {
-        return (self.connectedPeers.count > 0);
-    }
+    __block BOOL isConnected;
+    dispatch_sync(self.queue, ^{
+        isConnected = [self unsafeIsConnected];
+    });
+    return isConnected;
 }
 
 - (NSUInteger)numberOfConnections
 {
-    @synchronized (self.queue) {
-        return self.connectedPeers.count;
-    }
+    __block NSUInteger numberOfConnections;
+    dispatch_sync(self.queue, ^{
+        numberOfConnections = self.connectedPeers.count;
+    });
+    return numberOfConnections;
 }
 
 - (BOOL)hasReachedMaxConnections
 {
-    @synchronized (self.queue) {
-        return (self.connectedPeers.count == self.maxConnections);
-    }
-}
-
-- (void)connect
-{
-    @synchronized (self.queue) {
-        if (self.connectionFailures == self.maxConnectionFailures) {
-            DDLogInfo(@"Too many disconnections, not connecting");
-            return;
-        }
-        if (![self.reachability isReachable]) {
-            DDLogInfo(@"Network offline, not connecting");
-            return;
-        }
-
-        self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
-
-        if (self.peerHosts.count > 0) {
-            NSArray *newAddresses = [self disconnectedAddressesWithHosts:self.peerHosts];
-            [self.inactiveAddresses addObjectsFromArray:newAddresses];
-
-            DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveAddresses.count);
-            DDLogDebug(@"%@", self.inactiveAddresses);
-            [self triggerConnectionsFromInactive];
-        }
-        else {
-            if (self.inactiveAddresses.count > 0) {
-                [self triggerConnectionsFromInactive];
-                return;
-            }
-
-            if ((self.connectedPeers.count > 0) || (self.pendingPeers.count > 0)) {
-                DDLogDebug(@"Active peers around, skip DNS discovery (connected: %u, pending: %u)", self.connectedPeers.count, self.pendingPeers.count);
-                return;
-            }
-
-            // first bootstrap is from DNS
-            [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
-                @synchronized (self.queue) {
-                    DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
-                    DDLogDebug(@"%@", newHosts);
-
-                    NSArray *newAddresses = [self disconnectedAddressesWithHosts:newHosts];
-                    if (newAddresses.count == 0) {
-                        DDLogDebug(@"All discovered peers are already connected");
-                        return;
-                    }
-
-                    [self.inactiveAddresses addObjectsFromArray:newAddresses];
-                    DDLogInfo(@"Connecting to discovered non-connected peers (available: %u)", newAddresses.count);
-                    DDLogDebug(@"%@", newAddresses);
-                    [self triggerConnectionsFromSeed:seed addresses:newAddresses];
-                }
-            } failure:^(NSError *error) {
-                @synchronized (self.queue) {
-                    DDLogError(@"DNS discovery failed: %@", error);
-                }
-            }];
-        }
-    }
-}
-
-- (void)disconnect
-{
-    [self.pool closeAllConnections];
-}
-
-- (NSArray *)disconnectedAddressesWithHosts:(NSArray *)hosts
-{
-    @synchronized (self.queue) {
-        NSMutableArray *disconnected = [[NSMutableArray alloc] initWithCapacity:hosts.count];
-        for (NSString *host in hosts) {
-            if ([self isPendingHost:host] || [self isConnectedHost:host]) {
-                continue;
-            }
-            WSNetworkAddress *address = WSNetworkAddressMake(WSNetworkIPv4FromHost(host), [self.parameters peerPort], 0, WSCurrentTimestamp() - WSDatesOneWeek);
-            [disconnected addObject:address];
-        }
-        return disconnected;
-    }
-}
-
-- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback failure:(void (^)(NSError *))failure
-{
-    NSParameterAssert(resolutionCallback);
-    NSParameterAssert(failure);
-
-    // if discovery ongoing, fall back to current inactive hosts
-    BOOL ongoing = NO;
-    @synchronized (self.queue) {
-        if (self.activeDnsResolutions > 0) {
-            DDLogWarn(@"Waiting for %u ongoing resolutions to complete", self.activeDnsResolutions);
-            ongoing = YES;
-        }
-    }
-    if (ongoing) {
-        dispatch_async(self.queue, ^{
-            failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
-        });
-        return;
-    }
-    
-    for (NSString *dns in [self.parameters dnsSeeds]) {
-        DDLogInfo(@"Resolving seed: %@", dns);
-
-        @synchronized (self.queue) {
-            ++self.activeDnsResolutions;
-        }
-
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            CFHostRef host = CFHostCreateWithName(NULL, (__bridge CFStringRef)dns);
-            if (!CFHostStartInfoResolution(host, kCFHostAddresses, NULL)) {
-                DDLogError(@"Error during resolution of %@", dns);
-                CFRelease(host);
-
-                @synchronized (self.queue) {
-                    --self.activeDnsResolutions;
-                }
-
-                return;
-            }
-            Boolean resolved;
-            CFArrayRef rawAddressesRef = CFHostGetAddressing(host, &resolved);
-            NSArray *rawAddresses = nil;
-            if (resolved) {
-                rawAddresses = CFBridgingRelease(CFArrayCreateCopy(NULL, rawAddressesRef));
-            }
-            CFRelease(host);
-
-            @synchronized (self.queue) {
-                --self.activeDnsResolutions;
-            }
-
-            if (rawAddresses) {
-                DDLogDebug(@"Resolved %u addresses", rawAddresses.count);
-
-                NSMutableArray *hosts = [[NSMutableArray alloc] init];
-
-                // add a faulty host to test automatic removal
-//                [hosts addObject:@"124.170.89.58"]; // behind
-//                [hosts addObject:@"152.23.202.18"]; // timeout
-
-                @synchronized (self.queue) {
-                    for (NSData *rawBytes in rawAddresses) {
-                        if (rawBytes.length != sizeof(struct sockaddr_in)) {
-                            continue;
-                        }
-                        struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
-                        const uint32_t address = rawAddress->sin_addr.s_addr;
-                        NSString *host = WSNetworkHostFromIPv4(address);
-
-                        if (host && ![self isInactiveHost:host]) {
-                            [hosts addObject:host];
-                        }
-                    }
-                }
-
-                DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
-
-                if (hosts.count > 0) {
-                    dispatch_async(self.queue, ^{
-                        resolutionCallback(dns, hosts);
-                    });
-                }
-            }
-        });
-    }
-}
-
-- (void)triggerConnectionsFromSeed:(NSString *)seed addresses:(NSArray *)addresses
-{
-    NSParameterAssert(seed);
-    NSParameterAssert(addresses.count > 0);
-    
-    NSMutableArray *triggered = [[NSMutableArray alloc] init];
-    
-    @synchronized (self.queue) {
-        for (WSNetworkAddress *address in addresses) {
-            if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
-                continue;
-            }
-            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
-                break;
-            }
-            
-            [self openConnectionToPeerHost:address.host];
-            [triggered addObject:address];
-        }
-        [self.inactiveAddresses removeObjectsInArray:triggered];
-    }
-    
-    DDLogDebug(@"Triggered %u new connections from %@", triggered.count, seed);
-}
-
-- (void)triggerConnectionsFromInactive
-{
-    NSMutableArray *triggered = [[NSMutableArray alloc] init];
-
-    @synchronized (self.queue) {
-
-        // recent first
-        [self.inactiveAddresses sortUsingComparator:^NSComparisonResult(WSNetworkAddress *a1, WSNetworkAddress *a2) {
-            if (a1.timestamp > a2.timestamp) {
-                return NSOrderedAscending;
-            }
-            else if (a1.timestamp < a2.timestamp) {
-                return NSOrderedDescending;
-            }
-            else {
-                return NSOrderedSame;
-            }
-        }];
-        
-        // cap total
-        if (self.inactiveAddresses.count > WSPeerGroupMaxInactivePeers) {
-            [self.inactiveAddresses removeObjectsInRange:NSMakeRange(WSPeerGroupMaxInactivePeers, self.inactiveAddresses.count - WSPeerGroupMaxInactivePeers)];
-        }
-        
-        DDLogDebug(@"Sorted %u inactive addresses", self.inactiveAddresses.count);
-//        DDLogDebug(@">>> %@", self.inactiveAddresses);
-        
-//        // sequential
-//        for (WSNetworkAddress *address in self.inactiveAddresses) {
-//            if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
-//                continue;
-//            }
-//            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
-//                break;
-//            }
-//
-//            [self openConnectionToPeerHost:address.host];
-//            [triggered addObject:address];
-//        }
-//        [self.inactiveAddresses removeObjectsInArray:triggered];
-
-        // randomic
-        while (self.inactiveAddresses.count > 0) {
-
-            //
-            // taken from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRPeerManager.m
-            //
-            // prefer recent from inactive (higher probability of retrieving lower offsets)
-            //
-            WSNetworkAddress *address = self.inactiveAddresses[(NSUInteger)(pow(lrand48() % self.inactiveAddresses.count, 2) / self.inactiveAddresses.count)];
-            
-            if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
-                continue;
-            }
-            if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
-                break;
-            }
-            
-            [self openConnectionToPeerHost:address.host];
-            [triggered addObject:address];
-
-            [self.inactiveAddresses removeObject:address];
-        }
-    }
-
-    DDLogDebug(@"Triggered %u new connections from inactive", triggered.count);
-}
-
-- (void)openConnectionToPeerHost:(NSString *)host
-{
-    NSParameterAssert(host);
-    
-    WSPeerParameters *peerParameters = [[WSPeerParameters alloc] initWithParameters:self.parameters
-                                                                         groupQueue:self.queue
-                                                                         blockChain:self.blockChain
-                                                               shouldDownloadBlocks:[self shouldDownloadBlocks]
-                                                                needsBloomFiltering:[self needsBloomFiltering]];
-
-    WSPeer *peer = [[WSPeer alloc] initWithHost:host peerParameters:peerParameters];
-    peer.delegate = self;
-    @synchronized (self.queue) {
-        [self.pendingPeers addObject:peer];
-    }
-
-    DDLogInfo(@"Connecting to peer %@", peer);
-    [self.pool openConnectionToPeer:peer];
-}
-
-- (WSPeer *)bestPeer
-{
-    WSPeer *bestPeer = nil;
-    @synchronized (self.queue) {
-        for (WSPeer *peer in self.connectedPeers) {
-
-            // double check connection status
-            if (peer.peerStatus != WSPeerStatusConnected) {
-                continue;
-            }
-            
-            // max chain height or min ping
-            if (!bestPeer ||
-                (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
-                ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
-                
-                bestPeer = peer;
-            }
-        }
-    }
-    return bestPeer;
-}
-
-- (void)reconnectAfterDelay:(NSTimeInterval)delay
-{
-    const dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
-    dispatch_after(when, self.queue, ^{
-        @synchronized (self.queue) {
-            self.connectionFailures = 0;
-        }
-        [self connect];
+    __block BOOL hasReachedMaxConnections;
+    dispatch_sync(self.queue, ^{
+        hasReachedMaxConnections = [self unsafeHasReachedMaxConnections];
     });
+    return hasReachedMaxConnections;
 }
 
-- (void)removeInactiveHost:(NSString *)host
-{
-    @synchronized (self.queue) {
-        WSNetworkAddress *addressToRemove;
-        for (WSNetworkAddress *address in self.inactiveAddresses) {
-            if ([address.host isEqualToString:host]) {
-                addressToRemove = address;
-            }
-        }
-        if (addressToRemove) {
-            [self.inactiveAddresses removeObject:addressToRemove];
-
-            DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveAddresses.count);
-        }
-    }
-}
-
-- (BOOL)isInactiveHost:(NSString *)host
-{
-    @synchronized (self.queue) {
-        for (WSNetworkAddress *address in self.inactiveAddresses) {
-            if ([address.host isEqualToString:host]) {
-                return YES;
-            }
-        }
-        return NO;
-    }
-}
-
-- (BOOL)isPendingHost:(NSString *)host
-{
-    @synchronized (self.queue) {
-        for (WSPeer *peer in self.pendingPeers) {
-            if ([peer.remoteHost isEqualToString:host]) {
-                return YES;
-            }
-        }
-        return NO;
-    }
-}
-
-- (BOOL)isConnectedHost:(NSString *)host
-{
-    @synchronized (self.queue) {
-        for (WSPeer *peer in self.connectedPeers) {
-            if ([peer.remoteHost isEqualToString:host]) {
-                return YES;
-            }
-        }
-        return NO;
-    }
-}
-    
 #pragma mark Synchronization
 
 - (BOOL)startBlockChainDownload
 {
-    @synchronized (self.queue) {
+    __block BOOL started = NO;
+    dispatch_sync(self.queue, ^{
         if (self.keepDownloading) {
             DDLogVerbose(@"Ignoring call because already downloading");
-            return NO;
+            return;
         }
 
         self.keepDownloading = YES;
@@ -749,52 +379,15 @@
         else {
             DDLogInfo(@"Delayed download until peer selection");
         }
-        return YES;
-    }
-}
-
-- (void)loadFilterAndStartDownload
-{
-    @synchronized (self.queue) {
-        NSAssert(self.downloadPeer, @"No download peer set");
-        
-        if ([self needsBloomFiltering]) {
-            [self resetBloomFilter];
-            
-            DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
-            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
-        }
-        else if ([self shouldDownloadBlocks]) {
-            DDLogDebug(@"No wallet provided, downloading full blocks");
-        }
-        else {
-            DDLogDebug(@"No wallet provided, downloading block headers");
-        }
-
-        DDLogInfo(@"Preparing for blockchain sync");
-
-        [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
-            [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
-
-            self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
-            });
-        } syncedBlock:^(NSUInteger height) {
-            [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
-            
-            DDLogInfo(@"Blockchain is synced");
-            
-            [self.notifier notifyDownloadFinished];
-        }];
-    }
+        started = YES;
+    });
+    return started;
 }
 
 - (BOOL)stopBlockChainDownload
 {
-    @synchronized (self.queue) {
+    __block BOOL stopped = NO;
+    dispatch_sync(self.queue, ^{
         self.keepDownloading = NO;
         if (self.downloadPeer) {
 
@@ -802,185 +395,67 @@
             [self.pool closeConnectionForProcessor:self.downloadPeer
                                              error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
         }
-        return YES;
-    }
+        stopped = YES;
+    });
+    return stopped;
 }
 
 - (BOOL)isDownloading
 {
-    @synchronized (self.queue) {
-        return self.keepDownloading;
-    }
+    __block BOOL isDownloading;
+    dispatch_sync(self.queue, ^{
+        isDownloading = self.keepDownloading;
+    });
+    return isDownloading;
 }
 
 - (BOOL)isSynced
 {
-    @synchronized (self.queue) {
-        return (self.downloadPeer && ([self.downloadPeer numberOfBlocksLeft] == 0));
-    }
-}
-
-- (void)resetBloomFilter
-{
-    @synchronized (self.queue) {
-        if (![self needsBloomFiltering]) {
-            return;
-        }
-        
-        const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
-        const NSUInteger retargetInterval = [self.parameters retargetInterval];
-
-        // increase fp rate as we approach current height
-        NSUInteger filterRateGap = 0;
-        if (blocksLeft > 0) {
-            filterRateGap = MIN(blocksLeft, retargetInterval);
-        }
-        
-        //
-        // 0.0 if (left blocks >= retarget)
-        // 0.x if (left blocks < retarget)
-        // 1.0 if (left blocks == 0, i.e. blockchain synced)
-        //
-        double fpRateIncrease = 0.0;
-        if ([self isSynced]) {
-            fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
-        }
-
-        self.bloomFilterParameters.falsePositiveRate = self.bloomFilterRateMin + fpRateIncrease * self.bloomFilterRateDelta;
-        self.observedFilterHeight = self.currentHeight;
-        self.observedFalsePositiveRate = self.bloomFilterParameters.falsePositiveRate;
-
-        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
-        self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
-        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-
-        DDLogDebug(@"Bloom filter reset in %.3fs (false positive rate: %f)",
-                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
-    }
-}
-
-- (void)reloadBloomFilter
-{
-    @synchronized (self.queue) {
-        if (![self needsBloomFiltering]) {
-            return;
-        }
-
-        self.observedFilterHeight = self.currentHeight;
-        self.observedFalsePositiveRate = [self.bloomFilter estimatedFalsePositiveRate];
-    }
-}
-
-- (BOOL)maybeResetAndSendBloomFilter
-{
-    @synchronized (self.queue) {
-        if (![self needsBloomFiltering]) {
-            return NO;
-        }
-        
-        DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
-                   self.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
-        
-        if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
-            DDLogDebug(@"Wallet is still covered by current Bloom filter, not resetting");
-            return NO;
-        }
-        
-        DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, resetting now");
-
-        if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
-            WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
-
-            DDLogDebug(@"HD wallet: generating %u look-ahead addresses", hdWallet.gapLimit);
-            [hdWallet generateAddressesWithLookAhead:hdWallet.gapLimit];
-            DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
-        }
-
-        [self resetBloomFilter];
-        
-        if ([self needsBloomFiltering]) {
-            if (![self isSynced]) {
-                DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
-                [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
-            }
-            else {
-                for (WSPeer *peer in self.connectedPeers) {
-                    DDLogDebug(@"Synced, loading rebuilt Bloom filter for peer %@", peer);
-                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
-                }
-            }
-        }
-        
-        return YES;
-    }
+    __block BOOL isSynced;
+    dispatch_sync(self.queue, ^{
+        isSynced = [self unsafeIsSynced];
+    });
+    return isSynced;
 }
 
 - (BOOL)reconnectForDownload
 {
-    @synchronized (self.queue) {
-        if (!self.isConnected) {
+    __block BOOL reconnected = NO;
+    dispatch_sync(self.queue, ^{
+        if (!self.keepConnected) {
             DDLogVerbose(@"Ignoring call because not connected");
-            return NO;
+            return;
         }
         [self.pool closeConnectionForProcessor:self.downloadPeer
                                          error:WSErrorMake(WSErrorCodePeerGroupSync, @"Rehashing download peer")];
-        return YES;
-    }
+        reconnected = YES;
+    });
+    return reconnected;
 }
 
 - (BOOL)rescan
 {
-    @synchronized (self.queue) {
-        if (!self.isConnected) {
+    __block BOOL rescanned = NO;
+    dispatch_sync(self.queue, ^{
+        if (!self.keepConnected) {
             DDLogVerbose(@"Ignoring call because not connected");
-            return NO;
+            return;
         }
         [self.pool closeConnectionForProcessor:self.downloadPeer
                                          error:WSErrorMake(WSErrorCodePeerGroupRescan, @"Preparing for rescan")];
-        return YES;
-    }
-}
-
-- (BOOL)shouldDownloadBlocks
-{
-    return ((self.wallet != nil) || !self.headersOnly);
-}
-
-- (BOOL)needsBloomFiltering
-{
-    return (self.wallet != nil);
-}
-
-- (void)detectDownloadTimeout
-{
-    const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-
-    @synchronized (self.queue) {
-        const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
-
-        if (elapsed < self.requestTimeout) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:(self.requestTimeout - elapsed)];
-            });
-            return;
-        }
-
-        if (self.downloadPeer) {
-            [self.pool closeConnectionForProcessor:self.downloadPeer
-                                             error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
-        }
-    }
+        rescanned = YES;
+    });
+    return rescanned;
 }
 
 #pragma mark Interaction
 
 - (WSPeerGroupStatus *)status
 {
-    @synchronized (self.queue) {
-        WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
+    WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
+    dispatch_sync(self.queue, ^{
         status.parameters = self.parameters;
-        status.isConnected = [self isConnected];
+        status.isConnected = self.keepConnected;
         status.currentHeight = self.blockChain.currentHeight;
         if (status.isConnected) {
             status.targetHeight = self.downloadPeer.lastBlockHeight;
@@ -996,31 +471,35 @@
 
         status.sentBytes = self.sentBytes;
         status.receivedBytes = self.receivedBytes;
-        return status;
-    }
+    });
+    return status;
 }
 
 - (NSUInteger)currentHeight
 {
-    @synchronized (self.queue) {
-        return self.blockChain.currentHeight;
-    }
+    __block NSUInteger currentHeight;
+    dispatch_sync(self.queue, ^{
+        currentHeight = self.blockChain.currentHeight;
+    });
+    return currentHeight;
 }
 
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet
 {
     WSExceptionCheckIllegal(wallet != nil, @"Nil wallet");
     
+    // immutable property
     return (self.wallet == wallet);
 }
 
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction
 {
     WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
-    
-    @synchronized (self.queue) {
-        if (![self isConnected] || ![self isSynced] || self.publishedTransactions[transaction.txId]) {
-            return NO;
+
+    __block BOOL published = NO;
+    dispatch_sync(self.queue, ^{
+        if (!self.keepConnected || ![self unsafeIsSynced] || self.publishedTransactions[transaction.txId]) {
+            return;
         }
 
         self.publishedTransactions[transaction.txId] = transaction;
@@ -1035,206 +514,196 @@
             }
             ++i;
         }
-    }
-
-    return YES;
-}
-
-- (void)runExclusiveBlock:(void (^)())block
-{
-    @synchronized (self.queue) {
-        block();
-    }
+        published = YES;
+    });
+    return published;
 }
 
 #pragma mark Events (group queue)
 
 - (void)peerDidConnect:(WSPeer *)peer
 {
-    @synchronized (self.queue) {
-        [self removeInactiveHost:peer.remoteHost];
-        [self.pendingPeers removeObject:peer];
-        [self.connectedPeers addObject:peer];
-        
-        DDLogInfo(@"Connected to %@ at height %u (active: %u)", peer, peer.lastBlockHeight, self.connectedPeers.count);
-        DDLogDebug(@"Active peers: %@", self.connectedPeers);
+    [self removeInactiveHost:peer.remoteHost];
+    [self.pendingPeers removeObject:peer];
+    [self.connectedPeers addObject:peer];
+    
+    DDLogInfo(@"Connected to %@ at height %u (active: %u)", peer, peer.lastBlockHeight, self.connectedPeers.count);
+    DDLogDebug(@"Active peers: %@", self.connectedPeers);
 
-        self.connectionFailures = 0;
+    self.connectionFailures = 0;
 
-        // group gets connected on first connection
-        [self.notifier notifyPeerConnected:peer reachedMaxConnections:[self hasReachedMaxConnections]];
-        if (self.connectedPeers.count == 1) {
-            [self.notifier notifyConnected];
-        }
+    // group gets connected on first connection
+    const BOOL hasReachedMaxConnections = (self.connectedPeers.count == self.maxConnections);
+    [self.notifier notifyPeerConnected:peer reachedMaxConnections:hasReachedMaxConnections];
+    if (self.connectedPeers.count == 1) {
+        [self.notifier notifyConnected];
+    }
 
-        NSError *error;
-        if (peer.version < WSPeerMinProtocol) {
-            error = WSErrorMake(WSErrorCodeNetworking, @"Peer %@ uses unsupported protocol version %u", self, peer.version);
-        }
-        if ((peer.services & WSPeerServicesNodeNetwork) == 0) {
-            error = WSErrorMake(WSErrorCodeNetworking, @"Peer %@ does not provide full node services", self);
-        }
-        if (peer.lastBlockHeight < self.blockChain.currentHeight) {
-            error = WSErrorMake(WSErrorCodePeerGroupSync, @"Peer %@ is behind us (height: %u < %u)", self, peer.lastBlockHeight, self.blockChain.currentHeight);
-        }
-        if (error) {
-            [self.pool closeConnectionForProcessor:peer error:error];
-            return;
-        }
-        
-        // peer was accepted
-        
-        if (self.downloadPeer && (peer.lastBlockHeight <= self.downloadPeer.lastBlockHeight)) {
-            DDLogDebug(@"Peer %@ is not ahead of current download peer, marked common (height: %u <= %u)",
-                       peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
+    NSError *error;
+    if (peer.version < WSPeerMinProtocol) {
+        error = WSErrorMake(WSErrorCodeNetworking, @"Peer %@ uses unsupported protocol version %u", self, peer.version);
+    }
+    if ((peer.services & WSPeerServicesNodeNetwork) == 0) {
+        error = WSErrorMake(WSErrorCodeNetworking, @"Peer %@ does not provide full node services", self);
+    }
+    if (peer.lastBlockHeight < self.blockChain.currentHeight) {
+        error = WSErrorMake(WSErrorCodePeerGroupSync, @"Peer %@ is behind us (height: %u < %u)", self, peer.lastBlockHeight, self.blockChain.currentHeight);
+    }
+    if (error) {
+        [self.pool closeConnectionForProcessor:peer error:error];
+        return;
+    }
+    
+    // peer was accepted
+    
+    if (self.downloadPeer && (peer.lastBlockHeight <= self.downloadPeer.lastBlockHeight)) {
+        DDLogDebug(@"Peer %@ is not ahead of current download peer, marked common (height: %u <= %u)",
+                   peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
 
-            if ([self isSynced]) {
-                if ([self needsBloomFiltering]) {
-                    DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
-                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
-                }
-                DDLogDebug(@"Requesting mempool from common peer %@", peer);
-                [peer sendMempoolMessage];
+        if ([self unsafeIsSynced]) {
+            if ([self needsBloomFiltering]) {
+                DDLogDebug(@"Loading Bloom filter for common peer %@", peer);
+                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
             }
-            return;
+            DDLogDebug(@"Requesting mempool from common peer %@", peer);
+            [peer sendMempoolMessage];
         }
-        
-        [peer sendGetaddr];
-        
-        // find/improve download peer from now on
-        
-        // NOTE: to start download immediately, download peer is initially set to first
-        // connected peer and only switched to a new one on timeout/failure
-        
-        WSPeer *bestPeer = [self bestPeer];
-        NSAssert(bestPeer, @"We've just connected, there must be at least one connected peer");
+        return;
+    }
+    
+    [peer sendGetaddr];
+    
+    // find/improve download peer from now on
+    
+    // NOTE: to start download immediately, download peer is initially set to first
+    // connected peer and only switched to a new one on timeout/failure
+    
+    WSPeer *bestPeer = [self bestPeer];
+    NSAssert(bestPeer, @"We've just connected, there must be at least one connected peer");
 
-        // no improvement
-        if (self.downloadPeer == bestPeer) {
-            return;
+    // no improvement
+    if (self.downloadPeer == bestPeer) {
+        return;
+    }
+
+    // no current download peer, set to best peer immediately
+    if (!self.downloadPeer) {
+        self.downloadPeer = bestPeer;
+        DDLogInfo(@"Selected new download peer: %@", _downloadPeer);
+
+        if (self.keepDownloading) {
+            [self loadFilterAndStartDownload];
         }
+    }
+    // download peer is set but not best, if synced disconnect and switch to new best after disconnection
+    else {
 
-        // no current download peer, set to best peer immediately
-        if (!self.downloadPeer) {
-            self.downloadPeer = bestPeer;
-            DDLogInfo(@"Selected new download peer: %@", _downloadPeer);
-
-            if (self.keepDownloading) {
-                [self loadFilterAndStartDownload];
-            }
-        }
-        // download peer is set but not best, if synced disconnect and switch to new best after disconnection
-        else {
-
-            // WARNING
-            //
-            // disconnecting during download is a major waste of time and bandwidth
-            // only force disconnection if current download peer is behind best peer
-            //
-            if ([self isSynced] || (bestPeer.lastBlockHeight > self.downloadPeer.lastBlockHeight)) {
-                [self.pool closeConnectionForProcessor:self.downloadPeer
-                                                 error:WSErrorMake(WSErrorCodePeerGroupSync, @"Found a better download peer than %@", self.downloadPeer)];
-            }
+        // WARNING
+        //
+        // disconnecting during download is a major waste of time and bandwidth
+        // only force disconnection if current download peer is behind best peer
+        //
+        if ([self unsafeIsSynced] || (bestPeer.lastBlockHeight > self.downloadPeer.lastBlockHeight)) {
+            [self.pool closeConnectionForProcessor:self.downloadPeer
+                                             error:WSErrorMake(WSErrorCodePeerGroupSync, @"Found a better download peer than %@", self.downloadPeer)];
         }
     }
 }
 
 - (void)peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error
 {
-    @synchronized (self.queue) {
-        [peer cleanUpConnectionData];
-        [self.pendingPeers removeObject:peer];
-        [self.connectedPeers removeObject:peer];
+    [peer cleanUpConnectionData];
+    [self.pendingPeers removeObject:peer];
+    [self.connectedPeers removeObject:peer];
 
-        DDLogInfo(@"Disconnected from %@ (active: %u)%@", peer, self.connectedPeers.count, WSStringOptional(error, @" (%@)"));
-        DDLogDebug(@"Active peers: %@", self.connectedPeers);
+    DDLogInfo(@"Disconnected from %@ (active: %u)%@", peer, self.connectedPeers.count, WSStringOptional(error, @" (%@)"));
+    DDLogDebug(@"Active peers: %@", self.connectedPeers);
+    
+    // group gets disconnected on last disconnection
+    [self.notifier notifyPeerDisconnected:peer];
+    if (self.connectedPeers.count == 0) {
+        [self.notifier notifyDisconnected];
+    }
+
+    if (error && (error.domain == WSErrorDomain)) {
+        DDLogDebug(@"Disconnection due to known error (%@)", error);
+        [self removeInactiveHost:peer.remoteHost];
+    }
+
+    if (error.code == WSErrorCodePeerGroupRescan) {
+        DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
         
-        // group gets disconnected on last disconnection
-        [self.notifier notifyPeerDisconnected:peer];
+        [self.store truncate];
+        [self.wallet removeAllTransactions];
+        
+        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+        NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+        for (WSPeer *peer in self.pendingPeers) {
+            [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+        }
+        for (WSPeer *peer in self.connectedPeers) {
+            [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
+        }
+        
+        DDLogDebug(@"Rescan, truncate complete");
+        [self.notifier notifyRescan];
+    }
+    
+    if (peer == self.downloadPeer) {
+        DDLogDebug(@"Peer %@ was download peer", peer);
+
         if (self.connectedPeers.count == 0) {
-            [self.notifier notifyDisconnected];
-        }
-
-        if (error && (error.domain == WSErrorDomain)) {
-            DDLogDebug(@"Disconnection due to known error (%@)", error);
-            [self removeInactiveHost:peer.remoteHost];
-        }
-
-        if (error.code == WSErrorCodePeerGroupRescan) {
-            DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
-            
-            [self.store truncate];
-            [self.wallet removeAllTransactions];
-            
-            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
-            NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-            for (WSPeer *peer in self.pendingPeers) {
-                [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-            }
-            for (WSPeer *peer in self.connectedPeers) {
-                [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-            }
-            
-            DDLogDebug(@"Rescan, truncate complete");
-            [self.notifier notifyRescan];
-        }
-        
-        if (peer == self.downloadPeer) {
-            DDLogDebug(@"Peer %@ was download peer", peer);
-
-            if (self.connectedPeers.count == 0) {
-                self.downloadPeer = nil;
-                if (!self.keepDownloading) {
-                    [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
-                }
-                else {
-                    [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupSync, @"No more peers for download")];
-                }
+            self.downloadPeer = nil;
+            if (!self.keepDownloading) {
+                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
             }
             else {
-                [self.notifier notifyDownloadFailedWithError:error];
+                [self.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupSync, @"No more peers for download")];
+            }
+        }
+        else {
+            [self.notifier notifyDownloadFailedWithError:error];
 
-                self.downloadPeer = [self bestPeer];
-                if (self.downloadPeer) {
-                    DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+            self.downloadPeer = [self bestPeer];
+            if (self.downloadPeer) {
+                DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
-                    // restart sync on new download peer
-                    if (self.keepDownloading && ![self isSynced]) {
-                        [self loadFilterAndStartDownload];
-                    }
+                // restart sync on new download peer
+                if (self.keepDownloading && ![self unsafeIsSynced]) {
+                    [self loadFilterAndStartDownload];
                 }
             }
         }
+    }
 
-        // give up if no error (disconnected intentionally)
-        if (!error) {
-            DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
+    // give up if no error (disconnected intentionally)
+    if (!error) {
+        DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
+    }
+    else {
+        ++self.connectionFailures;
+        if (self.connectionFailures > self.maxConnectionFailures) {
+            return;
         }
-        else {
-            ++self.connectionFailures;
-            if (self.connectionFailures > self.maxConnectionFailures) {
+
+        // reconnect if persistent
+        if (self.keepConnected) {
+            DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+
+            if (self.connectionFailures == self.maxConnectionFailures) {
+                DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
+                [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
                 return;
             }
 
-            // reconnect if persistent
-            if (self.keepConnected) {
-                DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+            if ([[self class] isHardNetworkError:error]) {
+                DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
+                [self removeInactiveHost:peer.remoteHost];
+            }
 
-                if (self.connectionFailures == self.maxConnectionFailures) {
-                    DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
-                    [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
-                    return;
-                }
-
-                if ([[self class] isHardNetworkError:error]) {
-                    DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
-                    [self removeInactiveHost:peer.remoteHost];
-                }
-
-                if (self.connectedPeers.count < self.maxConnections) {
-                    DDLogInfo(@"Searching for new peers");
-                    [self connect];
-                }
+            if (self.connectedPeers.count < self.maxConnections) {
+                DDLogInfo(@"Searching for new peers");
+                [self connect];
             }
         }
     }
@@ -1242,10 +711,8 @@
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
 {
-    @synchronized (self.queue) {
-        if (peer == self.downloadPeer) {
-            self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
-        }
+    if (peer == self.downloadPeer) {
+        self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
     }
 }
 
@@ -1257,18 +724,16 @@
     WSStorableBlock *block = nil;
     __weak WSPeerGroup *weakSelf = self;
 
-    @synchronized (self.queue) {
-        if (![self validateHeaderAgainstCheckpoints:header error:&error]) {
-            [self.pool closeConnectionForProcessor:peer error:error];
-            return;
-        }
-
-        block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
-
-            [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
-
-        } error:&error];
+    if (![self validateHeaderAgainstCheckpoints:header error:&error]) {
+        [self.pool closeConnectionForProcessor:peer error:error];
+        return;
     }
+
+    block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+
+        [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
+
+    } error:&error];
     
     if (!block) {
         if (!error) {
@@ -1305,19 +770,17 @@
     WSStorableBlock *previousHead = nil;
     __weak WSPeerGroup *weakSelf = self;
 
-    @synchronized (self.queue) {
-        if (![self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error]) {
-            [self.pool closeConnectionForProcessor:peer error:error];
-            return;
-        }
-
-        previousHead = self.blockChain.head;
-        block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
-
-            [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
-
-        } error:&error];
+    if (![self validateHeaderAgainstCheckpoints:filteredBlock.header error:&error]) {
+        [self.pool closeConnectionForProcessor:peer error:error];
+        return;
     }
+
+    previousHead = self.blockChain.head;
+    block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+
+        [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
+
+    } error:&error];
     
     if (!block) {
         if (!error) {
@@ -1340,26 +803,24 @@
     //
     // low-pass filter in [BRPeerManager peer:relayedBlock:]
     //
-    @synchronized (self.queue) {
-        if ((peer == self.downloadPeer) && (transactions.count > 0)) {
-            const double oldRate = self.observedFalsePositiveRate;
-            self.observedFalsePositiveRate = (self.observedFalsePositiveRate *
-                                              (1.0 - self.bloomFilterLowPassRatio * filteredBlock.partialMerkleTree.txCount / self.bloomFilterTxsPerBlock) +
-                                              self.bloomFilterLowPassRatio * transactions.count / self.bloomFilterTxsPerBlock);
-            
-            DDLogVerbose(@"Observed false positive rate at #%u: %f * (1.0 - %.2f * %u / %u) + %.2f * %u / %u = %f",
-                         self.blockChain.currentHeight, oldRate,
-                         self.bloomFilterLowPassRatio, filteredBlock.partialMerkleTree.txCount, self.bloomFilterTxsPerBlock,
-                         self.bloomFilterLowPassRatio, transactions.count, self.bloomFilterTxsPerBlock,
-                         self.observedFalsePositiveRate);
-            
-            if (self.observedFalsePositiveRate > self.bloomFilterObservedRateMax) {
-                [self.pool closeConnectionForProcessor:self.downloadPeer
-                                                 error:WSErrorMake(WSErrorCodePeerGroupSync, @"Too many false positives (%f > %f) in the %u-%u range (%u blocks), disconnecting",
-                                                                   self.observedFalsePositiveRate, self.bloomFilterObservedRateMax,
-                                                                   self.observedFilterHeight, self.currentHeight,
-                                                                   self.currentHeight - self.observedFilterHeight)];
-            }
+    if ((peer == self.downloadPeer) && (transactions.count > 0)) {
+        const double oldRate = self.observedFalsePositiveRate;
+        self.observedFalsePositiveRate = (self.observedFalsePositiveRate *
+                                          (1.0 - self.bloomFilterLowPassRatio * filteredBlock.partialMerkleTree.txCount / self.bloomFilterTxsPerBlock) +
+                                          self.bloomFilterLowPassRatio * transactions.count / self.bloomFilterTxsPerBlock);
+        
+        DDLogVerbose(@"Observed false positive rate at #%u: %f * (1.0 - %.2f * %u / %u) + %.2f * %u / %u = %f",
+                     self.blockChain.currentHeight, oldRate,
+                     self.bloomFilterLowPassRatio, filteredBlock.partialMerkleTree.txCount, self.bloomFilterTxsPerBlock,
+                     self.bloomFilterLowPassRatio, transactions.count, self.bloomFilterTxsPerBlock,
+                     self.observedFalsePositiveRate);
+        
+        if (self.observedFalsePositiveRate > self.bloomFilterObservedRateMax) {
+            [self.pool closeConnectionForProcessor:self.downloadPeer
+                                             error:WSErrorMake(WSErrorCodePeerGroupSync, @"Too many false positives (%f > %f) in the %u-%u range (%u blocks), disconnecting",
+                                                               self.observedFalsePositiveRate, self.bloomFilterObservedRateMax,
+                                                               self.observedFilterHeight, self.blockChain.currentHeight,
+                                                               self.blockChain.currentHeight - self.observedFilterHeight)];
         }
     }
     
@@ -1382,13 +843,11 @@
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
     
-    @synchronized (self.queue) {
-        [self.inactiveAddresses addObjectsFromArray:addresses];
+    [self.inactiveAddresses addObjectsFromArray:addresses];
 
-//        if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
-        if (self.connectedPeers.count < self.maxConnections) {
-            [self triggerConnectionsFromInactive];
-        }
+//    if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
+    if (self.connectedPeers.count < self.maxConnections) {
+        [self triggerConnectionsFromInactive];
     }
 }
 
@@ -1406,35 +865,33 @@
     NSMutableArray *notfoundInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
     NSMutableDictionary *relayingPeersByTxId = [[NSMutableDictionary alloc] initWithCapacity:inventories.count];
     
-    @synchronized (self.queue) {
-        for (WSInventory *inv in inventories) {
-            
-            // we don't relay blocks
-            if (inv.inventoryType != WSInventoryTypeTx) {
-                [notfoundInventories addObject:inv];
-                continue;
-            }
-            
-            WSHash256 *txId = inv.inventoryHash;
-            WSSignedTransaction *transaction = self.publishedTransactions[txId];
-            
-            // requested transaction we don't own
-            if (!transaction) {
-                [notfoundInventories addObject:inv];
-                continue;
-            }
-            
-            [peer sendTxMessageWithTransaction:transaction];
-            
-            NSMutableArray *relayingPeers = relayingPeersByTxId[transaction.txId];
-            if (!relayingPeers) {
-                relayingPeers = [[NSMutableArray alloc] init];
-                relayingPeersByTxId[transaction.txId] = relayingPeers;
-            }
-            [relayingPeers addObject:peer.remoteHost];
+    for (WSInventory *inv in inventories) {
+        
+        // we don't relay blocks
+        if (inv.inventoryType != WSInventoryTypeTx) {
+            [notfoundInventories addObject:inv];
+            continue;
         }
+        
+        WSHash256 *txId = inv.inventoryHash;
+        WSSignedTransaction *transaction = self.publishedTransactions[txId];
+        
+        // requested transaction we don't own
+        if (!transaction) {
+            [notfoundInventories addObject:inv];
+            continue;
+        }
+        
+        [peer sendTxMessageWithTransaction:transaction];
+        
+        NSMutableArray *relayingPeers = relayingPeersByTxId[transaction.txId];
+        if (!relayingPeers) {
+            relayingPeers = [[NSMutableArray alloc] init];
+            relayingPeersByTxId[transaction.txId] = relayingPeers;
+        }
+        [relayingPeers addObject:peer.remoteHost];
     }
-    
+
     if (notfoundInventories.count > 0) {
         [peer sendNotfoundMessageWithInventories:notfoundInventories];
     }
@@ -1458,89 +915,620 @@
 {
     DDLogDebug(@"Received Bloom filter reload request from %@", peer);
 
-    @synchronized (self.queue) {
-        if (self.bloomFilterParameters.flags == WSBIP37FlagsUpdateNone) {
-            DDLogDebug(@"Bloom filter is static and doesn't need a reload (flags: UPDATE_NONE)");
-            return;
-        }
-
-        [self reloadBloomFilter];
-        [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+    if (self.bloomFilterParameters.flags == WSBIP37FlagsUpdateNone) {
+        DDLogDebug(@"Bloom filter is static and doesn't need a reload (flags: UPDATE_NONE)");
+        return;
     }
+
+    [self reloadBloomFilter];
+    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
 }
 
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes
 {
-    @synchronized (self.queue) {
-        self.sentBytes += numberOfBytes;
-    }
+    self.sentBytes += numberOfBytes;
 }
 
 - (void)peer:(WSPeer *)peer didReceiveNumberOfBytes:(NSUInteger)numberOfBytes
 {
-    @synchronized (self.queue) {
-        self.receivedBytes += numberOfBytes;
+    self.receivedBytes += numberOfBytes;
+}
+
+#pragma mark Application state (main queue)
+
+- (void)reachability:(WSReachability *)reachability didChangeStatus:(WSReachabilityStatus)reachabilityStatus
+{
+    DDLogVerbose(@"Reachability flags: %@ (reachable: %d)", [reachability reachabilityFlagsString], [reachability isReachable]);
+    
+    dispatch_sync(self.queue, ^{
+        if (self.keepConnected && [reachability isReachable]) {
+            DDLogDebug(@"Network is reachable, connecting...");
+            [self connect];
+        }
+        else {
+            DDLogDebug(@"Network is unreachable, disconnecting...");
+            [self disconnect];
+        }
+    });
+}
+
+#pragma mark Connection helpers (unsafe)
+
+- (void)connect
+{
+    if (self.connectionFailures == self.maxConnectionFailures) {
+        DDLogInfo(@"Too many disconnections, not connecting");
+        return;
+    }
+    if (![self.reachability isReachable]) {
+        DDLogInfo(@"Network offline, not connecting");
+        return;
+    }
+    
+    self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
+    
+    if (self.peerHosts.count > 0) {
+        NSArray *newAddresses = [self disconnectedAddressesWithHosts:self.peerHosts];
+        [self.inactiveAddresses addObjectsFromArray:newAddresses];
+        
+        DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveAddresses.count);
+        DDLogDebug(@"%@", self.inactiveAddresses);
+        [self triggerConnectionsFromInactive];
+    }
+    else {
+        if (self.inactiveAddresses.count > 0) {
+            [self triggerConnectionsFromInactive];
+            return;
+        }
+        
+        if ((self.connectedPeers.count > 0) || (self.pendingPeers.count > 0)) {
+            DDLogDebug(@"Active peers around, skip DNS discovery (connected: %u, pending: %u)", self.connectedPeers.count, self.pendingPeers.count);
+            return;
+        }
+        
+        // first bootstrap is from DNS
+        [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
+            DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
+            DDLogDebug(@"%@", newHosts);
+            
+            NSArray *newAddresses = [self disconnectedAddressesWithHosts:newHosts];
+            if (newAddresses.count == 0) {
+                DDLogDebug(@"All discovered peers are already connected");
+                return;
+            }
+            
+            [self.inactiveAddresses addObjectsFromArray:newAddresses];
+            DDLogInfo(@"Connecting to discovered non-connected peers (available: %u)", newAddresses.count);
+            DDLogDebug(@"%@", newAddresses);
+            [self triggerConnectionsFromSeed:seed addresses:newAddresses];
+        } failure:^(NSError *error) {
+            DDLogError(@"DNS discovery failed: %@", error);
+        }];
     }
 }
 
-#pragma mark Handlers
+- (void)disconnect
+{
+    [self.pool closeAllConnections];
+}
+
+- (void)discoverNewHostsWithResolutionCallback:(void (^)(NSString *, NSArray *))resolutionCallback failure:(void (^)(NSError *))failure
+{
+    NSParameterAssert(resolutionCallback);
+    NSParameterAssert(failure);
+    
+    // if discovery ongoing, fall back to current inactive hosts
+    if (self.activeDnsResolutions > 0) {
+        DDLogWarn(@"Waiting for %u ongoing resolutions to complete", self.activeDnsResolutions);
+        failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
+        return;
+    }
+    
+    for (NSString *dns in [self.parameters dnsSeeds]) {
+        DDLogInfo(@"Resolving seed: %@", dns);
+        
+        ++self.activeDnsResolutions;
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            CFHostRef host = CFHostCreateWithName(NULL, (__bridge CFStringRef)dns);
+            if (!CFHostStartInfoResolution(host, kCFHostAddresses, NULL)) {
+                DDLogError(@"Error during resolution of %@", dns);
+                CFRelease(host);
+                
+                dispatch_sync(self.queue, ^{
+                    --self.activeDnsResolutions;
+                });
+                
+                return;
+            }
+            Boolean resolved;
+            CFArrayRef rawAddressesRef = CFHostGetAddressing(host, &resolved);
+            NSArray *rawAddresses = nil;
+            if (resolved) {
+                rawAddresses = CFBridgingRelease(CFArrayCreateCopy(NULL, rawAddressesRef));
+            }
+            CFRelease(host);
+            
+            dispatch_sync(self.queue, ^{
+                --self.activeDnsResolutions;
+            });
+            
+            if (rawAddresses) {
+                DDLogDebug(@"Resolved %u addresses", rawAddresses.count);
+                
+                NSMutableArray *hosts = [[NSMutableArray alloc] init];
+                
+                // add a faulty host to test automatic removal
+                //                [hosts addObject:@"124.170.89.58"]; // behind
+                //                [hosts addObject:@"152.23.202.18"]; // timeout
+                
+                dispatch_sync(self.queue, ^{
+                    for (NSData *rawBytes in rawAddresses) {
+                        if (rawBytes.length != sizeof(struct sockaddr_in)) {
+                            continue;
+                        }
+                        struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
+                        const uint32_t address = rawAddress->sin_addr.s_addr;
+                        NSString *host = WSNetworkHostFromIPv4(address);
+                        
+                        if (host && ![self isInactiveHost:host]) {
+                            [hosts addObject:host];
+                        }
+                    }
+                });
+                
+                DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
+                
+                if (hosts.count > 0) {
+                    dispatch_async(self.queue, ^{
+                        resolutionCallback(dns, hosts);
+                    });
+                }
+            }
+        });
+    }
+}
+
+- (void)triggerConnectionsFromSeed:(NSString *)seed addresses:(NSArray *)addresses
+{
+    NSParameterAssert(seed);
+    NSParameterAssert(addresses.count > 0);
+    
+    NSMutableArray *triggered = [[NSMutableArray alloc] init];
+    
+    for (WSNetworkAddress *address in addresses) {
+        if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
+            continue;
+        }
+        if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+            break;
+        }
+        
+        [self openConnectionToPeerHost:address.host];
+        [triggered addObject:address];
+    }
+    [self.inactiveAddresses removeObjectsInArray:triggered];
+    
+    DDLogDebug(@"Triggered %u new connections from %@", triggered.count, seed);
+}
+
+- (void)triggerConnectionsFromInactive
+{
+    NSMutableArray *triggered = [[NSMutableArray alloc] init];
+    
+    // recent first
+    [self.inactiveAddresses sortUsingComparator:^NSComparisonResult(WSNetworkAddress *a1, WSNetworkAddress *a2) {
+        if (a1.timestamp > a2.timestamp) {
+            return NSOrderedAscending;
+        }
+        else if (a1.timestamp < a2.timestamp) {
+            return NSOrderedDescending;
+        }
+        else {
+            return NSOrderedSame;
+        }
+    }];
+    
+    // cap total
+    if (self.inactiveAddresses.count > WSPeerGroupMaxInactivePeers) {
+        [self.inactiveAddresses removeObjectsInRange:NSMakeRange(WSPeerGroupMaxInactivePeers, self.inactiveAddresses.count - WSPeerGroupMaxInactivePeers)];
+    }
+    
+    DDLogDebug(@"Sorted %u inactive addresses", self.inactiveAddresses.count);
+//    DDLogDebug(@">>> %@", self.inactiveAddresses);
+//
+//    // sequential
+//    for (WSNetworkAddress *address in self.inactiveAddresses) {
+//        if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
+//            continue;
+//        }
+//        if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+//            break;
+//        }
+//
+//        [self openConnectionToPeerHost:address.host];
+//        [triggered addObject:address];
+//    }
+//    [self.inactiveAddresses removeObjectsInArray:triggered];
+    
+    // randomic
+    while (self.inactiveAddresses.count > 0) {
+        
+        //
+        // taken from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRPeerManager.m
+        //
+        // prefer recent from inactive (higher probability of retrieving lower offsets)
+        //
+        WSNetworkAddress *address = self.inactiveAddresses[(NSUInteger)(pow(lrand48() % self.inactiveAddresses.count, 2) / self.inactiveAddresses.count)];
+        
+        if ([self isPendingHost:address.host] || [self.misbehavingHosts containsObject:address.host]) {
+            continue;
+        }
+        if (self.connectedPeers.count + self.pendingPeers.count >= self.maxConnections) {
+            break;
+        }
+        
+        [self openConnectionToPeerHost:address.host];
+        [triggered addObject:address];
+        
+        [self.inactiveAddresses removeObject:address];
+    }
+    
+    DDLogDebug(@"Triggered %u new connections from inactive", triggered.count);
+}
+
+- (void)openConnectionToPeerHost:(NSString *)host
+{
+    NSParameterAssert(host);
+    
+    WSPeerParameters *peerParameters = [[WSPeerParameters alloc] initWithParameters:self.parameters
+                                                                         groupQueue:self.queue
+                                                                         blockChain:self.blockChain
+                                                               shouldDownloadBlocks:[self shouldDownloadBlocks]
+                                                                needsBloomFiltering:[self needsBloomFiltering]];
+    
+    WSPeer *peer = [[WSPeer alloc] initWithHost:host peerParameters:peerParameters];
+    peer.delegate = self;
+    [self.pendingPeers addObject:peer];
+    
+    DDLogInfo(@"Connecting to peer %@", peer);
+    [self.pool openConnectionToPeer:peer];
+}
+
+- (void)reconnectAfterDelay:(NSTimeInterval)delay
+{
+    const dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
+    dispatch_after(when, self.queue, ^{
+        self.connectionFailures = 0;
+        [self connect];
+    });
+}
+
+- (NSArray *)disconnectedAddressesWithHosts:(NSArray *)hosts
+{
+    NSMutableArray *disconnected = [[NSMutableArray alloc] initWithCapacity:hosts.count];
+    for (NSString *host in hosts) {
+        if ([self isPendingHost:host] || [self isConnectedHost:host]) {
+            continue;
+        }
+        WSNetworkAddress *address = WSNetworkAddressMake(WSNetworkIPv4FromHost(host), [self.parameters peerPort], 0, WSCurrentTimestamp() - WSDatesOneWeek);
+        [disconnected addObject:address];
+    }
+    return disconnected;
+}
+
+- (void)removeInactiveHost:(NSString *)host
+{
+    WSNetworkAddress *addressToRemove;
+    for (WSNetworkAddress *address in self.inactiveAddresses) {
+        if ([address.host isEqualToString:host]) {
+            addressToRemove = address;
+        }
+    }
+    if (addressToRemove) {
+        [self.inactiveAddresses removeObject:addressToRemove];
+        
+        DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveAddresses.count);
+    }
+}
+
+- (BOOL)isInactiveHost:(NSString *)host
+{
+    for (WSNetworkAddress *address in self.inactiveAddresses) {
+        if ([address.host isEqualToString:host]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)isPendingHost:(NSString *)host
+{
+    for (WSPeer *peer in self.pendingPeers) {
+        if ([peer.remoteHost isEqualToString:host]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)isConnectedHost:(NSString *)host
+{
+    for (WSPeer *peer in self.connectedPeers) {
+        if ([peer.remoteHost isEqualToString:host]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (WSPeer *)bestPeer
+{
+    WSPeer *bestPeer = nil;
+    for (WSPeer *peer in self.connectedPeers) {
+        
+        // double check connection status
+        if (peer.peerStatus != WSPeerStatusConnected) {
+            continue;
+        }
+        
+        // max chain height or min ping
+        if (!bestPeer ||
+            (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
+            ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
+            
+            bestPeer = peer;
+        }
+    }
+    return bestPeer;
+}
+
+- (WSPeer *)downloadPeer
+{
+    NSAssert(!_downloadPeer || _downloadPeer.isDownloadPeer, @"%@ is not download peer", _downloadPeer);
+    return _downloadPeer;
+}
+
+- (void)setDownloadPeer:(WSPeer *)downloadPeer
+{
+    _downloadPeer.isDownloadPeer = NO;
+    _downloadPeer = downloadPeer;
+    _downloadPeer.isDownloadPeer = YES;
+}
+
++ (BOOL)isHardNetworkError:(NSError *)error
+{
+    static NSMutableDictionary *hardCodes;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        hardCodes = [[NSMutableDictionary alloc] init];
+        
+        hardCodes[NSPOSIXErrorDomain] = [NSSet setWithArray:@[@(ECONNREFUSED),
+                                                              @(ECONNRESET)]];
+        
+        hardCodes[GCDAsyncSocketErrorDomain] = [NSSet setWithArray:@[@(GCDAsyncSocketConnectTimeoutError),
+                                                                     @(GCDAsyncSocketClosedError)]];
+        
+    });
+    
+    return ((error.domain != WSErrorDomain) && [hardCodes[error.domain] containsObject:@(error.code)]);
+}
+
+#pragma mark Sync helpers (unsafe)
+
+- (void)loadFilterAndStartDownload
+{
+    NSAssert(self.downloadPeer, @"No download peer set");
+    
+    if ([self needsBloomFiltering]) {
+        [self resetBloomFilter];
+        
+        DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
+        [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+    }
+    else if ([self shouldDownloadBlocks]) {
+        DDLogDebug(@"No wallet provided, downloading full blocks");
+    }
+    else {
+        DDLogDebug(@"No wallet provided, downloading block headers");
+    }
+    
+    DDLogInfo(@"Preparing for blockchain sync");
+    
+    [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
+        [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
+        
+        self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
+        const NSTimeInterval delay = self.requestTimeout;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+            [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:delay];
+        });
+    } syncedBlock:^(NSUInteger height) {
+        [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
+        
+        DDLogInfo(@"Blockchain is synced");
+        
+        [self.notifier notifyDownloadFinished];
+    }];
+}
+
+- (void)resetBloomFilter
+{
+    if (![self needsBloomFiltering]) {
+        return;
+    }
+    
+    const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
+    const NSUInteger retargetInterval = [self.parameters retargetInterval];
+    
+    // increase fp rate as we approach current height
+    NSUInteger filterRateGap = 0;
+    if (blocksLeft > 0) {
+        filterRateGap = MIN(blocksLeft, retargetInterval);
+    }
+    
+    //
+    // 0.0 if (left blocks >= retarget)
+    // 0.x if (left blocks < retarget)
+    // 1.0 if (left blocks == 0, i.e. blockchain synced)
+    //
+    double fpRateIncrease = 0.0;
+    if ([self unsafeIsSynced]) {
+        fpRateIncrease = 1.0 - (double)filterRateGap / retargetInterval;
+    }
+    
+    self.bloomFilterParameters.falsePositiveRate = self.bloomFilterRateMin + fpRateIncrease * self.bloomFilterRateDelta;
+    self.observedFilterHeight = self.blockChain.currentHeight;
+    self.observedFalsePositiveRate = self.bloomFilterParameters.falsePositiveRate;
+    
+    const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+    self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
+    const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+    
+    DDLogDebug(@"Bloom filter reset in %.3fs (false positive rate: %f)",
+               rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+}
+
+- (void)reloadBloomFilter
+{
+    if (![self needsBloomFiltering]) {
+        return;
+    }
+    
+    self.observedFilterHeight = self.blockChain.currentHeight;
+    self.observedFalsePositiveRate = [self.bloomFilter estimatedFalsePositiveRate];
+}
+
+- (BOOL)maybeResetAndSendBloomFilter
+{
+    if (![self needsBloomFiltering]) {
+        return NO;
+    }
+    
+    DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
+               self.blockChain.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+    
+    if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
+        DDLogDebug(@"Wallet is still covered by current Bloom filter, not resetting");
+        return NO;
+    }
+    
+    DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, resetting now");
+    
+    if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
+        WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
+        
+        DDLogDebug(@"HD wallet: generating %u look-ahead addresses", hdWallet.gapLimit);
+        [hdWallet generateAddressesWithLookAhead:hdWallet.gapLimit];
+        DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
+    }
+    
+    [self resetBloomFilter];
+    
+    if ([self needsBloomFiltering]) {
+        if (![self unsafeIsSynced]) {
+            DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
+            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+        }
+        else {
+            for (WSPeer *peer in self.connectedPeers) {
+                DDLogDebug(@"Synced, loading rebuilt Bloom filter for peer %@", peer);
+                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+            }
+        }
+    }
+    
+    return YES;
+}
+
+- (BOOL)shouldDownloadBlocks
+{
+    return ((self.wallet != nil) || !self.headersOnly);
+}
+
+- (BOOL)needsBloomFiltering
+{
+    return (self.wallet != nil);
+}
+
+// main queue
+- (void)detectDownloadTimeout
+{
+    dispatch_sync(self.queue, ^{
+        const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
+        
+        if (elapsed < self.requestTimeout) {
+            const NSTimeInterval delay = self.requestTimeout - elapsed;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:delay];
+            });
+            return;
+        }
+        
+        if (self.downloadPeer) {
+            [self.pool closeConnectionForProcessor:self.downloadPeer
+                                             error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
+        }
+    });
+}
+
+#pragma mark Handlers (unsafe)
 
 - (BOOL)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self.queue) {
-        WSStorableBlock *expected = [self.parameters checkpointAtHeight:(uint32_t)(self.currentHeight + 1)];
-        if (!expected) {
-            return YES;
-        }
-        if ([header.blockId isEqual:expected.header.blockId]) {
-            return YES;
-        }
-
-        DDLogError(@"Checkpoint validation failed at %u", expected.height);
-        DDLogError(@"Expected checkpoint: %@", expected);
-        DDLogError(@"Found block header: %@", header);
-        
-        if (error) {
-            *error = WSErrorMake(WSErrorCodePeerGroupRescan, @"Checkpoint validation failed at %u (%@ != %@)",
-                                 expected.height, header.blockId, expected.blockId);
-        }
-        return NO;
+    WSStorableBlock *expected = [self.parameters checkpointAtHeight:(uint32_t)(self.blockChain.currentHeight + 1)];
+    if (!expected) {
+        return YES;
     }
+    if ([header.blockId isEqual:expected.header.blockId]) {
+        return YES;
+    }
+    
+    DDLogError(@"Checkpoint validation failed at %u", expected.height);
+    DDLogError(@"Expected checkpoint: %@", expected);
+    DDLogError(@"Found block header: %@", header);
+    
+    if (error) {
+        *error = WSErrorMake(WSErrorCodePeerGroupRescan, @"Checkpoint validation failed at %u (%@ != %@)",
+                             expected.height, header.blockId, expected.blockId);
+    }
+    return NO;
 }
 
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer
 {
-    NSUInteger lastBlockHeight = 0;
-
-    @synchronized (self.queue) {
-        [self.notifier notifyBlockAdded:block];
-
-        lastBlockHeight = self.downloadPeer.lastBlockHeight;
-        const BOOL isDownloadFinished = (block.height == lastBlockHeight);
-
-        if (isDownloadFinished) {
-            for (WSPeer *peer in self.connectedPeers) {
-                if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
-                    DDLogDebug(@"Loading Bloom filter for peer %@", peer);
-                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
-                }
-                DDLogDebug(@"Requesting mempool from peer %@", peer);
-                [peer sendMempoolMessage];
+    [self.notifier notifyBlockAdded:block];
+    
+    const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
+    const BOOL isDownloadFinished = (block.height == lastBlockHeight);
+    
+    if (isDownloadFinished) {
+        for (WSPeer *peer in self.connectedPeers) {
+            if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
+                DDLogDebug(@"Loading Bloom filter for peer %@", peer);
+                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
             }
-        }
-
-        if (isDownloadFinished || (block.height % 5000 == 0)) {
-            [self.blockChain save];
-        }
-
-        if (isDownloadFinished) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-            });
-            [self.notifier notifyDownloadFinished];
+            DDLogDebug(@"Requesting mempool from peer %@", peer);
+            [peer sendMempoolMessage];
         }
     }
-
+    
+    if (isDownloadFinished || (block.height % 5000 == 0)) {
+        [self.blockChain save];
+    }
+    
+    if (isDownloadFinished) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+        });
+        [self.notifier notifyDownloadFinished];
+    }
+    
     //
     
     if (self.wallet) {
@@ -1557,10 +1545,8 @@
 
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer
 {
-    @synchronized (self.queue) {
-        const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
-        [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
-    }
+    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
     
     //
     
@@ -1583,13 +1569,11 @@
     DDLogDebug(@"Reorganized blockchain at block: %@", base);
     DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
     DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
-
-    @synchronized (self.queue) {
-        for (WSStorableBlock *block in newBlocks) {
-            for (WSSignedTransaction *transaction in block.transactions) {
-                const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
-                [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
-            }
+    
+    for (WSStorableBlock *block in newBlocks) {
+        for (WSSignedTransaction *transaction in block.transactions) {
+            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
         }
     }
     
@@ -1607,13 +1591,13 @@
     if (!self.wallet) {
         return;
     }
-
+    
     BOOL didGenerateNewAddresses = NO;
     [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
     
     if (didGenerateNewAddresses) {
         DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
-
+        
         if ([self maybeResetAndSendBloomFilter]) {
             [peer requestOutdatedBlocks];
         }
@@ -1628,16 +1612,14 @@
 
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer
 {
-    @synchronized (self.queue) {
-        BOOL isPublished = NO;
-        if (self.publishedTransactions[transaction.txId]) {
-            [self.publishedTransactions removeObjectForKey:transaction.txId];
-            isPublished = YES;
-            
-            DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction);
-        }
-        return isPublished;
+    BOOL isPublished = NO;
+    if (self.publishedTransactions[transaction.txId]) {
+        [self.publishedTransactions removeObjectForKey:transaction.txId];
+        isPublished = YES;
+        
+        DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction);
     }
+    return isPublished;
 }
 
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block fromPeer:(WSPeer *)peer
@@ -1666,43 +1648,21 @@
     }
 }
 
-#pragma mark Application state
+#pragma mark External interface (unsafe)
 
-- (void)reachability:(WSReachability *)reachability didChangeStatus:(WSReachabilityStatus)reachabilityStatus
+- (BOOL)unsafeIsConnected
 {
-    DDLogVerbose(@"Reachability flags: %@ (reachable: %d)", [reachability reachabilityFlagsString], [reachability isReachable]);
-    
-    @synchronized (self.queue) {
-        if (self.keepConnected && [reachability isReachable]) {
-            DDLogDebug(@"Network is reachable, connecting...");
-            [self connect];
-        }
-        else {
-            DDLogDebug(@"Network is unreachable, disconnecting...");
-            [self disconnect];
-        }
-    }
+    return (self.connectedPeers.count > 0);
 }
 
-#pragma mark Utils (unsafe)
-
-+ (BOOL)isHardNetworkError:(NSError *)error
+- (BOOL)unsafeHasReachedMaxConnections
 {
-    static NSMutableDictionary *hardCodes;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        hardCodes = [[NSMutableDictionary alloc] init];
-        
-        hardCodes[NSPOSIXErrorDomain] = [NSSet setWithArray:@[@(ECONNREFUSED),
-                                                              @(ECONNRESET)]];
-        
-        hardCodes[GCDAsyncSocketErrorDomain] = [NSSet setWithArray:@[@(GCDAsyncSocketConnectTimeoutError),
-                                                                     @(GCDAsyncSocketClosedError)]];
-        
-    });
-    
-    return ((error.domain != WSErrorDomain) && [hardCodes[error.domain] containsObject:@(error.code)]);
+    return (self.connectedPeers.count == self.maxConnections);
+}
+
+- (BOOL)unsafeIsSynced
+{
+    return (self.downloadPeer && ([self.downloadPeer numberOfBlocksLeft] == 0));
 }
 
 @end

@@ -54,6 +54,12 @@
 
 #pragma mark -
 
+//
+// All is done on groupQueue except public methods that can be run from any queue.
+//
+// NEVER invoke public methods internally, deadlock is guaranteed due to dispatch_sync.
+//
+
 @interface WSPeerGroup : NSObject <WSPeerDelegate, WSReachabilityDelegate>
 
 // WARNING: set properties before starting connections
@@ -96,7 +102,6 @@
 - (BOOL)stopBlockChainDownload;
 - (BOOL)isDownloading;
 - (BOOL)isSynced;
-- (uint32_t)fastCatchUpTimestamp;
 - (BOOL)reconnectForDownload;
 - (BOOL)rescan;
 
@@ -105,6 +110,5 @@
 - (NSUInteger)currentHeight;
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
-- (void)runExclusiveBlock:(void (^)())block;
 
 @end
