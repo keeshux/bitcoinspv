@@ -397,7 +397,7 @@
 - (void)cleanUpConnectionData
 {
     if (self.connectionQueue) {
-        dispatch_sync(self.connectionQueue, ^{
+        dispatch_async(self.connectionQueue, ^{
             self.deserializer = nil;
         });
     }
