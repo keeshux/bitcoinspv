@@ -32,7 +32,7 @@
 #define WASPV_WALLET_FILTER                 WASPV_WALLET_FILTER_UNSPENT
 
 //#define WASPV_TEST_NO_HASH_VALIDATIONS    // skip some checks for testing (e.g. hashed block id, tx id, ...)
-#define WASPV_TEST_MESSAGE_QUEUE          // bufferize received messages for synchronous peer requests
+//#define WASPV_TEST_MESSAGE_QUEUE          // bufferize received messages for synchronous peer requests
 //#define WASPV_TEST_DUMMY_TXS              // don't check transaction relevancy
 
 #pragma mark - Library
