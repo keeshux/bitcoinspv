@@ -140,6 +140,7 @@
 
 // sync state (current or self.groupQueue)
 @property (nonatomic, strong) dispatch_queue_t connectionQueue;
+@property (nonatomic, strong) WSProtocolDeserializer *deserializer;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
@@ -152,7 +153,6 @@
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
 
 // connection state (self.connectionQueue)
-@property (nonatomic, strong) WSProtocolDeserializer *deserializer;
 @property (nonatomic, strong) id<WSConnectionWriter> writer;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
@@ -290,35 +290,39 @@
         self.lastSeenTimestamp = NSTimeIntervalSince1970;
         self.receivedVersion = nil;
 
+        WSPeerInfo *peerInfo = [[WSPeerInfo alloc] initWithHost:host port:port];
+        self.deserializer = [[WSProtocolDeserializer alloc] initWithParameters:self.parameters peerInfo:peerInfo];
+
         DDLogDebug(@"%@ Connection opened", self);
     });
 
-    WSPeerInfo *peerInfo = [[WSPeerInfo alloc] initWithHost:host port:port];
-    self.deserializer = [[WSProtocolDeserializer alloc] initWithParameters:self.parameters peerInfo:peerInfo];
     [self sendVersionMessageWithRelayTransactions:(uint8_t)![self needsBloomFiltering]];
 }
 
 - (void)processData:(NSData *)data
 {
     [self didReceiveNumberOfBytes:data.length];
-    [self.deserializer appendData:data];
-    
-    NSError *error;
-    id<WSMessage> message = nil;
-    do {
-        message = [self.deserializer parseMessageWithError:&error];
-        if (message) {
-            dispatch_async(self.groupQueue, ^{
+
+    dispatch_async(self.groupQueue, ^{
+        [self.deserializer appendData:data];
+        
+        NSError *error;
+        id<WSMessage> message = nil;
+        do {
+            message = [self.deserializer parseMessageWithError:&error];
+            if (message) {
                 [self receiveMessage:message];
-            });
-        }
-        else if (error) {
-            DDLogError(@"%@ Error deserializing message: %@", self, error);
-            if (error.code == WSErrorCodeMalformed) {
-                [self.writer disconnectWithError:error];
             }
-        }
-    } while (message);
+            else if (error) {
+                DDLogError(@"%@ Error deserializing message: %@", self, error);
+                if (error.code == WSErrorCodeMalformed) {
+                    dispatch_async(self.connectionQueue, ^{
+                        [self.writer disconnectWithError:error];
+                    });
+                }
+            }
+        } while (message);
+    });
 }
 
 - (void)closedConnectionWithError:(NSError *)error
@@ -396,11 +400,7 @@
 //
 - (void)cleanUpConnectionData
 {
-    if (self.connectionQueue) {
-        dispatch_async(self.connectionQueue, ^{
-            self.deserializer = nil;
-        });
-    }
+    self.deserializer = nil;
     
 //    self.connectionQueue = NULL;
 //    self.delegate = nil;
