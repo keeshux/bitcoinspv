@@ -131,9 +131,7 @@
         // consume one byte at a time, up to the magic number that starts a new message header
         while ((self.builtHeader.length >= sizeof(uint32_t)) &&
                ([self.builtHeader uint32AtOffset:0] != [self.parameters magicNumber])) {
-#if DEBUG
-            printf("%c", *(const char *)self.builtHeader.bytes);
-#endif
+
             [self.builtHeader replaceBytesInRange:NSMakeRange(0, 1) withBytes:NULL length:0];
         }
         
