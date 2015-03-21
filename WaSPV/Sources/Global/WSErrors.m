@@ -46,22 +46,22 @@ NSString *const         WSErrorFeeKey                               = @"Fee";
 
 void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...)
 {
-    va_list args;
-    va_start(args, format);
     if (!condition) {
+        va_list args;
+        va_start(args, format);
         [NSException raise:name format:format arguments:args];
+        va_end(args);
     }
-    va_end(args);
 }
 
 void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...)
 {
-    va_list args;
-    va_start(args, format);
     if (!condition) {
+        va_list args;
+        va_start(args, format);
         [NSException raise:WSExceptionIllegalArgument format:format arguments:args];
+        va_end(args);
     }
-    va_end(args);
 }
 
 void WSExceptionRaiseUnsupported(NSString *format, ...)
