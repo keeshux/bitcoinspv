@@ -743,10 +743,10 @@
     NSAssert(requestBlockHashes.count <= requestInventories.count, @"Requesting more blocks than total inventories?");
 
     if (requestInventories.count > 0) {
+        [self sendGetdataMessageWithInventories:requestInventories];
         if (requestBlockHashes.count > 0) {
             [self aheadRequestOnReceivedBlockHashes:requestBlockHashes];
         }
-        [self sendGetdataMessageWithInventories:requestInventories];
     }
 }
 
