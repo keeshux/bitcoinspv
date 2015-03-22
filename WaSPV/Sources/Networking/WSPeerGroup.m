@@ -256,6 +256,13 @@
     [self.reachability stopNotifier];
 }
 
+- (void)setPeerHosts:(NSArray *)peerHosts
+{
+    _peerHosts = peerHosts;
+    
+    self.maxConnections = _peerHosts.count;
+}
+
 #pragma mark Connection
 
 - (BOOL)startConnections
