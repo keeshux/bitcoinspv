@@ -96,6 +96,9 @@
     addresses = [[NSMutableArray alloc] init];
     for (WSAddress *address in wallet.allReceiveAddresses) {
         [addresses addObject:address.encoded];
+        if (addresses.count == expReceiveAddresses.count) {
+            break;
+        }
     }
     DDLogInfo(@"Receive (%d): %@", addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expReceiveAddresses);
@@ -103,6 +106,9 @@
     addresses = [[NSMutableArray alloc] init];
     for (WSAddress *address in wallet.allChangeAddresses) {
         [addresses addObject:address.encoded];
+        if (addresses.count == expChangeAddresses.count) {
+            break;
+        }
     }
     DDLogInfo(@"Change (%d): %@", addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expChangeAddresses);
@@ -112,6 +118,9 @@
     addresses = [[NSMutableArray alloc] init];
     for (WSAddress *address in wallet.allReceiveAddresses) {
         [addresses addObject:address.encoded];
+        if (addresses.count == expReceiveAddresses.count) {
+            break;
+        }
     }
     DDLogInfo(@"Deserialized receive (%d): %@", addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expReceiveAddresses);
@@ -119,6 +128,9 @@
     addresses = [[NSMutableArray alloc] init];
     for (WSAddress *address in wallet.allChangeAddresses) {
         [addresses addObject:address.encoded];
+        if (addresses.count == expChangeAddresses.count) {
+            break;
+        }
     }
     DDLogInfo(@"Deserialized change (%d): %@", addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expChangeAddresses);

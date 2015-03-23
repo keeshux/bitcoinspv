@@ -132,7 +132,8 @@
     XCTAssertNotNil(address, @"Error parsing address: %@", error);
 
     DDLogInfo(@"Address: %@", address);
-    XCTAssertEqualObjects([address description], @"189.251.218.17:18333");
+    XCTAssertEqualObjects([address host], @"189.251.218.17");
+    XCTAssertEqual([address port], 18333);
 }
 
 - (void)testEndianness

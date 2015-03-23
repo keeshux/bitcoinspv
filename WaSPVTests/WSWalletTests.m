@@ -147,37 +147,37 @@
     }
 }
 
-- (void)testGenerationUsedAddresses
-{
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed gapLimit:2];
-    DDLogInfo(@"");
-
-    NSMutableSet *usedAddresses = [wallet valueForKey:@"_usedAddresses"];
-    
-    XCTAssertFalse([wallet generateAddressesIfNeeded]);
-    DDLogInfo(@"");
-
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    XCTAssertFalse([wallet generateAddressesIfNeeded]);
-    DDLogInfo(@"");
-
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT")];
-    XCTAssertFalse([wallet generateAddressesIfNeeded]);
-    DDLogInfo(@"");
-    
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT")];
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH")];
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo")];
-    XCTAssertTrue([wallet generateAddressesIfNeeded]);
-    DDLogInfo(@"");
-    
-    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR")];
-    XCTAssertTrue([wallet generateAddressesIfNeeded]);
-    DDLogInfo(@"");
-}
+//- (void)testGenerationUsedAddresses
+//{
+//    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed gapLimit:2];
+//    DDLogInfo(@"");
+//
+//    NSMutableSet *usedAddresses = [wallet valueForKey:@"_usedAddresses"];
+//    
+//    XCTAssertFalse([wallet generateAddressesIfNeeded]);
+//    DDLogInfo(@"");
+//
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+//    XCTAssertFalse([wallet generateAddressesIfNeeded]);
+//    DDLogInfo(@"");
+//
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP")];
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT")];
+//    XCTAssertFalse([wallet generateAddressesIfNeeded]);
+//    DDLogInfo(@"");
+//    
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT")];
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mo6oWnaMKDE9Bq2w97p3RWCHAqDiFdyYQH")];
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"myJkpby5M1vZaQFA8oeWafn8uC4xeTkqxo")];
+//    XCTAssertTrue([wallet generateAddressesIfNeeded]);
+//    DDLogInfo(@"");
+//    
+//    [usedAddresses addObject:WSAddressFromString(self.networkParameters, @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR")];
+//    XCTAssertTrue([wallet generateAddressesIfNeeded]);
+//    DDLogInfo(@"");
+//}
 
 - (void)testRelevantTransactions
 {
