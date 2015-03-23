@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
     s.platform          = :ios, '7.0'
     s.source_files      = 'WaSPV/Sources/**/*.{h,m}'
     s.resource_bundle   = { 'WaSPV' => 'WaSPV/Resources/*' }
-    s.exclude_files     = [ 'WaSPVDemo', 'WaSPVTests' ]
+    s.exclude_files     = [ 'WaSPVDemo', 'WaSPVTests', 'WaSPV/Sources/Blockchain/WSCoreDataBlockStore.*' ]
     s.requires_arc      = true
 
     s.frameworks = 'CoreData'
