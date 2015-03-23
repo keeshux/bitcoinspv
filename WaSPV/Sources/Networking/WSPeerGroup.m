@@ -189,6 +189,7 @@
     WSExceptionCheckIllegal(pool != nil, @"Nil pool");
     WSExceptionCheckIllegal(queue != NULL, @"NULL queue");
     WSExceptionCheckIllegal(store != nil, @"Nil store");
+    WSExceptionCheckIllegal(pool.queue != queue, @"Pool and peer group queue must run on different queues");
     
     if ((self = [super init])) {
         self.parameters = store.parameters;
