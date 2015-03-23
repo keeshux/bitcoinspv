@@ -41,17 +41,13 @@ extern NSString *const WSPeerGroupPeerHostKey;
 extern NSString *const WSPeerGroupReachedMaxConnectionsKey;
 
 extern NSString *const WSPeerGroupDidStartDownloadNotification;
-extern NSString *const WSPeerGroupDidUpdateDownloadNotification;
 extern NSString *const WSPeerGroupDidFinishDownloadNotification;
 extern NSString *const WSPeerGroupDidFailDownloadNotification;
 extern NSString *const WSPeerGroupDidDownloadBlockNotification;
 extern NSString *const WSPeerGroupWillRescanNotification;
 extern NSString *const WSPeerGroupDownloadFromHeightKey;
 extern NSString *const WSPeerGroupDownloadToHeightKey;
-extern NSString *const WSPeerGroupDownloadCurrentHeightKey;
-extern NSString *const WSPeerGroupDownloadProgressKey;
 extern NSString *const WSPeerGroupDownloadBlockKey;
-extern NSString *const WSPeerGroupDownloadBlocksLeftKey;
 
 extern NSString *const WSPeerGroupDidRelayTransactionNotification;
 extern NSString *const WSPeerGroupRelayTransactionKey;
@@ -80,5 +76,6 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyRescan;
 
 - (BOOL)didNotifyDownloadStarted;
+- (double)downloadProgressAtHeight:(NSUInteger)height;
 
 @end

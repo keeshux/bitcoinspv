@@ -43,9 +43,10 @@
 
 - (id<WSParameters>)parameters;
 - (BOOL)isConnected;
-- (BOOL)isSyncing;
+- (BOOL)isDownloading;
 - (NSUInteger)currentHeight;
 - (NSUInteger)targetHeight;
+- (double)downloadProgress;
 - (NSArray *)recentBlocks;
 - (NSUInteger)sentBytes;
 - (NSUInteger)receivedBytes;

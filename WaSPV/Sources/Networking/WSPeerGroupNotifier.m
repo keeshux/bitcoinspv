@@ -42,17 +42,13 @@ NSString *const WSPeerGroupPeerHostKey                          = @"PeerHost";
 NSString *const WSPeerGroupReachedMaxConnectionsKey             = @"ReachedMaxConnections";
 
 NSString *const WSPeerGroupDidStartDownloadNotification         = @"WSPeerGroupDidStartDownloadNotification";
-NSString *const WSPeerGroupDidUpdateDownloadNotification        = @"WSPeerGroupDidUpdateDownloadNotification";
 NSString *const WSPeerGroupDidFinishDownloadNotification        = @"WSPeerGroupDidFinishDownloadNotification";
 NSString *const WSPeerGroupDidFailDownloadNotification          = @"WSPeerGroupDidFailDownloadNotification";
 NSString *const WSPeerGroupDidDownloadBlockNotification         = @"WSPeerGroupDidDownloadBlockNotification";
 NSString *const WSPeerGroupWillRescanNotification               = @"WSPeerGroupWillRescanNotification";
 NSString *const WSPeerGroupDownloadFromHeightKey                = @"FromHeight";
 NSString *const WSPeerGroupDownloadToHeightKey                  = @"ToHeight";
-NSString *const WSPeerGroupDownloadCurrentHeightKey             = @"CurrentHeight";
-NSString *const WSPeerGroupDownloadProgressKey                  = @"Progress";
 NSString *const WSPeerGroupDownloadBlockKey                     = @"Block";
-NSString *const WSPeerGroupDownloadBlocksLeftKey                = @"BlocksLeft";
 
 NSString *const WSPeerGroupDidRelayTransactionNotification      = @"WSPeerGroupDidRelayTransactionNotification";
 NSString *const WSPeerGroupRelayTransactionKey                  = @"Transaction";
@@ -162,23 +158,18 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     const NSUInteger fromHeight = self.syncFromHeight;
     const NSUInteger toHeight = self.syncToHeight;
-
     const NSUInteger currentHeight = block.height;
-    const NSUInteger blocksLeft = toHeight - block.height;
-    const double progress = WSUtilsProgress(fromHeight, toHeight, currentHeight);
 
-    [self notifyWithName:WSPeerGroupDidDownloadBlockNotification userInfo:@{WSPeerGroupDownloadBlockKey: block,
-                                                                            WSPeerGroupDownloadBlocksLeftKey: @(blocksLeft)}];
+    if (currentHeight <= toHeight) {
+        if (currentHeight % 1000 == 0) {
+            const double progress = WSUtilsProgress(fromHeight, toHeight, currentHeight);
 
-    if (currentHeight % 1000 == 0) {
-        DDLogInfo(@"Download progress = %u/%u (%.2f%%)", currentHeight, toHeight, 100.0 * progress);
+            DDLogInfo(@"Download progress = %u/%u (%.2f%%)", currentHeight, toHeight, 100.0 * progress);
+        }
     }
-    
-    if (self.didNotifyDownloadStarted) {
-        [self notifyWithName:WSPeerGroupDidUpdateDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
-                                                                                 WSPeerGroupDownloadToHeightKey: @(toHeight),
-                                                                                 WSPeerGroupDownloadCurrentHeightKey: @(currentHeight),
-                                                                                 WSPeerGroupDownloadProgressKey: @(progress)}];
+    // only notify blocks after sync
+    else {
+        [self notifyWithName:WSPeerGroupDidDownloadBlockNotification userInfo:@{WSPeerGroupDownloadBlockKey: block}];
     }
 }
 
@@ -198,10 +189,22 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     return (self.syncFromHeight != NSNotFound);
 }
 
+- (double)downloadProgressAtHeight:(NSUInteger)height
+{
+    if (![self didNotifyDownloadStarted]) {
+        return 0.0;
+    }
+    return WSUtilsProgress(self.syncFromHeight, self.syncToHeight, height);
+}
+
+#pragma mark Helpers
+
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo
 {
+    WSPeerGroup *peerGroup = self.peerGroup;
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:name object:self.peerGroup userInfo:userInfo];
+        [[NSNotificationCenter defaultCenter] postNotificationName:name object:peerGroup userInfo:userInfo];
     });
 }
 

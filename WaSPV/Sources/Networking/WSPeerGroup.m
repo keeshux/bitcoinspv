@@ -53,9 +53,10 @@
 
 @property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, assign) BOOL isConnected;
-@property (nonatomic, assign) BOOL isSyncing;
+@property (nonatomic, assign) BOOL isDownloading;
 @property (nonatomic, assign) NSUInteger currentHeight;
 @property (nonatomic, assign) NSUInteger targetHeight;
+@property (nonatomic, assign) double downloadProgress;
 @property (nonatomic, strong) NSArray *recentBlocks;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
@@ -467,9 +468,11 @@
     dispatch_sync(self.queue, ^{
         status.parameters = self.parameters;
         status.isConnected = self.keepConnected;
+        status.isDownloading = self.keepDownloading;
         status.currentHeight = self.blockChain.currentHeight;
         if (status.isConnected) {
             status.targetHeight = self.downloadPeer.lastBlockHeight;
+            status.downloadProgress = [self.notifier downloadProgressAtHeight:status.currentHeight];
         }
 
         NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:self.numberOfRetainedRecentBlocks];
