@@ -302,7 +302,7 @@
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
-            WSStorableBlock *parentBlock = [self.store blockForId:orphan.previousBlockId];
+            WSStorableBlock *parentBlock = [self.store cachedBlockForId:orphan.previousBlockId];
 
             // still orphan
             if (!parentBlock) {

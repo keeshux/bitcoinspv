@@ -130,6 +130,13 @@
     return [blockEntity toStorableBlockWithParameters:self.parameters];
 }
 
+- (WSStorableBlock *)cachedBlockForId:(WSHash256 *)blockId
+{
+    WSExceptionCheckIllegal(blockId != nil, @"Nil blockId");
+    
+    return self.cachedBlockEntities[blockId.data];
+}
+
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
 {
     WSExceptionCheckIllegal(txId != nil, @"Nil txId");

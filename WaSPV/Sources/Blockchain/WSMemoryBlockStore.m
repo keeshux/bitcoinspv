@@ -79,6 +79,11 @@
     return self.blocks[blockId];
 }
 
+- (WSStorableBlock *)cachedBlockForId:(WSHash256 *)blockId
+{
+    return [self blockForId:blockId];
+}
+
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
 {
     WSExceptionCheckIllegal(txId != nil, @"Nil txId");

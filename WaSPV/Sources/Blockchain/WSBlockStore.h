@@ -41,6 +41,7 @@
 
 - (id<WSParameters>)parameters;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;
+- (WSStorableBlock *)cachedBlockForId:(WSHash256 *)blockId;
 - (WSSignedTransaction *)transactionForId:(WSHash256 *)txId;
 
 - (void)putBlock:(WSStorableBlock *)block;
