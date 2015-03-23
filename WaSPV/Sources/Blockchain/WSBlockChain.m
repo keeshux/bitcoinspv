@@ -50,7 +50,6 @@
                                   error:(NSError *__autoreleasing *)error;
 
 - (void)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock;
-- (void)pruneBlocksIfAtTransition;
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead;
 - (NSArray *)subchainFromHead:(WSStorableBlock *)head toBase:(WSStorableBlock *)base;
 
@@ -66,8 +65,7 @@
     if ((self = [super init])) {
         self.store = blockStore;
         self.orphans = [[NSMutableDictionary alloc] init];
-        self.prunesAtTransitions = YES;
-        self.numberOfRetainedBlocksAfterPruning = 0;
+        self.blockStoreSize = 2500;
 
         //
         // test networks (testnet3/regtest) validates blocks in
@@ -225,11 +223,10 @@
         [self.store putBlock:newHead];
         [self.store setHead:newHead];
 
-#warning XXX: is this really safe?
-        if (self.prunesAtTransitions) {
-            [self pruneBlocksIfAtTransition];
+        while (self.store.size > self.blockStoreSize) {
+            [self.store removeTailBlock];
         }
-
+        
         [self.delegate blockChain:self didAddNewBlock:newHead];
 
         addedBlock = newHead;
@@ -302,7 +299,7 @@
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
-            WSStorableBlock *parentBlock = [self.store cachedBlockForId:orphan.previousBlockId];
+            WSStorableBlock *parentBlock = [self.store blockForId:orphan.previousBlockId];
 
             // still orphan
             if (!parentBlock) {
@@ -328,18 +325,6 @@
             DDLogDebug(@"Connected %u orphan blocks: %@", connectedOrphanIds.count, connectedOrphanIds);
         }
     } while (connectedOrphanIds.count > 0);
-}
-
-- (void)pruneBlocksIfAtTransition
-{
-    if ([self.head isTransitionBlock]) {
-        DDLogDebug(@"Pruning at transition %u", self.head.height);
-        
-        const NSTimeInterval startTime = [NSDate timeIntervalSinceReferenceDate];
-        [self.store removeBlocksBelowHeight:(self.head.height - self.numberOfRetainedBlocksAfterPruning + 1)];
-        
-        DDLogDebug(@"Pruned in %.3fs", [NSDate timeIntervalSinceReferenceDate] - startTime);
-    }
 }
 
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead

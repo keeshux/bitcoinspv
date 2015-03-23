@@ -69,8 +69,6 @@
 		8C6005961949EC9400248F04 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6005951949EC9400248F04 /* main.m */; };
 		8C60059A1949EC9400248F04 /* WSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6005991949EC9400248F04 /* WSAppDelegate.m */; };
 		8C60059F1949EC9400248F04 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C60059E1949EC9400248F04 /* Images.xcassets */; };
-		8C777EE41971512800B19ED9 /* WSCoreDataBlockStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C777EE31971512800B19ED9 /* WSCoreDataBlockStore.m */; };
-		8C7CC4A91981379C00FD5782 /* WSCoreDataStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C7CC4A81981379C00FD5782 /* WSCoreDataStoreTests.m */; };
 		8C7CC4AB19813F1D00FD5782 /* WSWalletSerializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C7CC4AA19813F1D00FD5782 /* WSWalletSerializationTests.m */; };
 		8C865DE7196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C865DE6196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m */; };
 		8C8890F8198952F400BB19CA /* WSGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8890F3198952F400BB19CA /* WSGCDTimer.m */; };
@@ -311,10 +309,7 @@
 		8C6005991949EC9400248F04 /* WSAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WSAppDelegate.m; sourceTree = "<group>"; };
 		8C60059E1949EC9400248F04 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8C6005A51949EC9400248F04 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		8C777EE21971512800B19ED9 /* WSCoreDataBlockStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSCoreDataBlockStore.h; sourceTree = "<group>"; };
-		8C777EE31971512800B19ED9 /* WSCoreDataBlockStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCoreDataBlockStore.m; sourceTree = "<group>"; };
 		8C7B3AF2197BE59100FC676B /* WSWalletNetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWalletNetworkTests.m; sourceTree = "<group>"; };
-		8C7CC4A81981379C00FD5782 /* WSCoreDataStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCoreDataStoreTests.m; sourceTree = "<group>"; };
 		8C7CC4AA19813F1D00FD5782 /* WSWalletSerializationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWalletSerializationTests.m; sourceTree = "<group>"; };
 		8C865DE5196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSAbstractMessageLocatorBased.h; sourceTree = "<group>"; };
 		8C865DE6196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSAbstractMessageLocatorBased.m; sourceTree = "<group>"; };
@@ -712,8 +707,6 @@
 				8CDD9A1B1983007900720304 /* WSBlockMacros.m */,
 				8C8ADF9E196786CA007787ED /* WSBlockStore.h */,
 				8CAC9C91196FFA1000A2596E /* WSBlockStore.m */,
-				8C777EE21971512800B19ED9 /* WSCoreDataBlockStore.h */,
-				8C777EE31971512800B19ED9 /* WSCoreDataBlockStore.m */,
 				8C8ADF9F196786CA007787ED /* WSFilteredBlock.h */,
 				8C8ADFA0196786CA007787ED /* WSFilteredBlock.m */,
 				8CAC9C96197003F500A2596E /* WSMemoryBlockStore.h */,
@@ -868,7 +861,6 @@
 				8C8FB81F196776F300A07156 /* WSBIP39Tests.m */,
 				8C8FB820196776F300A07156 /* WSBlockChainTests.m */,
 				8C8FB821196776F300A07156 /* WSBlockTests.m */,
-				8C7CC4A81981379C00FD5782 /* WSCoreDataStoreTests.m */,
 				0EA147111A55843F00AA400D /* WSCurrencyTests.m */,
 				8C8FB822196776F300A07156 /* WSKeysTests.m */,
 				8C8FB823196776F300A07156 /* WSMessageTests.m */,
@@ -1315,7 +1307,6 @@
 				0E97212A1A392A360011F6E5 /* WSInventory.m in Sources */,
 				8C8890F9198952F400BB19CA /* WSLogFormatter.m in Sources */,
 				8CDD9A1E1983007900720304 /* WSBlockMacros.m in Sources */,
-				8C777EE41971512800B19ED9 /* WSCoreDataBlockStore.m in Sources */,
 				8CBB63CA198D3115006599DB /* WSCoreDataManager.m in Sources */,
 				0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */,
 				8C8ADFFF196786CA007787ED /* WSBlockChain.m in Sources */,
@@ -1341,7 +1332,6 @@
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
 				8C5DB95419677E9100AF079E /* WaSPVTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
-				8C7CC4A91981379C00FD5782 /* WSCoreDataStoreTests.m in Sources */,
 				8C8FB835196776F300A07156 /* WSScriptTests.m in Sources */,
 				8C8FB82D196776F300A07156 /* WSBIP37Tests.m in Sources */,
 				8C8FB82F196776F300A07156 /* WSBlockChainTests.m in Sources */,

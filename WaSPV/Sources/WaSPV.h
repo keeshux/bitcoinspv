@@ -45,7 +45,6 @@
 
 #import "WSBlockStore.h"
 #import "WSMemoryBlockStore.h"
-#import "WSCoreDataBlockStore.h"
 #import "WSCoreDataManager.h"
 #import "WSBlockHeader.h"
 #import "WSStorableBlock.h"

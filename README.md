@@ -37,7 +37,7 @@ Grouped by area:
 * Blockchain
     * Full blocks as seen on the wire, with clean separation between headers and transactions ([WSBlockHeader](WaSPV/Sources/Blockchain/WSBlockHeader.h), [WSBlock](WaSPV/Sources/Blockchain/WSBlock.h)).
     * Filtered (Merkle) blocks with partial Merkle tree verification ([WSFilteredBlock](WaSPV/Sources/Blockchain/WSFilteredBlock.h), [WSPartialMerkleTree](WaSPV/Sources/Blockchain/WSPartialMerkleTree.h)).
-    * Block stores as a means to save blocks to memory or persistently into the iOS Core Data context ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h), [WSCoreDataBlockStore](WaSPV/Sources/Blockchain/WSCoreDataBlockStore.h)).
+    * Block stores as a means to track and save blocks ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h).
     * A blockchain business wrapper doing all the block connection logic, validation and reorganization ([WSBlockChain](WaSPV/Sources/Blockchain/WSBlockChain.h)).
 
 * Protocol
@@ -194,7 +194,7 @@ It's worth noting that the seed mnemonic is a *very* sensitive information -it t
 
 ### Block store
 
-Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There are currently two implementations: `WSMemoryBlockStore` and `WSCoreDataBlockStore`. Names are quite self-explanatory.
+Classes implementing the `WSBlockStore` protocol take charge of serializing a blockchain. There is currently one implementation: `WSMemoryBlockStore`. The name is quite self-explanatory.
 
 ### Peer group
 

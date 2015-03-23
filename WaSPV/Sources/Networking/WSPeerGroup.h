@@ -75,7 +75,7 @@
 @property (nonatomic, assign) double bloomFilterObservedRateMax;            // 0.005
 @property (nonatomic, assign) double bloomFilterLowPassRatio;               // 0.01
 @property (nonatomic, assign) NSUInteger bloomFilterTxsPerBlock;            // 600
-@property (nonatomic, assign) NSUInteger numberOfRetainedRecentBlocks;      // 0
+@property (nonatomic, assign) NSUInteger blockStoreSize;                    // 2500
 
 // peer related
 @property (nonatomic, assign) BOOL headersOnly;                             // NO
@@ -107,7 +107,7 @@
 - (BOOL)rescan;
 
 // interaction
-- (WSPeerGroupStatus *)status;
+- (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
 - (NSUInteger)currentHeight;
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;

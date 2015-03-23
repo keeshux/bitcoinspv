@@ -223,7 +223,7 @@
         self.bloomFilterObservedRateMax = WSPeerGroupDefaultBFObservedRateMax;
         self.bloomFilterLowPassRatio = WSPeerGroupDefaultBFLowPassRatio;
         self.bloomFilterTxsPerBlock = WSPeerGroupDefaultBFTxsPerBlock;
-        self.numberOfRetainedRecentBlocks = 0;
+        self.blockStoreSize = 2500;
 
         // peer related
         self.headersOnly = NO;
@@ -462,7 +462,7 @@
 
 #pragma mark Interaction
 
-- (WSPeerGroupStatus *)status
+- (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks
 {
     WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
     dispatch_sync(self.queue, ^{
@@ -475,13 +475,15 @@
             status.downloadProgress = [self.notifier downloadProgressAtHeight:status.currentHeight];
         }
 
-        NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:self.numberOfRetainedRecentBlocks];
-        WSStorableBlock *block = self.blockChain.head;
-        while (block && (recentBlocks.count < self.numberOfRetainedRecentBlocks)) {
-            [recentBlocks addObject:block];
-            block = [block previousBlockInChain:self.blockChain];
+        if (numberOfRecentBlocks > 0) {
+            NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:numberOfRecentBlocks];
+            WSStorableBlock *block = self.blockChain.head;
+            while (block && (recentBlocks.count < numberOfRecentBlocks)) {
+                [recentBlocks addObject:block];
+                block = [block previousBlockInChain:self.blockChain];
+            }
+            status.recentBlocks = recentBlocks;
         }
-        status.recentBlocks = recentBlocks;
 
         status.sentBytes = self.sentBytes;
         status.receivedBytes = self.receivedBytes;
@@ -979,7 +981,7 @@
         return;
     }
     
-    self.blockChain.numberOfRetainedBlocksAfterPruning = self.numberOfRetainedRecentBlocks;
+    self.blockChain.blockStoreSize = self.blockStoreSize;
     
     if (self.peerHosts.count > 0) {
         NSArray *newAddresses = [self disconnectedAddressesWithHosts:self.peerHosts];

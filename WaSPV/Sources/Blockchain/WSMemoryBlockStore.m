@@ -41,8 +41,9 @@
 
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 @property (nonatomic, strong) NSMutableDictionary *blocks;          // WSHash256 -> WSStorableBlock
-@property (nonatomic, strong) NSMutableDictionary *txIdsToBlocks;   // WSHash256 -> WSStorableBlock
+@property (nonatomic, strong) NSMutableDictionary *nextIdsById;     // WSHash256 -> WSHash256
 @property (nonatomic, weak) WSStorableBlock *head;
+@property (nonatomic, weak) WSStorableBlock *tail;
 
 @end
 
@@ -61,6 +62,7 @@
     if ((self = [super init])) {
         self.genesisBlock = [parameters genesisBlock];
         [self truncate];
+        self.tail = self.head;
     }
     return self;
 }
@@ -79,27 +81,6 @@
     return self.blocks[blockId];
 }
 
-- (WSStorableBlock *)cachedBlockForId:(WSHash256 *)blockId
-{
-    return [self blockForId:blockId];
-}
-
-- (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
-{
-    WSExceptionCheckIllegal(txId != nil, @"Nil txId");
-    
-    WSStorableBlock *block = self.txIdsToBlocks[txId];
-    if (!block) {
-        return nil;
-    }
-    for (WSSignedTransaction *tx in block.transactions) {
-        if ([tx.txId isEqual:txId]) {
-            return tx;
-        }
-    }
-    return nil;
-}
-
 - (void)putBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block != nil, @"Nil block");
@@ -109,34 +90,26 @@
         DDLogWarn(@"Replacing block %@", blockId);
     }
     self.blocks[blockId] = block;
-    for (WSSignedTransaction *tx in block.transactions) {
-        self.txIdsToBlocks[tx.txId] = block;
-    }
+    self.nextIdsById[block.previousBlockId] = blockId;
 }
 
-- (NSArray *)removeBlocksBelowHeight:(NSUInteger)height
+- (void)removeTailBlock
 {
-    return [self removeBlocksWithPredicate:[NSPredicate predicateWithFormat:@"height < %u", height]];
-}
-
-- (NSArray *)removeBlocksAboveHeight:(NSUInteger)height
-{
-    return [self removeBlocksWithPredicate:[NSPredicate predicateWithFormat:@"height > %u", height]];
-}
-
-- (NSArray *)removeBlocksWithPredicate:(NSPredicate *)predicate
-{
-    NSMutableArray *removedBlockIds = [[NSMutableArray alloc] initWithCapacity:self.blocks.count];
-    WSHash256 *blockId = self.head.blockId;
-    while (blockId) {
-        WSStorableBlock *block = self.blocks[blockId];
-        if ([predicate evaluateWithObject:block]) {
-            [removedBlockIds addObject:block.blockId];
+    NSAssert(self.blocks.count > 0, @"Empty block store");
+    
+    WSHash256 *tailId = self.tail.blockId;
+    WSHash256 *newTailId = self.nextIdsById[tailId];
+    if (!newTailId) {
+        WSStorableBlock *block = self.head;
+        while (block) {
+            newTailId = block.blockId;
+            block = self.blocks[block.previousBlockId];
         }
-        blockId = block.previousBlockId;
     }
-    [self.blocks removeObjectsForKeys:removedBlockIds];
-    return removedBlockIds;
+
+    [self.blocks removeObjectForKey:tailId];
+    [self.nextIdsById removeObjectForKey:tailId];
+    self.tail = self.blocks[newTailId];
 }
 
 - (void)setHead:(WSStorableBlock *)head
@@ -144,6 +117,11 @@
     WSExceptionCheckIllegal(head != nil, @"Nil head");
     
     _head = head;
+}
+
+- (NSUInteger)size
+{
+    return self.blocks.count;
 }
 
 - (BOOL)save
@@ -154,7 +132,7 @@
 - (void)truncate
 {
     self.blocks = [[NSMutableDictionary alloc] init];
-    self.txIdsToBlocks = [[NSMutableDictionary alloc] init];
+    self.nextIdsById = [[NSMutableDictionary alloc] init];
     
     WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:self.genesisBlock.header transactions:nil height:0];
     [self putBlock:block];
