@@ -77,7 +77,7 @@
 {
     NSError *error;
     WSPeer *dummyPeer = [[WSPeer alloc] initWithHost:@"0.0.0.0" parameters:self.networkParameters];
-    WSProtocolDeserializer *deserializer = [[WSProtocolDeserializer alloc] initWithPeer:dummyPeer];
+    WSProtocolDeserializer *deserializer = [[WSProtocolDeserializer alloc] initWithParameters:self.networkParameters peerInfo:dummyPeer.peerInfo];
     NSArray *parts = @[[@"0b11" dataFromHex],
                        [@"090776" dataFromHex],
                        [@"657261636b000000000000" dataFromHex],
