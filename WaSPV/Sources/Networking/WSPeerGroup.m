@@ -312,6 +312,7 @@
 
             observer = [nc addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
                 [nc removeObserver:observer];
+                [self.blockChain save];
 
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
@@ -325,6 +326,8 @@
     });
     
     if (notConnected && onceCompletionBlock) {
+        [self.blockChain save];
+
         onceCompletionBlock();
         onceCompletionBlock = NULL;
     }
@@ -1525,7 +1528,7 @@
         }
     }
     
-    if (isDownloadFinished || (block.height % 5000 == 0)) {
+    if (isDownloadFinished) {// || (block.height % 5000 == 0)) {
         [self.blockChain save];
     }
     
