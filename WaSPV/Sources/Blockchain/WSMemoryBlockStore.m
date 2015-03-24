@@ -86,9 +86,6 @@
     WSExceptionCheckIllegal(block != nil, @"Nil block");
 
     WSHash256 *blockId = block.blockId;
-    if (self.blocks[blockId]) {
-        DDLogWarn(@"Replacing block %@", blockId);
-    }
     self.blocks[blockId] = block;
     self.nextIdsById[block.previousBlockId] = blockId;
 }
