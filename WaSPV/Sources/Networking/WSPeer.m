@@ -43,7 +43,6 @@
 @interface WSPeerParameters ()
 
 @property (nonatomic, strong) id<WSParameters> parameters;
-@property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 
@@ -54,13 +53,11 @@
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
     return [self initWithParameters:parameters
-                         blockChain:nil
                shouldDownloadBlocks:YES
                 needsBloomFiltering:YES];
 }
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
-                        blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering
 {
@@ -68,7 +65,6 @@
 
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.blockChain = blockChain;
         self.shouldDownloadBlocks = shouldDownloadBlocks;
         self.needsBloomFiltering = needsBloomFiltering;
         self.port = [self.parameters peerPort];
@@ -124,8 +120,6 @@
     NSTimeInterval _connectionTime;
     NSTimeInterval _lastSeenTimestamp;
     WSMessageVersion *_receivedVersion;
-
-    BOOL _isDownloadPeer;
 }
 
 // only set on creation
@@ -139,8 +133,8 @@
 @property (nonatomic, strong) id<WSConnectionWriter> writer;
 @property (nonatomic, strong) WSProtocolDeserializer *deserializer;
 
-// sync state
-@property (nonatomic, strong) WSBlockChain *blockChain;
+// download state
+@property (nonatomic, assign) BOOL isDownloading;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
@@ -208,7 +202,6 @@
 #endif
 
         self.parameters = peerParameters.parameters;
-        self.blockChain = peerParameters.blockChain;
         self.shouldDownloadBlocks = peerParameters.shouldDownloadBlocks;
         self.needsBloomFiltering = peerParameters.needsBloomFiltering;
 
@@ -832,36 +825,22 @@
 
 #pragma mark Sync (external queue)
 
-- (BOOL)isDownloadPeer
-{
-    __block BOOL isDownloadPeer;
-    dispatch_sync(_connectionQueue, ^{
-        isDownloadPeer = _isDownloadPeer;
-    });
-    return isDownloadPeer;
-}
-
-- (void)setIsDownloadPeer:(BOOL)isDownloadPeer
-{
-    dispatch_sync(_connectionQueue, ^{
-        _isDownloadPeer = isDownloadPeer;
-    });
-}
-
-- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock syncedBlock:(void (^)(NSUInteger))syncedBlock
+- (BOOL)downloadBlockChain:(WSBlockChain *)blockChain
+      fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+             prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock
+               syncedBlock:(void (^)(NSUInteger))syncedBlock
 {
     __block BOOL result = NO;
     
     dispatch_sync(_connectionQueue, ^{
-        NSAssert(_isDownloadPeer, @"Not download peer");
-
-        if (self.blockChain.currentHeight >= self.lastBlockHeight) {
+        if (blockChain.currentHeight >= self.lastBlockHeight) {
             if (syncedBlock) {
-                syncedBlock(self.blockChain.currentHeight);
+                syncedBlock(blockChain.currentHeight);
             }
             return;
         }
-        
+
+        self.isDownloading = YES;
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
         self.currentFilteredBlock = nil;
         self.currentFilteredTransactions = nil;
@@ -871,22 +850,22 @@
             DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
                        self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
             
-            [self.blockChain addCheckpoint:checkpoint error:NULL];
+            [blockChain addCheckpoint:checkpoint error:NULL];
         }
         else {
             DDLogDebug(@"%@ No fast catch-up checkpoint", self);
         }
         
         if (prestartBlock) {
-            const NSUInteger fromHeight = self.blockChain.currentHeight;
+            const NSUInteger fromHeight = blockChain.currentHeight;
             const NSUInteger toHeight = self.lastBlockHeight;
 
             prestartBlock(fromHeight, toHeight);
         }
         
-        WSBlockLocator *locator = [self.blockChain currentLocator];
+        WSBlockLocator *locator = [blockChain currentLocator];
 
-        if (!self.shouldDownloadBlocks || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
+        if (!self.shouldDownloadBlocks || (blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
             [self requestHeadersWithLocator:locator];
         }
         else {
@@ -950,59 +929,47 @@
     });
 }
 
-- (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain
-{
-    WSExceptionCheckIllegal(blockChain != nil, @"Nil blockChain");
-
-    dispatch_sync(_connectionQueue, ^{
-        self.blockChain = blockChain;
-    });
-}
-
 #pragma mark Sync automation (connection queue)
 
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
 {
     NSParameterAssert(headers.count > 0);
     
-    if (_isDownloadPeer) {
-        const NSUInteger currentHeight = self.blockChain.currentHeight;
-        
-        DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
-                   self, currentHeight, self.lastBlockHeight);
-        
-        WSBlockHeader *firstHeader = [headers firstObject];
-        WSBlockHeader *lastHeader = [headers lastObject];
-        WSBlockHeader *lastHeaderBeforeFCU = nil;
-        
-        // infer the header we'll stop at
-        for (WSBlockHeader *header in headers) {
-            if (header.timestamp >= self.fastCatchUpTimestamp) {
-                break;
-            }
-            lastHeaderBeforeFCU = header;
-        }
-        
-        // we won't cross fast catch-up, request more headers
-        if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
-            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
-            [self requestHeadersWithLocator:locator];
-        }
-        // we will cross fast catch-up, request blocks from crossing point
-        else {
+    if (!self.isDownloading || (headers.count < WSMessageHeadersMaxCount)) {
+        return;
+    }
 
-            // all current headers are beyond catch-up, request blocks after chain head
-            if (!lastHeaderBeforeFCU) {
-                lastHeaderBeforeFCU = self.blockChain.head.header;
-            }
-            
-            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
-                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
-                      [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
-            
-            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
-            [self requestBlocksWithLocator:locator];
+//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//    
+//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
+//               self, currentHeight, self.lastBlockHeight);
+    
+    WSBlockHeader *firstHeader = [headers firstObject];
+    WSBlockHeader *lastHeader = [headers lastObject];
+    WSBlockHeader *lastHeaderBeforeFCU = nil;
+    
+    // infer the header we'll stop at
+    for (WSBlockHeader *header in headers) {
+        if (header.timestamp >= self.fastCatchUpTimestamp) {
+            break;
         }
+        lastHeaderBeforeFCU = header;
+    }
+    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
+    
+    // we won't cross fast catch-up, request more headers
+    if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
+        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
+        [self requestHeadersWithLocator:locator];
+    }
+    // we will cross fast catch-up, request blocks from crossing point
+    else {
+        DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
+                  self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
+                  [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
+        
+        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
+        [self requestBlocksWithLocator:locator];
     }
 }
 
@@ -1010,18 +977,20 @@
 {
     NSParameterAssert(hashes.count > 0);
     
-    if (_isDownloadPeer && (hashes.count >= WSMessageBlocksMaxCount)) {
-        const NSUInteger currentHeight = self.blockChain.currentHeight;
-        
-        DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
-                   self, currentHeight, self.lastBlockHeight);
-        
-        WSHash256 *firstId = [hashes firstObject];
-        WSHash256 *lastId = [hashes lastObject];
-        
-        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
-        [self requestBlocksWithLocator:locator];
+    if (!self.isDownloading || (hashes.count < WSMessageBlocksMaxCount)) {
+        return;
     }
+
+//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//    
+//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
+//               self, currentHeight, self.lastBlockHeight);
+    
+    WSHash256 *firstId = [hashes firstObject];
+    WSHash256 *lastId = [hashes lastObject];
+    
+    WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
+    [self requestBlocksWithLocator:locator];
 }
 
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator
@@ -1043,7 +1012,7 @@
     for (WSBlockHeader *header in headers) {
         
         // download peer should stop requesting headers when fast catch-up reached
-        if (self.shouldDownloadBlocks && _isDownloadPeer && (header.timestamp >= self.fastCatchUpTimestamp)) {
+        if (self.shouldDownloadBlocks && self.isDownloading && (header.timestamp >= self.fastCatchUpTimestamp)) {
             break;
         }
         

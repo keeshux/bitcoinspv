@@ -664,12 +664,6 @@
         
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-        for (WSPeer *peer in self.pendingPeers) {
-            [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-        }
-        for (WSPeer *peer in self.connectedPeers) {
-            [peer replaceCurrentBlockChainWithBlockChain:self.blockChain];
-        }
         
         DDLogDebug(@"Rescan, truncate complete");
         [self.notifier notifyRescan];
@@ -1208,7 +1202,6 @@
     NSParameterAssert(host);
     
     WSPeerParameters *peerParameters = [[WSPeerParameters alloc] initWithParameters:self.parameters
-                                                                         blockChain:self.blockChain
                                                                shouldDownloadBlocks:[self shouldDownloadBlocks]
                                                                 needsBloomFiltering:[self needsBloomFiltering]];
     
@@ -1309,19 +1302,6 @@
     return bestPeer;
 }
 
-- (WSPeer *)downloadPeer
-{
-    NSAssert(!_downloadPeer || _downloadPeer.isDownloadPeer, @"%@ is not download peer", _downloadPeer);
-    return _downloadPeer;
-}
-
-- (void)setDownloadPeer:(WSPeer *)downloadPeer
-{
-    _downloadPeer.isDownloadPeer = NO;
-    _downloadPeer = downloadPeer;
-    _downloadPeer.isDownloadPeer = YES;
-}
-
 + (BOOL)isHardNetworkError:(NSError *)error
 {
     static NSMutableDictionary *hardCodes;
@@ -1362,7 +1342,7 @@
     
     DDLogInfo(@"Preparing for blockchain sync");
     
-    [self.downloadPeer downloadBlockChainWithFastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
+    [self.downloadPeer downloadBlockChain:self.blockChain fastCatchUpTimestamp:self.fastCatchUpTimestamp prestartBlock:^(NSUInteger fromHeight, NSUInteger toHeight) {
         [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
         
         self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];

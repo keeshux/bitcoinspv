@@ -56,11 +56,9 @@ typedef enum {
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
-                        blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering;
 
-- (WSBlockChain *)blockChain;
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
 
@@ -123,12 +121,13 @@ typedef enum {
 - (void)sendPingMessage;
 - (void)sendFilterloadMessageWithFilter:(WSBloomFilter *)filter;
 
-// sync
-- (BOOL)isDownloadPeer;
-- (void)setIsDownloadPeer:(BOOL)isDownloadPeer;
-- (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock syncedBlock:(void (^)(NSUInteger))syncedBlock;
+// download
+- (BOOL)downloadBlockChain:(WSBlockChain *)blockChain
+      fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+             prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock
+               syncedBlock:(void (^)(NSUInteger))syncedBlock;
+
 - (void)requestOutdatedBlocks;
-- (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
 
 // for testing, needs WASPV_TEST_MESSAGE_QUEUE to work
 - (id<WSMessage>)dequeueMessageSynchronouslyWithTimeout:(NSUInteger)timeout;
