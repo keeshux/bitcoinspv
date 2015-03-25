@@ -140,6 +140,7 @@
 - (BOOL)unsafeIsConnected;
 - (BOOL)unsafeHasReachedMaxConnections;
 - (BOOL)unsafeIsSynced;
+- (NSUInteger)unsafeNumberOfBlocksLeft;
 
 @end
 
@@ -498,6 +499,15 @@
         currentHeight = self.blockChain.currentHeight;
     });
     return currentHeight;
+}
+
+- (NSUInteger)numberOfBlocksLeft
+{
+    __block NSUInteger numberOfBlocksLeft = 0;
+    dispatch_sync(self.queue, ^{
+        numberOfBlocksLeft = [self unsafeNumberOfBlocksLeft];
+    });
+    return numberOfBlocksLeft;
 }
 
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet
@@ -1198,13 +1208,13 @@
     NSParameterAssert(host);
     
     WSPeerParameters *peerParameters = [[WSPeerParameters alloc] initWithParameters:self.parameters
-                                                                         groupQueue:self.queue
                                                                          blockChain:self.blockChain
                                                                shouldDownloadBlocks:[self shouldDownloadBlocks]
                                                                 needsBloomFiltering:[self needsBloomFiltering]];
     
     WSPeer *peer = [[WSPeer alloc] initWithHost:host peerParameters:peerParameters];
     peer.delegate = self;
+    peer.delegateQueue = self.queue;
     [self.pendingPeers addObject:peer];
     
     DDLogInfo(@"Connecting to peer %@", peer);
@@ -1377,7 +1387,7 @@
         return;
     }
     
-    const NSUInteger blocksLeft = [self.downloadPeer numberOfBlocksLeft]; // 0 if disconnected or synced
+    const NSUInteger blocksLeft = [self unsafeNumberOfBlocksLeft];
     const NSUInteger retargetInterval = [self.parameters retargetInterval];
     
     // increase fp rate as we approach current height
@@ -1678,7 +1688,15 @@
 
 - (BOOL)unsafeIsSynced
 {
-    return (self.downloadPeer && ([self.downloadPeer numberOfBlocksLeft] == 0));
+    return (self.downloadPeer && (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight));
+}
+
+- (NSUInteger)unsafeNumberOfBlocksLeft
+{
+    if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
+        return 0;
+    }
+    return self.downloadPeer.lastBlockHeight - self.blockChain.currentHeight;
 }
 
 @end

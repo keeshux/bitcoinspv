@@ -109,6 +109,7 @@
 // interaction
 - (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
 - (NSUInteger)currentHeight;
+- (NSUInteger)numberOfBlocksLeft;
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
 

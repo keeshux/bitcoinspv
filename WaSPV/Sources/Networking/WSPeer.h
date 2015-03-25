@@ -56,12 +56,10 @@ typedef enum {
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
-                        groupQueue:(dispatch_queue_t)groupQueue
                         blockChain:(WSBlockChain *)blockChain
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering;
 
-- (dispatch_queue_t)groupQueue;
 - (WSBlockChain *)blockChain;
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
@@ -88,8 +86,9 @@ typedef enum {
 
 @interface WSPeer : NSObject <WSConnectionProcessor>
 
-@property (atomic, assign) NSTimeInterval writeTimeout;
-@property (atomic, weak) id<WSPeerDelegate> delegate;
+@property (nonatomic, assign) NSTimeInterval writeTimeout;
+@property (nonatomic, weak) id<WSPeerDelegate> delegate;
+@property (nonatomic, weak) dispatch_queue_t delegateQueue;
 
 - (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters;
 - (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters;
@@ -99,7 +98,6 @@ typedef enum {
 // connection
 - (WSPeerStatus)peerStatus;
 - (WSPeerInfo *)peerInfo;
-- (BOOL)isConnected; // should be == (peerStatus != WSPeerDisconnected)
 - (NSString *)remoteHost;
 - (uint32_t)remoteAddress;
 - (uint16_t)remotePort;
@@ -110,8 +108,6 @@ typedef enum {
 - (uint64_t)timestamp;
 - (uint32_t)lastBlockHeight;
 - (void)cleanUpConnectionData;
-- (NSUInteger)sentBytes;
-- (NSUInteger)receivedBytes;
 
 // protocol
 - (void)sendInvMessageWithInventory:(WSInventory *)inventory;
@@ -131,7 +127,6 @@ typedef enum {
 - (BOOL)isDownloadPeer;
 - (void)setIsDownloadPeer:(BOOL)isDownloadPeer;
 - (BOOL)downloadBlockChainWithFastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock syncedBlock:(void (^)(NSUInteger))syncedBlock;
-- (NSUInteger)numberOfBlocksLeft;
 - (void)requestOutdatedBlocks;
 - (void)replaceCurrentBlockChainWithBlockChain:(WSBlockChain *)blockChain;
 
