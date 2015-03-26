@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 #import "WSConnectionPool.h"
+#import "WSConnection.h"
 #import "WSMessageFactory.h"
 #import "WSInventory.h"
 
@@ -66,16 +67,6 @@ typedef enum {
 
 #pragma mark -
 
-@interface WSPeerInfo : NSObject
-
-- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port;
-- (NSString *)host;
-- (uint16_t)port;
-
-@end
-
-#pragma mark -
-
 //
 // All is done on groupQueue except data that is sent/received on connectionQueue.
 //
@@ -84,7 +75,6 @@ typedef enum {
 
 @interface WSPeer : NSObject <WSConnectionProcessor>
 
-@property (nonatomic, assign) NSTimeInterval writeTimeout;
 @property (nonatomic, weak) id<WSPeerDelegate> delegate;
 @property (nonatomic, weak) dispatch_queue_t delegateQueue;
 
@@ -95,7 +85,6 @@ typedef enum {
 
 // connection
 - (WSPeerStatus)peerStatus;
-- (WSPeerInfo *)peerInfo;
 - (NSString *)remoteHost;
 - (uint32_t)remoteAddress;
 - (uint16_t)remotePort;
@@ -122,7 +111,7 @@ typedef enum {
 - (void)sendFilterloadMessageWithFilter:(WSBloomFilter *)filter;
 
 // download
-- (BOOL)downloadBlockChain:(WSBlockChain *)blockChain
+- (void)downloadBlockChain:(WSBlockChain *)blockChain
       fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
              prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock
                syncedBlock:(void (^)(NSUInteger))syncedBlock;

@@ -47,7 +47,6 @@ const uint32_t          WSBlockUnknownHeight                        = UINT32_MAX
 const uint32_t          WSBlockUnknownTimestamp                     = UINT32_MAX;
 
 const NSTimeInterval    WSPeerConnectTimeout                        = 3.0;
-const NSTimeInterval    WSPeerWriteTimeout                          = 30.0;
 const uint32_t          WSPeerProtocol                              = 70002;
 const uint32_t          WSPeerMinProtocol                           = 70001;    // SPV mode required
 const NSUInteger        WSPeerEnabledServices                       = 0;        // we don't provide full blocks to remote nodes

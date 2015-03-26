@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E0E7C6C1AC44E0E00E7840B /* WSConnectionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */; };
+		0E0E7C6F1AC47B4500E7840B /* WSConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6E1AC47B4500E7840B /* WSConnection.m */; };
 		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
 		0E1143971A3556E900AB3F59 /* WSBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143961A3556E900AB3F59 /* WSBlock.m */; };
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
@@ -195,6 +197,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E0E7C6A1AC44E0E00E7840B /* WSConnectionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSConnectionHandler.h; sourceTree = "<group>"; };
+		0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnectionHandler.m; sourceTree = "<group>"; };
+		0E0E7C6D1AC47B4500E7840B /* WSConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSConnection.h; sourceTree = "<group>"; };
+		0E0E7C6E1AC47B4500E7840B /* WSConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnection.m; sourceTree = "<group>"; };
 		0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21Tests.m; sourceTree = "<group>"; };
 		0E1143951A3556E900AB3F59 /* WSBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBlock.h; sourceTree = "<group>"; };
 		0E1143961A3556E900AB3F59 /* WSBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBlock.m; sourceTree = "<group>"; };
@@ -923,6 +929,10 @@
 		8CBF49FC1969DF0000FAFF64 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				0E0E7C6D1AC47B4500E7840B /* WSConnection.h */,
+				0E0E7C6E1AC47B4500E7840B /* WSConnection.m */,
+				0E0E7C6A1AC44E0E00E7840B /* WSConnectionHandler.h */,
+				0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */,
 				8CBF4A08196A850F00FAFF64 /* WSConnectionPool.h */,
 				8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */,
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
@@ -1256,6 +1266,7 @@
 				8C49705A196EEEF800BD9D3B /* WSHDKeyring.m in Sources */,
 				8C8ADFFE196786CA007787ED /* WSBlockHeader.m in Sources */,
 				8C8AE017196786CA007787ED /* NSData+Base58.m in Sources */,
+				0E0E7C6F1AC47B4500E7840B /* WSConnection.m in Sources */,
 				8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */,
 				0EA147251A55B48600AA400D /* WSWebTickerMonitor.m in Sources */,
 				8C865DE7196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m in Sources */,
@@ -1309,6 +1320,7 @@
 				8CDD9A1E1983007900720304 /* WSBlockMacros.m in Sources */,
 				8CBB63CA198D3115006599DB /* WSCoreDataManager.m in Sources */,
 				0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */,
+				0E0E7C6C1AC44E0E00E7840B /* WSConnectionHandler.m in Sources */,
 				8C8ADFFF196786CA007787ED /* WSBlockChain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

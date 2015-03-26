@@ -50,7 +50,6 @@ extern const uint32_t           WSBlockUnknownHeight;
 extern const uint32_t           WSBlockUnknownTimestamp;
 
 extern const NSTimeInterval     WSPeerConnectTimeout;
-extern const NSTimeInterval     WSPeerWriteTimeout;
 extern const uint32_t           WSPeerProtocol;
 extern const uint32_t           WSPeerMinProtocol;
 extern const NSUInteger         WSPeerEnabledServices;

@@ -1,9 +1,9 @@
 //
-//  WSProtocolDeserializer.h
+//  WSConnection.m
 //  WaSPV
 //
-//  Created by Davide De Rosa on 06/07/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 26/03/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -25,18 +25,4 @@
 //  along with WaSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <Foundation/Foundation.h>
-
-@protocol WSParameters;
-@protocol WSMessage;
-
-#pragma mark -
-
-@interface WSProtocolDeserializer : NSObject
-
-- (instancetype)init;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port;
-- (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream error:(NSError **)error;
-- (void)resetBuffers;
-
-@end
+#import "WSConnection.h"

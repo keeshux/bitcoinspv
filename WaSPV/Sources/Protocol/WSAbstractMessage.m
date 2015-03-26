@@ -64,6 +64,7 @@
     if ((self = [super init])) {
         self.parameters = parameters;
         if (originalPayload) {
+#warning XXX: copy may be expensive, retain original data
             self.originalPayload = [[WSBuffer alloc] initWithData:originalPayload.data];
         }
     }
@@ -123,6 +124,11 @@
 - (NSString *)payloadDescriptionWithIndent:(NSUInteger)indent
 {
     return @"{}";
+}
+
+- (NSUInteger)length
+{
+    return WSMessageHeaderLength + self.originalPayload.length;
 }
 
 #pragma mark WSBufferEncoder

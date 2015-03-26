@@ -28,44 +28,19 @@
 #import <arpa/inet.h>
 
 #import "WSConnectionPool.h"
+#import "WSConnection.h"
+#import "WSBuffer.h"
+#import "WSMessage.h"
 #import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
+#import "NSData+Binary.h"
 
-//
-// NOTE: GCDAsyncSocket is thread-safe.
-//
+@interface WSBasicConnection : NSObject <WSConnection>
 
-@class WSConnectionHandler;
+@property (nonatomic, readonly, weak) WSConnectionHandler *handler;
 
-@interface WSConnectionHandler : NSObject
-
-@property (nonatomic, readonly, strong) dispatch_queue_t queue;
-@property (nonatomic, readonly, strong) GCDAsyncSocket *socket;
-@property (nonatomic, readonly, strong) NSString *host;
-@property (nonatomic, readonly, assign) uint16_t port;
-@property (nonatomic, readonly, weak) id<WSConnectionProcessor> processor;
-@property (atomic, strong) NSError *error;
-
-- (instancetype)initWithPool:(WSConnectionPool *)pool host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
-- (NSString *)identifier;
-- (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)error;
-
-@end
-
-@interface WSSocketConnectionWriter : NSObject <WSConnectionWriter>
-
-@property (nonatomic, readonly, strong) GCDAsyncSocket *socket;
-
-- (instancetype)initWithSocket:(GCDAsyncSocket *)socket;
-
-@end
-
-@interface GCDAsyncSocket (Handler)
-
-- (WSConnectionHandler *)handler;
-- (void)setHandler:(WSConnectionHandler *)handler;
-- (NSString *)identifier;
+- (instancetype)initWithHandler:(WSConnectionHandler *)handler;
 
 @end
 
@@ -73,12 +48,12 @@
 
 @interface WSConnectionPool ()
 
-@property (nonatomic, strong) dispatch_queue_t queue;
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) NSMutableArray *handlers;                     // WSConnectionHandler
 @property (nonatomic, strong) NSMutableDictionary *handlersByIdentifier;    // NSString -> WSConnectionHandler
 
 - (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor;
-- (void)delayRemoveHandler:(WSConnectionHandler *)handler;
+- (void)tryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error;
 - (void)removeHandler:(WSConnectionHandler *)handler;
 
 @end
@@ -87,23 +62,16 @@
 
 - (instancetype)init
 {
-    return [self initWithLabel:nil];
+    WSExceptionRaiseUnsupported(@"Use initWithParameters:");
+    return nil;
 }
 
-- (instancetype)initWithLabel:(NSString *)label
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    if (!label) {
-        label = [[self class] description];
-    }
-    return [self initWithQueue:dispatch_queue_create(label.UTF8String, NULL)];
-}
-
-- (instancetype)initWithQueue:(dispatch_queue_t)queue
-{
-    NSParameterAssert(queue);
+    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     
     if ((self = [super init])) {
-        self.queue = queue;
+        self.parameters = parameters;
         self.handlers = [[NSMutableArray alloc] init];
         self.handlersByIdentifier = [[NSMutableDictionary alloc] init];
         self.connectionTimeout = 5.0;
@@ -116,22 +84,26 @@
     WSExceptionCheckIllegal(host != nil, @"Nil host");
 //    WSExceptionCheckIllegal(processor != nil, @"Nil processor");
 
+    WSConnectionHandler *handler;
+
     @synchronized (self.handlers) {
-        for (WSConnectionHandler *handler in self.handlers) {
+        for (handler in self.handlers) {
             if ([handler.host isEqualToString:host] && (handler.port == port)) {
                 return NO;
             }
         }
         
-        WSConnectionHandler *handler = [[WSConnectionHandler alloc] initWithPool:self host:host port:port processor:processor];
-        if (![handler connectWithTimeout:self.connectionTimeout error:NULL]) {
-            return NO;
-        }
+        handler = [[WSConnectionHandler alloc] initWithParameters:self.parameters host:host port:port processor:processor];
+        handler.delegate = self;
         [self.handlers addObject:handler];
         self.handlersByIdentifier[handler.identifier] = handler;
+
         DDLogDebug(@"Added %@ to pool (current: %u)", handler, self.handlers.count);
-        return YES;
     }
+
+    [handler connectWithTimeout:self.connectionTimeout error:NULL];
+
+    return YES;
 }
 
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor
@@ -145,10 +117,7 @@
     
     @synchronized (self.handlers) {
         WSConnectionHandler *handler = [self handlerForProcessor:processor];
-        if (handler) {
-            handler.error = error;
-            [self delayRemoveHandler:handler];
-        }
+        [self tryDisconnectHandler:handler error:error];
     }
 }
 
@@ -165,8 +134,7 @@
         NSUInteger i = 0;
         while ((self.handlers.count >= finalConnections) && (i < connections)) {
             WSConnectionHandler *handler = self.handlers[i];
-            handler.error = error;
-            [handler.socket disconnect];
+            [self tryDisconnectHandler:handler error:error];
             ++i;
         }
     }
@@ -176,7 +144,7 @@
 {
     @synchronized (self.handlers) {
         for (WSConnectionHandler *handler in [self.handlers copy]) {
-            [self delayRemoveHandler:handler];
+            [self tryDisconnectHandler:handler error:nil];
         }
     }
 }
@@ -188,23 +156,21 @@
     }
 }
 
-- (NSSet *)handledHosts
+#pragma mark WSConnectionHandlerDelegate (handler queue)
+
+- (void)connectionHandlerDidConnect:(WSConnectionHandler *)connectionHandler
+{
+    [connectionHandler.processor setConnection:[[WSBasicConnection alloc] initWithHandler:connectionHandler]];
+}
+
+- (void)connectionHandler:(WSConnectionHandler *)connectionHandler didDisconnectWithError:(NSError *)error
 {
     @synchronized (self.handlers) {
-        NSMutableSet *hosts = [[NSMutableSet alloc] initWithCapacity:self.handlers.count];
-        for (WSConnectionHandler *handler in self.handlers) {
-            [hosts addObject:handler.host];
-        }
-        return hosts;
+        [self removeHandler:connectionHandler];
     }
 }
 
-- (void)runBlock:(void (^)())block
-{
-    dispatch_async(self.queue, block);
-}
-
-#pragma mark Private
+#pragma mark Helpers
 
 - (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor
 {
@@ -221,12 +187,12 @@
 }
 
 // unsafe
-- (void)delayRemoveHandler:(WSConnectionHandler *)handler
+- (void)tryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error
 {
     NSParameterAssert(handler);
 
-    if ([handler.socket isConnected]) {
-        [handler.socket disconnect];
+    if ([handler isConnected]) {
+        [handler disconnectWithError:error];
     }
     else {
         [self removeHandler:handler];
@@ -248,141 +214,55 @@
     DDLogDebug(@"Removed %@ from pool (current: %u)", handler, self.handlers.count);
 }
 
-#pragma mark GCDAsyncSocketDelegate
-
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
-{
-    DDLogDebug(@"Connected to %@", sock);
-
-    WSConnectionHandler *handler = sock.handler;
-    [handler.processor openedConnectionToHost:host port:port queue:self.queue];
-    [sock readDataWithTimeout:-1 tag:0];
-}
-
-- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
-{
-//    DDLogDebug(@"Data sent to %@", sock);
-}
-
-- (void)socket:(GCDAsyncSocket *)sock didWritePartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
-{
-//    DDLogDebug(@"Partial data sent to %@ (%u bytes)", sock, partialLength);
-}
-
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
-{
-//    DDLogDebug(@"Data received from %@ (%u bytes)", sock, data.length);
-
-    WSConnectionHandler *handler = sock.handler;
-    [handler.processor processData:data];
-    [sock readDataWithTimeout:-1 tag:0];
-}
-
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
-{
-    DDLogDebug(@"Disconnected from %@", sock);
-
-    WSConnectionHandler *handler = sock.handler;
-    @synchronized (self.handlers) {
-        [self removeHandler:handler];
-    }
-
-    if (handler.error) {
-        [handler.processor closedConnectionWithError:handler.error];
-        handler.error = nil;
-    }
-    else {
-        [handler.processor closedConnectionWithError:err];
-    }
-}
-
 @end
 
 #pragma mark -
 
-@implementation WSConnectionHandler
+@implementation WSBasicConnection
 
-- (instancetype)initWithPool:(WSConnectionPool *)pool host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
+- (instancetype)initWithHandler:(WSConnectionHandler *)handler
 {
+    NSParameterAssert(handler);
+    
     if ((self = [super init])) {
-        _host = host;
-        _port = port;
-        _socket = [[GCDAsyncSocket alloc] initWithDelegate:pool delegateQueue:pool.queue];
-        [_socket setHandler:self];
-        _processor = processor;
-        [_processor setWriter:[[WSSocketConnectionWriter alloc] initWithSocket:_socket]];
-    }
-    return self;
-}
-
-- (NSString *)identifier
-{
-    return [NSString stringWithFormat:@"%@:%u", _host, _port];
-}
-
-- (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError *__autoreleasing *)error
-{
-    if ([_socket isConnected]) {
-        return YES;
-    }
-    return [_socket connectToHost:_host onPort:_port withTimeout:timeout error:error];
-}
-
-- (NSString *)description
-{
-    return self.identifier;
-}
-
-@end
-
-@implementation WSSocketConnectionWriter
-
-- (instancetype)initWithSocket:(GCDAsyncSocket *)socket
-{
-    if ((self = [super init])) {
-        _socket = socket;
+        _handler = handler;
     }
     return self;
 }
 
 #pragma mark WSConnectionWriter
 
-- (void)writeData:(NSData *)data timeout:(NSTimeInterval)timeout
+- (void)submitBlock:(void (^)())block
 {
-    [_socket writeData:data withTimeout:timeout tag:0];
+    [self.handler runBlock:block];
+}
+
+- (void)writeMessage:(id<WSMessage>)message
+{
+//    @synchronized (self) {
+//        if (_peerStatus == WSPeerStatusDisconnected) {
+//            DDLogWarn(@"%@ Not connected", self);
+//            return;
+//        }
+//    }
+    
+    NSUInteger headerLength;
+    WSBuffer *buffer = [message toNetworkBufferWithHeaderLength:&headerLength];
+    if (buffer.length > WSMessageMaxLength) {
+        DDLogError(@"%@ Error sending '%@', message is too long (%u > %u)", self, message.messageType, buffer.length, WSMessageMaxLength);
+        return;
+    }
+    
+    DDLogVerbose(@"%@ Sending %@ (%u bytes)", self, message, buffer.length - headerLength);
+    DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
+    
+    [self.handler unsafeEnqueueData:buffer.data];
+    [self.handler unsafeFlush];
 }
 
 - (void)disconnectWithError:(NSError *)error
 {
-    _socket.handler.error = error;
-    [_socket disconnect];
-}
-
-@end
-
-@implementation GCDAsyncSocket (Handler)
-
-- (WSConnectionHandler *)handler
-{
-    WSConnectionHandler *handler = [self userData];
-    NSAssert(handler, @"No handler attached to socket");
-    return handler;
-}
-
-- (void)setHandler:(WSConnectionHandler *)handler
-{
-    [self setUserData:handler];
-}
-
-- (NSString *)identifier
-{
-    WSConnectionHandler *handler = [self userData];
-    return handler.identifier;
-}
-
-- (NSString *)description
-{
-    return self.identifier;
+    [self.handler disconnectWithError:error];
 }
 
 @end

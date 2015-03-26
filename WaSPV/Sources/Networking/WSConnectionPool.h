@@ -26,42 +26,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "GCDAsyncSocket.h"
 
-#pragma mark -
+#import "WSConnectionHandler.h"
 
-//
-// thread-safety: required
-//
-@protocol WSConnectionWriter <NSObject>
-
-- (void)writeData:(NSData *)data timeout:(NSTimeInterval)timeout;
-- (void)disconnectWithError:(NSError *)error;
-
-@end
-
-@protocol WSConnectionProcessor <NSObject>
-
-- (void)setWriter:(id<WSConnectionWriter>)writer;
-- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port queue:(dispatch_queue_t)queue;
-- (void)processData:(NSData *)data;
-- (void)closedConnectionWithError:(NSError *)error;
-
-@end
-
-#pragma mark -
+@protocol WSParameters;
+@protocol WSConnectionProcessor;
 
 //
 // thread-safe: yes
 //
-@interface WSConnectionPool : NSObject <GCDAsyncSocketDelegate>
+@interface WSConnectionPool : NSObject <WSConnectionHandlerDelegate>
 
-@property (atomic, assign) NSTimeInterval connectionTimeout;
+@property (nonatomic, assign) NSTimeInterval connectionTimeout;
 
-- (instancetype)init;
-- (instancetype)initWithLabel:(NSString *)label;
-- (instancetype)initWithQueue:(dispatch_queue_t)queue;
-- (dispatch_queue_t)queue;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
 
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor;
@@ -69,11 +47,6 @@
 - (void)closeConnections:(NSUInteger)connections;
 - (void)closeConnections:(NSUInteger)connections error:(NSError *)error;
 - (void)closeAllConnections;
-
 - (NSUInteger)numberOfConnections;
-- (NSSet *)handledHosts;
-
-// execute in pool thread
-- (void)runBlock:(void (^)())block;
 
 @end

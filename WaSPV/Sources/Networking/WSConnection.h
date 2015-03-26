@@ -1,9 +1,9 @@
 //
-//  WSProtocolDeserializer.h
+//  WSConnection.h
 //  WaSPV
 //
-//  Created by Davide De Rosa on 06/07/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 26/03/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -27,16 +27,24 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol WSParameters;
 @protocol WSMessage;
 
-#pragma mark -
+//
+// thread-safety: required
+//
+@protocol WSConnection <NSObject>
 
-@interface WSProtocolDeserializer : NSObject
+- (void)submitBlock:(void (^)())block;
+- (void)writeMessage:(id<WSMessage>)message; // MUST be executed from within submitBlock:
+- (void)disconnectWithError:(NSError *)error;
 
-- (instancetype)init;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port;
-- (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream error:(NSError **)error;
-- (void)resetBuffers;
+@end
+
+@protocol WSConnectionProcessor <NSObject>
+
+- (void)setConnection:(id<WSConnection>)connection;
+- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port queue:(dispatch_queue_t)queue;
+- (void)processMessage:(id<WSMessage>)message;
+- (void)closedConnectionWithError:(NSError *)error;
 
 @end

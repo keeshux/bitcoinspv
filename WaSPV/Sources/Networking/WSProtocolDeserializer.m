@@ -36,14 +36,14 @@
 @interface WSProtocolDeserializer ()
 
 @property (nonatomic, strong) id<WSParameters> parameters;
-@property (nonatomic, strong) WSPeerInfo *peerInfo;
+@property (nonatomic, strong) NSString *host;
+@property (nonatomic, assign) uint16_t port;
 @property (nonatomic, strong) WSMessageFactory *factory;
-@property (nonatomic, strong) NSMutableData *buffer;
 @property (nonatomic, strong) WSMutableBuffer *builtHeader;
 @property (nonatomic, strong) WSMutableBuffer *builtPayload;
+@property (nonatomic, strong) NSString *identifier;
 
-- (id<WSMessage>)parseMessageAndKeepParsing:(BOOL *)keepParsing error:(NSError *__autoreleasing *)error;
-- (void)resetPartialMessage;
+- (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream keepParsing:(BOOL *)keepParsing error:(NSError *__autoreleasing *)error;
 
 @end
 
@@ -51,50 +51,46 @@
 
 - (instancetype)init
 {
-    WSExceptionRaiseUnsupported(@"Use initWithPeerInfo:parameters:");
+    WSExceptionRaiseUnsupported(@"Use initWithParameters:host:port:");
     return nil;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters peerInfo:(WSPeerInfo *)peerInfo
+- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port
 {
     WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(peerInfo != nil, @"Nil peerInfo");
+    WSExceptionCheckIllegal(host != nil, @"Nil host");
+    WSExceptionCheckIllegal(port > 0, @"Non-positive port");
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.peerInfo = peerInfo;
+        self.host = host;
+        self.port = port;
         self.factory = [[WSMessageFactory alloc] initWithParameters:self.parameters];
-        self.buffer = [[NSMutableData alloc] init];
         self.builtHeader = [[WSMutableBuffer alloc] init];
         self.builtPayload = [[WSMutableBuffer alloc] init];
+        self.identifier = [NSString stringWithFormat:@"%@:%u", self.host, self.port];
     }
     return self;
 }
 
-- (void)appendData:(NSData *)data
+- (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
-
-//    DDLogVerbose(@"New data: %u", data.length);
-    [self.buffer appendData:data];
-}
-
-- (id<WSMessage>)parseMessageWithError:(NSError *__autoreleasing *)error
-{
+    WSExceptionCheckIllegal(inputStream != nil, @"Nil inputStream");
+    
 //    DDLogVerbose(@"Buffer length: %u", self.buffer.length);
     
     BOOL keepParsing = NO;
-    id<WSMessage> message = [self parseMessageAndKeepParsing:&keepParsing error:error];
+    id<WSMessage> message = [self parseMessageFromStream:inputStream keepParsing:&keepParsing error:error];
     if (!keepParsing) {
-        [self resetPartialMessage];
+        [self resetBuffers];
     }
     return message;
 }
 
 - (void)resetBuffers
 {
-    self.buffer.length = 0;
-    [self resetPartialMessage];
+    self.builtHeader.length = 0;
+    self.builtPayload.length = 0;
 }
 
 //
@@ -102,8 +98,9 @@
 //
 // keepParsing: YES = read more bytes, NO = stop and reset buffers
 //
-- (id<WSMessage>)parseMessageAndKeepParsing:(BOOL *)keepParsing error:(NSError *__autoreleasing *)error
+- (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream keepParsing:(BOOL *)keepParsing error:(NSError *__autoreleasing *)error
 {
+    NSParameterAssert(inputStream);
     NSParameterAssert(keepParsing);
 
     NSInteger currentHeaderLength = self.builtHeader.length;
@@ -114,24 +111,21 @@
         
         uint8_t *freeHeader = (uint8_t *)self.builtHeader.mutableBytes + currentHeaderLength;
         const NSUInteger toRead = self.builtHeader.length - currentHeaderLength;
-        const NSUInteger available = self.buffer.length;
-        const NSUInteger actuallyRead = MIN(available, toRead);
+        const NSInteger actuallyRead = [inputStream read:freeHeader maxLength:toRead];
+        if (actuallyRead < 0) {
+            [self resetBuffers];
+            return nil;
+        }
 
 //        DDLogVerbose(@"Needed for header: %u", toRead);
 //        DDLogVerbose(@"Current buffer length: %u", available);
 //        DDLogVerbose(@"Actually read: %u", actuallyRead);
 
-        [self.buffer getBytes:freeHeader range:NSMakeRange(0, actuallyRead)];
-        [self.buffer replaceBytesInRange:NSMakeRange(0, actuallyRead) withBytes:NULL length:0];
-
-//        DDLogVerbose(@"New buffer length: %u", self.buffer.length);
-
         self.builtHeader.length = currentHeaderLength + actuallyRead;
         
         // consume one byte at a time, up to the magic number that starts a new message header
-        while ((self.builtHeader.length >= sizeof(uint32_t)) &&
-               ([self.builtHeader uint32AtOffset:0] != [self.parameters magicNumber])) {
-
+        const uint32_t magicNumber = [self.parameters magicNumber];
+        while ((self.builtHeader.length >= sizeof(uint32_t)) && ([self.builtHeader uint32AtOffset:0] != magicNumber)) {
             [self.builtHeader replaceBytesInRange:NSMakeRange(0, 1) withBytes:NULL length:0];
         }
         
@@ -165,18 +159,15 @@
         
         uint8_t *freePayload = (uint8_t *)self.builtPayload.mutableBytes + currentPayloadLength;
         const NSUInteger toRead = self.builtPayload.length - currentPayloadLength;
-
-        const NSUInteger available = self.buffer.length;
-        const NSUInteger actuallyRead = MIN(available, toRead);
+        const NSInteger actuallyRead = [inputStream read:freePayload maxLength:toRead];
+        if (actuallyRead < 0) {
+            [self resetBuffers];
+            return nil;
+        }
 
 //        DDLogVerbose(@"Needed for payload: %u", toRead);
 //        DDLogVerbose(@"Current buffer length: %u", available);
 //        DDLogVerbose(@"Actually read: %u", actuallyRead);
-
-        [self.buffer getBytes:freePayload range:NSMakeRange(0, actuallyRead)];
-        [self.buffer replaceBytesInRange:NSMakeRange(0, actuallyRead) withBytes:NULL length:0];
-
-//        DDLogVerbose(@"New buffer length: %u", self.buffer.length);
 
         self.builtPayload.length = currentPayloadLength + actuallyRead;
         if (self.builtPayload.length < expectedPayloadLength) {
@@ -200,25 +191,19 @@
     
     NSAssert(self.builtHeader.length == WSMessageHeaderLength, @"Unexpected header length (%u != %u)", self.builtHeader.length, WSMessageHeaderLength);
     
-    DDLogVerbose(@"%@ Deserialized header: %@", self.peerInfo, [self.builtHeader hexString]);
+    DDLogVerbose(@"%@ Deserialized header: %@", self.identifier, [self.builtHeader hexString]);
     if (ddLogLevel >= LOG_LEVEL_VERBOSE) {
         if (self.builtPayload.length <= 4096) {
-            DDLogVerbose(@"%@ Deserialized payload: %@", self.peerInfo, [self.builtPayload hexString]);
+            DDLogVerbose(@"%@ Deserialized payload: %@", self.identifier, [self.builtPayload hexString]);
         }
         else {
-            DDLogVerbose(@"%@ Deserialized payload: %u bytes (too long to display)", self.peerInfo, self.builtPayload.length);
+            DDLogVerbose(@"%@ Deserialized payload: %u bytes (too long to display)", self.identifier, self.builtPayload.length);
         }
     }
 
     *keepParsing = NO;
 
     return [self.factory messageFromType:messageType payload:self.builtPayload error:error];
-}
-
-- (void)resetPartialMessage
-{
-    self.builtHeader.length = 0;
-    self.builtPayload.length = 0;
 }
 
 @end

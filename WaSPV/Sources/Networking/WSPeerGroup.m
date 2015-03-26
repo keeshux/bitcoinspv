@@ -148,7 +148,7 @@
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
     NSString *className = [self.class description];
     dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
@@ -157,7 +157,7 @@
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
     NSString *className = [self.class description];
     dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
@@ -166,7 +166,7 @@
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
     NSString *className = [self.class description];
     dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
@@ -191,7 +191,6 @@
     WSExceptionCheckIllegal(pool != nil, @"Nil pool");
     WSExceptionCheckIllegal(queue != NULL, @"NULL queue");
     WSExceptionCheckIllegal(store != nil, @"Nil store");
-    WSExceptionCheckIllegal(pool.queue != queue, @"Pool and peer group queue must run on different queues");
     
     if ((self = [super init])) {
         self.parameters = store.parameters;
@@ -992,7 +991,7 @@
         [self.inactiveAddresses addObjectsFromArray:newAddresses];
         
         DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveAddresses.count);
-        DDLogDebug(@"%@", self.inactiveAddresses);
+//        DDLogDebug(@"%@", self.inactiveAddresses);
         [self triggerConnectionsFromInactive];
     }
     else {
@@ -1313,8 +1312,8 @@
         hardCodes[NSPOSIXErrorDomain] = [NSSet setWithArray:@[@(ECONNREFUSED),
                                                               @(ECONNRESET)]];
         
-        hardCodes[GCDAsyncSocketErrorDomain] = [NSSet setWithArray:@[@(GCDAsyncSocketConnectTimeoutError),
-                                                                     @(GCDAsyncSocketClosedError)]];
+//        hardCodes[GCDAsyncSocketErrorDomain] = [NSSet setWithArray:@[@(GCDAsyncSocketConnectTimeoutError),
+//                                                                     @(GCDAsyncSocketClosedError)]];
         
     });
     

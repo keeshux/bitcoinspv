@@ -74,5 +74,6 @@ extern NSString *const          WSMessageType_ALERT;
 - (WSBuffer *)originalPayload;
 - (WSBuffer *)toNetworkBufferWithHeaderLength:(NSUInteger *)headerLength;
 - (NSString *)payloadDescriptionWithIndent:(NSUInteger)indent;
+- (NSUInteger)length;
 
 @end
