@@ -909,7 +909,7 @@
             
             self.isOpcode = (opcode >= WSScriptOpcode_PUSHDATA1);
             self.opcode = opcode;
-            self.pushData = [pushData copy];
+            self.pushData = pushData;
         }
     }
     return self;

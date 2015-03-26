@@ -43,7 +43,7 @@
     WSExceptionCheckIllegal(data.length == WSHash256Length, @"Hash256 must be %u bytes long", WSHash256Length);
     
     if ((self = [super init])) {
-        self.data = [data copy];
+        self.data = data;
     }
     return self;
 }

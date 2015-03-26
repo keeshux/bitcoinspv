@@ -86,7 +86,7 @@
 
         const unsigned char *bytes = data.bytes;
         o2i_ECPublicKey(&_key, &bytes, data.length);
-        self.data = [data copy];
+        self.data = data;
     }
     return self;
 }

@@ -30,7 +30,7 @@
 
 @interface WSMessageReject ()
 
-@property (nonatomic, copy) NSString * message;
+@property (nonatomic, copy) NSString *message;
 @property (nonatomic, assign) uint8_t code;
 @property (nonatomic, copy) NSString *reason;
 

@@ -92,7 +92,7 @@
         self.parameters = parameters;
         self.version = version;
         self.hash160 = WSHash160FromData(hash160Data);
-        self.encoded = [encoded copy];
+        self.encoded = encoded;
     }
     return self;
 }

@@ -49,7 +49,7 @@
     
     if ((self = [super init])) {
         self.value = value;
-        self.script = [script copy];
+        self.script = script;
         self.address = [script standardOutputAddressWithParameters:parameters];
     }
     return self;

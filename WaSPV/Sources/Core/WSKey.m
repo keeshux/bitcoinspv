@@ -131,7 +131,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
         BN_CTX_end(ctx);
         BN_CTX_free(ctx);
 
-        self.data = [data copy];
+        self.data = data;
     }
     return self;
 }

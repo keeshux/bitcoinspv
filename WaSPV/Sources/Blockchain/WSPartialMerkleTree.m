@@ -87,8 +87,8 @@
     
     if ((self = [super init])) {
         self.txCount = txCount;
-        self.hashes = [hashes copy];
-        self.flags = [flags copy];
+        self.hashes = hashes;
+        self.flags = flags;
 
         NSMutableSet *matchedTxIds = [[NSMutableSet alloc] init];
         self.merkleRoot = [self computeMerkleRootSavingMatchedHashes:matchedTxIds error:error];

@@ -43,7 +43,7 @@
     WSExceptionCheckIllegal(data.length == WSHash160Length, @"WSHash160 must be %u bytes long", WSHash160Length);
     
     if ((self = [super init])) {
-        self.data = [data copy];
+        self.data = data;
     }
     return self;
 }
