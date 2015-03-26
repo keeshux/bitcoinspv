@@ -52,7 +52,32 @@
 
 @implementation WSBlockHeader
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version previousBlockId:(WSHash256 *)previousBlockId merkleRoot:(WSHash256 *)merkleRoot timestamp:(uint32_t)timestamp bits:(uint32_t)bits nonce:(uint32_t)nonce
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                   previousBlockId:(WSHash256 *)previousBlockId
+                        merkleRoot:(WSHash256 *)merkleRoot
+                         timestamp:(uint32_t)timestamp
+                              bits:(uint32_t)bits
+                             nonce:(uint32_t)nonce
+{
+    return [self initWithParameters:parameters
+                            version:version
+                    previousBlockId:previousBlockId
+                         merkleRoot:merkleRoot
+                          timestamp:timestamp
+                               bits:bits
+                              nonce:nonce
+                            blockId:nil];
+}
+
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
+                           version:(uint32_t)version
+                   previousBlockId:(WSHash256 *)previousBlockId
+                        merkleRoot:(WSHash256 *)merkleRoot
+                         timestamp:(uint32_t)timestamp
+                              bits:(uint32_t)bits
+                             nonce:(uint32_t)nonce
+                           blockId:(WSHash256 *)blockId
 {
     WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     WSExceptionCheckIllegal(previousBlockId != nil, @"Nil previousBlockId");
@@ -65,7 +90,7 @@
         self.timestamp = timestamp;
         self.bits = bits;
         self.nonce = nonce;
-        self.blockId = [self computeBlockId];
+        self.blockId = (blockId ? : [self computeBlockId]);
     }
     return self;
 }
@@ -288,7 +313,9 @@
 
     const uint32_t nonce = [buffer uint32AtOffset:offset];
     
-    return [self initWithParameters:parameters version:version previousBlockId:previousBlockId merkleRoot:merkleRoot timestamp:timestamp bits:bits nonce:nonce];
+    WSHash256 *blockId = [buffer computeHash256];
+    
+    return [self initWithParameters:parameters version:version previousBlockId:previousBlockId merkleRoot:merkleRoot timestamp:timestamp bits:bits nonce:nonce blockId:blockId];
 }
 
 #pragma mark WSIndentableDescription
