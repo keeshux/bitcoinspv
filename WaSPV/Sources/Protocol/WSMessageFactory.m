@@ -64,9 +64,9 @@
         return nil;
     }
     id<WSMessage> message = [[clazz alloc] initWithParameters:self.parameters buffer:payload from:0 available:payload.length error:error];
-    if (message) {
-        NSAssert(message.originalPayload, @"Decoded messages should retain original payload");
-    }
+//    if (message) {
+//        NSAssert(message.originalPayload, @"Decoded messages should retain original payload");
+//    }
     return message;
 }
 

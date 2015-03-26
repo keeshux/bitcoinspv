@@ -36,6 +36,6 @@
 
 + (instancetype)messageWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters originalPayload:(WSBuffer *)originalPayload;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters originalLength:(NSUInteger)originalLength;
 
 @end

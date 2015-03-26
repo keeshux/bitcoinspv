@@ -80,7 +80,7 @@
         return nil;
     }
     
-    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         self.nonce = [buffer uint64AtOffset:from];
     }
     return self;

@@ -35,7 +35,7 @@
 @interface WSAbstractMessage ()
 
 @property (nonatomic, strong) id<WSParameters> parameters;
-@property (nonatomic, strong) WSBuffer *originalPayload;
+@property (nonatomic, assign) NSUInteger originalLength;
 
 @end
 
@@ -54,19 +54,16 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    return [self initWithParameters:parameters originalPayload:nil];
+    return [self initWithParameters:parameters originalLength:0];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters originalPayload:(WSBuffer *)originalPayload
+- (instancetype)initWithParameters:(id<WSParameters>)parameters originalLength:(NSUInteger)originalLength
 {
     WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        if (originalPayload) {
-#warning XXX: copy may be expensive, retain original data
-            self.originalPayload = [[WSBuffer alloc] initWithData:originalPayload.data];
-        }
+        self.originalLength = originalLength;
     }
     return self;
 }
@@ -128,7 +125,7 @@
 
 - (NSUInteger)length
 {
-    return WSMessageHeaderLength + self.originalPayload.length;
+    return WSMessageHeaderLength + self.originalLength;
 }
 
 #pragma mark WSBufferEncoder

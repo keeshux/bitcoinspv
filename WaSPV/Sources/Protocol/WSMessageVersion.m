@@ -153,7 +153,7 @@
     }
     
     NSUInteger offset = from;
-    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         self.version = [buffer uint32AtOffset:offset];
         offset += sizeof(uint32_t);
 

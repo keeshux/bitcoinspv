@@ -248,11 +248,11 @@
         [self.delegate peerDidKeepAlive:self];
     });
     
-    if (message.originalPayload.length < 1024) {
-        DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalPayload.length);
+    if (message.originalLength < 1024) {
+        DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalLength);
     }
     else {
-        DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalPayload.length);
+        DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalLength);
     }
     
     SEL selector = NSSelectorFromString([NSString stringWithFormat:@"receive%@Message:", [message.messageType capitalizedString]]);

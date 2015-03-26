@@ -71,7 +71,7 @@ extern NSString *const          WSMessageType_ALERT;
 
 - (id<WSParameters>)parameters;
 - (NSString *)messageType;
-- (WSBuffer *)originalPayload;
+- (NSUInteger)originalLength;
 - (WSBuffer *)toNetworkBufferWithHeaderLength:(NSUInteger *)headerLength;
 - (NSString *)payloadDescriptionWithIndent:(NSUInteger)indent;
 - (NSUInteger)length;

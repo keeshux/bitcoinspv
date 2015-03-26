@@ -66,7 +66,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         NSUInteger offset = from;
         NSUInteger varIntLength;
 

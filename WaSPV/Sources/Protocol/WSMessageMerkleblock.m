@@ -60,7 +60,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
-    if ((self = [super initWithParameters:parameters originalPayload:buffer])) {
+    if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         self.block = [[WSFilteredBlock alloc] initWithParameters:parameters buffer:buffer from:from available:available error:error];
         if (!self.block) {
             return nil;
