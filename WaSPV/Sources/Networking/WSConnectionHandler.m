@@ -192,7 +192,10 @@
                 }
                 else {
                     if (error) {
-                        [self disconnectWithError:error];
+                        DDLogError(@"%@ Error deserializing message: %@", self, error);
+                        if (error.code == WSErrorCodeMalformed) {
+                            [self disconnectWithError:error];
+                        }
                         return;
                     }
                 }
