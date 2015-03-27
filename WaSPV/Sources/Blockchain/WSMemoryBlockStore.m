@@ -62,7 +62,6 @@
     if ((self = [super init])) {
         self.genesisBlock = [parameters genesisBlock];
         [self truncate];
-        self.tail = self.head;
     }
     return self;
 }
@@ -95,6 +94,8 @@
     NSAssert(self.blocks.count > 0, @"Empty block store");
     
     WSHash256 *tailId = self.tail.blockId;
+    NSAssert(tailId, @"Tail is nil, store truncated without resetting?");
+
     WSHash256 *newTailId = self.nextIdsById[tailId];
     if (!newTailId) {
         WSStorableBlock *block = self.head;
@@ -134,6 +135,7 @@
     WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:self.genesisBlock.header transactions:nil height:0];
     [self putBlock:block];
     self.head = block;
+    self.tail = self.head;
 }
 
 @end
