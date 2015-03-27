@@ -248,37 +248,39 @@
         [self.delegate peerDidKeepAlive:self];
     });
     
-    if (message.originalLength < 1024) {
-        DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalLength);
-    }
-    else {
-        DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalLength);
-    }
-    
-    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"receive%@Message:", [message.messageType capitalizedString]]);
-    if ([self respondsToSelector:selector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        
-        // stop reading txs for current merkleblock
-        if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
-            [self endCurrentFilteredBlock];
+    [self.connection submitBlock:^{
+        if (message.originalLength < 1024) {
+            DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalLength);
+        }
+        else {
+            DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalLength);
         }
         
-        [self performSelector:selector withObject:message];
-        
+        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"receive%@Message:", [message.messageType capitalizedString]]);
+        if ([self respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            
+            // stop reading txs for current merkleblock
+            if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
+                [self endCurrentFilteredBlock];
+            }
+            
+            [self performSelector:selector withObject:message];
+            
 #pragma clang diagnostic pop
-    }
-    else {
-        DDLogDebug(@"%@ Unhandled message '%@'", self, message.messageType);
-    }
-    
+        }
+        else {
+            DDLogDebug(@"%@ Unhandled message '%@'", self, message.messageType);
+        }
+        
 #ifdef WASPV_TEST_MESSAGE_QUEUE
-    [self.messageQueueCondition lock];
-    [self.messageQueue addObject:message];
-    [self.messageQueueCondition signal];
-    [self.messageQueueCondition unlock];
+        [self.messageQueueCondition lock];
+        [self.messageQueue addObject:message];
+        [self.messageQueueCondition signal];
+        [self.messageQueueCondition unlock];
 #endif
+    }];
 }
 
 //- (void)processData:(NSData *)data
