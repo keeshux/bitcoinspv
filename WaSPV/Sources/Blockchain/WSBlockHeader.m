@@ -32,6 +32,7 @@
 #import "WSBitcoin.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
+#import "NSData+Hash.h"
 
 @interface WSBlockHeader ()
 
@@ -313,7 +314,7 @@
 
     const uint32_t nonce = [buffer uint32AtOffset:offset];
     
-    WSHash256 *blockId = [buffer computeHash256];
+    WSHash256 *blockId = WSHash256Compute([buffer dataAtOffset:from length:(WSBlockHeaderSize - 1)]);
     
     return [self initWithParameters:parameters version:version previousBlockId:previousBlockId merkleRoot:merkleRoot timestamp:timestamp bits:bits nonce:nonce blockId:blockId];
 }
