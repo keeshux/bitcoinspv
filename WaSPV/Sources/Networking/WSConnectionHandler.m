@@ -98,6 +98,9 @@
         [self.inputStream open];
         [self.outputStream open];
         
+        [self.delegate connectionHandlerDidConnect:self];
+        [self.processor openedConnectionToHost:self.host port:self.port queue:self.queue];
+
         [self.runLoop run];
     });
 }
@@ -168,8 +171,6 @@
 #warning TODO: handler, connect timeout
 
                 [self unsafeFlush];
-                [self.delegate connectionHandlerDidConnect:self];
-                [self.processor openedConnectionToHost:self.host port:self.port queue:self.queue];
             }
             break;
         }
