@@ -36,9 +36,9 @@
 
 @implementation WSMessagePing
 
-- (instancetype)init
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    if ((self = [super init])) {
+    if ((self = [super initWithParameters:parameters])) {
         self.nonce = mrand48();
     }
     return self;
