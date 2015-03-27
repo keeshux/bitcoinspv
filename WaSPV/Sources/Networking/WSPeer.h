@@ -128,6 +128,7 @@ typedef enum {
 @protocol WSPeerDelegate <NSObject>
 
 - (void)peerDidConnect:(WSPeer *)peer;
+- (void)peer:(WSPeer *)peer didFailToConnectWithError:(NSError *)error;
 - (void)peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error;
 - (void)peerDidKeepAlive:(WSPeer *)peer;
 - (void)peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header;

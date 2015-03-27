@@ -111,6 +111,7 @@
 - (void)triggerConnectionsFromSeed:(NSString *)seed addresses:(NSArray *)addresses;
 - (void)triggerConnectionsFromInactive;
 - (void)openConnectionToPeerHost:(NSString *)host;
+- (void)handleConnectionFailureFromPeer:(WSPeer *)peer error:(NSError *)error;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (NSArray *)disconnectedAddressesWithHosts:(NSArray *)hosts;
 - (void)removeInactiveHost:(NSString *)host;
@@ -636,6 +637,16 @@
     }
 }
 
+- (void)peer:(WSPeer *)peer didFailToConnectWithError:(NSError *)error
+{
+    [peer cleanUpConnectionData];
+    [self.pendingPeers removeObject:peer];
+
+    DDLogInfo(@"Failed to connect to %@%@", peer, WSStringOptional(error, @" (%@)"));
+
+    [self handleConnectionFailureFromPeer:peer error:error];
+}
+
 - (void)peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error
 {
     [peer cleanUpConnectionData];
@@ -696,37 +707,7 @@
         }
     }
 
-    // give up if no error (disconnected intentionally)
-    if (!error) {
-        DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
-    }
-    else {
-        ++self.connectionFailures;
-        if (self.connectionFailures > self.maxConnectionFailures) {
-            return;
-        }
-
-        // reconnect if persistent
-        if (self.keepConnected) {
-            DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
-
-            if (self.connectionFailures == self.maxConnectionFailures) {
-                DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
-                [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
-                return;
-            }
-
-            if ([[self class] isHardNetworkError:error]) {
-                DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
-                [self removeInactiveHost:peer.remoteHost];
-            }
-
-            if (self.connectedPeers.count < self.maxConnections) {
-                DDLogInfo(@"Searching for new peers");
-                [self connect];
-            }
-        }
-    }
+    [self handleConnectionFailureFromPeer:peer error:error];
 }
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
@@ -1212,6 +1193,41 @@
     
     DDLogInfo(@"Connecting to peer %@", peer);
     [self.pool openConnectionToPeer:peer];
+}
+
+- (void)handleConnectionFailureFromPeer:(WSPeer *)peer error:(NSError *)error
+{
+    // give up if no error (disconnected intentionally)
+    if (!error) {
+        DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
+    }
+    else {
+        ++self.connectionFailures;
+        if (self.connectionFailures > self.maxConnectionFailures) {
+            return;
+        }
+        
+        // reconnect if persistent
+        if (self.keepConnected) {
+            DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+            
+            if (self.connectionFailures == self.maxConnectionFailures) {
+                DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
+                [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
+                return;
+            }
+            
+            if ([[self class] isHardNetworkError:error]) {
+                DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
+                [self removeInactiveHost:peer.remoteHost];
+            }
+            
+            if (self.connectedPeers.count < self.maxConnections) {
+                DDLogInfo(@"Searching for new peers");
+                [self connect];
+            }
+        }
+    }
 }
 
 - (void)reconnectAfterDelay:(NSTimeInterval)delay

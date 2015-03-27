@@ -308,13 +308,21 @@
 - (void)closedConnectionWithError:(NSError *)error
 {
     DDLogDebug(@"%@ Connection closed%@", self, WSStringOptional(error, @" (%@)"));
+
+    BOOL wasConnected = NO;
     
     @synchronized (self) {
+        wasConnected = (_peerStatus == WSPeerStatusConnected);
         _peerStatus = WSPeerStatusDisconnected;
     }
 
     dispatch_async(self.delegateQueue, ^{
-        [self.delegate peer:self didDisconnectWithError:error];
+        if (wasConnected) {
+            [self.delegate peer:self didDisconnectWithError:error];
+        }
+        else {
+            [self.delegate peer:self didFailToConnectWithError:error];
+        }
     });
 }
 
