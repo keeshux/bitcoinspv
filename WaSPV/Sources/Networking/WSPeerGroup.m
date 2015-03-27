@@ -554,7 +554,7 @@
     [self.connectedPeers addObject:peer];
     
     DDLogInfo(@"Connected to %@ at height %u (active: %u)", peer, peer.lastBlockHeight, self.connectedPeers.count);
-    DDLogDebug(@"Active peers: %@", self.connectedPeers);
+    DDLogInfo(@"Active peers: %@", self.connectedPeers);
 
     self.connectionFailures = 0;
 
@@ -643,7 +643,7 @@
     [self.connectedPeers removeObject:peer];
 
     DDLogInfo(@"Disconnected from %@ (active: %u)%@", peer, self.connectedPeers.count, WSStringOptional(error, @" (%@)"));
-    DDLogDebug(@"Active peers: %@", self.connectedPeers);
+    DDLogInfo(@"Active peers: %@", self.connectedPeers);
     
     // group gets disconnected on last disconnection
     [self.notifier notifyPeerDisconnected:peer];
