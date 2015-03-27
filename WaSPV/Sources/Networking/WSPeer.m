@@ -28,6 +28,7 @@
 #import "WSPeer.h"
 #import "WSProtocolDeserializer.h"
 #import "WSNetworkAddress.h"
+#import "WSBlock.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSStorableBlock.h"
@@ -737,6 +738,12 @@
 - (void)receiveBlockMessage:(WSMessageBlock *)message
 {
     WSBlock *block = message.block;
+
+    NSError *error;
+    if (![block.header verifyWithError:&error]) {
+        [self.connection disconnectWithError:error];
+        return;
+    }
     
     dispatch_async(self.delegateQueue, ^{
         [self.delegate peer:self didReceiveBlock:block];
@@ -749,6 +756,14 @@
     if (headers.count == 0) {
         DDLogWarn(@"%@ Received empty headers", self);
         return;
+    }
+    
+    for (WSBlockHeader *header in message.headers) {
+        NSError *error;
+        if (![header verifyWithError:&error]) {
+            [self.connection disconnectWithError:error];
+            return;
+        }
     }
 
     [self aheadRequestOnReceivedHeaders:headers];
@@ -769,6 +784,12 @@
 
 - (void)receiveMerkleblockMessage:(WSMessageMerkleblock *)message
 {
+    NSError *error;
+    if (![message.block.header verifyWithError:&error]) {
+        [self.connection disconnectWithError:error];
+        return;
+    }
+
     [self beginFilteredBlock:message.block];
 }
 
