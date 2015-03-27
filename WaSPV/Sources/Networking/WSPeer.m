@@ -256,15 +256,15 @@
             DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalLength);
         }
         
+        // stop reading txs for current merkleblock
+        if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
+            [self endCurrentFilteredBlock];
+        }
+        
         SEL selector = NSSelectorFromString([NSString stringWithFormat:@"receive%@Message:", [message.messageType capitalizedString]]);
         if ([self respondsToSelector:selector]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-            
-            // stop reading txs for current merkleblock
-            if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
-                [self endCurrentFilteredBlock];
-            }
             
             [self performSelector:selector withObject:message];
             
