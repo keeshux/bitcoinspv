@@ -66,6 +66,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+}
+
 - (void)connectWithTimeout:(NSTimeInterval)timeout error:(NSError *__autoreleasing *)error
 {
     if (self.queue) {
@@ -93,14 +98,11 @@
         [self.inputStream scheduleInRunLoop:self.runLoop forMode:NSRunLoopCommonModes];
         [self.outputStream scheduleInRunLoop:self.runLoop forMode:NSRunLoopCommonModes];
         
-#warning TODO: handler, connect timeout
+        [self performSelector:@selector(disconnectWithError:) withObject:WSErrorMake(WSErrorCodeConnectionTimeout, @"Connection timed out") afterDelay:timeout];
         
         [self.inputStream open];
         [self.outputStream open];
         
-        [self.delegate connectionHandlerDidConnect:self];
-        [self.processor openedConnectionToHost:self.host port:self.port queue:self.queue];
-
         [self.runLoop run];
     });
 }
@@ -168,8 +170,10 @@
 //            DDLogDebug(@"Connected to %@", self);
             
             if (aStream == self.outputStream) {
-#warning TODO: handler, connect timeout
+                [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
+                [self.delegate connectionHandlerDidConnect:self];
+                [self.processor openedConnectionToHost:self.host port:self.port queue:self.queue];
                 [self unsafeFlush];
             }
             break;
