@@ -253,6 +253,7 @@
 
 - (void)dealloc
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self disconnect];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.reachability stopNotifier];
