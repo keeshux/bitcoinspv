@@ -51,7 +51,7 @@
 
 - (instancetype)init
 {
-    WSExceptionRaiseUnsupported(@"Use initWithParameters");
+    WSExceptionRaiseUnsupported(@"Use initWithParameters:");
     return nil;
 }
 
@@ -117,14 +117,14 @@
     _head = head;
 }
 
+- (NSArray *)allBlocks
+{
+    return [self.blocks allValues];
+}
+
 - (NSUInteger)size
 {
     return self.blocks.count;
-}
-
-- (BOOL)save
-{
-    return YES;
 }
 
 - (void)truncate

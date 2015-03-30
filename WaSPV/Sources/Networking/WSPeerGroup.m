@@ -128,6 +128,7 @@
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
 - (void)detectDownloadTimeout;
+- (void)trySaveBlockChainToCoreData;
 
 - (BOOL)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError **)error;
 - (void)handleAddedBlock:(WSStorableBlock *)block fromPeer:(WSPeer *)peer;
@@ -260,6 +261,13 @@
     [self.reachability stopNotifier];
 }
 
+- (void)setCoreDataManager:(WSCoreDataManager *)coreDataManager
+{
+    _coreDataManager = coreDataManager;
+    
+    [self.blockChain loadFromCoreDataManager:coreDataManager];
+}
+
 - (void)setPeerHosts:(NSArray *)peerHosts
 {
     _peerHosts = peerHosts;
@@ -316,7 +324,7 @@
 
             observer = [nc addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
                 [nc removeObserver:observer];
-                [self.blockChain save];
+                [self trySaveBlockChainToCoreData];
 
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
@@ -330,7 +338,7 @@
     });
     
     if (notConnected && onceCompletionBlock) {
-        [self.blockChain save];
+        [self trySaveBlockChainToCoreData];
 
         onceCompletionBlock();
         onceCompletionBlock = NULL;
@@ -544,6 +552,11 @@
         published = YES;
     });
     return published;
+}
+
+- (void)saveState
+{
+    [self trySaveBlockChainToCoreData];
 }
 
 #pragma mark Events (group queue)
@@ -1499,6 +1512,13 @@
     });
 }
 
+- (void)trySaveBlockChainToCoreData
+{
+    if (self.coreDataManager) {
+        [self.blockChain saveToCoreDataManager:self.coreDataManager];
+    }
+}
+
 #pragma mark Handlers (unsafe)
 
 - (BOOL)validateHeaderAgainstCheckpoints:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
@@ -1541,7 +1561,7 @@
     }
     
     if (isDownloadFinished) {// || (block.height % 5000 == 0)) {
-        [self.blockChain save];
+        [self trySaveBlockChainToCoreData];
     }
     
     if (isDownloadFinished) {

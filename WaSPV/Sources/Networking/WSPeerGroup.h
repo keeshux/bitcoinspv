@@ -81,6 +81,8 @@
 @property (nonatomic, assign) BOOL headersOnly;                             // NO
 @property (nonatomic, assign) NSTimeInterval requestTimeout;                // 15.0
 
+@property (nonatomic, strong) WSCoreDataManager *coreDataManager;           // nil
+
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
@@ -112,5 +114,6 @@
 - (NSUInteger)numberOfBlocksLeft;
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
+- (void)saveState;
 
 @end

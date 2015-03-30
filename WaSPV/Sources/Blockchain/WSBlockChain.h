@@ -35,6 +35,7 @@
 @class WSBlockHeader;
 @class WSFilteredBlock;
 @class WSBlockLocator;
+@class WSCoreDataManager;
 
 #pragma mark -
 
@@ -65,7 +66,9 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError **)error;
 - (BOOL)isBehindBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
-- (BOOL)save;
+
+- (void)loadFromCoreDataManager:(WSCoreDataManager *)manager;
+- (void)saveToCoreDataManager:(WSCoreDataManager *)manager;
 
 - (NSString *)descriptionWithMaxBlocks:(NSUInteger)maxBlocks;
 - (NSString *)descriptionWithIndent:(NSUInteger)indent maxBlocks:(NSUInteger)maxBlocks;

@@ -45,8 +45,8 @@
 - (void)removeTailBlock;
 - (WSStorableBlock *)head;
 - (void)setHead:(WSStorableBlock *)head;
+- (NSArray *)allBlocks;
 - (NSUInteger)size;
-- (BOOL)save;
 - (void)truncate;
 
 @end

@@ -34,6 +34,13 @@
 #import "WSConfig.h"
 #import "WSMacros.h"
 #import "WSErrors.h"
+#import "WSCoreDataManager.h"
+#import "WSBlockHeaderEntity.h"
+#import "WSStorableBlockEntity.h"
+#import "WSTransactionEntity.h"
+#import "WSTransactionOutPointEntity.h"
+#import "WSTransactionInputEntity.h"
+#import "WSTransactionOutputEntity.h"
 
 // adapted from: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/com/google/bitcoin/core/AbstractBlockChain.java
 
@@ -386,9 +393,46 @@
     return block;
 }
 
-- (BOOL)save
+#pragma mark Core Data
+
+- (void)loadFromCoreDataManager:(WSCoreDataManager *)manager
 {
-    return [self.store save];
+    WSExceptionCheckIllegal(manager != nil, @"Nil manager");
+    
+    [self.store truncate];
+
+    __block NSArray *blockEntities = nil;
+    [manager.context performBlockAndWait:^{
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[WSStorableBlockEntity entityName]];
+        request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"height" ascending:NO]];
+        
+        NSError *error;
+        blockEntities = [manager.context executeFetchRequest:request error:&error];
+        if (blockEntities) {
+            DDLogDebug(@"Found %u blocks in store", blockEntities.count);
+        }
+        else {
+            DDLogError(@"Error fetching all blocks (%@)", error);
+        }
+        
+        for (WSStorableBlockEntity *blockEntity in blockEntities) {
+            WSStorableBlock *block = [blockEntity toStorableBlockWithParameters:self.store.parameters];
+            [self.store putBlock:block];
+        }
+    }];
+}
+
+- (void)saveToCoreDataManager:(WSCoreDataManager *)manager
+{
+    WSExceptionCheckIllegal(manager != nil, @"Nil manager");
+    
+    [manager truncate];
+    [manager.context performBlock:^{
+        for (WSStorableBlock *block in [self.store allBlocks]) {
+            WSStorableBlockEntity *blockEntity = [[WSStorableBlockEntity alloc] initWithContext:manager.context];
+            [blockEntity copyFromStorableBlock:block];
+        }
+    }];
 }
 
 #pragma mark WSIndentableDescription
