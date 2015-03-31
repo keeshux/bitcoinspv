@@ -954,7 +954,7 @@
 {
     DDLogVerbose(@"Reachability flags: %@ (reachable: %d)", [reachability reachabilityFlagsString], [reachability isReachable]);
     
-    dispatch_sync(self.queue, ^{
+    dispatch_async(self.queue, ^{
         if (self.keepConnected && [reachability isReachable]) {
             DDLogDebug(@"Network is reachable, connecting...");
             [self connect];
