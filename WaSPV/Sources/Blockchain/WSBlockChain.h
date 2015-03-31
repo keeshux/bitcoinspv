@@ -60,10 +60,11 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (uint32_t)currentTimestamp;
 - (WSBlockLocator *)currentLocator;
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError **)error;
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
+
 - (BOOL)isBehindBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
 

@@ -54,9 +54,10 @@
                            transactions:(NSOrderedSet *)transactions
                         reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                          connectOrphans:(BOOL)connectOrphans
+                       connectedOrphans:(NSArray **)connectedOrphans
                                   error:(NSError *__autoreleasing *)error;
 
-- (void)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock;
+- (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock;
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead;
 - (NSArray *)subchainFromHead:(WSStorableBlock *)head toBase:(WSStorableBlock *)base;
 
@@ -158,27 +159,27 @@
 
 #pragma mark Modification
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header reorganizeBlock:NULL error:error];
+    return [self addBlockWithHeader:header reorganizeBlock:NULL connectedOrphans:connectedOrphans error:error];
 }
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header transactions:nil reorganizeBlock:reorganizeBlock error:error];
+    return [self addBlockWithHeader:header transactions:nil reorganizeBlock:reorganizeBlock connectedOrphans:connectedOrphans error:error];
 }
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:NULL connectOrphans:YES error:error];
+    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:NULL connectOrphans:YES connectedOrphans:connectedOrphans error:error];
 }
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:reorganizeBlock connectOrphans:YES error:error];
+    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:reorganizeBlock connectOrphans:YES connectedOrphans:connectedOrphans error:error];
 }
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectOrphans:(BOOL)connectOrphans error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectOrphans:(BOOL)connectOrphans connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(header != nil, @"Nil header");
     
@@ -292,17 +293,20 @@
     
     // blockchain updated, orphans might not be anymore
     if (connectOrphans) {
-        [self connectCurrentOrphansWithReorganizeBlock:reorganizeBlock];
+        NSArray *localConnectedOrphans = [self connectCurrentOrphansWithReorganizeBlock:reorganizeBlock];
+        if (connectedOrphans) {
+            *connectedOrphans = localConnectedOrphans;
+        }
     }
 
     return addedBlock;
 }
 
-- (void)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
+- (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
 {
-    NSMutableArray *connectedOrphanIds = [[NSMutableArray alloc] init];
+    NSMutableArray *connectedOrphans = [[NSMutableArray alloc] init];
     do {
-        [connectedOrphanIds removeAllObjects];
+        [connectedOrphans removeAllObjects];
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
@@ -315,23 +319,30 @@
 
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
+            NSArray *otherConnectedOrphans;
             WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
                                                            transactions:orphan.transactions
                                                         reorganizeBlock:reorganizeBlock
                                                          connectOrphans:NO
+                                                       connectedOrphans:&otherConnectedOrphans
                                                                   error:NULL];
             if (connectedOrphan) {
-                [connectedOrphanIds addObject:connectedOrphan.blockId];
+                [connectedOrphans addObject:connectedOrphan];
+            }
+            if (otherConnectedOrphans) {
+                [connectedOrphans addObjectsFromArray:otherConnectedOrphans];
             }
 
             // remove from original
             [self.orphans removeObjectForKey:orphan.blockId];
         }
         
-        if (connectedOrphanIds.count > 0) {
-            DDLogDebug(@"Connected %u orphan blocks: %@", connectedOrphanIds.count, connectedOrphanIds);
+        if (connectedOrphans.count > 0) {
+            DDLogDebug(@"Connected %u orphan blocks: %@", connectedOrphans.count, connectedOrphans);
         }
-    } while (connectedOrphanIds.count > 0);
+    } while (connectedOrphans.count > 0);
+
+    return connectedOrphans;
 }
 
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead

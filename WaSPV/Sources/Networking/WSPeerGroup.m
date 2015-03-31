@@ -743,11 +743,12 @@
         return;
     }
 
+    NSArray *connectedOrphans;
     block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
 
-    } error:&error];
+    } connectedOrphans:&connectedOrphans error:&error];
     
     if (!block) {
         if (!error) {
@@ -765,7 +766,9 @@
         return;
     }
 
-    [self handleAddedBlock:block fromPeer:peer];
+    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
+        [self handleAddedBlock:addedBlock fromPeer:peer];
+    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
@@ -789,12 +792,13 @@
         return;
     }
 
+    NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
     block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
 
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks fromPeer:peer];
 
-    } error:&error];
+    } connectedOrphans:&connectedOrphans error:&error];
     
     if (!block) {
         if (!error) {
@@ -838,11 +842,13 @@
         }
     }
     
-    if (![block.blockId isEqual:previousHead.blockId]) {
-        [self handleAddedBlock:block fromPeer:peer];
-    }
-    else {
-        [self handleReplacedBlock:block fromPeer:peer];
+    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
+        if (![addedBlock.blockId isEqual:previousHead.blockId]) {
+            [self handleAddedBlock:addedBlock fromPeer:peer];
+        }
+        else {
+            [self handleReplacedBlock:addedBlock fromPeer:peer];
+        }
     }
 }
 
