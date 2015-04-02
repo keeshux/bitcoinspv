@@ -253,7 +253,7 @@
         return;
     }
     
-    DDLogVerbose(@"%@ Sending %@ (%u bytes)", self, message, buffer.length - headerLength);
+    DDLogVerbose(@"%@ Sending %@ (%u+%u bytes)", self, message, headerLength, buffer.length - headerLength);
     DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
     
     [self.handler unsafeEnqueueData:buffer.data];

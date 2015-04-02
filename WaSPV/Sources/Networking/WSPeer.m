@@ -251,10 +251,10 @@
     
     [self.connection submitBlock:^{
         if (message.originalLength < 1024) {
-            DDLogVerbose(@"%@ Received %@ (%u bytes)", self, message, message.originalLength);
+            DDLogVerbose(@"%@ Received %@ (%u+%u bytes)", self, message, WSMessageHeaderLength, message.originalLength);
         }
         else {
-            DDLogVerbose(@"%@ Received %@ (%u bytes, too long to display)", self, [message class], message.originalLength);
+            DDLogVerbose(@"%@ Received %@ (%u+%u bytes, too long to display)", self, [message class], WSMessageHeaderLength, message.originalLength);
         }
         
         // stop reading txs for current merkleblock
