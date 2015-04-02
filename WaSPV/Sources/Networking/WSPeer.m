@@ -463,6 +463,8 @@
         
         [self unsafeSendMessage:[WSMessageVerack messageWithParameters:self.parameters]];
         _didSendVerack = YES;
+
+        [self tryFinishHandshake];
     }];
 }
 
