@@ -1396,6 +1396,8 @@
         
         DDLogInfo(@"Blockchain is synced");
         
+        [self trySaveBlockChainToCoreData];
+        
         [self.notifier notifyDownloadFinished];
     }];
 }
