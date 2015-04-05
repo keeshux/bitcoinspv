@@ -1568,13 +1568,9 @@
             DDLogDebug(@"Requesting mempool from peer %@", peer);
             [peer sendMempoolMessage];
         }
-    }
-    
-    if (isDownloadFinished) {// || (block.height % 5000 == 0)) {
+
         [self trySaveBlockChainToCoreData];
-    }
-    
-    if (isDownloadFinished) {
+
         dispatch_async(dispatch_get_main_queue(), ^{
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
         });
