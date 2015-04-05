@@ -477,7 +477,7 @@
     WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
     dispatch_sync(self.queue, ^{
         status.parameters = self.parameters;
-        status.isConnected = self.keepConnected;
+        status.isConnected = (self.connectedPeers.count > 0);
         status.isDownloading = self.keepDownloading;
         status.currentHeight = self.blockChain.currentHeight;
         if (status.isConnected) {
