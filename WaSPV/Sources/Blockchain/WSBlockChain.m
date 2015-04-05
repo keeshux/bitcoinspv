@@ -430,6 +430,8 @@
             WSStorableBlock *block = [blockEntity toStorableBlockWithParameters:self.store.parameters];
             [self.store putBlock:block];
         }
+
+        DDLogInfo(@"Loaded blockchain from Core Data: %@", manager.storeURL);
     }];
 }
 
@@ -438,12 +440,20 @@
     WSExceptionCheckIllegal(manager != nil, @"Nil manager");
     
     [manager truncate];
-    [manager.context performBlock:^{
+    [manager.context performBlockAndWait:^{
         for (WSStorableBlock *block in [self.store allBlocks]) {
             WSStorableBlockEntity *blockEntity = [[WSStorableBlockEntity alloc] initWithContext:manager.context];
             [blockEntity copyFromStorableBlock:block];
         }
     }];
+
+    NSError *error;
+    if ([manager saveWithError:&error]) {
+        DDLogInfo(@"Saved blockchain to Core Data: %@", manager.storeURL);
+    }
+    else {
+        DDLogError(@"Unable to save blockchain to Core Data: %@", error);
+    }
 }
 
 #pragma mark WSIndentableDescription

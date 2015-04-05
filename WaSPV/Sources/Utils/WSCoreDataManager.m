@@ -133,6 +133,11 @@
     return YES;
 }
 
+- (BOOL)saveWithError:(NSError *__autoreleasing *)error
+{
+    return [self.context save:error];
+}
+
 @end
 
 #pragma mark -

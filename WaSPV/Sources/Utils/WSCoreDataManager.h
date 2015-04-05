@@ -35,6 +35,7 @@
 - (NSManagedObjectContext *)context;
 - (void)truncate;
 - (BOOL)truncateWithError:(NSError **)error;
+- (BOOL)saveWithError:(NSError **)error;
 
 @end
 
