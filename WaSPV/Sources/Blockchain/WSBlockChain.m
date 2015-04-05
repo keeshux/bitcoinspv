@@ -429,6 +429,10 @@
         for (WSStorableBlockEntity *blockEntity in blockEntities) {
             WSStorableBlock *block = [blockEntity toStorableBlockWithParameters:self.store.parameters];
             [self.store putBlock:block];
+
+            if (blockEntity == [blockEntities firstObject]) {
+                [self.store setHead:block];
+            }
         }
 
         DDLogInfo(@"Loaded blockchain from Core Data: %@", manager.storeURL);
