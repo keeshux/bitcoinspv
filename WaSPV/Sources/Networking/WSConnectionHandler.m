@@ -115,6 +115,8 @@
 - (void)disconnectWithError:(NSError *)error
 {
     [self runBlock:^{
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
+
         [self.inputStream close];
         [self.outputStream close];
         [self.inputStream removeFromRunLoop:self.runLoop forMode:NSRunLoopCommonModes];
@@ -122,6 +124,7 @@
         
         [self.delegate connectionHandler:self didDisconnectWithError:error];
         [self.processor closedConnectionWithError:error];
+        self.queue = NULL;
     }];
 }
 
