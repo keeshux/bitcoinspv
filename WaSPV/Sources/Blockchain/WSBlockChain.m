@@ -435,7 +435,7 @@
             }
         }
 
-        DDLogInfo(@"Loaded blockchain from Core Data: %@", manager.storeURL);
+        DDLogInfo(@"Loaded blockchain (%u) from Core Data: %@", self.head.height, manager.storeURL);
     }];
 }
 
@@ -453,7 +453,7 @@
 
     NSError *error;
     if ([manager saveWithError:&error]) {
-        DDLogInfo(@"Saved blockchain to Core Data: %@", manager.storeURL);
+        DDLogInfo(@"Saved blockchain (%u) to Core Data: %@", self.head.height, manager.storeURL);
     }
     else {
         DDLogError(@"Unable to save blockchain to Core Data: %@", error);
