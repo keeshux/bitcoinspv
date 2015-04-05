@@ -863,6 +863,10 @@
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
     
+    if (self.peerHosts) {
+        return;
+    }
+
     [self.inactiveAddresses addObjectsFromArray:addresses];
 
 //    if (isLastRelay && (self.connectedPeers.count < self.maxConnections)) {
