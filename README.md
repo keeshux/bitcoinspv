@@ -54,8 +54,8 @@ Grouped by area:
     * A fully BIP32-compliant HD wallet ([WSHDWallet](WaSPV/Sources/Wallet/WSHDWallet.h)).
 
 * Currency
-    * Helper classes for currency conversions.
-    * Bitcoin currency variants (bitcoin, millis, satoshis).
+    * Helper classes for currency conversions ([WSCurrency](WaSPV/Sources/Currency/WSCurrency.h)).
+    * Bitcoin currency variants (bitcoin, millis, satoshis) ([WSBitcoinCurrency](WaSPV/Sources/Currency/WSBitcoinCurrency.h)).
 
 * Web
     * Useful operations accomplished with the aid of third-party web services.
