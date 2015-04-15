@@ -37,7 +37,7 @@ Grouped by area:
 * Blockchain
     * Full blocks as seen on the wire, with clean separation between headers and transactions ([WSBlockHeader](WaSPV/Sources/Blockchain/WSBlockHeader.h), [WSBlock](WaSPV/Sources/Blockchain/WSBlock.h)).
     * Filtered (Merkle) blocks with partial Merkle tree verification ([WSFilteredBlock](WaSPV/Sources/Blockchain/WSFilteredBlock.h), [WSPartialMerkleTree](WaSPV/Sources/Blockchain/WSPartialMerkleTree.h)).
-    * Block stores as a means to track and save blocks ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h).
+    * Block stores as a means to track and save blocks ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h)).
     * A blockchain business wrapper doing all the block connection logic, validation and reorganization ([WSBlockChain](WaSPV/Sources/Blockchain/WSBlockChain.h)).
 
 * Protocol
