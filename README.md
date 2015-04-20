@@ -1,8 +1,8 @@
-# WaSPV
+# BitcoinSPV
 
-WaSPV (read *wasvee*) is a native Bitcoin SPV ([Simplified Payment Verification](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients)) client library for iOS written in Objective-C. It conveniently supports Bloom filters ([BIP37](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki)) and hierarchical deterministic wallets ([BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)).
+BitcoinSPV is a native Bitcoin SPV ([Simplified Payment Verification](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients)) client library for iOS written in Objective-C. It conveniently supports Bloom filters ([BIP37](https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki)) and hierarchical deterministic wallets ([BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)).
 
-WaSPV is still experimental and __you DO NOT want to use it in production environments today__.
+BitcoinSPV is still experimental and __you DO NOT want to use it in production environments today__.
 
 ## Contacts
 
@@ -26,41 +26,41 @@ Grouped by area:
     * Here you find network-specific magic numbers and parameters.
 
 * Core
-    * Generic binary data (de)serialization ([WSBuffer](WaSPV/Sources/Core/WSBuffer.h)).
-    * Hashes used everywhere for transaction and block ids, addresses, checksums etc. ([WSHash256](WaSPV/Sources/Core/WSHash256.h), [WSHash160](WaSPV/Sources/Core/WSHash160.h)).
-    * ECDSA keys wrappers, able to also import WIF private keys ([WSKey](WaSPV/Sources/Core/WSKey.h), [WSPublicKey](WaSPV/Sources/Core/WSPublicKey.h)).
-    * Scripts as the key part of the Bitcoin transaction system ([WSScript](WaSPV/Sources/Core/WSScript.h)).
-    * Transaction family classes will help you decode binary transactions or build/sign your own from inputs, outputs and keys ([WSTransaction](WaSPV/Sources/Core/WSTransaction.h)).
-    * Addresses are just a shorter way to visualize a transaction script, all standard forms (P2PK, P2PKH, P2SH) are supported ([WSAddress](WaSPV/Sources/Core/WSAddress.h)).
-    * An extensive implementation of a BIP32 HD keyring ([WSHDKeyring](WaSPV/Sources/Core/WSHDKeyring.h)).
+    * Generic binary data (de)serialization ([WSBuffer](BitcoinSPV/Sources/Core/WSBuffer.h)).
+    * Hashes used everywhere for transaction and block ids, addresses, checksums etc. ([WSHash256](BitcoinSPV/Sources/Core/WSHash256.h), [WSHash160](BitcoinSPV/Sources/Core/WSHash160.h)).
+    * ECDSA keys wrappers, able to also import WIF private keys ([WSKey](BitcoinSPV/Sources/Core/WSKey.h), [WSPublicKey](BitcoinSPV/Sources/Core/WSPublicKey.h)).
+    * Scripts as the key part of the Bitcoin transaction system ([WSScript](BitcoinSPV/Sources/Core/WSScript.h)).
+    * Transaction family classes will help you decode binary transactions or build/sign your own from inputs, outputs and keys ([WSTransaction](BitcoinSPV/Sources/Core/WSTransaction.h)).
+    * Addresses are just a shorter way to visualize a transaction script, all standard forms (P2PK, P2PKH, P2SH) are supported ([WSAddress](BitcoinSPV/Sources/Core/WSAddress.h)).
+    * An extensive implementation of a BIP32 HD keyring ([WSHDKeyring](BitcoinSPV/Sources/Core/WSHDKeyring.h)).
 
 * Blockchain
-    * Full blocks as seen on the wire, with clean separation between headers and transactions ([WSBlockHeader](WaSPV/Sources/Blockchain/WSBlockHeader.h), [WSBlock](WaSPV/Sources/Blockchain/WSBlock.h)).
-    * Filtered (Merkle) blocks with partial Merkle tree verification ([WSFilteredBlock](WaSPV/Sources/Blockchain/WSFilteredBlock.h), [WSPartialMerkleTree](WaSPV/Sources/Blockchain/WSPartialMerkleTree.h)).
-    * Block stores as a means to track and save blocks ([WSMemoryBlockStore](WaSPV/Sources/Blockchain/WSMemoryBlockStore.h)).
-    * A blockchain business wrapper doing all the block connection logic, validation and reorganization ([WSBlockChain](WaSPV/Sources/Blockchain/WSBlockChain.h)).
+    * Full blocks as seen on the wire, with clean separation between headers and transactions ([WSBlockHeader](BitcoinSPV/Sources/Blockchain/WSBlockHeader.h), [WSBlock](BitcoinSPV/Sources/Blockchain/WSBlock.h)).
+    * Filtered (Merkle) blocks with partial Merkle tree verification ([WSFilteredBlock](BitcoinSPV/Sources/Blockchain/WSFilteredBlock.h), [WSPartialMerkleTree](BitcoinSPV/Sources/Blockchain/WSPartialMerkleTree.h)).
+    * Block stores as a means to track and save blocks ([WSMemoryBlockStore](BitcoinSPV/Sources/Blockchain/WSMemoryBlockStore.h)).
+    * A blockchain business wrapper doing all the block connection logic, validation and reorganization ([WSBlockChain](BitcoinSPV/Sources/Blockchain/WSBlockChain.h)).
 
 * Protocol
     * Almost all protocol messages are defined here, one class per message.
-    * Bloom filters as defined by BIP37 ([WSBloomFilter](WaSPV/Sources/Protocol/WSBloomFilter.h)).
+    * Bloom filters as defined by BIP37 ([WSBloomFilter](BitcoinSPV/Sources/Protocol/WSBloomFilter.h)).
 
 * Networking
-    * Enter the P2P Bitcoin network ([WSPeerGroup](WaSPV/Sources/Networking/WSPeerGroup.h)).
-    * Connection pooling when dealing with multiple peers ([WSConnectionPool](WaSPV/Sources/Networking/WSConnectionPool.h)).
+    * Enter the P2P Bitcoin network ([WSPeerGroup](BitcoinSPV/Sources/Networking/WSPeerGroup.h)).
+    * Connection pooling when dealing with multiple peers ([WSConnectionPool](BitcoinSPV/Sources/Networking/WSConnectionPool.h)).
     * Blockchain SPV synchronization with Bloom filtering for low bandwidth usage.
 
 * Wallet
     * Generic wallet representations.
-    * A fully BIP32-compliant HD wallet ([WSHDWallet](WaSPV/Sources/Wallet/WSHDWallet.h)).
+    * A fully BIP32-compliant HD wallet ([WSHDWallet](BitcoinSPV/Sources/Wallet/WSHDWallet.h)).
 
 * Currency
-    * Helper classes for currency conversions ([WSCurrency](WaSPV/Sources/Currency/WSCurrency.h)).
-    * Bitcoin currency variants (bitcoin, millis, satoshis) ([WSBitcoinCurrency](WaSPV/Sources/Currency/WSBitcoinCurrency.h)).
+    * Helper classes for currency conversions ([WSCurrency](BitcoinSPV/Sources/Currency/WSCurrency.h)).
+    * Bitcoin currency variants (bitcoin, millis, satoshis) ([WSBitcoinCurrency](BitcoinSPV/Sources/Currency/WSBitcoinCurrency.h)).
 
 * Web
     * Useful operations accomplished with the aid of third-party web services.
-    * Explorer classes from different providers ([WSWebExplorer](WaSPV/Sources/Web/WSWebExplorer.h)).
-    * Ticker classes and unified price monitor ([WSWebTicker](WaSPV/Sources/Web/WSWebTicker.h), [WSWebTickerMonitor](WaSPV/Sources/Web/WSWebTickerMonitor.h)).
+    * Explorer classes from different providers ([WSWebExplorer](BitcoinSPV/Sources/Web/WSWebExplorer.h)).
+    * Ticker classes and unified price monitor ([WSWebTicker](BitcoinSPV/Sources/Web/WSWebTicker.h), [WSWebTickerMonitor](BitcoinSPV/Sources/Web/WSWebTickerMonitor.h)).
     * Sweep an external private key (e.g. a paper wallet), be it plain or password-encrypted (BIP38).
 
 * BIPS
@@ -72,7 +72,7 @@ Grouped by area:
 
 ## Installation
 
-WaSPV depends on four well known libraries:
+BitcoinSPV depends on four well known libraries:
 
 * [OpenSSL](https://github.com/krzak/OpenSSL.git)
 * [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack.git)
@@ -85,28 +85,32 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'WaSPV', '~> 0.4'
+    pod 'BitcoinSPV', '~> 0.5'
 
 and run on the terminal:
 
     $ pod install
 
+Beware that with recent versions of CocoaPods you will have to remove the following line from the `Pods/Pods.*.xcconfig` configuration files:
+
+    OTHER_LIBTOOLFLAGS = $(OTHER_LDFLAGS)
+
 ### Imports
 
-WaSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the linker will complain if you don't define it somewhere, e.g. in the application delegate:
+BitcoinSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the linker will complain if you don't define it somewhere, e.g. in the application delegate:
 
     #import "AppDelegate.h"
 
     const int ddLogLevel = LOG_LEVEL_DEBUG;
     ...
 
-All the imports are public but the one you generally need is `#import "WaSPV.h"`.
+All the imports are public but the one you generally need is `#import "BitcoinSPV.h"`.
 
 ### Testing
 
-The `WaSPVTests` target comes with a couple of automated tests. They don't completely test all the library features (especially the networking area), but they're certainly required to succeed. A single fail guarantees that something's broken.
+The `BitcoinSPVTests` target comes with a couple of automated tests. They don't completely test all the library features (especially the networking area), but they're certainly required to succeed. A single fail guarantees that something's broken.
 
-Some tests write files on disk in the global `Library/Caches` of the iPhone Simulator. You can find them under the `WaSPVTests` subdirectory.
+Some tests write files on disk in the global `Library/Caches` of the iPhone Simulator. You can find them under the `BitcoinSPVTests` subdirectory.
 
 ### Basic usage
 
@@ -114,7 +118,7 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
 #### Create new wallet
 
-    #import "WaSPV.h"
+    #import "BitcoinSPV.h"
 
     - (void)createWallet
     {
@@ -137,7 +141,7 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
 #### Restore existing wallet
 
-    #import "WaSPV.h"
+    #import "BitcoinSPV.h"
 
     - (void)restoreWallet
     {
@@ -177,18 +181,18 @@ __WARNING: operating on main network may cost you real money, make sure you know
 
 ### Mnemonics
 
-[BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) gives special hints on how human-readable phrases (mnemonics) can produce a binary seed for HD wallets. WaSPV implements the BIP39 specification in the `WSSeedGenerator` class that can be used to:
+[BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) gives special hints on how human-readable phrases (mnemonics) can produce a binary seed for HD wallets. BitcoinSPV implements the BIP39 specification in the `WSSeedGenerator` class that can be used to:
 
 * Generate a random mnemonic.
 * Convert a mnemonic to binary data.
 * Convert binary data to a mnemonic.
 * Derive key data from a mnemonic.
 
-However, mnemonics in WaSPV are usually wrapped in a `WSSeed` object that also contains the time the mnemonic was first created. Blockchain sync time can be dramatically faster by specifying such a time (called the "fast catch-up time") because blocks found before won't contain relevant transactions to our wallet and can be safely skipped.
+However, mnemonics in BitcoinSPV are usually wrapped in a `WSSeed` object that also contains the time the mnemonic was first created. Blockchain sync time can be dramatically faster by specifying such a time (called the "fast catch-up time") because blocks found before won't contain relevant transactions to our wallet and can be safely skipped.
 
 ### Hierarchical deterministic wallets
 
-HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In WaSPV they're instances of the `WSHDWallet` class and built from a `WSSeed` object with an optional gap limit (default is 10). An additional set of look-ahead addresses is also pregenerated internally to prevent Bloom filter from being reloaded each time a transaction consumes a new address.
+HD wallets are described in [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki). In BitcoinSPV they're instances of the `WSHDWallet` class and built from a `WSSeed` object with an optional gap limit (default is 10). An additional set of look-ahead addresses is also pregenerated internally to prevent Bloom filter from being reloaded each time a transaction consumes a new address.
 
 It's worth noting that the seed mnemonic is a *very* sensitive information -it technically holds all your coins- and as such it's not serialized with the `[WSWallet saveToPath:]` method: this means you must store it elsewhere, e.g. in the keychain. The mnemonic will be vital to restore later a serialized wallet with the `[WSHDWallet loadFromPath:parameters:seed:]` method.
 
@@ -208,11 +212,11 @@ Last but not least, the key interaction with the network is clearly the ability 
 
 Bitcoin structures are generally little-endian, an example consequence is that transaction and block hashes are seen "reversed" in hex editors compared to how we see them on web blockchain explorers like [Blockchain.info](http://blockchain.info). There are exceptions, though, because network addresses retain the standard big-endian byte order. Yes, this all makes binary encoding quite error-prone.
 
-That's why WaSPV wraps the encoding internals in the `WSBuffer` and `WSMutableBuffer` classes. With a buffer class you can safely read/write arbitrary bytes or basic structures like hashes, network addresses, inventories etc. without the hassle of protocol byte order.
+That's why BitcoinSPV wraps the encoding internals in the `WSBuffer` and `WSMutableBuffer` classes. With a buffer class you can safely read/write arbitrary bytes or basic structures like hashes, network addresses, inventories etc. without the hassle of protocol byte order.
 
 ### Immutability
 
-WaSPV relies on the [Grand Central Dispatch](https://developer.apple.com/library/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html), meaning that most of the code is expected to run on multiple queues to achieve best performance. In an attempt to limit the overall complexity, I cut mutable objects usage to a minimum. The immutable approach dramatically simplifies critical sections and guarantees the integrity of serialized data for free. No Core Data entity is mutable, nor are blockchain-related structures in general. Think about it, altering an accepted block would even defeat the purpose of the protocol.
+BitcoinSPV relies on the [Grand Central Dispatch](https://developer.apple.com/library/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html), meaning that most of the code is expected to run on multiple queues to achieve best performance. In an attempt to limit the overall complexity, I cut mutable objects usage to a minimum. The immutable approach dramatically simplifies critical sections and guarantees the integrity of serialized data for free. No Core Data entity is mutable, nor are blockchain-related structures in general. Think about it, altering an accepted block would even defeat the purpose of the protocol.
 
 ### Security
 
@@ -220,7 +224,7 @@ Sensitive data are never serialized automatically so that clients will be able t
 
 ## Known issues
 
-WaSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
+BitcoinSPV is still a work-in-progress and will eventually undergo huge modifications. Several basic things are left to do, sorted by priority:
 
 * Fix high CPU usage.
 * Build multi-signature transactions (support is incomplete).
@@ -233,19 +237,19 @@ WaSPV is still a work-in-progress and will eventually undergo huge modifications
 
 ## License
 
-WaSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
+BitcoinSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
 
-Basically those willing to use WaSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
+Basically those willing to use BitcoinSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
 
 Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be appreciated.
 
 ## Disclaimer
 
-The developer takes no responsibility for lost money or any damage due to WaSPV regular usage or bugs. Use at your own risk.
+The developer takes no responsibility for lost money or any damage due to BitcoinSPV regular usage or bugs. Use at your own risk.
 
 ## Donations
 
-WaSPV is *free* software, donations are extremely welcome.
+BitcoinSPV is *free* software, donations are extremely welcome.
 
 Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
 
