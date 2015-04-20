@@ -31,7 +31,7 @@
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 @interface WSParametersFactoryMain ()
 

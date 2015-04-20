@@ -1,9 +1,9 @@
 //
-//  WSCoreDataBlockStore.h
+//  WSStorableBlock+BlockChain.h
 //  BitcoinSPV
 //
-//  Created by Davide De Rosa on 12/07/14.
-//  Copyright (c) 2014 Davide De Rosa. All rights reserved.
+//  Created by Davide De Rosa on 21/04/15.
+//  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
 //  http://twitter.com/keeshux
@@ -27,16 +27,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSBlockStore.h"
+#import "WSStorableBlock.h"
 
-@class WSCoreDataManager;
-@class WSFilteredBlock;
+@class WSBlockChain;
 
-#pragma mark -
+@interface WSStorableBlock (BlockChain)
 
-@interface WSCoreDataBlockStore : NSObject <WSBlockStore>
-
-- (instancetype)initWithParameters:(id<WSParameters>)parameters manager:(WSCoreDataManager *)manager;
-- (WSCoreDataManager *)manager;
+- (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain;
+- (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock **)lastPreviousBlock;
+- (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError **)error;
+- (BOOL)validateTargetFromPreviousBlock:(WSStorableBlock *)previousBlock retargetBlock:(WSStorableBlock *)retargetBlock error:(NSError **)error;
 
 @end

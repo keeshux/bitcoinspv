@@ -43,8 +43,9 @@
 #import "WSStorableBlock.h"
 #import "WSTransactionMetadata.h"
 #import "WSConfig.h"
+#import "WSLogging.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";

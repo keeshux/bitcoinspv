@@ -28,8 +28,9 @@
 #import "WSConnectionHandler.h"
 #import "WSConnection.h"
 #import "WSProtocolDeserializer.h"
+#import "WSLogging.h"
 #import "WSErrors.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 @interface WSConnectionHandler ()
 

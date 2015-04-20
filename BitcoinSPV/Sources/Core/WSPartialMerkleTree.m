@@ -28,7 +28,7 @@
 #import "WSPartialMerkleTree.h"
 #import "WSHash256.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Binary.h"
 

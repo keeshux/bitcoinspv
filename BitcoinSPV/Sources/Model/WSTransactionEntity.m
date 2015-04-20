@@ -31,7 +31,7 @@
 #import "WSTransactionOutputEntity.h"
 #import "WSCoreDataManager.h"
 #import "WSHash256.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 @implementation WSTransactionEntity
 

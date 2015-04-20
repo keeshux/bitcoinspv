@@ -26,12 +26,11 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "DDLog.h"
 
 #import "WSParameters.h"
-#import "WSConfig.h"
+#import "WSLogging.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSString+Base58.h"
 #import "NSString+Binary.h"

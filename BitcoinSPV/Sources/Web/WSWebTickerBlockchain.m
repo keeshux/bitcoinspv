@@ -27,8 +27,9 @@
 
 #import "WSWebTickerBlockchain.h"
 #import "WSJSONClient.h"
+#import "WSLogging.h"
 #import "WSErrors.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 static NSString *const          WSWebTickerBlockchainBaseURL            = @"https://blockchain.info/";
 

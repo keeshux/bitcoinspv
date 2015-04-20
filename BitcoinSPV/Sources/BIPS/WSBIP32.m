@@ -33,8 +33,8 @@
 #import "WSBIP32.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Base58.h"
 

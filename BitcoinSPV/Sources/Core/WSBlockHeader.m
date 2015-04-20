@@ -28,9 +28,8 @@
 #import <openssl/bn.h>
 
 #import "WSBlockHeader.h"
-#import "WSBlockMacros.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Hash.h"
 

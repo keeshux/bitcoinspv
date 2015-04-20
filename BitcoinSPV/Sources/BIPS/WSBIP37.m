@@ -27,7 +27,7 @@
 
 #import "WSBIP37.h"
 #import "WSBuffer.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 const uint32_t          WSBIP37MaxFilterSize                    = 36000;

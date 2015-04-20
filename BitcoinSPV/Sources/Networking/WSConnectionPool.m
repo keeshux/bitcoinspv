@@ -31,8 +31,8 @@
 #import "WSConnection.h"
 #import "WSBuffer.h"
 #import "WSMessage.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Binary.h"
 

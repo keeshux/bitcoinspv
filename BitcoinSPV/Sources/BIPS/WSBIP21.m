@@ -27,8 +27,8 @@
 
 #import "WSBIP21.h"
 #import "WSAddress.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 NSString *const         WSBIP21URLScheme        = @"bitcoin";

@@ -27,8 +27,9 @@
 
 #import "WSWebTickerBitstamp.h"
 #import "WSJSONClient.h"
+#import "WSLogging.h"
 #import "WSErrors.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 static NSString *const          WSWebTickerBitstampBaseURL              = @"https://www.bitstamp.net/api/";
 

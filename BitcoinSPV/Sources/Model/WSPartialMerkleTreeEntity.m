@@ -28,7 +28,7 @@
 #import "WSPartialMerkleTreeEntity.h"
 #import "WSStorableBlockEntity.h"
 #import "WSHash256.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSBitcoinConstants.h"
 
 @implementation WSPartialMerkleTreeEntity

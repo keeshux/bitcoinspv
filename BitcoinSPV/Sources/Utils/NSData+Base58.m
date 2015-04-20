@@ -30,7 +30,7 @@
 #import "NSData+Base58.h"
 #import "WSHash256.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/NSString%2BBase58.m
 

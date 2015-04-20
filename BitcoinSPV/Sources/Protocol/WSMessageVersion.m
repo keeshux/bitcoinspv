@@ -29,7 +29,7 @@
 #import "WSNetworkAddress.h"
 #import "WSConfig.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSMessageVersion ()

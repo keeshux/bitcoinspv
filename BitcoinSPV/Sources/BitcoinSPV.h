@@ -70,4 +70,4 @@
 #import "WSBIP39.h"
 
 #import "WSErrors.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"

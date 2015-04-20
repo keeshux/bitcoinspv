@@ -1,5 +1,5 @@
 //
-//  WSMacros.m
+//  WSMacrosCore.m
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 04/07/14.
@@ -25,34 +25,7 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <openssl/bn.h>
-#import <arpa/inet.h>
-
-#import "WSMacros.h"
-#import "WSParametersFactory.h"
-#import "WSHash256.h"
-#import "WSHash160.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
-#import "WSAddress.h"
-#import "WSScript.h"
-#import "WSInventory.h"
-#import "WSNetworkAddress.h"
-#import "WSBlockHeader.h"
-#import "WSBlock.h"
-#import "WSSeed.h"
-#import "WSPeer.h"
-#import "WSScript.h"
-#import "WSTransaction.h"
-#import "WSMessageFactory.h"
-#import "WSPartialMerkleTree.h"
-#import "WSFilteredBlock.h"
-#import "WSBIP21.h"
-#import "WSBIP38.h"
-#import "NSString+Binary.h"
-#import "NSString+Base58.h"
-#import "NSData+Binary.h"
-#import "NSData+Hash.h"
+#import "WSMacrosCore.h"
 
 #pragma mark Utils
 
@@ -71,6 +44,25 @@ NSString *WSStringDescriptionFromTokens(NSArray *tokens, NSUInteger indent)
 }
 
 #pragma mark - Shortcuts
+
+#import "WSParametersFactory.h"
+#import "WSHash256.h"
+#import "WSHash160.h"
+#import "WSKey.h"
+#import "WSPublicKey.h"
+#import "WSAddress.h"
+#import "WSScript.h"
+#import "WSInventory.h"
+#import "WSNetworkAddress.h"
+#import "WSSeed.h"
+#import "WSScript.h"
+#import "WSTransaction.h"
+#import "WSBIP21.h"
+#import "WSBIP38.h"
+#import "NSString+Binary.h"
+#import "NSString+Base58.h"
+#import "NSData+Binary.h"
+#import "NSData+Hash.h"
 
 inline id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType)
 {
@@ -314,34 +306,6 @@ inline WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NS
     return [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex)
-{
-    WSBuffer *buffer = WSBufferFromHex(hex);
-    
-    return [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
-}
-
-inline WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex)
-{
-    WSBuffer *buffer = WSBufferFromHex(hex);
-    
-    return [[WSBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
-}
-
-inline WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex)
-{
-    WSBuffer *buffer = WSBufferFromHex(hex);
-    
-    return [[WSPartialMerkleTree alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
-}
-
-inline WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex)
-{
-    WSBuffer *buffer = WSBufferFromHex(hex);
-    
-    return [[WSFilteredBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
-}
-
 inline WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string)
 {
     return [WSBIP21URL URLWithParameters:parameters string:string];
@@ -395,4 +359,105 @@ inline uint32_t WSTimestampFromISODate(NSString *iso)
     });
 
     return [[formatter dateFromString:iso] timeIntervalSince1970];
+}
+
+#pragma mark - Blocks
+
+#import "WSBlockHeader.h"
+#import "WSBlock.h"
+#import "WSPartialMerkleTree.h"
+#import "WSFilteredBlock.h"
+
+inline WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+inline WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+inline WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSPartialMerkleTree alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+inline WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex)
+{
+    WSBuffer *buffer = WSBufferFromHex(hex);
+    
+    return [[WSFilteredBlock alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
+}
+
+//
+// difficulty = maxTarget / target > 1.0
+// maxDifficulty = maxTarget / maxTarget = 1.0
+//
+static inline void WSBlockGetDifficultyInteger(id<WSParameters> parameters, BIGNUM *diffInteger, BIGNUM *diffFraction, const BIGNUM *target)
+{
+    NSCParameterAssert(parameters);
+    
+    BIGNUM maxTarget;
+    
+    BN_init(&maxTarget);
+    WSBlockSetBits(&maxTarget, [parameters maxProofOfWork]);
+    
+    BN_CTX *ctx = BN_CTX_new();
+    BN_CTX_start(ctx);
+    BN_div(diffInteger, diffFraction, &maxTarget, target, ctx);
+    BN_CTX_end(ctx);
+    BN_CTX_free(ctx);
+    
+    BN_free(&maxTarget);
+}
+
+NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits)
+{
+    BIGNUM target;
+    BIGNUM diffInteger;
+    BIGNUM diffFraction;
+    
+    BN_init(&target);
+    BN_init(&diffInteger);
+    BN_init(&diffFraction);
+    
+    WSBlockSetBits(&target, bits);
+    WSBlockGetDifficultyInteger(parameters, &diffInteger, &diffFraction, &target);
+    NSData *difficulty = WSBlockDataFromWork(&diffInteger);
+    
+    BN_free(&target);
+    BN_free(&diffInteger);
+    BN_free(&diffFraction);
+    
+    return difficulty;
+}
+
+NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits)
+{
+    BIGNUM target;
+    BIGNUM diffInteger;
+    //    BIGNUM diffFraction;
+    
+    BN_init(&target);
+    BN_init(&diffInteger);
+    //    BN_init(&diffFraction);
+    
+    WSBlockSetBits(&target, bits);
+    //    WSBlockGetDifficultyInteger(&diffInteger, &diffFraction, &target);
+    //    NSString *string = [NSString stringWithFormat:@"%s.%s", BN_bn2dec(&diffInteger), BN_bn2dec(&diffFraction)];
+    WSBlockGetDifficultyInteger(parameters, &diffInteger, NULL, &target);
+    NSString *string = [NSString stringWithUTF8String:BN_bn2dec(&diffInteger)];
+    
+    BN_free(&target);
+    BN_free(&diffInteger);
+    //    BN_free(&diffFraction);
+    
+    return string;
 }

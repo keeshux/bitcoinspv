@@ -33,8 +33,7 @@
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
 #import "WSTransaction.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSMemoryBlockStore ()

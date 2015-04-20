@@ -28,7 +28,7 @@
 #import "WSTransactionOutput.h"
 #import "WSScript.h"
 #import "WSAddress.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSTransactionOutput ()

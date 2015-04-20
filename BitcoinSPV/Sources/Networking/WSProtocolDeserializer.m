@@ -29,8 +29,8 @@
 #import "WSMessageFactory.h"
 #import "WSHash256.h"
 #import "WSPeer.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSProtocolDeserializer ()

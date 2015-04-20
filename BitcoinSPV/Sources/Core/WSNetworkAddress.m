@@ -26,7 +26,7 @@
 //
 
 #import "WSNetworkAddress.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "WSBitcoinConstants.h"
 #import "NSData+Binary.h"

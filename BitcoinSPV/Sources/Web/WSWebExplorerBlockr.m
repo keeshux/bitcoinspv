@@ -26,7 +26,7 @@
 //
 
 #import "WSWebExplorerBlockr.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 static NSString *const WSWebExplorerBlockrFormat               = @"http://%@.blockr.io/";

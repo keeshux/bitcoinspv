@@ -29,9 +29,9 @@
 #import "WSPublicKey.h"
 #import "WSHash160.h"
 #import "WSAddress.h"
-#import "WSConfig.h"
+#import "WSLogging.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Binary.h"
 

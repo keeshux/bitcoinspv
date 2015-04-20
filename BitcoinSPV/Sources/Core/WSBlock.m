@@ -1,8 +1,8 @@
 //
-//  WSFilteredBlock.m
+//  WSBlock.m
 //  BitcoinSPV
 //
-//  Created by Davide De Rosa on 02/07/14.
+//  Created by Davide De Rosa on 08/12/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -25,33 +25,30 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <openssl/bn.h>
-
-#import "WSFilteredBlock.h"
-#import "WSHash256.h"
+#import "WSBlock.h"
 #import "WSBlockHeader.h"
-#import "WSPartialMerkleTree.h"
+#import "WSTransaction.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
-@interface WSFilteredBlock ()
+@interface WSBlock ()
 
 @property (nonatomic, strong) WSBlockHeader *header;
-@property (nonatomic, strong) WSPartialMerkleTree *partialMerkleTree;
+@property (nonatomic, strong) NSOrderedSet *transactions;
 
 @end
 
-@implementation WSFilteredBlock
+@implementation WSBlock
 
-- (instancetype)initWithHeader:(WSBlockHeader *)header partialMerkleTree:(WSPartialMerkleTree *)partialMerkleTree
+- (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions
 {
     WSExceptionCheckIllegal(header != nil, @"Nil header");
-    WSExceptionCheckIllegal(partialMerkleTree != nil, @"Nil partialMerkleTree");
-
+    WSExceptionCheckIllegal(transactions != nil, @"Nil transactions");
+    
     if ((self = [super init])) {
         self.header = header;
-        self.partialMerkleTree = partialMerkleTree;
+        self.transactions = transactions;
     }
     return self;
 }
@@ -61,35 +58,22 @@
     return [self descriptionWithIndent:0];
 }
 
-- (id<WSParameters>)parameters
-{
-    return self.header.parameters;
-}
-
-#pragma mark WSFilteredBlock
-
-- (BOOL)verifyWithError:(NSError *__autoreleasing *)error
-{
-    return ([self.header.merkleRoot isEqual:self.partialMerkleTree.merkleRoot] &&
-            [self.header verifyWithError:error]);
-}
-
-- (BOOL)containsTransactionWithId:(WSHash256 *)txId
-{
-    return [self.partialMerkleTree containsTransactionWithId:txId];
-}
-
 #pragma mark WSBufferEncoder
 
 - (void)appendToMutableBuffer:(WSMutableBuffer *)buffer
 {
+    [self.header appendToMutableBuffer:buffer];
     [buffer appendUint32:self.header.version];
     [buffer appendHash256:self.header.previousBlockId];
     [buffer appendHash256:self.header.merkleRoot];
     [buffer appendUint32:self.header.timestamp];
     [buffer appendUint32:self.header.bits];
     [buffer appendUint32:self.header.nonce];
-    [self.partialMerkleTree appendToMutableBuffer:buffer];
+    [buffer appendVarInt:self.transactions.count];
+    
+    for (WSSignedTransaction *tx in self.transactions) {
+        [tx appendToMutableBuffer:buffer];
+    }
 }
 
 - (WSBuffer *)toBuffer
@@ -108,22 +92,40 @@
         return nil;
     }
     NSUInteger offset = from;
-
+    NSUInteger varIntLength;
+    
     WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:offset available:available error:error];
     if (!header) {
         return nil;
     }
-
-    // txCount is always 0 in headers (var_int of 1 byte), go back
-    // searching for it because in filtered blocks txCount is != 0 instead
     offset += WSBlockHeaderSize - sizeof(uint8_t);
 
-    WSPartialMerkleTree *partialMerkleTree = [[WSPartialMerkleTree alloc] initWithParameters:parameters buffer:buffer from:offset available:(available - offset + from) error:error];
-    if (!partialMerkleTree) {
-        return nil;
+    const NSUInteger txCount = (NSUInteger)[buffer varIntAtOffset:offset length:&varIntLength];
+    offset += varIntLength;
+
+    NSMutableOrderedSet *transactions = [[NSMutableOrderedSet alloc] initWithCapacity:txCount];
+    for (NSUInteger i = 0; i < txCount; ++i) {
+        WSSignedTransaction *tx = [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:offset available:(available - offset + from) error:error];
+        if (!tx) {
+            return nil;
+        }
+        [transactions addObject:tx];
+        offset += [tx estimatedSize];
     }
     
-    return [self initWithHeader:header partialMerkleTree:partialMerkleTree];
+    return [self initWithHeader:header transactions:transactions];
+}
+
+#pragma mark WSSized
+
+- (NSUInteger)estimatedSize
+{
+    NSUInteger size = WSBlockHeaderSize - sizeof(uint8_t);
+    size += WSBufferVarIntSize(self.transactions.count);
+    for (WSSignedTransaction *tx in self.transactions) {
+        size += [tx estimatedSize];
+    }
+    return size;
 }
 
 #pragma mark WSIndentableDescription
@@ -131,9 +133,10 @@
 - (NSString *)descriptionWithIndent:(NSUInteger)indent
 {
     NSMutableArray *tokens = [[NSMutableArray alloc] init];
+    [tokens addObject:[NSString stringWithFormat:@"size = %u bytes", [self estimatedSize]]];
     [tokens addObject:[NSString stringWithFormat:@"header = %@", [self.header descriptionWithIndent:(indent + 1)]]];
-    [tokens addObject:[NSString stringWithFormat:@"partialMerkleTree = %@", [self.partialMerkleTree descriptionWithIndent:(indent + 1)]]];
+    [tokens addObject:[NSString stringWithFormat:@"transactions = %u", self.transactions.count]];
     return [NSString stringWithFormat:@"{%@}", WSStringDescriptionFromTokens(tokens, indent)];
 }
- 
+
 @end

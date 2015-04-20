@@ -29,8 +29,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 
 #import "WSBIP39.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "NSData+Hash.h"
 

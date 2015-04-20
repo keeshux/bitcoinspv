@@ -27,8 +27,9 @@
 
 #import "WSWebTickerMonitor.h"
 #import "WSWebTicker.h"
+#import "WSLogging.h"
 #import "WSErrors.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWebTickerMonitorDidUpdateConversionRatesNotification";
 

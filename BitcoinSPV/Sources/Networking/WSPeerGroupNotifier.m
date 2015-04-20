@@ -32,8 +32,8 @@
 #import "WSPeer.h"
 #import "WSStorableBlock.h"
 #import "WSTransaction.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 NSString *const WSPeerGroupDidConnectNotification               = @"WSPeerGroupDidConnectNotification";

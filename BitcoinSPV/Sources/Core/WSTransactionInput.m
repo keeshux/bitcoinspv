@@ -32,9 +32,8 @@
 #import "WSScript.h"
 #import "WSKey.h"
 #import "WSPublicKey.h"
-#import "WSMessage.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSSignedTransactionInput ()

@@ -34,7 +34,7 @@
 #import "WSPartialMerkleTree.h"
 #import "WSMessageFactory.h"
 #import "WSStorableBlock.h"
-#import "WSBlockMacros.h"
+#import "WSMacrosCore.h"
 
 @interface WSStorableBlock ()
 

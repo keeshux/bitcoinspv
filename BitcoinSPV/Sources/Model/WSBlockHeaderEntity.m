@@ -28,7 +28,7 @@
 #import "WSBlockHeaderEntity.h"
 #import "WSStorableBlockEntity.h"
 #import "WSHash256.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 
 @implementation WSBlockHeaderEntity
 

@@ -31,9 +31,7 @@
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSStorableBlock.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
-#import "WSBlockMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSMutableParameters ()

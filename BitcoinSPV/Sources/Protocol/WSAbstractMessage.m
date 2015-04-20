@@ -25,12 +25,11 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSMacros.h"
-#import "WSErrors.h"
-
 #import "WSAbstractMessage.h"
 #import "WSParameters.h"
 #import "WSHash256.h"
+#import "WSMacrosCore.h"
+#import "WSErrors.h"
 
 @interface WSAbstractMessage ()
 

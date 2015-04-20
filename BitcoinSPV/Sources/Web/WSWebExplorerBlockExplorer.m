@@ -26,7 +26,7 @@
 //
 
 #import "WSWebExplorerBlockExplorer.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 static NSString *const WSWebExplorerBlockExplorerFormat                = @"https://blockexplorer.com%@/";

@@ -34,8 +34,8 @@
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionOutput.h"
 #import "WSTransaction.h"
-#import "WSConfig.h"
-#import "WSMacros.h"
+#import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 static NSString *const          WSWebExplorerBiteasyBaseFormat              = @"https://www.biteasy.com/%@/";

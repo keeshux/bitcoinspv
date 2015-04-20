@@ -1,5 +1,5 @@
 //
-//  WSMacros.h
+//  WSMacrosCore.h
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 04/07/14.
@@ -26,34 +26,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDLog.h"
-
-#import "WSParameters.h"
-
-// required by CocoaLumberjack, define in client project
-extern const int ddLogLevel;
-
-@class WSHash256;
-@class WSHash160;
-@class WSBuffer;
-@class WSMutableBuffer;
-@class WSKey;
-@class WSPublicKey;
-@class WSAddress;
-@class WSInventory;
-@class WSNetworkAddress;
-@class WSSeed;
-@class WSPeer;
-@class WSScript;
-@class WSCoinbaseScript;
-@class WSSignedTransaction;
-@protocol WSMessage;
-@class WSBlockHeader;
-@class WSBlock;
-@class WSPartialMerkleTree;
-@class WSFilteredBlock;
-@class WSBIP21URL;
-@class WSBIP38Key;
 
 #pragma mark - Utils
 
@@ -91,6 +63,31 @@ static inline double WSUtilsProgress(const NSUInteger from, const NSUInteger to,
 
 #pragma mark - Shortcuts
 
+#import <openssl/bn.h>
+#import <arpa/inet.h>
+
+#import "WSParameters.h"
+
+@class WSHash256;
+@class WSHash160;
+@class WSBuffer;
+@class WSMutableBuffer;
+@class WSKey;
+@class WSPublicKey;
+@class WSAddress;
+@class WSBlockHeader;
+@class WSBlock;
+@class WSPartialMerkleTree;
+@class WSFilteredBlock;
+@class WSInventory;
+@class WSNetworkAddress;
+@class WSSeed;
+@class WSScript;
+@class WSCoinbaseScript;
+@class WSSignedTransaction;
+@class WSBIP21URL;
+@class WSBIP38Key;
+
 id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType);
 
 WSHash256 *WSHash256Compute(NSData *sourceData);
@@ -113,6 +110,11 @@ WSAddress *WSAddressFromString(id<WSParameters> parameters, NSString *string);
 WSAddress *WSAddressFromHex(id<WSParameters> parameters, NSString *hexString);
 WSAddress *WSAddressP2PKHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
 WSAddress *WSAddressP2SHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
+
+WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex);
+WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex);
+WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
+WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex);
 
 WSInventory *WSInventoryTx(WSHash256 *hash);
 WSInventory *WSInventoryTxFromHex(NSString *hex);
@@ -140,10 +142,6 @@ uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 WSScript *WSScriptFromHex(NSString *hex);
 WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex);
 WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NSString *hex);
-WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex);
-WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex);
-WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
-WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex);
 
 WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string);
 WSBIP38Key *WSBIP38KeyFromString(NSString *string);
@@ -153,3 +151,82 @@ uint32_t WSCurrentTimestamp();
 void WSTimestampSetCurrent(uint32_t timestamp);
 void WSTimestampUnsetCurrent();
 uint32_t WSTimestampFromISODate(NSString *iso); // yyyy-MM-dd
+
+#pragma mark - Blocks
+
+#import "WSHash256.h"
+#import "NSData+Binary.h"
+
+//
+// "Compact" is a way to represent a 256-bit number as 32-bit.
+//
+// bits = size(8 bits) | word(24 bits)
+//
+// target = word << (8 * (size - 3))
+//
+
+//
+// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRMerkleBlock.m
+//
+static inline void WSBlockSetBits(BIGNUM *target, uint32_t bits)
+{
+    const uint32_t size = bits >> 24;
+    const uint32_t word = bits & 0x007fffff;
+    
+    if (size > 3) {
+        BN_set_word(target, word);
+        BN_lshift(target, target, 8 * (size - 3));
+    }
+    else {
+        BN_set_word(target, word >> (8 * (3 - size)));
+    }
+    
+    BN_set_negative(target, (bits & 0x00800000) != 0);
+}
+
+//
+// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRMerkleBlock.m
+//
+static inline uint32_t WSBlockGetBits(const BIGNUM *target)
+{
+    uint32_t size = BN_num_bytes(target);
+    uint32_t compact = 0;
+    BIGNUM x;
+    
+    if (size > 3) {
+        BN_init(&x);
+        BN_rshift(&x, target, 8 * (size - 3));
+        compact = BN_get_word(&x);
+    }
+    else {
+        compact = BN_get_word(target) << (8 * (3 - size));
+    }
+    
+    // if sign is already set, divide the mantissa by 256 and increment the exponent
+    if (compact & 0x00800000) {
+        compact >>= 8;
+        ++size;
+    }
+    
+    return (compact | (size << 24)) | (BN_is_negative(target) ? 0x00800000 : 0);
+}
+
+static inline void WSBlockSetHash(BIGNUM *hash, WSHash256 *blockId)
+{
+    BN_bin2bn(blockId.data.reverse.bytes, (int)blockId.length, hash);
+}
+
+static inline NSData *WSBlockDataFromWork(BIGNUM *work)
+{
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:BN_num_bytes(work)];
+    BN_bn2bin(work, data.mutableBytes);
+    return data;
+}
+
+static inline void WSBlockWorkFromData(BIGNUM *work, NSData *data)
+{
+    BN_bin2bn(data.bytes, (int)data.length, work);
+}
+
+NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits);
+NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits);

@@ -40,13 +40,15 @@
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
 #import "WSStorableBlock.h"
+#import "WSStorableBlock+BlockChain.h"
 #import "WSTransaction.h"
 #import "WSBlockLocator.h"
 #import "WSInventory.h"
 #import "WSNetworkAddress.h"
 #import "WSConfig.h"
+#import "WSLogging.h"
 #import "WSBitcoinConstants.h"
-#import "WSMacros.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 
 @interface WSPeerGroupStatus ()

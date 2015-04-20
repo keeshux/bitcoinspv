@@ -34,7 +34,6 @@
 @class WSHash256;
 @class WSBlockHeader;
 @class WSFilteredBlock;
-@class WSBlockChain;
 @protocol WSTransaction;
 
 #pragma mark -
@@ -57,9 +56,5 @@
 - (BOOL)isTransitionBlock;
 - (BOOL)hasMoreWorkThanBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)buildNextBlockFromHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions;
-
-- (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain;
-- (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock **)lastPreviousBlock;
-- (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError **)error;
 
 @end

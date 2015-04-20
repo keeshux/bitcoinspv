@@ -27,7 +27,7 @@
 
 #import "XCTestCase+BitcoinSPV.h"
 #import "BitcoinSPV.h"
-#import "WSBlockMacros.h"
+#import "WSMacrosCore.h"
 #import "WSBlockLocator.h"
 #import "WSFilteredBlock.h"
 
