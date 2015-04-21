@@ -305,11 +305,11 @@
 
 - (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
 {
-    NSMutableArray *connectedOrphans = [[NSMutableArray alloc] init];
-    NSMutableArray *connectableOrphans = [[NSMutableArray alloc] init];
+    NSMutableArray *allConnectedOrphans = [[NSMutableArray alloc] init];
+    BOOL anyConnected;
 
     do {
-        [connectableOrphans removeAllObjects];
+        anyConnected = NO;
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
@@ -330,24 +330,24 @@
                                                        connectedOrphans:&otherConnectedOrphans
                                                                   error:NULL];
             if (connectedOrphan) {
-                [connectableOrphans addObject:connectedOrphan];
+                [allConnectedOrphans addObject:connectedOrphan];
+                anyConnected = YES;
             }
             if (otherConnectedOrphans) {
-                [connectableOrphans addObjectsFromArray:otherConnectedOrphans];
+                [allConnectedOrphans addObjectsFromArray:otherConnectedOrphans];
+                anyConnected = YES;
             }
 
             // remove from original
             [self.orphans removeObjectForKey:orphan.blockId];
         }
         
-        if (connectableOrphans.count > 0) {
-            DDLogDebug(@"Connected %u orphan blocks: %@", connectableOrphans.count, connectableOrphans);
-            
-            [connectedOrphans addObjectsFromArray:connectableOrphans];
+        if (allConnectedOrphans.count > 0) {
+            DDLogDebug(@"Connected %u orphan blocks: %@", allConnectedOrphans.count, allConnectedOrphans);
         }
-    } while (connectableOrphans.count > 0);
+    } while (anyConnected);
 
-    return connectedOrphans;
+    return allConnectedOrphans;
 }
 
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead
