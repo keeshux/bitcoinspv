@@ -419,7 +419,7 @@
 - (void)cleanUpConnectionData
 {
 //    self.delegate = nil;
-//    
+//
 //    self.remoteHost = nil;
 //    self.remotePort = 0;
 //    self.remoteServices = 0;
@@ -427,9 +427,11 @@
 //    self.pingTime = DBL_MAX;
 //    self.lastSeenTimestamp = NSTimeIntervalSince1970;
 //    self.receivedVersion = nil;
-
-    [self.pendingBlockIds removeAllObjects];
-    [self.processingBlockIds removeAllObjects];
+    
+    [self.connection submitBlock:^{
+        [self.pendingBlockIds removeAllObjects];
+        [self.processingBlockIds removeAllObjects];
+    }];
 }
 
 #pragma mark Protocol: send* (any queue)
