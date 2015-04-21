@@ -117,7 +117,9 @@
     
     @synchronized (self.handlers) {
         WSConnectionHandler *handler = [self handlerForProcessor:processor];
-        [self tryDisconnectHandler:handler error:error];
+        if (handler) {
+            [self tryDisconnectHandler:handler error:error];
+        }
     }
 }
 
