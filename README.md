@@ -91,7 +91,7 @@ and run on the terminal:
 
     $ pod install
 
-Beware that with recent versions of CocoaPods you will have to remove the following line from the `Pods/Pods.*.xcconfig` configuration files:
+Beware that some recent versions of CocoaPods may break static linking unless you remove the following line from the `Pods/Pods.*.xcconfig` configuration files:
 
     OTHER_LIBTOOLFLAGS = $(OTHER_LDFLAGS)
 
