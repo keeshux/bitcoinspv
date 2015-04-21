@@ -306,8 +306,10 @@
 - (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
 {
     NSMutableArray *connectedOrphans = [[NSMutableArray alloc] init];
+    NSMutableArray *connectableOrphans = [[NSMutableArray alloc] init];
+
     do {
-        [connectedOrphans removeAllObjects];
+        [connectableOrphans removeAllObjects];
         
         // WARNING: copy, don't modifiy iterated collection
         for (WSStorableBlock *orphan in [[self.orphans allValues] copy]) {
@@ -328,20 +330,22 @@
                                                        connectedOrphans:&otherConnectedOrphans
                                                                   error:NULL];
             if (connectedOrphan) {
-                [connectedOrphans addObject:connectedOrphan];
+                [connectableOrphans addObject:connectedOrphan];
             }
             if (otherConnectedOrphans) {
-                [connectedOrphans addObjectsFromArray:otherConnectedOrphans];
+                [connectableOrphans addObjectsFromArray:otherConnectedOrphans];
             }
 
             // remove from original
             [self.orphans removeObjectForKey:orphan.blockId];
         }
         
-        if (connectedOrphans.count > 0) {
-            DDLogDebug(@"Connected %u orphan blocks: %@", connectedOrphans.count, connectedOrphans);
+        if (connectableOrphans.count > 0) {
+            DDLogDebug(@"Connected %u orphan blocks: %@", connectableOrphans.count, connectableOrphans);
+            
+            [connectedOrphans addObjectsFromArray:connectableOrphans];
         }
-    } while (connectedOrphans.count > 0);
+    } while (connectableOrphans.count > 0);
 
     return connectedOrphans;
 }
