@@ -30,6 +30,7 @@
 #import "WSMacrosCore.h"
 #import "WSBlockLocator.h"
 #import "WSFilteredBlock.h"
+#import "WSStorableBlock+BlockChain.h"
 
 static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work);
 static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters, WSHash256 *blockId);
