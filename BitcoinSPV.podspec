@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name              = 'BitcoinSPV'
-    s.version           = '0.5'
+    s.version           = '0.5-beta1'
     s.platform          = :ios, '7.0'
     s.license           = 'GPL'
 
