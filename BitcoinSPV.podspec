@@ -22,31 +22,31 @@ Pod::Spec.new do |s|
     s.dependency 'AutoCoding', '~> 2.2.1'
 
     s.subspec 'Core' do |p|
-        p.source_files              = 'BitcoinSPV/Sources/BIPS/*.{h,m}',
-                                      'BitcoinSPV/Sources/Core/*.{h,m}',
-                                      'BitcoinSPV/Sources/Global/*.{h,m}',
-                                      'BitcoinSPV/Sources/Parameters/*.{h,m}',
-                                      'BitcoinSPV/Sources/Utils/*.{h,m}'
+        p.source_files  = 'BitcoinSPV/Sources/BIPS/*.{h,m}',
+                          'BitcoinSPV/Sources/Core/*.{h,m}',
+                          'BitcoinSPV/Sources/Global/*.{h,m}',
+                          'BitcoinSPV/Sources/Parameters/*.{h,m}',
+                          'BitcoinSPV/Sources/Utils/*.{h,m}'
     end
 
     s.subspec 'Blockchain' do |p|
-        p.source_files              = 'BitcoinSPV/Sources/Blockchain/*.{h,m}',
-                                      'BitcoinSPV/Sources/Model/*.{h,m}'
-        p.frameworks                = 'CoreData'
+        p.source_files  = 'BitcoinSPV/Sources/Blockchain/*.{h,m}',
+                          'BitcoinSPV/Sources/Model/*.{h,m}'
+        p.frameworks    = 'CoreData'
 
         p.dependency 'BitcoinSPV/Core'
     end
 
     s.subspec 'Wallet' do |p|
-        p.source_files              = 'BitcoinSPV/Sources/Wallet/*.{h,m}'
+        p.source_files  = 'BitcoinSPV/Sources/Wallet/*.{h,m}'
 
         p.dependency 'BitcoinSPV/Core'
         p.dependency 'BitcoinSPV/Blockchain'
     end
 
     s.subspec 'Network' do |p|
-        p.source_files              = 'BitcoinSPV/Sources/Networking/*.{h,m}',
-                                      'BitcoinSPV/Sources/Protocol/*.{h,m}'
+        p.source_files  = 'BitcoinSPV/Sources/Networking/*.{h,m}',
+                          'BitcoinSPV/Sources/Protocol/*.{h,m}'
 
         p.dependency 'BitcoinSPV/Core'
         p.dependency 'BitcoinSPV/Blockchain'
@@ -54,8 +54,8 @@ Pod::Spec.new do |s|
     end
 
     s.subspec 'Tools' do |p|
-        p.source_files              = 'BitcoinSPV/Sources/Currency/*.{h,m}',
-                                      'BitcoinSPV/Sources/Web/*.{h,m}'
+        p.source_files  = 'BitcoinSPV/Sources/Currency/*.{h,m}',
+                          'BitcoinSPV/Sources/Web/*.{h,m}'
 
         p.dependency 'BitcoinSPV/Core'
     end
