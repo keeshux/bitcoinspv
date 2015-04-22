@@ -31,7 +31,6 @@
 #import "WSConnectionPool.h"
 #import "WSCoreDataManager.h"
 #import "WSMemoryBlockStore.h"
-#import "WSCoreDataBlockStore.h"
 #import "WSStorableBlock.h"
 #import "WSBlockChain.h"
 #import "WSTransaction.h"
@@ -40,12 +39,11 @@
 
 @property (nonatomic, copy) NSString *mainPath;
 @property (nonatomic, copy) NSString *testPath;
-@property (nonatomic, strong) WSConnectionPool *pool;
 @property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, assign) volatile BOOL stopOnSync;
 
 - (id<WSBlockStore>)memoryStore;
-- (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating;
+//- (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating;
 
 @end
 
@@ -57,7 +55,6 @@
 
     self.mainPath = [self mockPathForFile:@"SyncTests-Main.sqlite"];
     self.testPath = [self mockPathForFile:@"SyncTests-Test3.sqlite"];
-    self.pool = [[WSConnectionPool alloc] init];
 
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
@@ -67,16 +64,16 @@
         
         DDLogInfo(@"Started download, status = %u/%u", from, to);
     }];
-    [nc addObserverForName:WSPeerGroupDidUpdateDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        const NSUInteger height = [note.userInfo[WSPeerGroupDownloadCurrentHeightKey] unsignedIntegerValue];
-
-        if (height % 1000 == 0) {
-            const NSUInteger to = [note.userInfo[WSPeerGroupDownloadToHeightKey] unsignedIntegerValue];
-            const double progress = [note.userInfo[WSPeerGroupDownloadProgressKey] doubleValue];
-
-            DDLogInfo(@"Current download status = %u/%u (%.2f%%)", height, to, 100.0 * progress);
-        }
-    }];
+//    [nc addObserverForName:WSPeerGroupDidUpdateDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+//        const NSUInteger height = [note.userInfo[WSPeerGroupDownloadCurrentHeightKey] unsignedIntegerValue];
+//
+//        if (height % 1000 == 0) {
+//            const NSUInteger to = [note.userInfo[WSPeerGroupDownloadToHeightKey] unsignedIntegerValue];
+//            const double progress = [note.userInfo[WSPeerGroupDownloadProgressKey] doubleValue];
+//
+//            DDLogInfo(@"Current download status = %u/%u (%.2f%%)", height, to, 100.0 * progress);
+//        }
+//    }];
     [nc addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         DDLogInfo(@"Finished download");
 
@@ -111,7 +108,7 @@
     
     self.store = [self memoryStore];
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store];
     peerGroup.maxConnections = 1;
     [peerGroup startConnections];
     [peerGroup startBlockChainDownload];
@@ -127,7 +124,7 @@
     
     DDLogInfo(@"Catch-up: %u", timestamp);
 
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store fastCatchUpTimestamp:timestamp];
     peerGroup.maxConnections = 1;
     [peerGroup startConnections];
     [peerGroup startBlockChainDownload];
@@ -181,7 +178,7 @@
     self.store = [self persistentStoreTruncating:YES];
     self.stopOnSync = YES;
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store];
     peerGroup.maxConnections = 1;
     [peerGroup startConnections];
     [peerGroup startBlockChainDownload];
@@ -209,7 +206,7 @@
 
     DDLogInfo(@"Catch-up: %u", timestamp);
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store fastCatchUpTimestamp:timestamp];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
 //    [peerGroup startSyncingUntilHeight:266000];     // fcu 10/07 -> headers only
@@ -335,7 +332,7 @@
         [self performSelector:@selector(testMemorySearchingNullBlockChainBug) withObject:self afterDelay:2.0];
     }];
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store fastCatchUpTimestamp:timestamp];
 //    peerGroup.peerHosts = @[@"203.69.212.66"];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
@@ -355,7 +352,7 @@
     const uint32_t timestamp = WSTimestampFromISODate(@"2013-02-09");
     DDLogInfo(@"Catch-up: %u", timestamp);
 
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store pool:self.pool fastCatchUpTimestamp:timestamp];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.store fastCatchUpTimestamp:timestamp];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
     [peerGroup startBlockChainDownload];
@@ -398,19 +395,20 @@
 
 - (id<WSBlockStore>)persistentStoreTruncating:(BOOL)truncating
 {
-    NSString *path = nil;
-    if (self.networkType == WSNetworkTypeMain) {
-        path = self.mainPath;
-    }
-    else {
-        path = self.testPath;
-    }
-    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:manager];
-    if (truncating) {
-        [store truncate];
-    }
-    return store;
+    return [self memoryStore];
+//    NSString *path = nil;
+//    if (self.networkType == WSNetworkTypeMain) {
+//        path = self.mainPath;
+//    }
+//    else {
+//        path = self.testPath;
+//    }
+//    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
+//    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:manager];
+//    if (truncating) {
+//        [store truncate];
+//    }
+//    return store;
 }
 
 @end
