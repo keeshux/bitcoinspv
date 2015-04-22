@@ -86,6 +86,8 @@
 
 - (instancetype)initWithChunks:(NSArray *)chunks
 {
+    WSExceptionCheckIllegal(chunks.count > 0, @"Empty chunks");
+    
     if ((self = [super init])) {
         self.chunks = chunks;
     }
