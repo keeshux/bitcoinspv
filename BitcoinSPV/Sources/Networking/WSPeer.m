@@ -913,8 +913,8 @@
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
 {
     NSParameterAssert(headers.count > 0);
-    
-    if (!self.isDownloading || (headers.count < WSMessageHeadersMaxCount)) {
+
+    if (!self.isDownloading) {
         return;
     }
 
