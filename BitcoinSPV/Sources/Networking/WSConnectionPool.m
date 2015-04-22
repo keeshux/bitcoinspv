@@ -251,12 +251,12 @@
     NSUInteger headerLength;
     WSBuffer *buffer = [message toNetworkBufferWithHeaderLength:&headerLength];
     if (buffer.length > WSMessageMaxLength) {
-        DDLogError(@"%@ Error sending '%@', message is too long (%u > %u)", self, message.messageType, buffer.length, WSMessageMaxLength);
+        DDLogError(@"%@ Error sending '%@', message is too long (%u > %u)", self.handler, message.messageType, buffer.length, WSMessageMaxLength);
         return;
     }
     
-    DDLogVerbose(@"%@ Sending %@ (%u+%u bytes)", self, message, headerLength, buffer.length - headerLength);
-    DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
+    DDLogVerbose(@"%@ Sending %@ (%u+%u bytes)", self.handler, message, headerLength, buffer.length - headerLength);
+    DDLogVerbose(@"%@ Sending data: %@", self.handler, [buffer.data hexString]);
     
     [self.handler unsafeEnqueueData:buffer.data];
     [self.handler unsafeFlush];
