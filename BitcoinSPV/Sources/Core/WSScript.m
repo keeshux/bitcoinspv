@@ -44,7 +44,6 @@
 - (instancetype)initWithOpcode:(WSScriptOpcode)opcode;
 - (instancetype)initWithOpcode:(WSScriptOpcode)opcode pushData:(NSData *)pushData;
 - (instancetype)initWithPushData:(NSData *)pushData;
-- (NSUInteger)estimatedSize;
 
 @end
 
@@ -52,6 +51,7 @@
 
 @interface WSScript ()
 
+@property (nonatomic, strong) NSData *originalData;
 @property (nonatomic, strong) NSArray *chunks;
 
 - (WSAddress *)addressFromScriptSigWithParameters:(id<WSParameters>)parameters;
@@ -90,6 +90,7 @@
     
     if ((self = [super init])) {
         self.chunks = chunks;
+        self.originalData = nil;
     }
     return self;
 }
@@ -426,8 +427,13 @@
 
 - (void)appendToMutableBuffer:(WSMutableBuffer *)buffer
 {
-    for (WSScriptChunk *chunk in self.chunks) {
-        [chunk appendToMutableBuffer:buffer];
+    if (self.originalData) {
+        [buffer appendData:self.originalData];
+    }
+    else {
+        for (WSScriptChunk *chunk in self.chunks) {
+            [chunk appendToMutableBuffer:buffer];
+        }
     }
 }
 
@@ -514,18 +520,26 @@
 //    NSAssert([self estimatedSize] == scriptData.length, @"Parsed script doesn't match original length (%u != %u)",
 //             [self estimatedSize], scriptData.length);
 
-    return [self initWithChunks:chunks];
+    if ((self = [self initWithChunks:chunks])) {
+        self.originalData = scriptData;
+    }
+    return self;
 }
 
 #pragma mark WSSized
 
 - (NSUInteger)estimatedSize
 {
-    NSUInteger size = 0;
-    for (WSScriptChunk *chunk in self.chunks) {
-        size += [chunk estimatedSize];
+    if (self.originalData) {
+        return self.originalData.length;
     }
-    return size;
+    else {
+        NSUInteger size = 0;
+        for (WSScriptChunk *chunk in self.chunks) {
+            size += [chunk estimatedSize];
+        }
+        return size;
+    }
 }
 
 @end
@@ -694,7 +708,6 @@
 
 @interface WSCoinbaseScript ()
 
-@property (nonatomic, strong) NSData *coinbaseData;
 @property (nonatomic, assign) uint32_t blockHeight;
 
 - (instancetype)initWithCoinbaseData:(NSData *)coinbaseData;
@@ -726,7 +739,7 @@
 {
     WSExceptionCheckIllegal(data != nil, @"Nil data");
 
-    return [self.coinbaseData isEqualToData:data];
+    return [self.originalData isEqualToData:data];
 }
 
 - (BOOL)isScriptSigWithSignature:(NSData *__autoreleasing *)signature publicKey:(WSPublicKey *__autoreleasing *)publicKey
@@ -788,17 +801,17 @@
         return NO;
     }
     WSCoinbaseScript *script = object;
-    return [script.coinbaseData isEqualToData:self.coinbaseData];
+    return [script.originalData isEqualToData:self.originalData];
 }
 
 - (NSUInteger)hash
 {
-    return [self.coinbaseData hash];
+    return [self.originalData hash];
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<#%u, %@>", self.blockHeight, [self.coinbaseData hexString]];
+    return [NSString stringWithFormat:@"<#%u, %@>", self.blockHeight, [self.originalData hexString]];
 }
 
 #pragma mark NSCopying
@@ -806,7 +819,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     WSCoinbaseScript *copy = [super copyWithZone:zone];
-    copy.coinbaseData = [self.coinbaseData copyWithZone:zone];
+    copy.originalData = [self.originalData copyWithZone:zone];
     return copy;
 }
 
@@ -814,12 +827,12 @@
 
 - (void)appendToMutableBuffer:(WSMutableBuffer *)buffer
 {
-    [buffer appendData:self.coinbaseData];
+    [buffer appendData:self.originalData];
 }
 
 - (WSBuffer *)toBuffer
 {
-    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:self.coinbaseData.length];
+    WSMutableBuffer *buffer = [[WSMutableBuffer alloc] initWithCapacity:self.originalData.length];
     [self appendToMutableBuffer:buffer];
     return buffer;
 }
@@ -838,7 +851,7 @@
 - (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters buffer:buffer from:from available:available error:error])) {
-        self.coinbaseData = [buffer.data subdataWithRange:NSMakeRange(from, available)];
+        self.originalData = [buffer.data subdataWithRange:NSMakeRange(from, available)];
 
         if (self.chunks.count > 0) {
             NSData *heightData = [self.chunks[0] pushData];
@@ -852,13 +865,6 @@
         }
     }
     return self;
-}
-
-#pragma mark WSSized
-
-- (NSUInteger)estimatedSize
-{
-    return self.coinbaseData.length;
 }
 
 @end

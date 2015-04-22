@@ -114,12 +114,13 @@ NSInteger WSScriptOpcodeToValue(WSScriptOpcode opcode);
 - (WSAddress *)standardAddressWithParameters:(id<WSParameters>)parameters;          // any of the above
 - (WSAddress *)addressFromHashWithParameters:(id<WSParameters>)parameters;
 
+- (NSData *)originalData; // nil if from chunks, non-nil if from buffer
+
 @end
 
 @interface WSCoinbaseScript : WSScript
 
 + (instancetype)scriptWithCoinbaseData:(NSData *)coinbaseData;
-- (NSData *)coinbaseData;
 - (uint32_t)blockHeight;
 
 @end
