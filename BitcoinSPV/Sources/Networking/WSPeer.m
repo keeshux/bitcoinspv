@@ -113,6 +113,7 @@
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
 @property (nonatomic, strong) NSMutableOrderedSet *currentFilteredTransactions;
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
+@property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
 // protocol
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions;
@@ -846,13 +847,13 @@
     self.currentFilteredBlock = nil;
     self.currentFilteredTransactions = nil;
     
-    WSBlockLocator *locator = [blockChain currentLocator];
+    self.startingBlockChainLocator = [blockChain currentLocator];
 
     if (!self.shouldDownloadBlocks || (blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
-        [self requestHeadersWithLocator:locator];
+        [self requestHeadersWithLocator:self.startingBlockChainLocator];
     }
     else {
-        [self requestBlocksWithLocator:locator];
+        [self requestBlocksWithLocator:self.startingBlockChainLocator];
     }
 }
 
@@ -933,21 +934,28 @@
         }
         lastHeaderBeforeFCU = header;
     }
-    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
+//    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
     
-    // we won't cross fast catch-up, request more headers
-    if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
-        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
-        [self requestHeadersWithLocator:locator];
+    if (!lastHeaderBeforeFCU) {
+        DDLogInfo(@"%@ All received headers beyond catch-up, rerequesting blocks", self);
+
+        [self requestBlocksWithLocator:self.startingBlockChainLocator];
     }
-    // we will cross fast catch-up, request blocks from crossing point
     else {
-        DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
-                  self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
-                  [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
-        
-        WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
-        [self requestBlocksWithLocator:locator];
+        // we won't cross fast catch-up, request more headers
+        if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
+            [self requestHeadersWithLocator:locator];
+        }
+        // we will cross fast catch-up, request blocks from crossing point
+        else {
+            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
+                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
+                      [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
+            
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
+            [self requestBlocksWithLocator:locator];
+        }
     }
 }
 
