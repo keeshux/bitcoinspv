@@ -200,6 +200,10 @@
     
     NSUInteger inputsCountLength;
     const NSUInteger inputsCount = (NSUInteger)[buffer varIntAtOffset:offset length:&inputsCountLength];
+    if (inputsCount == 0) {
+        WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Empty inputs");
+        return nil;
+    }
     if (inputsCount > INT32_MAX) {
         WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Too many inputs (%u > INT32_MAX)", inputsCount);
         return nil;
@@ -222,7 +226,11 @@
     
     NSUInteger outputsCountLength;
     const NSUInteger outputsCount = (NSUInteger)[buffer varIntAtOffset:offset length:&outputsCountLength];
-    if (inputsCount > INT32_MAX) {
+    if (outputsCount == 0) {
+        WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Empty outputs");
+        return nil;
+    }
+    if (outputsCount > INT32_MAX) {
         WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Too many outputs (%u > INT32_MAX)", outputsCount);
         return nil;
     }
