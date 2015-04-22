@@ -85,7 +85,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'BitcoinSPV', '~> 0.5-beta1'
+    pod 'BitcoinSPV', '~> 0.5-beta2'
 
 and run on the terminal:
 
