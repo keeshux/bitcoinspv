@@ -74,7 +74,7 @@
                                                                  bits:bits
                                                                 nonce:nonce];
 
-    WSHash256 *expectedBlockId = WSHash256FromData(self.blockIdData);
+    __unused WSHash256 *expectedBlockId = WSHash256FromData(self.blockIdData);
 
 #ifdef BSPV_TEST_NO_HASH_VALIDATIONS
     [header setValue:expectedBlockId forKey:@"blockId"];

@@ -802,7 +802,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             [targetAddresses addObject:address];
         }
         
-        const NSUInteger expectedWatchedCount = lastGenAccount - *currentAccount;
+        __unused const NSUInteger expectedWatchedCount = lastGenAccount - *currentAccount;
         NSAssert(expectedWatchedCount == watchedCount, @"Number of watched addresses must be equal to gap limit plus look-ahead (%u != %u)",
                  expectedWatchedCount, watchedCount);
         

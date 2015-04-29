@@ -85,7 +85,7 @@
 
     [checkpoints enumerateObjectsUsingBlock:^(WSStorableBlock *cp, NSUInteger idx, BOOL *stop) {
         if (idx > 0) {
-            WSStorableBlock *previousCp = checkpoints[idx - 1];
+            __unused WSStorableBlock *previousCp = checkpoints[idx - 1];
             NSAssert(cp.height > previousCp.height, @"Checkpoint is older than last checkpoint");
         }
     }];
