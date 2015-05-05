@@ -43,7 +43,7 @@
 
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
 
-static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
+static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 @interface WSKey ()
 
@@ -112,25 +112,24 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
         return nil;
     }
     
+    BIGNUM priv;
+    BN_CTX_start(ctx);
+    BN_init(&priv);
+    BN_bin2bn(data.bytes, (int)WSKeyLength, &priv);
+    
+    if (EC_POINT_mul(group, pub, &priv, NULL, NULL, ctx)) {
+        EC_KEY_set_private_key(key, &priv);
+        EC_KEY_set_public_key(key, pub);
+        EC_KEY_set_conv_form(key, compressed ? POINT_CONVERSION_COMPRESSED : POINT_CONVERSION_UNCOMPRESSED);
+    }
+    
+    EC_POINT_free(pub);
+    BN_clear_free(&priv);
+    BN_CTX_end(ctx);
+    BN_CTX_free(ctx);
+
     if ((self = [super init])) {
         self.key = key;
-        
-        BIGNUM priv;
-        BN_CTX_start(ctx);
-        BN_init(&priv);
-        BN_bin2bn(data.bytes, (int)WSKeyLength, &priv);
-        
-        if (EC_POINT_mul(group, pub, &priv, NULL, NULL, ctx)) {
-            EC_KEY_set_private_key(self.key, &priv);
-            EC_KEY_set_public_key(self.key, pub);
-            EC_KEY_set_conv_form(self.key, compressed ? POINT_CONVERSION_COMPRESSED : POINT_CONVERSION_UNCOMPRESSED);
-        }
-        
-        EC_POINT_free(pub);
-        BN_clear_free(&priv);
-        BN_CTX_end(ctx);
-        BN_CTX_free(ctx);
-
         self.data = data;
     }
     return self;
@@ -219,7 +218,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     
     // generate k deterministicly per RFC6979: https://tools.ietf.org/html/rfc6979
     BN_bn2bin(priv, (unsigned char *)[entropy mutableBytes] + entropy.length - BN_num_bytes(priv));
-    BN_bin2bn(WSPrivateKeyHMAC_DRBG(entropy, hash256.data).bytes, CC_SHA256_DIGEST_LENGTH, &k);
+    BN_bin2bn(WSKeyHMAC_DRBG(entropy, hash256.data).bytes, CC_SHA256_DIGEST_LENGTH, &k);
     
     EC_POINT_mul(group, p, &k, NULL, NULL, ctx); // compute r, the x-coordinate of generator*k
     EC_POINT_get_affine_coordinates_GFp(group, p, &r, NULL, ctx);
@@ -287,7 +286,7 @@ static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 @end
 
 // HMAC-SHA256 DRBG, using no prediction resistance or personalization string and outputing 256bits
-static NSData *WSPrivateKeyHMAC_DRBG(NSData *entropy, NSData *nonce)
+static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce)
 {
     NSMutableData *V = [[NSMutableData alloc] initWithCapacity:(CC_SHA256_DIGEST_LENGTH + 1 + entropy.length + nonce.length)];
     NSMutableData *K = [[NSMutableData alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH];

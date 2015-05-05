@@ -80,12 +80,11 @@
     if (!key) {
         return nil;
     }
+    const unsigned char *bytes = data.bytes;
+    o2i_ECPublicKey(&key, &bytes, data.length);
 
     if ((self = [super init])) {
         self.key = key;
-
-        const unsigned char *bytes = data.bytes;
-        o2i_ECPublicKey(&_key, &bytes, data.length);
         self.data = data;
     }
     return self;
