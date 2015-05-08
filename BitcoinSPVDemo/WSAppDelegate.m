@@ -41,6 +41,8 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 @interface WSAppDelegate ()
 
+@property (nonatomic, strong) id<WSParameters> parameters;
+
 @property (nonatomic, strong) UILabel *labelBalance;
 @property (nonatomic, strong) UITextField *textAddress;
 @property (nonatomic, strong) UIView *viewSync;
@@ -63,7 +65,7 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    WSParametersSetCurrentType(WSParametersTypeTestnet3);
+    self.parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
     
     [DDLog addLogger:[DDTTYLogger sharedInstance]];
     
@@ -181,11 +183,11 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 - (void)createWallet
 {
-    self.wallet = [WSHDWallet loadFromPath:self.walletPath mnemonic:WALLET_MNEMONIC];
-    if (!self.wallet) {
-        WSSeed *seed = WSSeedMake(WALLET_MNEMONIC, WALLET_CREATION_TIME);
+    WSSeed *seed = WSSeedMake(WALLET_MNEMONIC, WALLET_CREATION_TIME);
 
-        self.wallet = [[WSHDWallet alloc] initWithSeed:seed];
+    self.wallet = [WSHDWallet loadFromPath:self.walletPath parameters:self.parameters seed:seed];
+    if (!self.wallet) {
+        self.wallet = [[WSHDWallet alloc] initWithParameters:self.parameters seed:seed];
     }
 
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -199,9 +201,9 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 - (void)createPeerGroup
 {
-//    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
-    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:self.chainPath error:NULL];
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.parameters];
+//    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:self.chainPath error:NULL];
+//    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
 
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidStartDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.viewSync.backgroundColor = [UIColor redColor];
