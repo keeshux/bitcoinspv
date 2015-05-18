@@ -124,7 +124,7 @@
         WSPublicKey *pubKey = WSPublicKeyFromHex(pubHex);
         
         DDLogInfo(@"Orig   : %@", pubHex);
-        DDLogInfo(@"PubData: %@", [[pubKey encodedData] hexString]);
+        DDLogInfo(@"PubData: %@", [pubKey.data hexString]);
         DDLogInfo(@"Hash160: %@", [pubKey hash160]);
         
         WSAddress *address = [pubKey addressWithParameters:self.networkParameters];
@@ -149,7 +149,7 @@
     WSPublicKey *pubKeyFromPriv = [privKey publicKey];
     DDLogInfo(@"Public key               : %@", pubKey);
     DDLogInfo(@"Public key (from private): %@", pubKeyFromPriv);
-    XCTAssertEqualObjects(pubKey.encodedData, pubKeyFromPriv.encodedData);
+    XCTAssertEqualObjects(pubKey.data, pubKeyFromPriv.data);
 
     WSAddress *expAddress = WSAddressFromString(self.networkParameters, @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
     WSAddress *address = [pubKey addressWithParameters:self.networkParameters];

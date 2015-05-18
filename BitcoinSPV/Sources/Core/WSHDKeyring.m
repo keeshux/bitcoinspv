@@ -118,7 +118,7 @@
                                                             parentFingerprint:self.extendedPrivateKey.parentFingerprint
                                                                         child:self.extendedPrivateKey.child
                                                                     chainData:self.extendedPrivateKey.chainData
-                                                                      keyData:[publicKey encodedData]];
+                                                                      keyData:publicKey.data];
     }
     return self;
 }

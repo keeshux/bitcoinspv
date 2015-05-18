@@ -62,7 +62,7 @@
 
     WSPublicKey *pubKey = [WSPublicKey publicKeyWithData:data];
     DDLogInfo(@"Public key: %@", pubKey);
-    XCTAssertEqualObjects(data, pubKey.encodedData);
+    XCTAssertEqualObjects(data, pubKey.data);
 }
 
 - (void)testAddressValidity

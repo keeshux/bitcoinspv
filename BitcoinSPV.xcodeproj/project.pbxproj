@@ -204,6 +204,7 @@
 		0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21Tests.m; sourceTree = "<group>"; };
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
+		0E282B1B1B0AAB8900D9C959 /* WSAbstractKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSAbstractKey.h; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0E761AB41AE6629A00F1F068 /* WSMacrosCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMacrosCore.h; sourceTree = "<group>"; };
 		0E761AB51AE6629A00F1F068 /* WSMacrosCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMacrosCore.m; sourceTree = "<group>"; };
@@ -558,6 +559,7 @@
 		8C497036196EEEF800BD9D3B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				0E282B1B1B0AAB8900D9C959 /* WSAbstractKey.h */,
 				8C497037196EEEF800BD9D3B /* WSAddress.h */,
 				8C497038196EEEF800BD9D3B /* WSAddress.m */,
 				0E761ABA1AE66A3A00F1F068 /* WSBlock.h */,

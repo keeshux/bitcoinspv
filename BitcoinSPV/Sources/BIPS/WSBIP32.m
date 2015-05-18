@@ -296,7 +296,7 @@ void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i)
     else {
 #warning TODO: public key calculation can probably be optimized
         WSPublicKey *pubKey = [WSPublicKey publicKeyWithPrivateData:privKey];
-        [data setData:[pubKey encodedData]];
+        [data setData:pubKey.data];
     }
     
     i = CFSwapInt32HostToBig(i);

@@ -70,7 +70,7 @@
 
 - (BOOL)containsPublicKey:(WSPublicKey *)pubKey
 {
-    return [self.filter containsData:[pubKey encodedData]];
+    return [self.filter containsData:pubKey.data];
 }
 
 - (BOOL)containsAddress:(WSAddress *)address
@@ -136,7 +136,7 @@
 
 - (void)insertPublicKey:(WSPublicKey *)pubKey
 {
-    [self.filter insertData:[pubKey encodedData]];
+    [self.filter insertData:pubKey.data];
 }
 
 - (void)insertAddress:(WSAddress *)address

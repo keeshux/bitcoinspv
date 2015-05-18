@@ -39,8 +39,6 @@
 #import "NSData+Hash.h"
 #import "NSData+Binary.h"
 
-// adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRKey.m
-
 @interface WSPublicKey ()
 
 @property (nonatomic, strong) NSData *data;
@@ -97,29 +95,38 @@
     }
 }
 
+- (WSHash160 *)hash160
+{
+    return WSHash160FromData([self.data hash160]);
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:[self class]]) {
+        return NO;
+    }
+    WSPublicKey *key = object;
+    return [key.data isEqualToData:self.data];
+}
+
+- (NSUInteger)hash
+{
+    return [self.data hash];
+}
+
+- (NSString *)description
+{
+    return [self.data hexString];
+}
+
+#pragma mark WSAbstractKey
+
 - (BOOL)isCompressed
 {
     return (self.data.length == WSPublicKeyCompressedLength);
-}
-
-- (NSData *)encodedData
-{
-    if (!EC_KEY_check_key(_key)) {
-        return nil;
-    }
-    
-    size_t l = i2o_ECPublicKey(_key, NULL);
-    NSMutableData *data = [[NSMutableData alloc] initWithLength:l];
-    unsigned char *bytes = [data mutableBytes];
-    if (i2o_ECPublicKey(_key, &bytes) != l) {
-        return nil;
-    }
-    return data;
-}
-
-- (WSHash160 *)hash160
-{
-    return WSHash160FromData([[self encodedData] hash160]);
 }
 
 - (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
@@ -135,28 +142,6 @@
     //  0 = bad sig
     //  1 = good
     return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, _key) == 1);
-}
-
-- (BOOL)isEqual:(id)object
-{
-    if (object == self) {
-        return YES;
-    }
-    if (![object isKindOfClass:[self class]]) {
-        return NO;
-    }
-    WSPublicKey *key = object;
-    return ([key.data isEqualToData:self.data] && ([key isCompressed] == [self isCompressed]));
-}
-
-- (NSUInteger)hash
-{
-    return [self.data hash];
-}
-
-- (NSString *)description
-{
-    return [[self encodedData] hexString];
 }
 
 @end

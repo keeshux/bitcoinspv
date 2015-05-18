@@ -346,7 +346,7 @@
     
     NSUInteger i = 0;
     for (WSPublicKey *pubKey in pubKeys) {
-        NSString *pubHex = [[pubKey encodedData] hexString];
+        NSString *pubHex = [pubKey.data hexString];
         NSString *expPubHex = expPubKeys[i];
         
         DDLogInfo(@"Public key: %@", pubHex);

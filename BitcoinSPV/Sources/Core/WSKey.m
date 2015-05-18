@@ -142,11 +142,6 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     }
 }
 
-- (BOOL)isCompressed
-{
-    return (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED);
-}
-
 - (WSPublicKey *)publicKey
 {
     if (!EC_KEY_check_key(self.key)) {
@@ -188,11 +183,6 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 - (NSString *)WIFWithParameters:(id<WSParameters>)parameters
 {
     return [[self encodedDataWithParameters:parameters] base58CheckString];
-}
-
-- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
-{
-    return [[self publicKey] addressWithParameters:parameters];
 }
 
 - (NSData *)signatureForHash256:(WSHash256 *)hash256
@@ -250,17 +240,6 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return sig;
 }
 
-- (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature
-{
-    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
-    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
-
-    // -1 = error
-    //  0 = bad sig
-    //  1 = good
-    return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, self.key) == 1);
-}
-
 - (BOOL)isEqual:(id)object
 {
     if (object == self) {
@@ -281,6 +260,29 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 - (NSString *)description
 {
     return [self.data hexString];
+}
+
+#pragma mark WSAbstractKey
+
+- (BOOL)isCompressed
+{
+    return (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED);
+}
+
+- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
+{
+    return [[self publicKey] addressWithParameters:parameters];
+}
+
+- (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature
+{
+    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
+    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
+    
+    // -1 = error
+    //  0 = bad sig
+    //  1 = good
+    return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, self.key) == 1);
 }
 
 @end

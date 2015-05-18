@@ -1,8 +1,8 @@
 //
-//  WSKey.h
+//  WSAbstractKey.h
 //  BitcoinSPV
 //
-//  Created by Davide De Rosa on 14/06/14.
+//  Created by Davide De Rosa on 05/19/15.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -27,23 +27,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSAbstractKey.h"
-
 @protocol WSParameters;
 @class WSHash256;
-@class WSPublicKey;
 @class WSAddress;
 
-#pragma mark -
+@protocol WSAbstractKey <NSObject>
 
-@interface WSKey : NSObject <WSAbstractKey>
-
-+ (instancetype)keyWithData:(NSData *)data;
-+ (instancetype)keyWithData:(NSData *)data compressed:(BOOL)compressed;
-+ (instancetype)keyWithWIF:(NSString *)wif parameters:(id<WSParameters>)parameters;
-- (WSPublicKey *)publicKey;
-- (NSData *)encodedDataWithParameters:(id<WSParameters>)parameters;
-- (NSString *)WIFWithParameters:(id<WSParameters>)parameters;
-- (NSData *)signatureForHash256:(WSHash256 *)hash256;
+- (NSData *)data;
+- (BOOL)isCompressed;
+- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters;
+- (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature;
 
 @end

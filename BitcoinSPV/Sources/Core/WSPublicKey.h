@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSAbstractKey.h"
+
 @protocol WSParameters;
 @class WSAddress;
 @class WSHash256;
@@ -34,16 +36,11 @@
 
 #pragma mark -
 
-@interface WSPublicKey : NSObject
+@interface WSPublicKey : NSObject <WSAbstractKey>
 
 + (instancetype)publicKeyWithData:(NSData *)data;
 + (instancetype)publicKeyWithPrivateData:(NSData *)data;
 + (instancetype)publicKeyWithPrivateData:(NSData *)data compressed:(BOOL)compressed;
-- (NSData *)data;
-- (BOOL)isCompressed;
-- (NSData *)encodedData;
 - (WSHash160 *)hash160;
-- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters;
-- (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature;
 
 @end
