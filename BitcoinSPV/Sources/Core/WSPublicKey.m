@@ -141,7 +141,7 @@
     // -1 = error
     //  0 = bad sig
     //  1 = good
-    return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, _key) == 1);
+    return (ECDSA_verify(0, hash256.bytes, (int)hash256.length, signature.bytes, (int)signature.length, self.key) == 1);
 }
 
 @end
