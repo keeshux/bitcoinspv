@@ -138,6 +138,9 @@
 
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature
 {
+    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
+    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
+
     // -1 = error
     //  0 = bad sig
     //  1 = good
