@@ -68,8 +68,8 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)blockStore
 {
-    WSExceptionCheckIllegal(blockStore != nil, @"Nil blockStore");
-    WSExceptionCheckIllegal(blockStore.head != nil, @"Missing head from blockStore (genesis block is required at a minimum)");
+    WSExceptionCheckIllegal(blockStore);
+    WSExceptionCheck(blockStore.head != nil, WSExceptionIllegalArgument, @"Missing head from blockStore (genesis block is required at a minimum)");
 
     if ((self = [super init])) {
         self.store = blockStore;
@@ -182,7 +182,7 @@
 
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectOrphans:(BOOL)connectOrphans connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(header != nil, @"Nil header");
+    WSExceptionCheckIllegal(header);
     
     WSStorableBlock *addedBlock = nil;
     
@@ -391,14 +391,14 @@
 
 - (BOOL)isBehindBlock:(WSStorableBlock *)block
 {
-    WSExceptionCheckIllegal(block != nil, @"Nil block");
+    WSExceptionCheckIllegal(block);
 
     return (self.currentHeight < block.height);
 }
 
 - (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(checkpoint != nil, @"Nil checkpoint");
+    WSExceptionCheckIllegal(checkpoint);
     
     if (![self isBehindBlock:checkpoint]) {
         return nil;
@@ -413,7 +413,7 @@
 
 - (void)loadFromCoreDataManager:(WSCoreDataManager *)manager
 {
-    WSExceptionCheckIllegal(manager != nil, @"Nil manager");
+    WSExceptionCheckIllegal(manager);
     
     [self.store truncate];
 
@@ -446,7 +446,7 @@
 
 - (void)saveToCoreDataManager:(WSCoreDataManager *)manager
 {
-    WSExceptionCheckIllegal(manager != nil, @"Nil manager");
+    WSExceptionCheckIllegal(manager);
     
     [manager truncate];
     [manager.context performBlockAndWait:^{

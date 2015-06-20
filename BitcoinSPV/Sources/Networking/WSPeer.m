@@ -63,7 +63,7 @@
               shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                needsBloomFiltering:(BOOL)needsBloomFiltering
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
 
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -158,8 +158,8 @@
 
 - (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters
 {
-    WSExceptionCheckIllegal(host != nil, @"Nil host");
-    WSExceptionCheckIllegal(peerParameters != nil, @"Nil peerParameters");
+    WSExceptionCheckIllegal(host);
+    WSExceptionCheckIllegal(peerParameters);
     
     if ((self = [super init])) {
 #ifdef BSPV_TEST_MESSAGE_QUEUE
@@ -474,14 +474,14 @@
 
 - (void)sendInvMessageWithInventory:(WSInventory *)inventory
 {
-    WSExceptionCheckIllegal(inventory != nil, @"Nil inventory");
+    WSExceptionCheckIllegal(inventory);
     
     [self sendInvMessageWithInventories:@[inventory]];
 }
 
 - (void)sendInvMessageWithInventories:(NSArray *)inventories
 {
-    WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
+    WSExceptionCheckIllegal(inventories.count > 0);
 
     [self.connection submitBlock:^{
         [self unsafeSendMessage:[WSMessageInv messageWithParameters:self.parameters inventories:inventories]];
@@ -490,7 +490,7 @@
 
 - (void)sendGetdataMessageWithHashes:(NSArray *)hashes forInventoryType:(WSInventoryType)inventoryType
 {
-    WSExceptionCheckIllegal(hashes.count > 0, @"Empty hashes");
+    WSExceptionCheckIllegal(hashes.count > 0);
 
     NSMutableArray *inventories = [[NSMutableArray alloc] initWithCapacity:hashes.count];
     for (WSHash256 *hash in hashes) {
@@ -501,7 +501,7 @@
 
 - (void)sendGetdataMessageWithInventories:(NSArray *)inventories
 {
-    WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
+    WSExceptionCheckIllegal(inventories.count > 0);
 
     [self.connection submitBlock:^{
         NSMutableArray *blockHashes = [[NSMutableArray alloc] initWithCapacity:inventories.count];
@@ -554,7 +554,7 @@
 
 - (void)sendNotfoundMessageWithInventories:(NSArray *)inventories
 {
-    WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
+    WSExceptionCheckIllegal(inventories.count > 0);
 
     [self.connection submitBlock:^{
         [self unsafeSendMessage:[WSMessageNotfound messageWithParameters:self.parameters inventories:inventories]];
@@ -563,7 +563,7 @@
 
 - (void)sendGetblocksMessageWithLocator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
-    WSExceptionCheckIllegal(locator != nil, @"Nil locator");
+    WSExceptionCheckIllegal(locator);
     
     [self.connection submitBlock:^{
         [self unsafeSendMessage:[WSMessageGetblocks messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
@@ -572,7 +572,7 @@
 
 - (void)sendGetheadersMessageWithLocator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
-    WSExceptionCheckIllegal(locator != nil, @"Nil locator");
+    WSExceptionCheckIllegal(locator);
     
     [self.connection submitBlock:^{
         [self unsafeSendMessage:[WSMessageGetheaders messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
@@ -581,7 +581,7 @@
 
 - (void)sendTxMessageWithTransaction:(WSSignedTransaction *)transaction
 {
-    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+    WSExceptionCheckIllegal(transaction);
 
     [self.connection submitBlock:^{
         [self unsafeSendMessage:[WSMessageTx messageWithParameters:self.parameters transaction:transaction]];
@@ -620,7 +620,7 @@
 
 - (void)sendFilterloadMessageWithFilter:(WSBloomFilter *)filter
 {
-    WSExceptionCheckIllegal(filter != nil, @"Nil filter");
+    WSExceptionCheckIllegal(filter);
 
     [self.connection submitBlock:^{
         self.filteredBlockCount = 0;

@@ -51,8 +51,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(txId != nil, @"Nil txId");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(txId);
     
     if ((self = [super init])) {
         self.parameters = parameters;

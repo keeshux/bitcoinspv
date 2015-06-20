@@ -87,9 +87,9 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
                          chainData:(NSData *)chainData
                            keyData:(NSData *)keyData
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(chainData != nil, @"Nil chainData");
-    WSExceptionCheckIllegal(keyData != nil, @"Nil keyData");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(chainData);
+    WSExceptionCheckIllegal(keyData);
 
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -176,7 +176,7 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
 
 + (NSArray *)parseNodesFromPath:(NSString *)path
 {
-    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(path);
     
     static NSRegularExpression *rx;
     static dispatch_once_t onceToken;
@@ -204,7 +204,7 @@ static const unichar    WSBIP32PrimeChar                        = '\'';
 // WARNING: assumes correct format for efficiency, "[1-9]?[0-9]+'?" (e.g.: "12'")
 + (instancetype)nodeWithString:(NSString *)string
 {
-    WSExceptionCheckIllegal(string.length > 0, @"Empty string");
+    WSExceptionCheckIllegal(string.length > 0);
 
     if ([string isEqualToString:@"m"]) {
         return nil;
@@ -330,7 +330,7 @@ void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i)
 //
 // adapted from: https://github.com/voisine/breadwallet/blob/master/BreadWallet/BRBIP32Sequence.m
 //
-// Public child key derivation:
+// Public child key derivation (cannot derive hardened children):
 //
 // To define CKDpub((Kpar, cpar), i) -> (Ki, ci):
 //
@@ -344,7 +344,7 @@ void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i)
 void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i)
 {
     NSCAssert(pubKey, @"Deriving nil public key");
-    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(i), @"Public parent key cannot derive public hardened children");
+    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(i));
     
     NSMutableData *I = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
     NSMutableData *data = [pubKey mutableCopy];

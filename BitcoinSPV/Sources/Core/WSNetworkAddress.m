@@ -47,7 +47,7 @@
 
 - (instancetype)initWithTimestamp:(uint32_t)timestamp services:(uint64_t)services ipv6Address:(NSData *)ipv6Address port:(uint16_t)port
 {
-    WSExceptionCheckIllegal(ipv6Address.length == 16, @"ipv6Address must be 16 bytes long");
+    WSExceptionCheckIllegal(ipv6Address.length == 16);
     
     if ((self = [super init])) {
         self.timestamp = timestamp;

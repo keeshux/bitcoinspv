@@ -45,8 +45,8 @@
 
 - (instancetype)initWithMnemonic:(NSString *)mnemonic creationTime:(NSTimeInterval)creationTime
 {
-    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
-//    WSExceptionCheckIllegal(creationTime >= 0.0, @"creationTime must be positive");
+    WSExceptionCheckIllegal(mnemonic);
+//    WSExceptionCheckIllegal(creationTime >= 0.0);
 
     if ((self = [super init])) {
         WSSeedGenerator *generator = [WSSeedGenerator sharedInstance];

@@ -50,7 +50,7 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 
 - (instancetype)initWithWordListNoCopy:(NSArray *)wordList
 {
-    WSExceptionCheckIllegal(wordList.count > 0, @"Empty wordList");
+    WSExceptionCheckIllegal(wordList.count > 0);
     
     if ((self = [super init])) {
         self.wordList = wordList;
@@ -68,8 +68,7 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 
 - (NSString *)mnemonicFromData:(NSData *)data error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal((data.length > 0) && (data.length % 4 == 0),
-                            @"Data length %u is not a positive multiple of 4", data.length);
+    WSExceptionCheckIllegal((data.length > 0) && (data.length % 4 == 0));
     
     const NSUInteger mnemLength = data.length * 3 / 4;
     NSMutableArray *mnemWords = [[NSMutableArray alloc] initWithCapacity:mnemLength];
@@ -92,7 +91,7 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 
 - (NSData *)dataFromMnemonic:(NSString *)mnemonic error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
+    WSExceptionCheckIllegal(mnemonic);
     
     NSArray *mnemWords = [mnemonic componentsSeparatedByString:@" "];
     NSMutableData *mnemData = [[NSMutableData alloc] initWithCapacity:(mnemWords.count * 11 + 7) / 8];
@@ -155,8 +154,8 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 
 - (NSData *)deriveKeyDataFromMnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase
 {
-    WSExceptionCheckIllegal(mnemonic.length > 0, @"Empty mnemonic");
-    WSExceptionCheckIllegal(!passphrase || (passphrase.length > 0), @"Empty passphrase");
+    WSExceptionCheckIllegal(mnemonic.length > 0);
+    WSExceptionCheckIllegal(!passphrase || (passphrase.length > 0));
     
     NSMutableData *key = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
     CFMutableStringRef password = CFStringCreateMutableCopy(NULL, mnemonic.length, (CFStringRef)mnemonic);

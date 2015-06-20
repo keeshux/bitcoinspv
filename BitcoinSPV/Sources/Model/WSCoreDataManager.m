@@ -46,7 +46,7 @@
 
 - (instancetype)initWithPath:(NSString *)path error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(path);
     
     NSBundle *bundle = WSClientBundle([self class]);
     NSManagedObjectModel *model = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];

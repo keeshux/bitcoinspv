@@ -44,6 +44,14 @@ NSString *const         WSErrorFeeKey                               = @"Fee";
 
 #warning XXX: redundant, strange things happen forwarding varargs
 
+void WSExceptionRaiseUnsupported(NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    [NSException raise:WSExceptionUnsupported format:format arguments:args];
+    va_end(args);
+}
+
 void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...)
 {
     if (!condition) {
@@ -52,24 +60,6 @@ void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...)
         [NSException raise:name format:format arguments:args];
         va_end(args);
     }
-}
-
-void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...)
-{
-    if (!condition) {
-        va_list args;
-        va_start(args, format);
-        [NSException raise:WSExceptionIllegalArgument format:format arguments:args];
-        va_end(args);
-    }
-}
-
-void WSExceptionRaiseUnsupported(NSString *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    [NSException raise:WSExceptionUnsupported format:format arguments:args];
-    va_end(args);
 }
 
 NSError *WSErrorMake(WSErrorCode code, NSString *format, ...)

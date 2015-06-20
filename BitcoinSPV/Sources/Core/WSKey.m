@@ -68,19 +68,14 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 + (instancetype)keyWithWIF:(NSString *)wif parameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(wif != nil, @"Nil WIF");
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(wif);
+    WSExceptionCheckIllegal(parameters);
 
     NSData *encodedData = [[wif hexFromBase58Check] dataFromHex];
     uint8_t version = *(const uint8_t *)encodedData.bytes;
 
-    WSExceptionCheckIllegal(version == [parameters privateKeyVersion],
-                            @"Unrecognized private key version (%x != %x)",
-                            version, [parameters privateKeyVersion]);
-
-    WSExceptionCheckIllegal((encodedData.length == WSKeyEncodedCompressedLength) || (encodedData.length == WSKeyEncodedUncompressedLength),
-                            @"Incorrect WIF key length (%u = %u | %u)",
-                            encodedData.length, WSKeyEncodedCompressedLength, WSKeyEncodedUncompressedLength);
+    WSExceptionCheckIllegal(version == [parameters privateKeyVersion]);
+    WSExceptionCheckIllegal((encodedData.length == WSKeyEncodedCompressedLength) || (encodedData.length == WSKeyEncodedUncompressedLength));
 
     NSData *data = [encodedData subdataWithRange:NSMakeRange(1, WSKeyLength)];
     const BOOL compressed = (encodedData.length == WSKeyEncodedCompressedLength);
@@ -159,7 +154,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 - (NSData *)encodedDataWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     if (!EC_KEY_check_key(self.key)) {
         return nil;
@@ -187,7 +182,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 - (NSData *)signatureForHash256:(WSHash256 *)hash256
 {
-    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
+    WSExceptionCheckIllegal(hash256);
 
     BN_CTX *ctx = BN_CTX_new();
     BIGNUM order, halforder, k, r;
@@ -276,8 +271,8 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
 
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature
 {
-    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
-    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
+    WSExceptionCheckIllegal(hash256);
+    WSExceptionCheckIllegal(signature);
     
     // -1 = error
     //  0 = bad sig

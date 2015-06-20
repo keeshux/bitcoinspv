@@ -44,8 +44,8 @@
 - (instancetype)initWithParameters:(id<WSParameters>)parameters script:(WSScript *)script value:(uint64_t)value
 {
     // 0 value is legit
-    WSExceptionCheckIllegal(script != nil, @"Nil script");
-//    WSExceptionCheckIllegal(value > 0, @"Zero value");
+    WSExceptionCheckIllegal(script);
+//    WSExceptionCheckIllegal(value > 0);
     
     if ((self = [super init])) {
         self.value = value;
@@ -58,8 +58,8 @@
 - (instancetype)initWithAddress:(WSAddress *)address value:(uint64_t)value
 {
     // 0 value is legit
-    WSExceptionCheckIllegal(address != nil, @"Nil address");
-//    WSExceptionCheckIllegal(value > 0, @"Zero value");
+    WSExceptionCheckIllegal(address);
+//    WSExceptionCheckIllegal(value > 0);
     
     if ((self = [super init])) {
         self.value = value;

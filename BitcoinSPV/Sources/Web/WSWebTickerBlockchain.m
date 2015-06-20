@@ -44,8 +44,8 @@ static NSString *const          WSWebTickerBlockchainBaseURL            = @"http
 
 - (void)fetchRatesWithSuccess:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure
 {
-    WSExceptionCheckIllegal(success != nil, @"Nil success");
-    WSExceptionCheckIllegal(failure != nil, @"Nil failure");
+    WSExceptionCheckIllegal(success);
+    WSExceptionCheckIllegal(failure);
     
     NSURL *baseURL = [NSURL URLWithString:WSWebTickerBlockchainBaseURL];
     NSString *path = @"ticker";

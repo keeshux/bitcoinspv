@@ -63,8 +63,8 @@
                        lockTime:(uint32_t)lockTime
                           error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(inputs.count > 0, @"Empty inputs");
-    WSExceptionCheckIllegal(outputs.count > 0, @"Empty outputs");
+    WSExceptionCheckIllegal(inputs.count > 0);
+    WSExceptionCheckIllegal(outputs.count > 0);
     
     if ((self = [super init])) {
         self.version = version;
@@ -87,14 +87,14 @@
 
 - (WSSignedTransactionInput *)signedInputAtIndex:(uint32_t)index
 {
-    WSExceptionCheckIllegal(index < self.signedInputs.count, @"No input at index %u", index);
+    WSExceptionCheckIllegal(index < self.signedInputs.count);
     
     return self.signedInputs[index];
 }
 
 - (WSTransactionOutput *)outputAtIndex:(uint32_t)index
 {
-    WSExceptionCheckIllegal(index < self.outputs.count, @"No output at index %u", index);
+    WSExceptionCheckIllegal(index < self.outputs.count);
     
     return self.outputs[index];
 }
@@ -309,14 +309,14 @@
 
 - (void)addSignableInput:(WSSignableTransactionInput *)signableInput
 {
-    WSExceptionCheckIllegal(signableInput != nil, @"Nil signableInput");
+    WSExceptionCheckIllegal(signableInput);
     
     [_signableInputs addObject:signableInput];
 }
 
 - (void)addOutput:(WSTransactionOutput *)output
 {
-    WSExceptionCheckIllegal(output != nil, @"Nil output");
+    WSExceptionCheckIllegal(output);
 
     [_outputs addObject:output];
 }
@@ -400,7 +400,7 @@
 
 - (WSSignedTransaction *)signedTransactionWithInputKeys:(NSDictionary *)keys error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(keys.count > 0, @"Empty keys");
+    WSExceptionCheckIllegal(keys.count > 0);
 
     if ((self.signableInputs.count == 0) || (self.outputs.count == 0)) {
         WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Empty inputs or outputs");

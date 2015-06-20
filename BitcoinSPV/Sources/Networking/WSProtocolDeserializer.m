@@ -57,9 +57,9 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(host != nil, @"Nil host");
-    WSExceptionCheckIllegal(port > 0, @"Non-positive port");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(host);
+    WSExceptionCheckIllegal(port > 0);
     
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -75,7 +75,7 @@
 
 - (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(inputStream != nil, @"Nil inputStream");
+    WSExceptionCheckIllegal(inputStream);
     
 //    DDLogVerbose(@"Buffer length: %u", self.buffer.length);
     

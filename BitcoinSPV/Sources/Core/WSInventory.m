@@ -41,9 +41,8 @@
 
 - (instancetype)initWithType:(WSInventoryType)inventoryType hash:(WSHash256 *)inventoryHash
 {
-    WSExceptionCheckIllegal(inventoryHash != nil, @"Nil inventoryHash");
-    WSExceptionCheckIllegal((inventoryType >= WSInventoryTypeTx) && (inventoryType <= WSInventoryTypeFilteredBlock),
-                            @"Invalid inventoryType (%d)", inventoryType);
+    WSExceptionCheckIllegal(inventoryHash);
+    WSExceptionCheckIllegal((inventoryType >= WSInventoryTypeTx) && (inventoryType <= WSInventoryTypeFilteredBlock));
 
     if ((self = [super init])) {
         self.inventoryType = inventoryType;

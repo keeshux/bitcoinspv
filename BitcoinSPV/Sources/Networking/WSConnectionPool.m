@@ -68,7 +68,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -81,8 +81,8 @@
 
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
 {
-    WSExceptionCheckIllegal(host != nil, @"Nil host");
-//    WSExceptionCheckIllegal(processor != nil, @"Nil processor");
+    WSExceptionCheckIllegal(host);
+//    WSExceptionCheckIllegal(processor);
 
     WSConnectionHandler *handler;
 
@@ -113,7 +113,7 @@
 
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor error:(NSError *)error
 {
-    WSExceptionCheckIllegal(processor != nil, @"Nil processor");
+    WSExceptionCheckIllegal(processor);
     
     @synchronized (self.handlers) {
         WSConnectionHandler *handler = [self handlerForProcessor:processor];

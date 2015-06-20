@@ -61,9 +61,14 @@ extern NSString *const          WSErrorInputAddressKey;
 
 #pragma mark - Macros
 
-void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);
-void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...);
 void WSExceptionRaiseUnsupported(NSString *format, ...);
+void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);
+
+//void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...);
+#define WSExceptionCheckIllegal(condition) \
+    if (!(condition)) { \
+        [NSException raise:WSExceptionIllegalArgument format:@"%@" arguments:#condition]; \
+    }
 
 NSError *WSErrorMake(WSErrorCode code, NSString *format, ...);
 void WSErrorSet(NSError **error, WSErrorCode code, NSString *format, ...);

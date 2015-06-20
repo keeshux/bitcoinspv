@@ -79,8 +79,8 @@
                              nonce:(uint32_t)nonce
                            blockId:(WSHash256 *)blockId
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(previousBlockId != nil, @"Nil previousBlockId");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(previousBlockId);
     
     if ((self = [super init])) {
         self.parameters = parameters;

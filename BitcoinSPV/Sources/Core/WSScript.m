@@ -86,7 +86,7 @@
 
 - (instancetype)initWithChunks:(NSArray *)chunks
 {
-    WSExceptionCheckIllegal(chunks.count > 0, @"Empty chunks");
+    WSExceptionCheckIllegal(chunks.count > 0);
     
     if ((self = [super init])) {
         self.chunks = chunks;
@@ -107,7 +107,7 @@
 
 - (BOOL)containsData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(data);
     
     for (WSScriptChunk *chunk in self.chunks) {
         if ([chunk.pushData isEqualToData:data]) {
@@ -309,7 +309,7 @@
 
 - (WSAddress *)standardInputAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     WSAddress *address = [self addressFromScriptSigWithParameters:parameters];
     if (!address) {
@@ -320,7 +320,7 @@
             
 - (WSAddress *)standardOutputAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
 
     WSAddress *address = [self addressFromPay2PubKeyHashWithParameters:parameters];
     if (!address) {
@@ -334,7 +334,7 @@
 
 - (WSAddress *)standardAddressWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
 
     WSAddress *address = [self standardInputAddressWithParameters:parameters];
     if (!address) {
@@ -564,7 +564,7 @@
 
 - (instancetype)initWithAddress:(WSAddress *)address
 {
-    WSExceptionCheckIllegal(address != nil, @"Nil address");
+    WSExceptionCheckIllegal(address);
     
     if ((self = [self init])) {
         [self appendScriptForAddress:address];
@@ -574,8 +574,8 @@
 
 - (instancetype)initWithSignature:(NSData *)signature publicKey:(WSPublicKey *)publicKey
 {
-    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
-    WSExceptionCheckIllegal(publicKey != nil, @"Nil publicKey");
+    WSExceptionCheckIllegal(signature);
+    WSExceptionCheckIllegal(publicKey);
     
     if ((self = [self init])) {
         [self appendPushData:signature];
@@ -586,12 +586,12 @@
 
 - (instancetype)initWithSignatures:(NSArray *)signatures publicKeys:(NSArray *)publicKeys
 {
-    WSExceptionCheckIllegal(signatures.count > 0, @"Empty signatures");
-    WSExceptionCheckIllegal(publicKeys.count > 0, @"Empty publicKeys");
-    WSExceptionCheckIllegal(signatures.count <= 16, @"Too many signatures (M: %u > 16)", signatures.count);
-    WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
-    WSExceptionCheckIllegal(signatures.count >= 2, @"At least 2 signatures required for multiSig (M: %u < 2)", signatures.count);
-    WSExceptionCheckIllegal(publicKeys.count >= signatures.count, @"At least %u public keys required for multiSig (N: %u < %u)", publicKeys.count, signatures.count);
+    WSExceptionCheckIllegal(signatures.count > 0);
+    WSExceptionCheckIllegal(publicKeys.count > 0);
+    WSExceptionCheckIllegal(signatures.count <= 16);
+    WSExceptionCheckIllegal(publicKeys.count <= 16);
+    WSExceptionCheckIllegal(signatures.count >= 2);
+    WSExceptionCheckIllegal(publicKeys.count >= signatures.count);
     
     if ((self = [self init])) {
         [self appendOpcode:WSScriptOpcode_OP_0];
@@ -607,11 +607,11 @@
 
 - (instancetype)initWithRedeemNumberOfSignatures:(NSUInteger)numberOfSignatures publicKeys:(NSArray *)publicKeys
 {
-    WSExceptionCheckIllegal(numberOfSignatures > 0, @"Non-positive numberOfSignatures");
-    WSExceptionCheckIllegal(publicKeys.count > 0, @"Empty publicKeys");
-    WSExceptionCheckIllegal(numberOfSignatures <= 16, @"Too many signatures (M: %u > 16)", numberOfSignatures);
-    WSExceptionCheckIllegal(publicKeys.count <= 16, @"Too many public keys (N: %u > 16)", publicKeys.count);
-    WSExceptionCheckIllegal(publicKeys.count >= numberOfSignatures, @"At least %u public keys required for multiSig (N: %u < %u)", publicKeys.count, numberOfSignatures);
+    WSExceptionCheckIllegal(numberOfSignatures > 0);
+    WSExceptionCheckIllegal(publicKeys.count > 0);
+    WSExceptionCheckIllegal(numberOfSignatures <= 16);
+    WSExceptionCheckIllegal(publicKeys.count <= 16);
+    WSExceptionCheckIllegal(publicKeys.count >= numberOfSignatures);
 
     if ((self = [self init])) {
         [self appendOpcode:WSScriptOpcodeFromValue(numberOfSignatures)];
@@ -626,7 +626,7 @@
 
 - (void)appendChunk:(WSScriptChunk *)chunk
 {
-    WSExceptionCheckIllegal(chunk != nil, @"Nil chunk");
+    WSExceptionCheckIllegal(chunk);
     
     [self.chunks addObject:chunk];
 }
@@ -648,7 +648,7 @@
 
 - (void)appendScriptForAddress:(WSAddress *)address
 {
-    WSExceptionCheckIllegal(address != nil, @"Nil address");
+    WSExceptionCheckIllegal(address);
     
     //
     // pay-to-pubkey-hash
@@ -676,7 +676,7 @@
 
 - (void)appendScript:(WSScript *)script
 {
-    WSExceptionCheckIllegal(script != nil, @"Nil script");
+    WSExceptionCheckIllegal(script);
     
     [self.chunks addObjectsFromArray:script.chunks];
 }
@@ -723,7 +723,7 @@
 
 - (instancetype)initWithCoinbaseData:(NSData *)coinbaseData
 {
-    WSExceptionCheckIllegal(coinbaseData != nil, @"Nil coinbaseData");
+    WSExceptionCheckIllegal(coinbaseData);
 
     WSBuffer *buffer = [[WSBuffer alloc] initWithData:coinbaseData];
 
@@ -737,7 +737,7 @@
 
 - (BOOL)containsData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(data);
 
     return [self.originalData isEqualToData:data];
 }
@@ -890,8 +890,10 @@
 
 - (instancetype)initWithOpcode:(WSScriptOpcode)opcode
 {
-    WSExceptionCheckIllegal(opcode > WSScriptOpcode_PUSHDATA4, @"For push chunks use initWithOpcode:pushData: (%@)",
-                            WSScriptOpcodeString(opcode));
+    WSExceptionCheck(opcode > WSScriptOpcode_PUSHDATA4,
+                     WSExceptionIllegalArgument,
+                     @"For push chunks use initWithOpcode:pushData: (%@)",
+                     WSScriptOpcodeString(opcode));
     
     if ((self = [super init])) {
         self.isOpcode = YES;
@@ -903,8 +905,10 @@
 
 - (instancetype)initWithOpcode:(WSScriptOpcode)opcode pushData:(NSData *)pushData
 {
-    WSExceptionCheckIllegal(opcode <= WSScriptOpcode_PUSHDATA4, @"For opcode chunks use initWithOpcode: (%@)",
-                            WSScriptOpcodeString(opcode));
+    WSExceptionCheck(opcode <= WSScriptOpcode_PUSHDATA4,
+                     WSExceptionIllegalArgument,
+                     @"For opcode chunks use initWithOpcode: (%@)",
+                     WSScriptOpcodeString(opcode));
     
     if ((self = [super init])) {
         if (opcode == WSScriptOpcode_OP_0) {
@@ -913,7 +917,7 @@
             self.pushData = nil; // ignored parameter
         }
         else {
-            WSExceptionCheckIllegal(pushData != nil, @"Nil pushData");
+            WSExceptionCheckIllegal(pushData);
             
             self.isOpcode = (opcode >= WSScriptOpcode_PUSHDATA1);
             self.opcode = opcode;
@@ -925,7 +929,7 @@
 
 - (instancetype)initWithPushData:(NSData *)pushData
 {
-    WSExceptionCheckIllegal(pushData != nil, @"Nil pushData");
+    WSExceptionCheckIllegal(pushData);
     
     WSScriptOpcode opcode;
     if (pushData.length < WSScriptOpcode_PUSHDATA1) {
@@ -1130,15 +1134,14 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
 
 WSScriptOpcode WSScriptOpcodeFromValue(NSInteger value)
 {
-    WSExceptionCheckIllegal((value >= 1) && (value <= 16), @"Not an 1-16 value (%u)", value);
+    WSExceptionCheckIllegal((value >= 1) && (value <= 16));
     
     return (WSScriptOpcode_OP_1 + (int)value - 1);
 }
 
 NSInteger WSScriptOpcodeToValue(WSScriptOpcode opcode)
 {
-    WSExceptionCheckIllegal((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16),
-                            @"Not an OP_1-16 opcode (%x)", opcode);
+    WSExceptionCheckIllegal((opcode >= WSScriptOpcode_OP_1) && (opcode <= WSScriptOpcode_OP_16));
     
     return (opcode - WSScriptOpcode_OP_1 + 1);
 }

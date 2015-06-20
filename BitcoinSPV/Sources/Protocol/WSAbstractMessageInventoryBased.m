@@ -46,8 +46,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories
 {
-    WSExceptionCheckIllegal(inventories.count > 0, @"Empty inventories");
-    WSExceptionCheckIllegal(inventories.count <= WSMessageMaxInventories, @"Too many inventories (%u > %u)", inventories.count, WSMessageMaxInventories);
+    WSExceptionCheckIllegal(inventories.count > 0);
+    WSExceptionCheckIllegal(inventories.count <= WSMessageMaxInventories);
     
     if ((self = [super initWithParameters:parameters])) {
         self.inventories = inventories;

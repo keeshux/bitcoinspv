@@ -73,17 +73,17 @@
 - (instancetype)initWithTxCount:(uint32_t)txCount hashes:(NSArray *)hashes flags:(NSData *)flags error:(NSError *__autoreleasing *)error
 {
     // An empty set will not work
-    WSExceptionCheckIllegal(txCount > 0, @"txCount must be positive");
+    WSExceptionCheckIllegal(txCount > 0);
     
     // check for excessively high numbers of transactions
     // 60 is the lower bound for the size of a serialized CTransaction
-    WSExceptionCheckIllegal(txCount <= WSBlockMaxSize / 60, @"txCount is too high (%u)", txCount);
+    WSExceptionCheckIllegal(txCount <= WSBlockMaxSize / 60);
     
     // there can never be more hashes provided than one for every txid
-    WSExceptionCheckIllegal(hashes.count <= txCount, @"More hashes than transactions (%u > %u)", hashes.count, txCount);
+    WSExceptionCheckIllegal(hashes.count <= txCount);
     
     // there must be at least one bit per node in the partial tree, and at least one node per hash
-    WSExceptionCheckIllegal(flags.length * 8 >= hashes.count, @"Fewer flags bits than hashes (%u < %u)", flags.length * 8, hashes.count);
+    WSExceptionCheckIllegal(flags.length * 8 >= hashes.count);
     
     if ((self = [super init])) {
         self.txCount = txCount;
@@ -102,7 +102,7 @@
 
 - (BOOL)containsTransactionWithId:(WSHash256 *)txId
 {
-    WSExceptionCheckIllegal(txId != nil, @"Nil txId");
+    WSExceptionCheckIllegal(txId);
 
     return [self.matchedTxIds containsObject:txId];
 }

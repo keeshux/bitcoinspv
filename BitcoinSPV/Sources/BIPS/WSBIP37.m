@@ -52,15 +52,14 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (void)setFalsePositiveRate:(double)falsePositiveRate
 {
-    WSExceptionCheckIllegal(falsePositiveRate > 0.0, @"falsePositiveRate must be positive");
+    WSExceptionCheckIllegal(falsePositiveRate > 0.0);
 
     _falsePositiveRate = falsePositiveRate;
 }
 
 - (void)setFlags:(WSBIP37Flags)flags
 {
-    WSExceptionCheckIllegal((flags >= WSBIP37FlagsUpdateNone) && (flags <= WSBIP37FlagsUpdateP2PubKeyOnly),
-                            @"Invalid flags (%d)", flags);
+    WSExceptionCheckIllegal((flags >= WSBIP37FlagsUpdateNone) && (flags <= WSBIP37FlagsUpdateP2PubKeyOnly));
     
     _flags = flags;
 }
@@ -102,8 +101,8 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (instancetype)initWithParameters:(WSBIP37FilterParameters *)parameters capacity:(NSUInteger)capacity
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(capacity > 0, @"Non-positive capacity");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(capacity > 0);
     
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -157,7 +156,7 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (void)insertData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(data);
 
     // if data matches don't get filter dirtier by reinserting
     if ([self containsData:data]) {
@@ -174,7 +173,7 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (BOOL)containsData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(data);
     
     const uint8_t *bytes = self.filter.bytes;
     for (uint32_t i = 0; i < self.hashFunctions; ++i) {

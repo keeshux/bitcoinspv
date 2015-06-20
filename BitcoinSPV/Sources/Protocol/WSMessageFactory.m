@@ -38,7 +38,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -48,8 +48,8 @@
 
 - (id<WSMessage>)messageFromType:(NSString *)type payload:(WSBuffer *)payload error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(type != nil, @"Nil type");
-    WSExceptionCheckIllegal(payload != nil, @"Nil payload");
+    WSExceptionCheckIllegal(type);
+    WSExceptionCheckIllegal(payload);
     
 #warning XXX: would not handle messages of type "factory" in the future (rename class?)
     

@@ -61,11 +61,10 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 
 - (instancetype)initWithCode:(NSString *)code conversionRates:(NSDictionary *)conversionRates symbolPosition:(WSCurrencySymbolPosition)symbolPosition
 {
-    WSExceptionCheckIllegal(code != nil, @"Nil code");
+    WSExceptionCheckIllegal(code);
 //    WSExceptionCheckIllegal([[[self class] knownCurrencyCodes] containsObject:code], @"Unknown currency code (%@)", code);
-    WSExceptionCheckIllegal((symbolPosition >= WSCurrencySymbolPositionPrepend) && (symbolPosition <= WSCurrencySymbolPositionAppend),
-                            @"Unknown symbolPosition (%d)", symbolPosition);
-    WSExceptionCheckIllegal(conversionRates != nil, @"Nil conversionRates");
+    WSExceptionCheckIllegal((symbolPosition >= WSCurrencySymbolPositionPrepend) && (symbolPosition <= WSCurrencySymbolPositionAppend));
+    WSExceptionCheckIllegal(conversionRates);
     
     if ((self = [super init])) {
         self.code = code;
@@ -79,8 +78,8 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 
 - (NSDecimalNumber *)conversionRateToCurrency:(id<WSCurrency>)currency
 {
-    WSExceptionCheckIllegal(currency != nil, @"Nil currency");
-    WSExceptionCheckIllegal(self.conversionRates != nil, @"conversionRates not set");
+    WSExceptionCheckIllegal(currency);
+    WSExceptionCheckIllegal(self.conversionRates);
     
     if ([currency.code isEqualToString:self.code]) {
         return [NSDecimalNumber one];
@@ -94,8 +93,8 @@ NSString *const WSPhysicalCurrencyCodeEUR       = @"EUR";
 
 - (NSDecimalNumber *)convertValue:(NSDecimalNumber *)value toCurrency:(id<WSCurrency>)currency
 {
-    WSExceptionCheckIllegal(value != nil, @"Nil value");
-    WSExceptionCheckIllegal(currency != nil, @"Nil currency");
+    WSExceptionCheckIllegal(value);
+    WSExceptionCheckIllegal(currency);
     
     if (currency == self) {
         return value;

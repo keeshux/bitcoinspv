@@ -35,10 +35,10 @@ NSString *const WSWebTickerProviderBlockchain       = @"WSWebTickerBlockchain";
 
 + (id<WSWebTicker>)tickerForProvider:(NSString *)provider
 {
-    WSExceptionCheckIllegal(provider.length > 0, @"Empty provider");
+    WSExceptionCheckIllegal(provider.length > 0);
     
     Class clazz = NSClassFromString(provider);
-    WSExceptionCheckIllegal(clazz != nil, @"Unknown provider (%@)", provider);
+    WSExceptionCheck(clazz != nil, WSExceptionIllegalArgument, @"Unknown provider (%@)", provider);
     return [[clazz alloc] init];
 }
 

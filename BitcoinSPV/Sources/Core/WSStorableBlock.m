@@ -62,7 +62,7 @@
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions height:(uint32_t)height work:(NSData *)work
 {
-    WSExceptionCheckIllegal(header != nil, @"Nil header");
+    WSExceptionCheckIllegal(header);
     
     if ((self = [super init])) {
         self.header = header;
@@ -77,7 +77,7 @@
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions previousBlock:(WSStorableBlock *)previousBlock
 {
-    WSExceptionCheckIllegal(header != nil, @"Nil header");
+    WSExceptionCheckIllegal(header);
     
     if ((self = [super init])) {
         self.header = header;

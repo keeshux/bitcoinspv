@@ -46,8 +46,8 @@
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header partialMerkleTree:(WSPartialMerkleTree *)partialMerkleTree
 {
-    WSExceptionCheckIllegal(header != nil, @"Nil header");
-    WSExceptionCheckIllegal(partialMerkleTree != nil, @"Nil partialMerkleTree");
+    WSExceptionCheckIllegal(header);
+    WSExceptionCheckIllegal(partialMerkleTree);
 
     if ((self = [super init])) {
         self.header = header;

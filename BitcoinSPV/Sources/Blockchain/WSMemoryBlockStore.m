@@ -56,7 +56,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
 
     if ((self = [super init])) {
         self.genesisBlock = [parameters genesisBlock];
@@ -74,14 +74,14 @@
 
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId
 {
-    WSExceptionCheckIllegal(blockId != nil, @"Nil blockId");
+    WSExceptionCheckIllegal(blockId);
     
     return self.blocks[blockId];
 }
 
 - (void)putBlock:(WSStorableBlock *)block
 {
-    WSExceptionCheckIllegal(block != nil, @"Nil block");
+    WSExceptionCheckIllegal(block);
 
     WSHash256 *blockId = block.blockId;
     self.blocks[blockId] = block;
@@ -90,7 +90,7 @@
 
 - (void)removeTailBlock
 {
-    NSAssert(self.blocks.count > 0, @"Empty block store");
+    NSAssert(self.blocks.count > 0, @"Empty blocks");
     
     WSHash256 *tailId = self.tail.blockId;
     NSAssert(tailId, @"Tail is nil, store truncated without resetting?");
@@ -111,7 +111,7 @@
 
 - (void)setHead:(WSStorableBlock *)head
 {
-    WSExceptionCheckIllegal(head != nil, @"Nil head");
+    WSExceptionCheckIllegal(head);
     
     _head = head;
 }

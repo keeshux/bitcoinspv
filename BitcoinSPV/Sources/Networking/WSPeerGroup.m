@@ -192,9 +192,9 @@
 
 - (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    WSExceptionCheckIllegal(pool != nil, @"Nil pool");
-    WSExceptionCheckIllegal(queue != NULL, @"NULL queue");
-    WSExceptionCheckIllegal(store != nil, @"Nil store");
+    WSExceptionCheckIllegal(pool);
+    WSExceptionCheckIllegal(queue);
+    WSExceptionCheckIllegal(store);
     
     if ((self = [super init])) {
         self.parameters = store.parameters;
@@ -523,7 +523,7 @@
 
 - (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet
 {
-    WSExceptionCheckIllegal(wallet != nil, @"Nil wallet");
+    WSExceptionCheckIllegal(wallet);
     
     // immutable property
     return (self.wallet == wallet);
@@ -531,7 +531,7 @@
 
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction
 {
-    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+    WSExceptionCheckIllegal(transaction);
 
     __block BOOL published = NO;
     dispatch_sync(self.queue, ^{

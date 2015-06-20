@@ -67,8 +67,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters mnemonic:(NSString *)mnemonic
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(mnemonic != nil, @"Nil mnemonic");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(mnemonic);
 
     NSData *keyData = [[WSSeedGenerator sharedInstance] deriveKeyDataFromMnemonic:mnemonic];
     return [self initWithParameters:parameters data:keyData];
@@ -76,8 +76,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(seed != nil, @"Nil seed");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(seed);
 
     NSData *keyData = [seed derivedKeyData];
     return [self initWithParameters:parameters data:keyData];
@@ -85,8 +85,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters data:(NSData *)data
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(data);
 
     NSMutableData *I = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
     CCHmac(kCCHmacAlgSHA512, WSBIP32InitSeed, strlen(WSBIP32InitSeed), data.bytes, data.length, I.mutableBytes);
@@ -105,8 +105,8 @@
 
 - (instancetype)initWithExtendedPrivateKey:(WSBIP32Key *)extendedPrivateKey
 {
-    WSExceptionCheckIllegal(extendedPrivateKey != nil, @"Nil extendedPrivateKey");
-    WSExceptionCheckIllegal([extendedPrivateKey isPrivate], @"extendedPrivateKey is not private");
+    WSExceptionCheckIllegal(extendedPrivateKey);
+    WSExceptionCheckIllegal([extendedPrivateKey isPrivate]);
 
     if ((self = [super init])) {
         self.extendedPrivateKey = extendedPrivateKey;
@@ -132,7 +132,7 @@
 
 - (id<WSBIP32Keyring>)keyringAtPath:(NSString *)path
 {
-    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(path);
 
     NSArray *nodes = [WSBIP32Node parseNodesFromPath:path];
     return [self keyringAtNodes:nodes];
@@ -140,14 +140,14 @@
 
 - (id<WSBIP32Keyring>)keyringAtNode:(WSBIP32Node *)node
 {
-    WSExceptionCheckIllegal(node != nil, @"Nil node");
+    WSExceptionCheckIllegal(node);
 
     return [self keyringAtNodes:@[node]];
 }
 
 - (id<WSBIP32Keyring>)keyringAtNodes:(NSArray *)nodes
 {
-    WSExceptionCheckIllegal(nodes != nil, @"Nil nodes");
+    WSExceptionCheckIllegal(nodes);
     
     if (nodes.count == 0) {
         return self;
@@ -262,8 +262,8 @@
 
 - (instancetype)initWithExtendedPublicKey:(WSBIP32Key *)extendedPublicKey
 {
-    WSExceptionCheckIllegal(extendedPublicKey != nil, @"Nil extendedPublicKey");
-    WSExceptionCheckIllegal([extendedPublicKey isPublic], @"extendedPrivateKey is not public");
+    WSExceptionCheckIllegal(extendedPublicKey);
+    WSExceptionCheckIllegal([extendedPublicKey isPublic]);
 
     if ((self = [super init])) {
         self.extendedPublicKey = extendedPublicKey;
@@ -280,7 +280,7 @@
 
 - (id<WSBIP32PublicKeyring>)publicKeyringAtPath:(NSString *)path
 {
-    WSExceptionCheckIllegal(path != nil, @"Nil path");
+    WSExceptionCheckIllegal(path);
 
     NSArray *nodes = [WSBIP32Node parseNodesFromPath:path];
     return [self publicKeyringAtNodes:nodes];
@@ -288,15 +288,15 @@
 
 - (id<WSBIP32PublicKeyring>)publicKeyringAtNode:(WSBIP32Node *)node
 {
-    WSExceptionCheckIllegal(node != nil, @"Nil node");
-    WSExceptionCheckIllegal(!node.hardened, @"Cannot derive hardened node");
+    WSExceptionCheckIllegal(node);
+    WSExceptionCheckIllegal(!node.hardened);
 
     return [self publicKeyringAtNodes:@[node]];
 }
 
 - (id<WSBIP32PublicKeyring>)publicKeyringAtNodes:(NSArray *)nodes
 {
-    WSExceptionCheckIllegal(nodes != nil, @"Nil nodes");
+    WSExceptionCheckIllegal(nodes);
     
     if (nodes.count == 0) {
         return self;
@@ -310,7 +310,7 @@
     uint32_t child = 0;
     
     for (WSBIP32Node *node in nodes) {
-        WSExceptionCheckIllegal(!node.hardened, @"Cannot derive hardened node");
+        WSExceptionCheckIllegal(!node.hardened);
         if (node == [nodes lastObject]) {
             parentFingerprint = [[WSPublicKey publicKeyWithData:keyData] bip32Fingerprint];
         }
@@ -342,14 +342,14 @@
 
 - (id<WSBIP32PublicKeyring>)publicKeyringForAccount:(uint32_t)account
 {
-    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(account), @"Cannot derive hardened account");
+    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(account));
 
     return [self publicKeyringAtNode:[WSBIP32Node nodeWithIndex:account hardened:NO]];
 }
 
 - (WSPublicKey *)publicKeyForAccount:(uint32_t)account
 {
-    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(account), @"Cannot derive hardened account");
+    WSExceptionCheckIllegal(!WSBIP32ChildIsHardened(account));
     
     NSMutableData *chainData = [self.extendedPublicKey.chainData mutableCopy];
     NSMutableData *keyData = [self.extendedPublicKey.keyData mutableCopy];

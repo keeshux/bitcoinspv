@@ -53,8 +53,8 @@
 
 - (instancetype)initWithOutpoint:(WSTransactionOutPoint *)outpoint signature:(NSData *)signature publicKey:(WSPublicKey *)publicKey sequence:(uint32_t)sequence
 {
-    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
-    WSExceptionCheckIllegal(publicKey != nil, @"Nil publicKey");
+    WSExceptionCheckIllegal(signature);
+    WSExceptionCheckIllegal(publicKey);
 
     return [self initWithOutpoint:outpoint script:[WSScript scriptWithSignature:signature publicKey:publicKey] sequence:sequence];
 }
@@ -66,8 +66,8 @@
 
 - (instancetype)initWithOutpoint:(WSTransactionOutPoint *)outpoint script:(WSScript *)script sequence:(uint32_t)sequence
 {
-    WSExceptionCheckIllegal(outpoint != nil, @"Nil outpoint");
-    WSExceptionCheckIllegal(script != nil, @"Nil script");
+    WSExceptionCheckIllegal(outpoint);
+    WSExceptionCheckIllegal(script);
     
     if ((self = [super init])) {
         self.outpoint = outpoint;
@@ -187,7 +187,7 @@
 
 - (instancetype)initWithPreviousTransaction:(WSSignedTransaction *)previousTransaction outputIndex:(uint32_t)outputIndex sequence:(uint32_t)sequence
 {
-    WSExceptionCheckIllegal(previousTransaction != nil, @"Nil previousTransaction");
+    WSExceptionCheckIllegal(previousTransaction);
     
     WSTransactionOutput *previousOutput = [previousTransaction outputAtIndex:outputIndex];
     WSTransactionOutPoint *outpoint = [WSTransactionOutPoint outpointWithParameters:previousOutput.parameters txId:previousTransaction.txId index:outputIndex];
@@ -202,8 +202,8 @@
 
 - (instancetype)initWithPreviousOutput:(WSTransactionOutput *)previousOutput outpoint:(WSTransactionOutPoint *)outpoint sequence:(uint32_t)sequence
 {
-    WSExceptionCheckIllegal(previousOutput != nil, @"Nil previousOutput");
-    WSExceptionCheckIllegal(outpoint != nil, @"Nil outpoint");
+    WSExceptionCheckIllegal(previousOutput);
+    WSExceptionCheckIllegal(outpoint);
     
     if ((self = [super init])) {
         self.previousOutput = previousOutput;
@@ -225,8 +225,8 @@
 
 - (WSSignedTransactionInput *)signedInputWithKey:(WSKey *)key hash256:(WSHash256 *)hash256 hashFlags:(WSTransactionSigHash)hashFlags
 {
-    WSExceptionCheckIllegal(key != nil, @"Nil key");
-    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
+    WSExceptionCheckIllegal(key);
+    WSExceptionCheckIllegal(hash256);
 
     NSMutableData *signature = [[key signatureForHash256:hash256] mutableCopy];
 

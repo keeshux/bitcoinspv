@@ -56,35 +56,35 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 
 - (instancetype)address:(WSAddress *)address
 {
-    WSExceptionCheckIllegal(address != nil, @"Nil address");
+    WSExceptionCheckIllegal(address);
     self.address = address;
     return self;
 }
 
 - (instancetype)label:(NSString *)label
 {
-    WSExceptionCheckIllegal(label != nil, @"Nil label");
+    WSExceptionCheckIllegal(label);
     self.label = label;
     return self;
 }
 
 - (instancetype)message:(NSString *)message
 {
-    WSExceptionCheckIllegal(message != nil, @"Nil message");
+    WSExceptionCheckIllegal(message);
     self.message = message;
     return self;
 }
 
 - (instancetype)amount:(uint64_t)amount
 {
-    WSExceptionCheckIllegal(amount > 0, @"Non-positive amount");
+    WSExceptionCheckIllegal(amount > 0);
     self.amount = amount;
     return self;
 }
 
 - (instancetype)others:(NSDictionary *)others
 {
-    WSExceptionCheckIllegal(others.count > 0, @"Empty others");
+    WSExceptionCheckIllegal(others.count > 0);
     self.others = others;
     return self;
 }
@@ -120,8 +120,8 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters string:(NSString *)string
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(string != nil, @"Nil string");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(string);
 
     NSRegularExpression *rx = [NSRegularExpression regularExpressionWithPattern:WSBIP21URLRegex options:0 error:NULL];
     NSArray *matches = [rx matchesInString:string options:0 range:NSMakeRange(0, string.length)];

@@ -74,7 +74,7 @@
                          localPort:(uint16_t)localPort
                  relayTransactions:(uint8_t)relayTransactions
 {
-    WSExceptionCheckIllegal(remoteNetworkAddress != nil, @"Nil remoteNetworkAddress");
+    WSExceptionCheckIllegal(remoteNetworkAddress);
 
     if ((self = [super initWithParameters:parameters])) {
         self.version = version;

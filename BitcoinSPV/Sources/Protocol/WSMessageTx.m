@@ -47,7 +47,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction
 {
-    WSExceptionCheckIllegal(transaction != nil, @"Nil transaction");
+    WSExceptionCheckIllegal(transaction);
     
     if ((self = [super initWithParameters:parameters])) {
         self.transaction = transaction;

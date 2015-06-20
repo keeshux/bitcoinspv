@@ -69,8 +69,8 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 
 - (void)startWithProviders:(NSSet *)providers updateInterval:(NSTimeInterval)updateInterval
 {
-    WSExceptionCheckIllegal(providers.count > 0, @"Empty providers");
-    WSExceptionCheckIllegal(updateInterval / providers.count >= 10.0, @"(updateInterval / providers.count) must be at least 10 seconds", providers.count);
+    WSExceptionCheckIllegal(providers.count > 0);
+    WSExceptionCheckIllegal(updateInterval / providers.count >= 10.0);
     
     NSMutableArray *tickers = [[NSMutableArray alloc] initWithCapacity:providers.count];
     for (NSString *provider in providers) {
@@ -152,14 +152,14 @@ NSString *const WSWebTickerMonitorDidUpdateConversionRatesNotification = @"WSWeb
 
 - (BOOL)isAvailableCurrencyCode:(NSString *)currencyCode
 {
-    WSExceptionCheckIllegal(currencyCode != nil, @"Nil currencyCode");
+    WSExceptionCheckIllegal(currencyCode);
 
     return (self.conversionRates[currencyCode] != nil);
 }
 
 - (NSNumber *)averageConversionRateToCurrencyCode:(NSString *)currencyCode
 {
-    WSExceptionCheckIllegal(currencyCode != nil, @"Nil currencyCode");
+    WSExceptionCheckIllegal(currencyCode);
     
     NSDictionary *ratesByProvider = self.conversionRates[currencyCode];
     if (!ratesByProvider) {

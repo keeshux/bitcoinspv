@@ -48,11 +48,10 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint8_t)version hash160:(WSHash160 *)hash160
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(hash160 != nil, @"Nil hash160");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(hash160);
     WSExceptionCheckIllegal((version == [parameters publicKeyAddressVersion]) ||
-                            (version == [parameters scriptAddressVersion]),
-                             @"Unrecognized address version (%u)", version);
+                            (version == [parameters scriptAddressVersion]));
 
     if ((self = [super init])) {
         self.parameters = parameters;
@@ -69,8 +68,8 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters encoded:(NSString *)encoded
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(encoded != nil, @"Nil encoded");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(encoded);
     
     NSData *data = [encoded dataFromBase58Check];
     if (data.length != WSAddressLength) {

@@ -43,8 +43,8 @@
 
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock *__autoreleasing *)lastPreviousBlock
 {
-    WSExceptionCheckIllegal(blockChain != nil, @"Nil blockChain");
-    WSExceptionCheckIllegal(maxStep > 0, @"Non-positive maxStep");
+    WSExceptionCheckIllegal(blockChain);
+    WSExceptionCheckIllegal(maxStep > 0);
     
     WSStorableBlock *previousBlock = self;
     for (NSUInteger i = 0; i < maxStep; ++i) {
@@ -65,7 +65,7 @@
 
 - (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError *__autoreleasing *)error
 {
-    WSExceptionCheckIllegal(blockChain != nil, @"Nil blockChain");
+    WSExceptionCheckIllegal(blockChain);
     
     WSStorableBlock *previousBlock = [self previousBlockInChain:blockChain];
     if (!previousBlock) {

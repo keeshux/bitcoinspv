@@ -43,8 +43,8 @@
 
 - (instancetype)initWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions
 {
-    WSExceptionCheckIllegal(header != nil, @"Nil header");
-    WSExceptionCheckIllegal(transactions != nil, @"Nil transactions");
+    WSExceptionCheckIllegal(header);
+    WSExceptionCheckIllegal(transactions);
     
     if ((self = [super init])) {
         self.header = header;

@@ -57,7 +57,7 @@
 
 - (instancetype)initWithData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data != nil, @"Nil data");
+    WSExceptionCheckIllegal(data);
     
     if ((self = [super init])) {
         self.mutableData = [data mutableCopy];

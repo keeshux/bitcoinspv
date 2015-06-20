@@ -45,7 +45,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters filter:(WSBloomFilter *)filter
 {
-    WSExceptionCheckIllegal(filter != nil, @"Nil filter");
+    WSExceptionCheckIllegal(filter);
 
     if ((self = [super initWithParameters:parameters])) {
         self.filter = filter;

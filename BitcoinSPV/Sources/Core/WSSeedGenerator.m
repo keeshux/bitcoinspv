@@ -90,7 +90,7 @@
 
 - (NSString *)generateRandomMnemonic
 {
-    WSExceptionCheckIllegal(self.wordsPath != nil, @"No wordsPath was set");
+    WSExceptionCheckIllegal(self.wordsPath);
     
     return [self.bip39 generateRandomMnemonicWithEntropyLength:self.defaultEntropyLength];
 }

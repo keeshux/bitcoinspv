@@ -50,7 +50,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
-    WSExceptionCheckIllegal(locator != nil, @"Nil locator");
+    WSExceptionCheckIllegal(locator);
     
     if ((self = [super initWithParameters:parameters])) {
         self.version = version;

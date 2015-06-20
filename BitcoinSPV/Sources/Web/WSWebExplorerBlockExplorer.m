@@ -54,7 +54,7 @@ static NSString *const WSWebExplorerBlockExplorerObjectTransaction     = @"tx";
 
 - (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
-    WSExceptionCheckIllegal(hash != nil, @"Nil hash");
+    WSExceptionCheckIllegal(hash);
     
     NSString *network = nil;
     NSString *object = nil;

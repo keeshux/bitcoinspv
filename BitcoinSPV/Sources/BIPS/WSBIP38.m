@@ -88,17 +88,13 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 - (instancetype)initWithEncrypted:(NSString *)encrypted
 {
-    WSExceptionCheckIllegal(encrypted != nil, @"Nil encrypted");
+    WSExceptionCheckIllegal(encrypted);
 
     NSData *encryptedData = [encrypted dataFromBase58Check];
-    WSExceptionCheckIllegal(encryptedData.length == WSBIP38KeyLength,
-                            @"Incorrect BIP38 key length (%u != %u)",
-                            encryptedData.length, WSBIP38KeyLength);
+    WSExceptionCheckIllegal(encryptedData.length == WSBIP38KeyLength);
     
     const uint16_t prefix = CFSwapInt16BigToHost(*(const uint16_t *)encryptedData.bytes);
-    WSExceptionCheckIllegal((prefix == WSBIP38KeyPrefixNonEC) || (prefix == WSBIP38KeyPrefixEC),
-                            @"Illegal BIP38 key prefix (%x != %x | %x)",
-                            prefix, WSBIP38KeyPrefixNonEC, WSBIP38KeyPrefixEC);
+    WSExceptionCheckIllegal((prefix == WSBIP38KeyPrefixNonEC) || (prefix == WSBIP38KeyPrefixEC));
 
     if ((self = [super init])) {
         self.encryptedData = encryptedData;
@@ -113,9 +109,9 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(key != nil, @"Nil key");
-    WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(key);
+    WSExceptionCheckIllegal(passphrase);
 
     NSMutableData *encryptedData = [[NSMutableData alloc] initWithCapacity:WSBIP38KeyLength];
 
@@ -323,8 +319,8 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 - (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(passphrase != nil, @"Nil passphrase");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(passphrase);
 
     return [[WSBIP38Key alloc] initWithParameters:parameters key:self passphrase:passphrase ec:ec];
 }

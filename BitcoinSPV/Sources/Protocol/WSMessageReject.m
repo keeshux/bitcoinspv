@@ -47,9 +47,9 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
 {
-    WSExceptionCheckIllegal(message != nil, @"Nil message");
-    WSExceptionCheckIllegal(code <= 0x4f, @"Code > 0x4f");
-    WSExceptionCheckIllegal(reason != nil, @"Nil reason");
+    WSExceptionCheckIllegal(message);
+    WSExceptionCheckIllegal(code <= 0x4f);
+    WSExceptionCheckIllegal(reason);
     
     if ((self = [super initWithParameters:parameters])) {
         self.message = message;

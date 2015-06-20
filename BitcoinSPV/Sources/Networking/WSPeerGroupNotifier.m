@@ -75,7 +75,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (instancetype)initWithPeerGroup:(WSPeerGroup *)peerGroup
 {
-    WSExceptionCheckIllegal(peerGroup != nil, @"Nil peerGroup");
+    WSExceptionCheckIllegal(peerGroup);
     
     if ((self = [super init])) {
         self.peerGroup = peerGroup;

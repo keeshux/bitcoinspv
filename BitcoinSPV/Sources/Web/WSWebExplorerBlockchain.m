@@ -52,7 +52,7 @@ static NSString *const WSWebExplorerBlockchainObjectTransaction    = @"tx";
 
 - (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
-    WSExceptionCheckIllegal(hash != nil, @"Nil hash");
+    WSExceptionCheckIllegal(hash);
     
     NSString *object = nil;
     

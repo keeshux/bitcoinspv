@@ -43,8 +43,8 @@
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue interval:(double)interval
 {
-    WSExceptionCheckIllegal(queue != NULL, @"NULL queue");
-    WSExceptionCheckIllegal(interval > 0.0, @"Non-positive interval");
+    WSExceptionCheckIllegal(queue);
+    WSExceptionCheckIllegal(interval > 0.0);
     
     if ((self = [super init])) {
         self.queue = queue;
@@ -60,7 +60,7 @@
 
 - (BOOL)startWithBlock:(dispatch_block_t)block
 {
-    WSExceptionCheckIllegal(block != NULL, @"NULL block");
+    WSExceptionCheckIllegal(block);
 
     self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
     if (!self.timer) {

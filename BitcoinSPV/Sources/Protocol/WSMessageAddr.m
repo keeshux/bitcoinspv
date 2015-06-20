@@ -48,7 +48,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses
 {
-    WSExceptionCheckIllegal(addresses.count > 0, @"Empty addresses");
+    WSExceptionCheckIllegal(addresses.count > 0);
 
     if ((self = [super initWithParameters:parameters])) {
         self.addresses = addresses;

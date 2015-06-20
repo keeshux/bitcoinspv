@@ -103,7 +103,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
 
 - (NSURL *)URLForObjectType:(WSWebExplorerObjectType)objectType hash:(WSHash256 *)hash
 {
-    WSExceptionCheckIllegal(hash != nil, @"Nil hash");
+    WSExceptionCheckIllegal(hash);
     
     NSString *network = [self networkName];
     NSString *object = [self objectForType:objectType];
@@ -120,10 +120,10 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
                            completion:(void (^)(NSUInteger))completion
                               failure:(void (^)(NSError *))failure
 {
-    WSExceptionCheckIllegal(fromKey != nil, @"Nil fromKey");
-    WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
-    WSExceptionCheckIllegal(completion != NULL, @"NULL completion");
-    WSExceptionCheckIllegal(failure != NULL, @"NULL failure");
+    WSExceptionCheckIllegal(fromKey);
+    WSExceptionCheckIllegal(toAddress);
+    WSExceptionCheckIllegal(completion);
+    WSExceptionCheckIllegal(failure);
     
     id<WSParameters> parameters = toAddress.parameters;
 
@@ -195,10 +195,10 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
                                 completion:(void (^)(NSUInteger))completion
                                    failure:(void (^)(NSError *))failure
 {
-    WSExceptionCheckIllegal(fromBIP38Key != nil, @"Nil fromBIP38Key");
-    WSExceptionCheckIllegal(toAddress != nil, @"Nil toAddress");
-    WSExceptionCheckIllegal(completion != NULL, @"NULL completion");
-    WSExceptionCheckIllegal(failure != NULL, @"NULL failure");
+    WSExceptionCheckIllegal(fromBIP38Key);
+    WSExceptionCheckIllegal(toAddress);
+    WSExceptionCheckIllegal(completion);
+    WSExceptionCheckIllegal(failure);
     
     WSKey *fromKey = [fromBIP38Key decryptedKeyWithPassphrase:passphrase];
     [self buildSweepTransactionsFromKey:fromKey toAddress:toAddress fee:fee maxTxSize:maxTxSize callback:callback completion:completion failure:failure];

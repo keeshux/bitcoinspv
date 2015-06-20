@@ -58,7 +58,7 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters originalLength:(NSUInteger)originalLength
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     if ((self = [super init])) {
         self.parameters = parameters;

@@ -41,10 +41,10 @@ NSString *const WSWebExplorerProviderBlockchain        = @"WSWebExplorerBlockcha
 
 + (id<WSWebExplorer>)explorerForProvider:(NSString *)provider networkType:(WSNetworkType)networkType
 {
-    WSExceptionCheckIllegal(provider.length > 0, @"Empty provider");
+    WSExceptionCheckIllegal(provider.length > 0);
     
     Class clazz = NSClassFromString(provider);
-    WSExceptionCheckIllegal(clazz != nil, @"Unknown provider (%@)", provider);
+    WSExceptionCheck(clazz != nil, WSExceptionIllegalArgument, @"Unknown provider (%@)", provider);
 
     id<WSWebExplorer> explorer = [[clazz alloc] init];
     explorer.networkType = networkType;

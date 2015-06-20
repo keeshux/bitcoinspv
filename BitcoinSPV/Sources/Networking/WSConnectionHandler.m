@@ -53,9 +53,9 @@
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
-    WSExceptionCheckIllegal(host != nil, @"Nil host");
-    WSExceptionCheckIllegal(port > 0, @"Non-positive port");
+    WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(host);
+    WSExceptionCheckIllegal(port > 0);
     
     if ((self = [super init])) {
         self.parameters = parameters;

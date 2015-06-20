@@ -46,7 +46,7 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 + (instancetype)currencyForCode:(NSString *)code
 {
-    WSExceptionCheckIllegal(code != nil, @"Nil code");
+    WSExceptionCheckIllegal(code);
 
     static NSDictionary *currencies;
     static dispatch_once_t onceToken;
@@ -66,8 +66,8 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 - (instancetype)initWithCode:(NSString *)code powerOf10:(short)powerOf10
 {
-    WSExceptionCheckIllegal(code != nil, @"Nil code");
-    WSExceptionCheckIllegal(powerOf10 >= 0, @"Negative powerOf10");
+    WSExceptionCheckIllegal(code);
+    WSExceptionCheckIllegal(powerOf10 >= 0);
     
     if ((self = [super init])) {
         self.code = code;
@@ -90,21 +90,21 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 - (NSDecimalNumber *)valueFromSatoshiNumber:(NSDecimalNumber *)satoshiNumber
 {
-    WSExceptionCheckIllegal(satoshiNumber != nil, @"Nil satoshiNumber");
+    WSExceptionCheckIllegal(satoshiNumber);
 
     return [satoshiNumber decimalNumberByMultiplyingByPowerOf10:-self.powerOf10];
 }
 
 - (uint64_t)satoshiFromValue:(NSDecimalNumber *)value
 {
-    WSExceptionCheckIllegal(value != nil, @"Nil value");
+    WSExceptionCheckIllegal(value);
 
     return [[self satoshiNumberFromValue:value] unsignedLongLongValue];
 }
 
 - (NSDecimalNumber *)satoshiNumberFromValue:(NSDecimalNumber *)value
 {
-    WSExceptionCheckIllegal(value != nil, @"Nil value");
+    WSExceptionCheckIllegal(value);
 
     return [value decimalNumberByMultiplyingByPowerOf10:self.powerOf10];
 }
@@ -118,7 +118,7 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 - (NSDecimalNumber *)conversionRateToCurrency:(id<WSCurrency>)currency
 {
-    WSExceptionCheckIllegal(currency != nil, @"Nil currency");
+    WSExceptionCheckIllegal(currency);
 
     if ([currency isKindOfClass:[self class]]) {
         return [NSDecimalNumber one];
@@ -128,8 +128,8 @@ NSString *const WSBitcoinCurrencyCodeSatoshi        = @"SAT";
 
 - (NSDecimalNumber *)convertValue:(NSDecimalNumber *)value toCurrency:(id<WSCurrency>)currency
 {
-    WSExceptionCheckIllegal(value != nil, @"Nil value");
-    WSExceptionCheckIllegal(currency != nil, @"Nil currency");
+    WSExceptionCheckIllegal(value);
+    WSExceptionCheckIllegal(currency);
     
     if (currency == self) {
         return value;

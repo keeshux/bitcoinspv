@@ -39,7 +39,7 @@
 
 - (instancetype)initWithHashes:(NSArray *)hashes
 {
-    WSExceptionCheckIllegal(hashes != nil, @"Nil hashes");
+    WSExceptionCheckIllegal(hashes);
     
     if ((self = [super init])) {
         self.hashes = hashes;

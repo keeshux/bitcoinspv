@@ -62,7 +62,7 @@
 
 - (void)loadCheckpointsFromHex:(NSString *)hex
 {
-    WSExceptionCheckIllegal(hex != nil, @"Nil hex");
+    WSExceptionCheckIllegal(hex);
     
     WSBuffer *buffer = WSBufferFromHex(hex);
 

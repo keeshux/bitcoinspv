@@ -131,15 +131,15 @@
 
 - (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
 {
-    WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
     
     return WSAddressP2PKHFromHash160(parameters, [self hash160]);
 }
 
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature
 {
-    WSExceptionCheckIllegal(hash256 != nil, @"Nil hash256");
-    WSExceptionCheckIllegal(signature != nil, @"Nil signature");
+    WSExceptionCheckIllegal(hash256);
+    WSExceptionCheckIllegal(signature);
 
     // -1 = error
     //  0 = bad sig

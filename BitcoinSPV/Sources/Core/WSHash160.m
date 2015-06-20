@@ -40,7 +40,7 @@
 
 - (instancetype)initWithData:(NSData *)data
 {
-    WSExceptionCheckIllegal(data.length == WSHash160Length, @"WSHash160 must be %u bytes long", WSHash160Length);
+    WSExceptionCheckIllegal(data.length == WSHash160Length);
     
     if ((self = [super init])) {
         self.data = data;
