@@ -92,7 +92,7 @@
 @property (nonatomic, strong) NSMutableSet *misbehavingHosts;               // NSString
 @property (nonatomic, strong) NSMutableSet *pendingPeers;                   // WSPeer
 @property (nonatomic, strong) NSMutableSet *connectedPeers;                 // WSPeer
-@property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSSignedTransaction
+@property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSHash256 -> WSSignedTransaction
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
 

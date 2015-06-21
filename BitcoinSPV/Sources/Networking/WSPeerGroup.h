@@ -56,7 +56,7 @@
 #pragma mark -
 
 //
-// All is done on groupQueue except public methods that can be run from any queue.
+// All is done on private queue except public methods that can be run from any queue.
 //
 // NEVER invoke public methods internally, deadlock is guaranteed due to dispatch_sync.
 //
