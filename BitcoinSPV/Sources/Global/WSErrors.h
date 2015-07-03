@@ -67,7 +67,7 @@ void WSExceptionCheck(BOOL condition, NSString *name, NSString *format, ...);
 //void WSExceptionCheckIllegal(BOOL condition, NSString *format, ...);
 #define WSExceptionCheckIllegal(condition) \
     if (!(condition)) { \
-        [NSException raise:WSExceptionIllegalArgument format:@"%@" arguments:#condition]; \
+        [NSException raise:WSExceptionIllegalArgument format:@"%s", #condition]; \
     }
 
 NSError *WSErrorMake(WSErrorCode code, NSString *format, ...);
