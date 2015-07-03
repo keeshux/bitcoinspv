@@ -67,7 +67,7 @@
 
 - (NSUInteger)confirmationsAtNetworkHeight:(NSUInteger)networkHeight
 {
-    if (self.height == NSNotFound) {
+    if (self.height == WSBlockUnknownHeight) {
         return 0;
     }
 #warning XXX: wrong confirmations if transaction in fork block
