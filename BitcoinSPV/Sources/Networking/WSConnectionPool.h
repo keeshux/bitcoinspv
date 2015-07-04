@@ -44,8 +44,6 @@
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor;
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor error:(NSError *)error;
-- (void)closeConnections:(NSUInteger)connections;
-- (void)closeConnections:(NSUInteger)connections error:(NSError *)error;
 - (void)closeAllConnections;
 - (NSUInteger)numberOfConnections;
 

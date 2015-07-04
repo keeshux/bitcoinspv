@@ -49,8 +49,7 @@
 @interface WSConnectionPool ()
 
 @property (nonatomic, strong) id<WSParameters> parameters;
-@property (nonatomic, strong) NSMutableArray *handlers;                     // WSConnectionHandler
-@property (nonatomic, strong) NSMutableDictionary *handlersByIdentifier;    // NSString -> WSConnectionHandler
+@property (nonatomic, strong) NSMutableDictionary *handlers;    // NSString -> WSConnectionHandler
 
 - (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor;
 - (void)tryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error;
@@ -72,8 +71,7 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.handlers = [[NSMutableArray alloc] init];
-        self.handlersByIdentifier = [[NSMutableDictionary alloc] init];
+        self.handlers = [[NSMutableDictionary alloc] init];
         self.connectionTimeout = 5.0;
     }
     return self;
@@ -87,7 +85,7 @@
     WSConnectionHandler *handler;
 
     @synchronized (self.handlers) {
-        for (handler in self.handlers) {
+        for (handler in [self.handlers allValues]) {
             if ([handler.host isEqualToString:host] && (handler.port == port)) {
                 return NO;
             }
@@ -95,8 +93,7 @@
         
         handler = [[WSConnectionHandler alloc] initWithParameters:self.parameters host:host port:port processor:processor];
         handler.delegate = self;
-        [self.handlers addObject:handler];
-        self.handlersByIdentifier[handler.identifier] = handler;
+        self.handlers[handler.identifier] = handler;
 
         DDLogDebug(@"Added %@ to pool (current: %u)", handler, self.handlers.count);
     }
@@ -119,25 +116,6 @@
         WSConnectionHandler *handler = [self handlerForProcessor:processor];
         if (handler) {
             [self tryDisconnectHandler:handler error:error];
-        }
-    }
-}
-
-- (void)closeConnections:(NSUInteger)connections
-{
-    [self closeConnections:connections error:nil];
-}
-
-- (void)closeConnections:(NSUInteger)connections error:(NSError *)error
-{
-    @synchronized (self.handlers) {
-        const NSUInteger finalConnections = self.handlers.count - connections;
-        
-        NSUInteger i = 0;
-        while ((self.handlers.count >= finalConnections) && (i < connections)) {
-            WSConnectionHandler *handler = self.handlers[i];
-            [self tryDisconnectHandler:handler error:error];
-            ++i;
         }
     }
 }
@@ -206,12 +184,11 @@
 {
     NSParameterAssert(handler);
     
-    if (!self.handlersByIdentifier[handler.identifier]) {
+    if (!self.handlers[handler.identifier]) {
         DDLogVerbose(@"Removing nonexistent handler (%@)", handler);
         return;
     }
-    [self.handlersByIdentifier removeObjectForKey:handler.identifier];
-    [self.handlers removeObject:handler];
+    [self.handlers removeObjectForKey:handler.identifier];
 
     DDLogDebug(@"Removed %@ from pool (current: %u)", handler, self.handlers.count);
 }
