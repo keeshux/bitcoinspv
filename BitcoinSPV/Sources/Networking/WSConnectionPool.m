@@ -51,9 +51,9 @@
 @property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) NSMutableDictionary *handlers;    // NSString -> WSConnectionHandler
 
-- (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor;
-- (void)tryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error;
-- (void)removeHandler:(WSConnectionHandler *)handler;
+- (WSConnectionHandler *)unsafeHandlerForProcessor:(id<WSConnectionProcessor>)processor;
+- (void)unsafeTryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error;
+- (void)unsafeRemoveHandler:(WSConnectionHandler *)handler;
 
 @end
 
@@ -80,7 +80,6 @@
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
 {
     WSExceptionCheckIllegal(host);
-//    WSExceptionCheckIllegal(processor);
 
     WSConnectionHandler *handler;
 
@@ -96,9 +95,9 @@
         self.handlers[handler.identifier] = handler;
 
         DDLogDebug(@"Added %@ to pool (current: %u)", handler, self.handlers.count);
-    }
 
-    [handler connectWithTimeout:self.connectionTimeout error:NULL];
+        [handler connectWithTimeout:self.connectionTimeout error:NULL];
+    }
 
     return YES;
 }
@@ -113,9 +112,9 @@
     WSExceptionCheckIllegal(processor);
     
     @synchronized (self.handlers) {
-        WSConnectionHandler *handler = [self handlerForProcessor:processor];
+        WSConnectionHandler *handler = [self unsafeHandlerForProcessor:processor];
         if (handler) {
-            [self tryDisconnectHandler:handler error:error];
+            [self unsafeTryDisconnectHandler:handler error:error];
         }
     }
 }
@@ -124,7 +123,7 @@
 {
     @synchronized (self.handlers) {
         for (WSConnectionHandler *handler in [self.handlers copy]) {
-            [self tryDisconnectHandler:handler error:nil];
+            [self unsafeTryDisconnectHandler:handler error:nil];
         }
     }
 }
@@ -146,28 +145,25 @@
 - (void)connectionHandler:(WSConnectionHandler *)connectionHandler didDisconnectWithError:(NSError *)error
 {
     @synchronized (self.handlers) {
-        [self removeHandler:connectionHandler];
+        [self unsafeRemoveHandler:connectionHandler];
     }
 }
 
-#pragma mark Helpers
+#pragma mark Helpers (unsafe)
 
-- (WSConnectionHandler *)handlerForProcessor:(id<WSConnectionProcessor>)processor
+- (WSConnectionHandler *)unsafeHandlerForProcessor:(id<WSConnectionProcessor>)processor
 {
     NSParameterAssert(processor);
 
-    @synchronized (self.handlers) {
-        for (WSConnectionHandler *handler in self.handlers) {
-            if (handler.processor == processor) {
-                return handler;
-            }
+    for (WSConnectionHandler *handler in self.handlers) {
+        if (handler.processor == processor) {
+            return handler;
         }
     }
     return nil;
 }
 
-// unsafe
-- (void)tryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error
+- (void)unsafeTryDisconnectHandler:(WSConnectionHandler *)handler error:(NSError *)error
 {
     NSParameterAssert(handler);
 
@@ -175,17 +171,16 @@
         [handler disconnectWithError:error];
     }
     else {
-        [self removeHandler:handler];
+        [self unsafeRemoveHandler:handler];
     }
 }
 
-// unsafe
-- (void)removeHandler:(WSConnectionHandler *)handler
+- (void)unsafeRemoveHandler:(WSConnectionHandler *)handler
 {
     NSParameterAssert(handler);
     
     if (!self.handlers[handler.identifier]) {
-        DDLogVerbose(@"Removing nonexistent handler (%@)", handler);
+        DDLogDebug(@"Removing nonexistent handler (%@)", handler);
         return;
     }
     [self.handlers removeObjectForKey:handler.identifier];
@@ -209,7 +204,7 @@
     return self;
 }
 
-#pragma mark WSConnectionWriter
+#pragma mark WSConnection
 
 - (void)submitBlock:(void (^)())block
 {

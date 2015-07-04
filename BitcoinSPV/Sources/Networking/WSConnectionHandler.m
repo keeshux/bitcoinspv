@@ -146,7 +146,7 @@
     return self.identifier;
 }
 
-#pragma mark Helpers
+#pragma mark Helpers (unsafe)
 
 - (void)unsafeEnqueueData:(NSData *)data
 {
