@@ -1,8 +1,8 @@
 //
-//  WSWebTicker.m
+//  WSWebTickerBitPay.h
 //  BitcoinSPV
 //
-//  Created by Davide De Rosa on 01/01/15.
+//  Created by Davide De Rosa on 04/07/15.
 //  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -25,22 +25,10 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import <Foundation/Foundation.h>
+
 #import "WSWebTicker.h"
-#import "WSErrors.h"
 
-NSString *const WSWebTickerProviderBitPay           = @"WSWebTickerBitPay";
-NSString *const WSWebTickerProviderBitstamp         = @"WSWebTickerBitstamp";
-NSString *const WSWebTickerProviderBlockchain       = @"WSWebTickerBlockchain";
-
-@implementation WSWebTickerFactory
-
-+ (id<WSWebTicker>)tickerForProvider:(NSString *)provider
-{
-    WSExceptionCheckIllegal(provider.length > 0);
-    
-    Class clazz = NSClassFromString(provider);
-    WSExceptionCheck(clazz != nil, WSExceptionIllegalArgument, @"Unknown provider (%@)", provider);
-    return [[clazz alloc] init];
-}
+@interface WSWebTickerBitPay : NSObject <WSWebTicker>
 
 @end

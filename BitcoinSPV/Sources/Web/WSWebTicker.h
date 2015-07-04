@@ -29,6 +29,7 @@
 
 #import "WSPhysicalCurrency.h"
 
+extern NSString *const WSWebTickerProviderBitPay;
 extern NSString *const WSWebTickerProviderBitstamp;
 extern NSString *const WSWebTickerProviderBlockchain;
 

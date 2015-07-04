@@ -11,6 +11,7 @@
 		0E0E7C6F1AC47B4500E7840B /* WSConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6E1AC47B4500E7840B /* WSConnection.m */; };
 		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
+		0E5543B71B376B9B008639CE /* WSSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2981979D18000783ADF /* WSSyncTests.m */; };
 		0E6A02B91A2F762B001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E761AB61AE6629A00F1F068 /* WSMacrosCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E761AB51AE6629A00F1F068 /* WSMacrosCore.m */; };
@@ -41,6 +42,7 @@
 		0EA1472E1A55C2B900AA400D /* WSWebTickerBlockchain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */; };
 		0EA9FB831A5906FF00A7FFCC /* WSNetworkType.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
+		0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
 		0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */; };
@@ -261,6 +263,8 @@
 		0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSNetworkType.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebExplorer.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
+		0ED831201B4849F8001447D1 /* WSWebTickerBitPay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBitPay.h; sourceTree = "<group>"; };
+		0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBitPay.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
 		0EF696761A34BF69006E027C /* WSJSONClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSJSONClient.m; sourceTree = "<group>"; };
 		0EF696781A34DC57006E027C /* WSBIP38.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP38.h; sourceTree = "<group>"; };
@@ -537,6 +541,8 @@
 				0ED738111A34B90400669C07 /* WSWebExplorer.m */,
 				0EA147261A55B80F00AA400D /* WSWebTicker.h */,
 				0EA147271A55B80F00AA400D /* WSWebTicker.m */,
+				0ED831201B4849F8001447D1 /* WSWebTickerBitPay.h */,
+				0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */,
 				0EA147291A55B8B900AA400D /* WSWebTickerBitstamp.h */,
 				0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */,
 				0EA1472C1A55C2B900AA400D /* WSWebTickerBlockchain.h */,
@@ -1232,6 +1238,7 @@
 				0E761AC81AE66A3A00F1F068 /* WSStorableBlock.m in Sources */,
 				8C8AE012196786CA007787ED /* WSMessageTx.m in Sources */,
 				0E761ACF1AE66F6600F1F068 /* WSCoreDataManager.m in Sources */,
+				0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */,
 				8C9A762D19771BED008BF471 /* WSTransactionOutputEntity.m in Sources */,
 				8C497062196EEEF800BD9D3B /* WSSeedGenerator.m in Sources */,
 				8C8AE005196786CA007787ED /* WSParameters.m in Sources */,
@@ -1349,6 +1356,7 @@
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
 				8C5DB95419677E9100AF079E /* BitcoinSPVTests.m in Sources */,
+				0E5543B71B376B9B008639CE /* WSSyncTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
 				8C8FB835196776F300A07156 /* WSScriptTests.m in Sources */,
 				8C8FB82D196776F300A07156 /* WSBIP37Tests.m in Sources */,
