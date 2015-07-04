@@ -48,6 +48,7 @@
 #import "WSMemoryBlockStore.h"
 #import "WSBlockLocator.h"
 #import "WSBlockHeader.h"
+#import "WSConfig.h"
 
 @interface WSPeerTests : XCTestCase
 
@@ -70,7 +71,7 @@
     self.bloomFilterParameters.falsePositiveRate = WSPeerGroupDefaultBFRateMin;
     DDLogInfo(@"Bloom filter parameters: %@", self.bloomFilterParameters);
 
-    NSString *dnsSeed = [WSCurrentParameters dnsSeeds][0];
+    NSString *dnsSeed = [self.networkParameters dnsSeeds][0];
 
     DDLogInfo(@"Peers from %@", dnsSeed);
     NSMutableArray *addresses = [[NSMutableArray alloc] init];
@@ -89,7 +90,7 @@
 
     NSString *address = addresses[mrand48() % addresses.count];
 //    address = @"54.173.19.184";
-    self.peer = [self.pool openConnectionToPeerHost:address];
+    self.peer = [self.pool openConnectionToPeerHost:address parameters:self.networkParameters];
 }
 
 - (void)tearDown
@@ -114,7 +115,7 @@
 
 - (void)testGetblocks
 {
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSBlockChain *bc = [[WSBlockChain alloc] initWithStore:store];
     WSBlockLocator *locator = [bc currentLocator];
     WSHash256 *hashStop = nil;
@@ -132,7 +133,7 @@
 //    NSArray *hashes = @[WSHash256FromHex(@"00000000b6293822dd615fb57ad734ad4f13cf460c289eb89910d0c7016e8841")];
 //    WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:hashes];
 //    WSHash256 *hashStop = WSHash256FromHex(@"00000000a487b2df64e40903d47e2e96b1b9ce4471f491709af15b80a7ec5dd1");
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSBlockChain *bc = [[WSBlockChain alloc] initWithStore:store];
     WSBlockLocator *locator = [bc currentLocator];
     WSHash256 *hashStop = nil;
@@ -283,7 +284,7 @@
     NSArray *addresses = [receiveAddresses arrayByAddingObjectsFromArray:changeAddresses];
     WSMutableBloomFilter *filter = [[WSMutableBloomFilter alloc] initWithParameters:self.bloomFilterParameters capacity:addresses.count];
     for (NSString *encoded in addresses) {
-        [filter insertAddress:WSAddressFromString(encoded)];
+        [filter insertAddress:WSAddressFromString(self.networkParameters, encoded)];
     }
     
     NSArray *blockHashes = @[@"00000000b6293822dd615fb57ad734ad4f13cf460c289eb89910d0c7016e8841", // contains tx from testPublishTransaction1
@@ -319,7 +320,7 @@
     WSMutableBloomFilter *filter = [[WSMutableBloomFilter alloc] initWithParameters:self.bloomFilterParameters capacity:pubKeys.count];
     for (NSString *encoded in pubKeys) {
         WSPublicKey *pubKey = WSPublicKeyFromHex(encoded);
-        [filter insertData:[pubKey encodedData]];
+        [filter insertData:[pubKey data]];
 //        [filter insertData:[pubKey hash160]];
     }
     
@@ -386,7 +387,7 @@
     if (FILTER_MATCH == FILTER_MATCH_PUBKEY) {
         for (NSString *encoded in pubKeys) {
             WSPublicKey *pubKey = WSPublicKeyFromHex(encoded);
-            [filterElements addObject:[pubKey encodedData]];
+            [filterElements addObject:[pubKey data]];
         }
     }
 
@@ -423,7 +424,7 @@
     else if (FILTER_MATCH == FILTER_MATCH_PUBKEY_ADDRESS) {
         for (NSString *encoded in pubKeys) {
             WSPublicKey *pubKey = WSPublicKeyFromHex(encoded);
-            [filterElements addObject:[pubKey encodedData]];
+            [filterElements addObject:[pubKey data]];
             [filterElements addObject:[pubKey hash160]];
         }
     }
@@ -456,7 +457,7 @@
     //
 
     WSSeed *seed = WSSeedMakeNow([self mockWalletMnemonic]);
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithSeed:seed];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:seed];
 
     DDLogInfo(@"Wallet receive addresses: %@", wallet.allReceiveAddresses);
     DDLogInfo(@"Wallet change addresses: %@", wallet.allChangeAddresses);
@@ -484,13 +485,13 @@
 
 - (void)testPublishTransaction1
 {
-    WSTransactionOutPoint *unspent = [WSTransactionOutPoint outpointWithTxId:WSHash256FromHex(@"24d58bb11efdd86164b4dc8c3fe67d0ab9fff924f2e11492f20f9c0381576c80") index:1];
-    WSAddress *previousAddress = WSAddressFromString(@"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
-    WSKey *previousKey = WSKeyFromWIF(@"cQukrUmHpU3Wp4qMr1ziAL6ztr3r8bvdhNJ5mGAq8wnmAMscYZid");
+    WSTransactionOutPoint *unspent = [WSTransactionOutPoint outpointWithParameters:self.networkParameters txId:WSHash256FromHex(@"24d58bb11efdd86164b4dc8c3fe67d0ab9fff924f2e11492f20f9c0381576c80") index:1];
+    WSAddress *previousAddress = WSAddressFromString(self.networkParameters, @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
+    WSKey *previousKey = WSKeyFromWIF(self.networkParameters, @"cQukrUmHpU3Wp4qMr1ziAL6ztr3r8bvdhNJ5mGAq8wnmAMscYZid");
     const uint64_t previousValue = 19866544;
-    WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithValue:previousValue address:previousAddress];
-    WSAddress *outputAddress = WSAddressFromString(@"myxg6ABN2yr5yZ1fJScMwN566TuGbQpqDg");
-    WSAddress *changeAddress = WSAddressFromString(@"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT");
+    WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithAddress:previousAddress value:previousValue];
+    WSAddress *outputAddress = WSAddressFromString(self.networkParameters, @"myxg6ABN2yr5yZ1fJScMwN566TuGbQpqDg");
+    WSAddress *changeAddress = WSAddressFromString(self.networkParameters, @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT");
 
     const uint64_t outputValue = 5544;
     const uint64_t expFee = 1000;
@@ -498,13 +499,13 @@
     
     WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
     [builder addSignableInput:[[WSSignableTransactionInput alloc] initWithPreviousOutput:previousOutput outpoint:unspent]];
-    [builder addOutput:[[WSTransactionOutput alloc] initWithValue:outputValue address:outputAddress]];
-    [builder addOutput:[[WSTransactionOutput alloc] initWithValue:changeValue address:changeAddress]];
+    [builder addOutput:[[WSTransactionOutput alloc] initWithAddress:outputAddress value:outputValue]];
+    [builder addOutput:[[WSTransactionOutput alloc] initWithAddress:changeAddress value:changeValue]];
 
 //    WSBuffer *signable = [tx.inputs[0] signableBufferForTransaction:tx];
 //    DDLogInfo(@"Tx (signable): %@", [signable.data hexString]);
 
-    NSDictionary *inputKeys = @{previousKey.address: previousKey};
+    NSDictionary *inputKeys = @{[previousKey addressWithParameters:self.networkParameters]: previousKey};
 
 //    uint64_t fee;
     NSError *error;
@@ -532,11 +533,11 @@
 
 - (void)testPublishTransaction2
 {
-    WSTransactionOutPoint *unspent = [WSTransactionOutPoint outpointWithTxId:WSHash256FromHex(@"8b84151eaab153071ac2a7b255dc8bcaf2a33d21b9d79874405c15c4a3bcddbb") index:1];
-    WSAddress *previousAddress = WSAddressFromString(@"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT");
-    WSKey *previousKey = WSKeyFromWIF(@"cNnLnY3ZfpCQ2dF22uAVaYsyxXQGHBHRVg2y9NgWgn95i5xb9XFK");
+    WSTransactionOutPoint *unspent = [WSTransactionOutPoint outpointWithParameters:self.networkParameters txId:WSHash256FromHex(@"8b84151eaab153071ac2a7b255dc8bcaf2a33d21b9d79874405c15c4a3bcddbb") index:1];
+    WSAddress *previousAddress = WSAddressFromString(self.networkParameters, @"mo6HhdAEKnLDivSZjWaeBN7AY26bxo78cT");
+    WSKey *previousKey = WSKeyFromWIF(self.networkParameters, @"cNnLnY3ZfpCQ2dF22uAVaYsyxXQGHBHRVg2y9NgWgn95i5xb9XFK");
     const uint64_t previousValue = 19860000;
-    WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithValue:previousValue address:previousAddress];
+    WSTransactionOutput *previousOutput = [[WSTransactionOutput alloc] initWithAddress:previousAddress value:previousValue];
 
     NSArray *outputAddresses = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
                                  @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",
@@ -549,13 +550,13 @@
     WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
     [builder addSignableInput:[[WSSignableTransactionInput alloc] initWithPreviousOutput:previousOutput outpoint:unspent]];
     for (NSString *encoded in outputAddresses) {
-        [builder addOutput:[[WSTransactionOutput alloc] initWithValue:outputValue address:WSAddressFromString(encoded)]];
+        [builder addOutput:[[WSTransactionOutput alloc] initWithAddress:WSAddressFromString(self.networkParameters, encoded) value:outputValue]];
     }
     
 //    WSBuffer *signable = [tx.inputs[0] signableBufferForTransaction:tx];
 //    DDLogInfo(@"Tx (signable): %@", [signable.data hexString]);
     
-    NSDictionary *inputKeys = @{previousKey.address: previousKey};
+    NSDictionary *inputKeys = @{[previousKey addressWithParameters:self.networkParameters]: previousKey};
 
 //    uint64_t fee;
     NSError *error;

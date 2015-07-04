@@ -90,17 +90,17 @@
     [self runForSeconds:3.0];
 }
 
-- (void)testDisconnectionWithError
-{
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
-    peerGroup.maxConnections = 5;
-    [peerGroup startConnections];
-    [self runForSeconds:3.0];
-    [peerGroup.pool closeConnections:2 error:WSErrorMake(WSErrorCodeInsufficientFunds, @"TEST: this is a mock error")];
-    [self runForSeconds:3.0];
-    [peerGroup stopConnections];
-    [self runForSeconds:2.0];
-}
+//- (void)testDisconnectionWithError
+//{
+//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+//    peerGroup.maxConnections = 5;
+//    [peerGroup startConnections];
+//    [self runForSeconds:3.0];
+//    [peerGroup.pool closeConnections:2 error:WSErrorMake(WSErrorCodeInsufficientFunds, @"TEST: this is a mock error")];
+//    [self runForSeconds:3.0];
+//    [peerGroup stopConnections];
+//    [self runForSeconds:2.0];
+//}
 
 - (void)testPersistentConnection
 {
