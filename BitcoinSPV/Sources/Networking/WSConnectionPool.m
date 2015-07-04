@@ -122,7 +122,7 @@
 - (void)closeAllConnections
 {
     @synchronized (self.handlers) {
-        for (WSConnectionHandler *handler in [self.handlers copy]) {
+        for (WSConnectionHandler *handler in [self.handlers allValues]) {
             [self unsafeTryDisconnectHandler:handler error:nil];
         }
     }
@@ -155,7 +155,7 @@
 {
     NSParameterAssert(processor);
 
-    for (WSConnectionHandler *handler in self.handlers) {
+    for (WSConnectionHandler *handler in [self.handlers allValues]) {
         if (handler.processor == processor) {
             return handler;
         }
