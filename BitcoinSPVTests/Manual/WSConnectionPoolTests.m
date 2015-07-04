@@ -72,15 +72,15 @@
     NSString *host = self.hosts[0];
     
     GCDAsyncSocket *socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-    [socket connectToHost:host onPort:[WSCurrentParameters peerPort] error:NULL];
+    [socket connectToHost:host onPort:[self.networkParameters peerPort] error:NULL];
     [self runForSeconds:2.0];
 }
 
 - (void)testPool
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     for (NSString *h in self.hosts) {
-        [pool openConnectionToHost:h port:[WSCurrentParameters peerPort] processor:nil];
+        [pool openConnectionToHost:h port:[self.networkParameters peerPort] processor:nil];
     }
     [self runForSeconds:2.0];
     [pool closeAllConnections];
@@ -90,8 +90,8 @@
 {
     NSString *anyHost = self.hosts[mrand48() % self.hosts.count];
     
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
-    [pool openConnectionToPeerHost:anyHost];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
+    [pool openConnectionToPeerHost:anyHost parameters:self.networkParameters];
     [self runForSeconds:2.0];
     [pool closeAllConnections];
     [self runForSeconds:2.0];
@@ -99,9 +99,9 @@
 
 - (void)testMultiplePeerPool
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] init];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     for (NSString *h in self.hosts) {
-        [pool openConnectionToPeerHost:h];
+        [pool openConnectionToPeerHost:h parameters:self.networkParameters];
     }
     [self runForSeconds:2.0];
     [pool closeAllConnections];
