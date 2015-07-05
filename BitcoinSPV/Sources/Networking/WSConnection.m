@@ -1,5 +1,5 @@
 //
-//  WSConnectionProcessor.m
+//  WSConnection.m
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 26/03/15.
@@ -25,4 +25,4 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSConnectionProcessor.h"
+#import "WSConnection.h"

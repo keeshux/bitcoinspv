@@ -26,8 +26,6 @@
 //
 
 #import "WSConnectionPool.h"
-#import "WSConnectionHandler.h"
-#import "WSConnectionProcessor.h"
 #import "WSProtocolDeserializer.h"
 #import "WSBuffer.h"
 #import "WSMessage.h"

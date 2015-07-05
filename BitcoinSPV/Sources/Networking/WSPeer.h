@@ -28,7 +28,6 @@
 #import <Foundation/Foundation.h>
 
 #import "WSConnectionPool.h"
-#import "WSConnectionProcessor.h"
 #import "WSMessageFactory.h"
 #import "WSInventory.h"
 

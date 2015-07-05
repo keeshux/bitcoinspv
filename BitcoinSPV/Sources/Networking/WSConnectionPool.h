@@ -27,10 +27,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "WSConnectionHandler.h"
+#import "WSConnection.h"
 
 @protocol WSParameters;
-@protocol WSConnectionProcessor;
 
 //
 // thread-safe: yes

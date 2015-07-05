@@ -1,5 +1,5 @@
 //
-//  WSConnectionHandler.h
+//  WSConnection.h
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 26/03/15.
@@ -51,5 +51,13 @@
 
 - (void)connectionHandlerDidConnect:(id<WSConnectionHandler>)connectionHandler;
 - (void)connectionHandler:(id<WSConnectionHandler>)connectionHandler didDisconnectWithError:(NSError *)error;
+
+@end
+
+@protocol WSConnectionProcessor <NSObject>
+
+- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port handler:(id<WSConnectionHandler>)handler;
+- (void)processMessage:(id<WSMessage>)message;
+- (void)closedConnectionWithError:(NSError *)error;
 
 @end
