@@ -27,33 +27,29 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol WSParameters;
+@protocol WSMessage;
 @protocol WSConnectionProcessor;
-@protocol WSConnectionHandlerDelegate;
 
-@interface WSConnectionHandler : NSObject <NSStreamDelegate>
+//
+// thread-safety: required
+//
+@protocol WSConnectionHandler <NSObject>
 
-@property (nonatomic, weak) id<WSConnectionHandlerDelegate> delegate;
-
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
 - (NSString *)host;
 - (uint16_t)port;
+- (NSString *)identifier;
 - (id<WSConnectionProcessor>)processor;
 
-- (void)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)error;
 - (BOOL)isConnected;
+- (void)submitBlock:(void (^)())block;
+- (void)writeMessage:(id<WSMessage>)message; // MUST be executed from within submitBlock:
 - (void)disconnectWithError:(NSError *)error;
-
-- (void)runBlock:(void (^)())block;
-- (void)unsafeEnqueueData:(NSData *)data;
-- (void)unsafeFlush;
-- (NSString *)identifier;
 
 @end
 
 @protocol WSConnectionHandlerDelegate <NSObject>
 
-- (void)connectionHandlerDidConnect:(WSConnectionHandler *)connectionHandler;
-- (void)connectionHandler:(WSConnectionHandler *)connectionHandler didDisconnectWithError:(NSError *)error;
+- (void)connectionHandlerDidConnect:(id<WSConnectionHandler>)connectionHandler;
+- (void)connectionHandler:(id<WSConnectionHandler>)connectionHandler didDisconnectWithError:(NSError *)error;
 
 @end

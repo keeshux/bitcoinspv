@@ -8,10 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		0E0E7C6C1AC44E0E00E7840B /* WSConnectionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */; };
-		0E0E7C6F1AC47B4500E7840B /* WSConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6E1AC47B4500E7840B /* WSConnection.m */; };
+		0E0E7C6F1AC47B4500E7840B /* WSConnectionProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6E1AC47B4500E7840B /* WSConnectionProcessor.m */; };
 		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
-		0E5543B71B376B9B008639CE /* WSSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2981979D18000783ADF /* WSSyncTests.m */; };
 		0E6A02B91A2F762B001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E761AB61AE6629A00F1F068 /* WSMacrosCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E761AB51AE6629A00F1F068 /* WSMacrosCore.m */; };
@@ -201,8 +200,8 @@
 /* Begin PBXFileReference section */
 		0E0E7C6A1AC44E0E00E7840B /* WSConnectionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSConnectionHandler.h; sourceTree = "<group>"; };
 		0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnectionHandler.m; sourceTree = "<group>"; };
-		0E0E7C6D1AC47B4500E7840B /* WSConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSConnection.h; sourceTree = "<group>"; };
-		0E0E7C6E1AC47B4500E7840B /* WSConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnection.m; sourceTree = "<group>"; };
+		0E0E7C6D1AC47B4500E7840B /* WSConnectionProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSConnectionProcessor.h; sourceTree = "<group>"; };
+		0E0E7C6E1AC47B4500E7840B /* WSConnectionProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnectionProcessor.m; sourceTree = "<group>"; };
 		0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21Tests.m; sourceTree = "<group>"; };
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
@@ -939,12 +938,12 @@
 		8CBF49FC1969DF0000FAFF64 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				0E0E7C6D1AC47B4500E7840B /* WSConnection.h */,
-				0E0E7C6E1AC47B4500E7840B /* WSConnection.m */,
 				0E0E7C6A1AC44E0E00E7840B /* WSConnectionHandler.h */,
 				0E0E7C6B1AC44E0E00E7840B /* WSConnectionHandler.m */,
 				8CBF4A08196A850F00FAFF64 /* WSConnectionPool.h */,
 				8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */,
+				0E0E7C6D1AC47B4500E7840B /* WSConnectionProcessor.h */,
+				0E0E7C6E1AC47B4500E7840B /* WSConnectionProcessor.m */,
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
 				8CBF4A0F196AA94D00FAFF64 /* WSPeer.m */,
 				8CDE10F2196CE0C500A14493 /* WSPeerGroup.h */,
@@ -1280,7 +1279,7 @@
 				8C8890FC1989532400BB19CA /* WSBitcoinConstants.m in Sources */,
 				8C49705A196EEEF800BD9D3B /* WSHDKeyring.m in Sources */,
 				8C8AE017196786CA007787ED /* NSData+Base58.m in Sources */,
-				0E0E7C6F1AC47B4500E7840B /* WSConnection.m in Sources */,
+				0E0E7C6F1AC47B4500E7840B /* WSConnectionProcessor.m in Sources */,
 				8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */,
 				0EA147251A55B48600AA400D /* WSWebTickerMonitor.m in Sources */,
 				8C865DE7196BFD6400DB98C2 /* WSAbstractMessageLocatorBased.m in Sources */,
@@ -1356,7 +1355,6 @@
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
 				8C5DB95419677E9100AF079E /* BitcoinSPVTests.m in Sources */,
-				0E5543B71B376B9B008639CE /* WSSyncTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
 				8C8FB835196776F300A07156 /* WSScriptTests.m in Sources */,
 				8C8FB82D196776F300A07156 /* WSBIP37Tests.m in Sources */,

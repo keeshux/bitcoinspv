@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 
 #import "WSConnectionPool.h"
-#import "WSConnection.h"
+#import "WSConnectionProcessor.h"
 #import "WSMessageFactory.h"
 #import "WSInventory.h"
 
@@ -46,7 +46,7 @@ typedef enum {
 } WSPeerStatus;
 
 typedef enum {
-    WSPeerServicesNodeNetwork = 0x1     // indicates a node offers full blocks, not just headers
+    WSPeerServicesNodeNetwork = 0x01    // indicates a node offers full blocks, not just headers
 } WSPeerServices;
 
 #pragma mark -

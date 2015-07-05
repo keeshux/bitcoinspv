@@ -1,5 +1,5 @@
 //
-//  WSConnection.m
+//  WSConnectionProcessor.h
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 26/03/15.
@@ -25,4 +25,15 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSConnection.h"
+#import <Foundation/Foundation.h>
+
+@protocol WSMessage;
+@protocol WSConnectionHandler;
+
+@protocol WSConnectionProcessor <NSObject>
+
+- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port handler:(id<WSConnectionHandler>)handler;
+- (void)processMessage:(id<WSMessage>)message;
+- (void)closedConnectionWithError:(NSError *)error;
+
+@end

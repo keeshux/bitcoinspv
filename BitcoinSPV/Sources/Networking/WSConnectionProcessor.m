@@ -1,5 +1,5 @@
 //
-//  WSConnection.h
+//  WSConnectionProcessor.m
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 26/03/15.
@@ -25,26 +25,4 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <Foundation/Foundation.h>
-
-@protocol WSMessage;
-
-//
-// thread-safety: required
-//
-@protocol WSConnection <NSObject>
-
-- (void)submitBlock:(void (^)())block;
-- (void)writeMessage:(id<WSMessage>)message; // MUST be executed from within submitBlock:
-- (void)disconnectWithError:(NSError *)error;
-
-@end
-
-@protocol WSConnectionProcessor <NSObject>
-
-- (void)setConnection:(id<WSConnection>)connection;
-- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port queue:(dispatch_queue_t)queue;
-- (void)processMessage:(id<WSMessage>)message;
-- (void)closedConnectionWithError:(NSError *)error;
-
-@end
+#import "WSConnectionProcessor.h"

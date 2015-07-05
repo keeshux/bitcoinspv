@@ -101,7 +101,7 @@
 #endif
 
 // WSConnectionProcessor
-@property (nonatomic, strong) id<WSConnection> connection;
+@property (nonatomic, strong) id<WSConnectionHandler> connection;
 
 // download state
 @property (nonatomic, assign) BOOL isDownloading;
@@ -222,7 +222,7 @@
 
 #pragma mark WSConnectionProcessor (connection queue)
 
-- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port queue:(dispatch_queue_t)queue
+- (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port handler:(id<WSConnectionHandler>)handler
 {
     NSAssert([host isEqualToString:self.remoteHost], @"Connected host differs from remoteHost");
     NSAssert(port == self.remotePort, @"Connected port differs from remotePort");
