@@ -100,8 +100,8 @@
 @property (nonatomic, strong) NSMutableArray *messageQueue;
 #endif
 
-// WSConnectionProcessor
-@property (nonatomic, strong) id<WSConnectionHandler> connection;
+// set on [WSConnectionProcessor openedConnectionToHost:port:handler:]
+@property (nonatomic, strong) id<WSConnectionHandler> handler;
 
 // download state
 @property (nonatomic, assign) BOOL isDownloading;
@@ -228,6 +228,8 @@
     NSAssert(port == self.remotePort, @"Connected port differs from remotePort");
 
     @synchronized (self) {
+        self.handler = handler;
+
         _peerStatus = WSPeerStatusConnecting;
         _didReceiveVerack = NO;
         _didSendVerack = NO;
@@ -251,7 +253,7 @@
         [self.delegate peerDidKeepAlive:self];
     });
     
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         if (message.originalLength < 1024) {
             DDLogVerbose(@"%@ Received %@ (%u+%u bytes)", self, message, WSMessageHeaderLength, message.originalLength);
         }
@@ -429,7 +431,7 @@
 //    self.lastSeenTimestamp = NSTimeIntervalSince1970;
 //    self.receivedVersion = nil;
     
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self.pendingBlockIds removeAllObjects];
         [self.processingBlockIds removeAllObjects];
     }];
@@ -440,7 +442,7 @@
 // private
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:_remoteServices ipv4Address:_remoteAddress port:_remotePort];
         WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
                                                                     version:WSPeerProtocol
@@ -459,7 +461,7 @@
 // private
 - (void)sendVerackMessage
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         if (_didSendVerack) {
             DDLogWarn(@"%@ Unexpected 'verack' sending", self);
             return;
@@ -483,7 +485,7 @@
 {
     WSExceptionCheckIllegal(inventories.count > 0);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageInv messageWithParameters:self.parameters inventories:inventories]];
     }];
 }
@@ -503,7 +505,7 @@
 {
     WSExceptionCheckIllegal(inventories.count > 0);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         NSMutableArray *blockHashes = [[NSMutableArray alloc] initWithCapacity:inventories.count];
         BOOL willRequestFilteredBlocks = NO;
 
@@ -556,7 +558,7 @@
 {
     WSExceptionCheckIllegal(inventories.count > 0);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageNotfound messageWithParameters:self.parameters inventories:inventories]];
     }];
 }
@@ -565,7 +567,7 @@
 {
     WSExceptionCheckIllegal(locator);
     
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageGetblocks messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
     }];
 }
@@ -574,7 +576,7 @@
 {
     WSExceptionCheckIllegal(locator);
     
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageGetheaders messageWithParameters:self.parameters version:WSPeerProtocol locator:locator hashStop:hashStop]];
     }];
 }
@@ -583,28 +585,28 @@
 {
     WSExceptionCheckIllegal(transaction);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageTx messageWithParameters:self.parameters transaction:transaction]];
     }];
 }
 
 - (void)sendGetaddr
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageGetaddr messageWithParameters:self.parameters]];
     }];
 }
 
 - (void)sendMempoolMessage
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessageMempool messageWithParameters:self.parameters]];
     }];
 }
 
 - (void)sendPingMessage
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         NSAssert(_nonce, @"Nonce not set, is handshake complete?");
 
         [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
@@ -613,7 +615,7 @@
 
 - (void)sendPongMessageWithNonce:(uint64_t)nonce
 {
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         [self unsafeSendMessage:[WSMessagePong messageWithParameters:self.parameters nonce:nonce]];
     }];
 }
@@ -622,7 +624,7 @@
 {
     WSExceptionCheckIllegal(filter);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         self.filteredBlockCount = 0;
         [self unsafeSendMessage:[WSMessageFilterload messageWithParameters:self.parameters filter:filter]];
     }];
@@ -747,7 +749,7 @@
 
     NSError *error;
     if (![block.header verifyWithError:&error]) {
-        [self.connection disconnectWithError:error];
+        [self.handler disconnectWithError:error];
         return;
     }
     
@@ -767,7 +769,7 @@
     for (WSBlockHeader *header in message.headers) {
         NSError *error;
         if (![header verifyWithError:&error]) {
-            [self.connection disconnectWithError:error];
+            [self.handler disconnectWithError:error];
             return;
         }
     }
@@ -792,7 +794,7 @@
 {
     NSError *error;
     if (![message.block.header verifyWithError:&error]) {
-        [self.connection disconnectWithError:error];
+        [self.handler disconnectWithError:error];
         return;
     }
 
@@ -893,7 +895,7 @@
 //        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
 //                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
 
-    [self.connection submitBlock:^{
+    [self.handler submitBlock:^{
         NSArray *outdatedIds = [self.processingBlockIds array];
     
 #warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
@@ -1088,7 +1090,7 @@
 //        }
 //    }
 
-    [self.connection writeMessage:message];
+    [self.handler writeMessage:message];
 
     dispatch_async(self.delegateQueue, ^{
         [self.delegate peer:self didSendNumberOfBytes:message.length];
