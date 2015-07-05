@@ -91,7 +91,7 @@
 
 - (void)testGetaddr
 {
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class], [WSMessagePing class]]];
     [self.peer sendGetaddr];
     
     WSMessageAddr *message = (WSMessageAddr *)[self assertPeerMessageClass:[WSMessageAddr class] timeout:10.0];
