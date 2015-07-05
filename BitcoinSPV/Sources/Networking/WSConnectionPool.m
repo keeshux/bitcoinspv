@@ -310,12 +310,12 @@
     NSUInteger headerLength;
     WSBuffer *buffer = [message toNetworkBufferWithHeaderLength:&headerLength];
     if (buffer.length > WSMessageMaxLength) {
-        DDLogError(@"%@ Error sending '%@', message is too long (%u > %u)", self, message.messageType, buffer.length, WSMessageMaxLength);
+        DDLogError(@"Error sending '%@', message is too long (%u > %u)", message.messageType, buffer.length, WSMessageMaxLength);
         return;
     }
     
-    DDLogVerbose(@"%@ Sending %@ (%u+%u bytes)", self, message, headerLength, buffer.length - headerLength);
-    DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
+    DDLogVerbose(@"Sending %@ (%u+%u bytes)", message, headerLength, buffer.length - headerLength);
+    DDLogVerbose(@"Sending data: %@", [buffer.data hexString]);
     
     [self unsafeEnqueueData:buffer.data];
     [self unsafeFlush];
@@ -373,7 +373,7 @@
                 }
                 else {
                     if (error) {
-                        DDLogError(@"%@ Error deserializing message: %@", self, error);
+                        DDLogError(@"Error deserializing message: %@", error);
                         if (error.code == WSErrorCodeMalformed) {
                             [self disconnectWithError:error];
                         }
@@ -392,7 +392,7 @@
             break;
         }
         default: {
-            DDLogError(@"Unknown network stream eventCode %u from %@", (int)eventCode, self);
+            DDLogError(@"Unknown network stream eventCode %u", (int)eventCode);
             break;
         }
     }
