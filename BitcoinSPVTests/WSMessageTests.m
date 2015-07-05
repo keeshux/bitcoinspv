@@ -25,13 +25,8 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <arpa/inet.h>
-
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSMessageFactory.h"
 #import "WSNetworkAddress.h"
-#import "WSBlockLocator.h"
-#import "WSPeer.h"
 #import "WSProtocolDeserializer.h"
 
 @interface WSMessageTests : XCTestCase

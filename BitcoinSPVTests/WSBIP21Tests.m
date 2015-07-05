@@ -26,7 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "BitcoinSPV.h"
 
 @interface WSBIP21Tests : XCTestCase
 

@@ -70,5 +70,11 @@
 #import "WSBIP38.h"
 #import "WSBIP39.h"
 
+#import "NSString+Binary.h"
+#import "NSString+Base58.h"
+#import "NSData+Binary.h"
+#import "NSData+Base58.h"
+#import "NSData+Hash.h"
+
 #import "WSErrors.h"
 #import "WSMacrosCore.h"

@@ -27,16 +27,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "WSParameters.h"
+#import "BitcoinSPV.h"
 #import "WSLogging.h"
-#import "WSBitcoinConstants.h"
-#import "WSMacrosCore.h"
-#import "WSErrors.h"
-#import "NSString+Base58.h"
-#import "NSString+Binary.h"
-#import "NSData+Base58.h"
-#import "NSData+Binary.h"
-#import "NSData+Hash.h"
 
 @protocol WSMessage;
 @class WSPeer;

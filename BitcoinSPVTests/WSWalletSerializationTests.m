@@ -26,10 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSHDWallet.h"
-#import "WSSeed.h"
-#import "WSKey.h"
-#import "WSAddress.h"
 
 #define WALLET_GAP_LIMIT            5
 

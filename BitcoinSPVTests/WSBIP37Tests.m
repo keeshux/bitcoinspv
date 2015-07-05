@@ -26,7 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSBloomFilter.h"
 
 @interface WSBIP37Tests : XCTestCase
 

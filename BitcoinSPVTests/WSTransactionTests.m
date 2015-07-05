@@ -26,16 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSTransactionOutPoint.h"
-#import "WSTransactionInput.h"
-#import "WSTransactionOutput.h"
-#import "WSTransaction.h"
-#import "WSScript.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
-#import "WSAddress.h"
-#import "WSBuffer.h"
-#import "BitcoinSPV.h"
 
 @interface WSTransactionTests : XCTestCase
 

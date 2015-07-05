@@ -26,10 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPeerGroup.h"
-#import "WSPeer.h"
-#import "WSConnectionPool.h"
-#import "WSMemoryBlockStore.h"
 
 @interface WSPeerGroup ()
 

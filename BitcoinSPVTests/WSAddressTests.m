@@ -26,8 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPublicKey.h"
-#import "NSData+Base58.h"
 
 @interface WSAddressTests : XCTestCase
 

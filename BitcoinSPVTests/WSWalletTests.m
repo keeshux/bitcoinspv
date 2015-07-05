@@ -26,13 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSHDWallet.h"
-#import "WSSeed.h"
-#import "WSBIP32.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
-#import "WSAddress.h"
-#import "WSTransaction.h"
 
 // XXX: hacks internal ivars, check key names in valueForKey:
 

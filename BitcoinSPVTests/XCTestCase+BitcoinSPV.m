@@ -26,8 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSMessage.h"
-#import "WSPeer.h"
 
 // XXX: I know, but CFRunLoopStop is useless and category properties are overkill
 static volatile BOOL running;

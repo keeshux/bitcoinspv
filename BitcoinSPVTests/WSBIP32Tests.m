@@ -29,8 +29,6 @@
 
 #import "XCTestCase+BitcoinSPV.h"
 #import "WSHDKeyring.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
 
 @interface WSBIP32Tests : XCTestCase
 

@@ -25,16 +25,9 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <openssl/bn.h>
-
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSBlockHeader.h"
-#import "WSBlock.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
-#import "WSMessageFactory.h"
-#import "WSStorableBlock.h"
-#import "WSMacrosCore.h"
 
 @interface WSStorableBlock ()
 

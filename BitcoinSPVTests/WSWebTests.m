@@ -29,7 +29,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "BitcoinSPV.h"
 
 @interface WSWebUtilsTests : XCTestCase
 

@@ -26,16 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPeerGroup.h"
-#import "WSPeer.h"
-#import "WSConnectionPool.h"
-#import "WSCoreDataManager.h"
-#import "WSMemoryBlockStore.h"
-#import "WSCoreDataBlockStore.h"
-#import "WSStorableBlock.h"
-#import "WSBlockChain.h"
-#import "WSTransaction.h"
-#import "WSHDWallet.h"
 
 @interface WSHDWallet ()
 

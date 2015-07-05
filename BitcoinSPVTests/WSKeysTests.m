@@ -26,8 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
 
 @interface WSKeysTests : XCTestCase
 

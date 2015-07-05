@@ -26,7 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSSeedGenerator.h"
 
 @interface WSBIP39Tests : XCTestCase
 

@@ -26,10 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPublicKey.h"
-#import "WSScript.h"
-#import "WSAddress.h"
-#import "WSHash160.h"
 
 @interface WSScriptTests : XCTestCase
 

@@ -29,26 +29,8 @@
 #import <arpa/inet.h>
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSConnectionPool.h"
-#import "WSPeer.h"
-#import "WSBloomFilter.h"
-#import "WSMessage.h"
-#import "WSInventory.h"
-#import "WSTransactionOutPoint.h"
-#import "WSTransactionInput.h"
-#import "WSTransactionOutput.h"
-#import "WSTransaction.h"
-#import "WSKey.h"
-#import "WSPublicKey.h"
-#import "WSAddress.h"
-#import "WSSeed.h"
-#import "WSHDWallet.h"
-#import "WSMessageFactory.h"
-#import "WSBlockChain.h"
-#import "WSMemoryBlockStore.h"
-#import "WSBlockLocator.h"
-#import "WSBlockHeader.h"
 #import "WSConfig.h"
+#import "WSBlockLocator.h"
 
 @interface WSPeerTests : XCTestCase
 

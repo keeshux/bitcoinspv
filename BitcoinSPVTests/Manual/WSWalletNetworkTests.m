@@ -26,16 +26,6 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPeerGroup.h"
-#import "WSPeer.h"
-#import "WSConnectionPool.h"
-#import "WSCoreDataManager.h"
-#import "WSMemoryBlockStore.h"
-#import "WSCoreDataBlockStore.h"
-#import "WSSeed.h"
-#import "WSHDWallet.h"
-#import "WSTransaction.h"
-#import "WSStorableBlock.h"
 
 #define WALLET_GAP_LIMIT            10
 
