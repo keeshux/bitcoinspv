@@ -34,7 +34,7 @@
 #import "WSErrors.h"
 #import "NSData+Binary.h"
 
-@interface WSRunLoopConnectionHandler : NSObject <WSConnectionHandler, NSStreamDelegate>
+@interface WSStreamConnectionHandler : NSObject <WSConnectionHandler, NSStreamDelegate>
 
 @property (nonatomic, weak) id<WSConnectionHandlerDelegate> delegate;
 
@@ -82,7 +82,7 @@
 {
     WSExceptionCheckIllegal(host);
 
-    WSRunLoopConnectionHandler *handler;
+    WSStreamConnectionHandler *handler;
 
     @synchronized (self.handlers) {
         for (handler in [self.handlers allValues]) {
@@ -91,7 +91,7 @@
             }
         }
         
-        handler = [[WSRunLoopConnectionHandler alloc] initWithParameters:self.parameters host:host port:port processor:processor];
+        handler = [[WSStreamConnectionHandler alloc] initWithParameters:self.parameters host:host port:port processor:processor];
         handler.delegate = self;
         self.handlers[handler.identifier] = handler;
 
@@ -195,7 +195,7 @@
 
 #pragma mark -
 
-@interface WSRunLoopConnectionHandler ()
+@interface WSStreamConnectionHandler ()
 
 @property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) NSString *host;
@@ -215,7 +215,7 @@
 
 @end
 
-@implementation WSRunLoopConnectionHandler
+@implementation WSStreamConnectionHandler
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
 {
