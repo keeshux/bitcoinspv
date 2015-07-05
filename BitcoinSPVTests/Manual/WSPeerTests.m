@@ -91,7 +91,7 @@
 
 - (void)testGetaddr
 {
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class], [WSMessagePing class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetaddr];
     
     WSMessageAddr *message = (WSMessageAddr *)[self assertPeerMessageClass:[WSMessageAddr class] timeout:10.0];
@@ -105,7 +105,7 @@
     WSBlockLocator *locator = [bc currentLocator];
     WSHash256 *hashStop = nil;
     
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetblocksMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageInv *message = (WSMessageInv *)[self assertPeerMessageClass:[WSMessageInv class]];
@@ -123,7 +123,7 @@
     WSBlockLocator *locator = [bc currentLocator];
     WSHash256 *hashStop = nil;
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetheadersMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageHeaders *message = (WSMessageHeaders *)[self assertPeerMessageClass:[WSMessageHeaders class]];
@@ -160,7 +160,7 @@
     WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:hashes];
     WSHash256 *hashStop = WSHash256FromHex(@"00000000283a18616ffce66d4ae48407aa03ac3bcee847d1b02e9b6c0716f493");
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetheadersMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageHeaders *message = (WSMessageHeaders *)[self assertPeerMessageClass:[WSMessageHeaders class]];
@@ -181,7 +181,7 @@
     
     WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:hashes];
     
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetheadersMessageWithLocator:locator hashStop:[hashes lastObject]];
     [self assertPeerMessageClass:[WSMessageHeaders class]];
 }
@@ -194,7 +194,7 @@
         [inventories addObject:WSInventoryTxFromHex(hex)];
     }
     
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetdataMessageWithInventories:inventories];
     [self assertPeerMessageClass:[WSMessageNotfound class]];
 }
@@ -209,7 +209,7 @@
 //        [inventories addObject:WSInventoryBlock(hex)];
 //    }
 //
-//    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+//    [self assertPeerHandshake];
 //    [self.peer sendGetdataMessageWithInventories:inventories];
 //    [self assertPeerMessageSequence:@[[WSMessageBlock class]]];
 //}
@@ -234,7 +234,7 @@
         [inventories addObject:WSInventoryFilteredBlockFromHex(hex)];
     }
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendGetdataMessageWithInventories:inventories];
 //    [self assertPeerMessageSequence:@[[WSMessageMerkleblock class], [WSMessageTx class], [WSMessageTx class]]];
     [self runForever];
@@ -280,7 +280,7 @@
         [inventories addObject:WSInventoryFilteredBlockFromHex(hex)];
     }
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendFilterloadMessageWithFilter:filter];
     [self.peer sendGetdataMessageWithInventories:inventories];
     [self assertPeerMessageSequence:@[[WSMessageMerkleblock class], [WSMessageTx class]]];
@@ -317,7 +317,7 @@
         [inventories addObject:WSInventoryFilteredBlockFromHex(hex)];
     }
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendFilterloadMessageWithFilter:filter];
     [self.peer sendGetdataMessageWithInventories:inventories];
     [self assertPeerMessageSequence:@[[WSMessageMerkleblock class], [WSMessageTx class]]];
@@ -424,7 +424,7 @@
         [inventories addObject:WSInventoryFilteredBlockFromHex(hex)];
     }
 
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendFilterloadMessageWithFilter:filter];
     [self.peer sendGetdataMessageWithInventories:inventories];
     [self assertPeerMessageSequence:@[[WSMessageMerkleblock class], [WSMessageTx class]]];
@@ -459,7 +459,7 @@
         [inventories addObject:WSInventoryFilteredBlockFromHex(hex)];
     }
     
-    [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class]]];
+    [self assertPeerHandshake];
     [self.peer sendFilterloadMessageWithFilter:filter];
     [self.peer sendGetdataMessageWithInventories:inventories];
     [self assertPeerMessageSequence:@[[WSMessageMerkleblock class], [WSMessageTx class]]];
@@ -580,6 +580,11 @@
 - (id<WSMessage>)assertPeerMessageSequence:(NSArray *)sequence
 {
     return [super assertMessageSequenceForPeer:self.peer expectedClasses:sequence timeout:3.0];
+}
+
+- (id<WSMessage>)assertPeerHandshake
+{
+    return [self assertPeerMessageSequence:@[[WSMessageVersion class], [WSMessageVerack class], [WSMessagePing class]]];
 }
 
 @end
