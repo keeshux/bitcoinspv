@@ -30,6 +30,9 @@
 
 #import "XCTestCase+BitcoinSPV.h"
 #import "WSConfig.h"
+#import "WSConnectionPool.h"
+#import "WSBlockChain.h"
+#import "WSPeer.h"
 #import "WSBlockLocator.h"
 
 @interface WSPeerTests : XCTestCase
@@ -48,7 +51,7 @@
 
     self.networkType = WSNetworkTypeTestnet3;
 
-    self.pool = [[WSConnectionPool alloc] init];
+    self.pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
     self.bloomFilterParameters.falsePositiveRate = WSPeerGroupDefaultBFRateMin;
     DDLogInfo(@"Bloom filter parameters: %@", self.bloomFilterParameters);

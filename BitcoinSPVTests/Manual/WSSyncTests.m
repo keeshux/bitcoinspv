@@ -26,6 +26,7 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
+#import "WSPeerGroup.h"
 
 @interface WSSyncTests : XCTestCase
 

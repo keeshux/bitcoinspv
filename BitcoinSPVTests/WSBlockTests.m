@@ -28,6 +28,7 @@
 #import "XCTestCase+BitcoinSPV.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
+#import "WSMessageHeaders.h"
 
 @interface WSStorableBlock ()
 

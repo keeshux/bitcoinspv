@@ -26,6 +26,7 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
+#import "WSMessage.h"
 #import "WSNetworkAddress.h"
 #import "WSProtocolDeserializer.h"
 
