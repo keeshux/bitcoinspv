@@ -125,36 +125,36 @@
     });
 }
 
-- (void)testFlood
-{
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
-
-    for (int i = 0; i < 100; ++i) {
-        const int which = mrand48() % 4;
-
-        switch (which) {
-            case 0: {
-                [peerGroup startConnections];
-                break;
-            }
-            case 1: {
-                [peerGroup stopConnections];
-                break;
-            }
-            case 2: {
-                [peerGroup startBlockChainDownload];
-                break;
-            }
-            case 3: {
-                [peerGroup stopBlockChainDownload];
-                break;
-            }
-        }
-        
-        [self runForSeconds:0.5];
-    }
-    
-    [self runForSeconds:10.0];
-}
+//- (void)testFlood
+//{
+//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+//
+//    for (int i = 0; i < 100; ++i) {
+//        const int which = mrand48() % 4;
+//
+//        switch (which) {
+//            case 0: {
+//                [peerGroup startConnections];
+//                break;
+//            }
+//            case 1: {
+//                [peerGroup stopConnections];
+//                break;
+//            }
+//            case 2: {
+//                [peerGroup startBlockChainDownload];
+//                break;
+//            }
+//            case 3: {
+//                [peerGroup stopBlockChainDownload];
+//                break;
+//            }
+//        }
+//        
+//        [self runForSeconds:0.5];
+//    }
+//    
+//    [self runForSeconds:10.0];
+//}
 
 @end

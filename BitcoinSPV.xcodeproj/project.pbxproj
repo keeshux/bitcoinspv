@@ -39,6 +39,8 @@
 		0EA1472B1A55B8B900AA400D /* WSWebTickerBitstamp.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472A1A55B8B900AA400D /* WSWebTickerBitstamp.m */; };
 		0EA1472E1A55C2B900AA400D /* WSWebTickerBlockchain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */; };
 		0EA9FB831A5906FF00A7FFCC /* WSNetworkType.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */; };
+		0ED5E2FA1B4A9C860057B9D8 /* WSPeerGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */; };
+		0ED5E2FD1B4AC5780057B9D8 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
@@ -255,6 +257,10 @@
 		0EA1472D1A55C2B900AA400D /* WSWebTickerBlockchain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBlockchain.m; sourceTree = "<group>"; };
 		0EA9FB811A5906FF00A7FFCC /* WSNetworkType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSNetworkType.h; sourceTree = "<group>"; };
 		0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSNetworkType.m; sourceTree = "<group>"; };
+		0ED5E2F81B4A9C860057B9D8 /* WSPeerGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroup.h; sourceTree = "<group>"; };
+		0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroup.m; sourceTree = "<group>"; };
+		0ED5E2FB1B4AC5780057B9D8 /* WSPeerGroupNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroupNotifier.h; sourceTree = "<group>"; };
+		0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupNotifier.m; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebExplorer.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
 		0ED831201B4849F8001447D1 /* WSWebTickerBitPay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBitPay.h; sourceTree = "<group>"; };
@@ -935,6 +941,10 @@
 				8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */,
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
 				8CBF4A0F196AA94D00FAFF64 /* WSPeer.m */,
+				0ED5E2F81B4A9C860057B9D8 /* WSPeerGroup.h */,
+				0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */,
+				0ED5E2FB1B4AC5780057B9D8 /* WSPeerGroupNotifier.h */,
+				0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */,
 				8CBF4A031969DF6600FAFF64 /* WSProtocolDeserializer.h */,
 				8CBF4A041969DF6600FAFF64 /* WSProtocolDeserializer.m */,
 				8CD3EE99196D912400FC48F1 /* WSReachability.h */,
@@ -1287,7 +1297,9 @@
 				0E767A851AE6581F00297C63 /* WSBloomFilter.m in Sources */,
 				8C497061196EEEF800BD9D3B /* WSSeed.m in Sources */,
 				8C49825C1970B316007CE061 /* WSStorableBlockEntity.m in Sources */,
+				0ED5E2FA1B4A9C860057B9D8 /* WSPeerGroup.m in Sources */,
 				8C8AE010196786CA007787ED /* WSMessagePing.m in Sources */,
+				0ED5E2FD1B4AC5780057B9D8 /* WSPeerGroupNotifier.m in Sources */,
 				8CBF4A051969DF6600FAFF64 /* WSProtocolDeserializer.m in Sources */,
 				8C8AE00C196786CA007787ED /* WSMessageInv.m in Sources */,
 				8C8AE002196786CA007787ED /* WSConfig.m in Sources */,

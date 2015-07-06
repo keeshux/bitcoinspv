@@ -65,32 +65,20 @@
 
 // WARNING: set properties before starting connections
 
-// group related
+// connection
 @property (nonatomic, strong) NSArray *peerHosts;                           // nil
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0
-@property (nonatomic, assign) double bloomFilterRateMin;                    // 0.0001
-@property (nonatomic, assign) double bloomFilterRateDelta;                  // 0.0004
-@property (nonatomic, assign) double bloomFilterObservedRateMax;            // 0.005
-@property (nonatomic, assign) double bloomFilterLowPassRatio;               // 0.01
-@property (nonatomic, assign) NSUInteger bloomFilterTxsPerBlock;            // 600
-@property (nonatomic, assign) NSUInteger blockStoreSize;                    // 2500
-
-// peer related
-@property (nonatomic, assign) BOOL headersOnly;                             // NO
-@property (nonatomic, assign) NSTimeInterval requestTimeout;                // 15.0
-
-@property (nonatomic, strong) WSCoreDataManager *coreDataManager;           // nil
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
+//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
+//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
 
 // WARNING: queue must be of type DISPATCH_QUEUE_SERIAL
 - (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store;
-- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
-- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
+//- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
+//- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
 
 // connection
 - (BOOL)startConnections;
@@ -101,20 +89,15 @@
 - (NSUInteger)numberOfConnections;
 - (BOOL)hasReachedMaxConnections;
 
-// sync
-- (BOOL)startBlockChainDownload;
-- (BOOL)stopBlockChainDownload;
-- (BOOL)isDownloading;
-- (BOOL)isSynced;
-- (BOOL)reconnectForDownload;
-- (BOOL)rescan;
-
-// interaction
-- (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
-- (NSUInteger)currentHeight;
-- (NSUInteger)numberOfBlocksLeft;
-- (BOOL)controlsWallet:(id<WSSynchronizableWallet>)wallet;
-- (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
-- (void)saveState;
+//
+// WARNING: do not nil out peerGroup strong references until disconnection!
+//
+// WSPeer objects would not call peer:didDisconnectWithError: because peerGroup is
+// their (weak) delegate and would be deallocated prematurely
+//
+// as a consequence, peerGroup wouldn't exist anymore and would never report
+// any WSPeerGroupDidDisconnectNotification resulting in completionBlock
+// never called
+//
 
 @end
