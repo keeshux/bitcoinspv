@@ -50,14 +50,11 @@ typedef enum {
 
 #pragma mark -
 
-@interface WSPeerParameters : NSObject
+@interface WSPeerFlags : NSObject
 
-@property (nonatomic, assign) uint16_t port; // default network port
-
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
-              shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
-               needsBloomFiltering:(BOOL)needsBloomFiltering;
+- (instancetype)init;
+- (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
+                         needsBloomFiltering:(BOOL)needsBloomFiltering;
 
 - (BOOL)shouldDownloadBlocks;
 - (BOOL)needsBloomFiltering;
@@ -67,7 +64,7 @@ typedef enum {
 #pragma mark -
 
 //
-// All is done on groupQueue except data that is sent/received on connectionQueue.
+// All is done on group queue except data that is sent/received on handler queue.
 //
 
 @protocol WSPeerDelegate;
@@ -78,7 +75,7 @@ typedef enum {
 @property (nonatomic, weak) dispatch_queue_t delegateQueue;
 
 - (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters;
-- (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters;
+- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags;
 
 - (id<WSParameters>)parameters;
 
@@ -109,14 +106,6 @@ typedef enum {
 - (void)sendPingMessage;
 - (void)sendFilterloadMessageWithFilter:(WSBloomFilter *)filter;
 
-// download
-- (void)downloadBlockChain:(WSBlockChain *)blockChain
-      fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
-             prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock
-               syncedBlock:(void (^)(NSUInteger))syncedBlock;
-
-- (void)requestOutdatedBlocks;
-
 // for testing, needs BSPV_TEST_MESSAGE_QUEUE to work
 - (id<WSMessage>)dequeueMessageSynchronouslyWithTimeout:(NSUInteger)timeout;
 
@@ -134,7 +123,7 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block;
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction;
-- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay; // WSAddress
+- (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay; // WSNetworkAddress
 - (void)peer:(WSPeer *)peer didReceivePongMesage:(WSMessagePong *)pong;
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message;

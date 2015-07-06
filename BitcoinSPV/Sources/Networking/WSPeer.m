@@ -42,34 +42,27 @@
 #import "WSErrors.h"
 #import "NSData+Binary.h"
 
-@interface WSPeerParameters ()
+@interface WSPeerFlags ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 
 @end
 
-@implementation WSPeerParameters
+@implementation WSPeerFlags
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)init
 {
-    return [self initWithParameters:parameters
-               shouldDownloadBlocks:YES
-                needsBloomFiltering:YES];
+    return [self initWithShouldDownloadBlocks:YES
+                          needsBloomFiltering:YES];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
-              shouldDownloadBlocks:(BOOL)shouldDownloadBlocks
-               needsBloomFiltering:(BOOL)needsBloomFiltering
+- (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
+                         needsBloomFiltering:(BOOL)needsBloomFiltering
 {
-    WSExceptionCheckIllegal(parameters);
-
     if ((self = [super init])) {
-        self.parameters = parameters;
         self.shouldDownloadBlocks = shouldDownloadBlocks;
         self.needsBloomFiltering = needsBloomFiltering;
-        self.port = [self.parameters peerPort];
     }
     return self;
 }
@@ -93,27 +86,17 @@
     WSMessageVersion *_receivedVersion;
 }
 
-// only set on creation
+// set on creation
 @property (nonatomic, strong) id<WSParameters> parameters;
-#ifdef BSPV_TEST_MESSAGE_QUEUE
-@property (nonatomic, strong) NSCondition *messageQueueCondition;
-@property (nonatomic, strong) NSMutableArray *messageQueue;
-#endif
+@property (nonatomic, assign) BOOL shouldDownloadBlocks;
+@property (nonatomic, assign) BOOL needsBloomFiltering;
 
 // set on [WSConnectionProcessor openedConnectionToHost:port:handler:]
 @property (nonatomic, strong) id<WSConnectionHandler> handler;
 
-// download state
-@property (nonatomic, assign) BOOL isDownloading;
-@property (nonatomic, assign) BOOL shouldDownloadBlocks;
-@property (nonatomic, assign) BOOL needsBloomFiltering;
-@property (nonatomic, strong) NSCountedSet *pendingBlockIds;
-@property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
-@property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
+// stateful messages
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
 @property (nonatomic, strong) NSMutableOrderedSet *currentFilteredTransactions;
-@property (nonatomic, assign) NSUInteger filteredBlockCount;
-@property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
 // protocol
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions;
@@ -133,12 +116,7 @@
 - (void)receiveMerkleblockMessage:(WSMessageMerkleblock *)message;
 - (void)receiveRejectMessage:(WSMessageReject *)message;
 
-// download
-- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
-- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
-- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
-- (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
-- (void)addBlockHeaders:(NSArray *)headers; // WSBlockHeader
+// stateful messages
 - (void)beginFilteredBlock:(WSFilteredBlock *)filteredBlock;
 - (BOOL)addTransactionToCurrentFilteredBlock:(WSSignedTransaction *)transaction outdated:(BOOL *)outdated;
 - (void)endCurrentFilteredBlock;
@@ -147,37 +125,42 @@
 - (void)unsafeSendMessage:(id<WSMessage>)message;
 - (BOOL)tryFinishHandshake;
 
+#ifdef BSPV_TEST_MESSAGE_QUEUE
+@property (nonatomic, strong) NSCondition *messageQueueCondition;
+@property (nonatomic, strong) NSMutableArray *messageQueue;
+#endif
+
 @end
 
 @implementation WSPeer
 
 - (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters
 {
-    return [self initWithHost:host peerParameters:[[WSPeerParameters alloc] initWithParameters:parameters]];
+    WSExceptionCheckIllegal(host);
+
+    return [self initWithHost:host parameters:parameters flags:[[WSPeerFlags alloc] init]];
 }
 
-- (instancetype)initWithHost:(NSString *)host peerParameters:(WSPeerParameters *)peerParameters
+- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags
 {
     WSExceptionCheckIllegal(host);
-    WSExceptionCheckIllegal(peerParameters);
+    WSExceptionCheckIllegal(flags);
     
     if ((self = [super init])) {
-#ifdef BSPV_TEST_MESSAGE_QUEUE
-        self.messageQueueCondition = [[NSCondition alloc] init];
-        self.messageQueue = [[NSMutableArray alloc] init];
-#endif
-
-        self.parameters = peerParameters.parameters;
-        self.shouldDownloadBlocks = peerParameters.shouldDownloadBlocks;
-        self.needsBloomFiltering = peerParameters.needsBloomFiltering;
+        self.parameters = parameters;
+        self.shouldDownloadBlocks = flags.shouldDownloadBlocks;
+        self.needsBloomFiltering = flags.needsBloomFiltering;
+        self.delegateQueue = dispatch_get_main_queue();
 
         _peerStatus = WSPeerStatusDisconnected;
         _remoteHost = host;
         _remoteAddress = WSNetworkIPv4FromHost(_remoteHost);
-        _remotePort = peerParameters.port;
+        _remotePort = [self.parameters peerPort];
 
-        self.pendingBlockIds = [[NSCountedSet alloc] init];
-        self.processingBlockIds = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * WSMessageBlocksMaxCount)];
+#ifdef BSPV_TEST_MESSAGE_QUEUE
+        self.messageQueueCondition = [[NSCondition alloc] init];
+        self.messageQueue = [[NSMutableArray alloc] init];
+#endif
     }
     return self;
 }
@@ -220,7 +203,7 @@
     return [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
 }
 
-#pragma mark WSConnectionProcessor (connection queue)
+#pragma mark WSConnectionProcessor (handler queue)
 
 - (void)openedConnectionToHost:(NSString *)host port:(uint16_t)port handler:(id<WSConnectionHandler>)handler
 {
@@ -265,7 +248,7 @@
         if (self.currentFilteredBlock && ![message isKindOfClass:[WSMessageTx class]]) {
             [self endCurrentFilteredBlock];
         }
-        
+
         SEL selector = NSSelectorFromString([NSString stringWithFormat:@"receive%@Message:", [message.messageType capitalizedString]]);
         if ([self respondsToSelector:selector]) {
 #pragma clang diagnostic push
@@ -287,28 +270,6 @@
 #endif
     }];
 }
-
-//- (void)processData:(NSData *)data
-//{
-//    [self didReceiveNumberOfBytes:data.length];
-//
-//    [self.deserializer appendData:data];
-//    
-//    NSError *error;
-//    id<WSMessage> message = nil;
-//    do {
-//        message = [self.deserializer parseMessageWithError:&error];
-//        if (message) {
-//            [self receiveMessage:message];
-//        }
-//        else if (error) {
-//            DDLogError(@"%@ Error deserializing message: %@", self, error);
-//            if (error.code == WSErrorCodeMalformed) {
-//                [self.connection disconnectWithError:error];
-//            }
-//        }
-//    } while (message);
-//}
 
 - (void)closedConnectionWithError:(NSError *)error
 {
@@ -430,11 +391,6 @@
 //    self.pingTime = DBL_MAX;
 //    self.lastSeenTimestamp = NSTimeIntervalSince1970;
 //    self.receivedVersion = nil;
-    
-    [self.handler submitBlock:^{
-        [self.pendingBlockIds removeAllObjects];
-        [self.processingBlockIds removeAllObjects];
-    }];
 }
 
 #pragma mark Protocol: send* (any queue)
@@ -520,33 +476,6 @@
             }
         }
 
-        [self.pendingBlockIds addObjectsFromArray:blockHashes];
-        [self.processingBlockIds addObjectsFromArray:blockHashes];
-
-//        BOOL shouldReloadBloomFilter = NO;
-//        
-//        if (self.needsBloomFiltering) {
-//            DDLogDebug(@"%@ Filtered %u blocks so far (height: %u)", self, self.filteredBlockCount, self.blockChain.currentHeight);
-//            
-//            if (self.filteredBlockCount + blockHashes.count > WSPeerMaxFilteredBlockCount) {
-//                DDLogDebug(@"%@ Bloom filter may deteriorate after %u blocks (%u + %u > %u), refreshing now", self,
-//                           blockHashes.count, self.filteredBlockCount, blockHashes.count, WSPeerMaxFilteredBlockCount);
-//
-//                shouldReloadBloomFilter = YES;
-//            }
-//            else {
-//                DDLogDebug(@"%@ Bloom filter doesn't need a refresh", self);
-//                self.filteredBlockCount += blockHashes.count;
-//            }
-//        }
-//
-//        // the filter must be guaranteed to be fresh BEFORE sending a new getdata
-//        if (shouldReloadBloomFilter) {
-//            dispatch_sync(self.delegateQueue, ^{
-//                [self.delegate peerDidRequestFilterReload:self];
-//            });
-//        }
-
         [self unsafeSendMessage:[WSMessageGetdata messageWithParameters:self.parameters inventories:inventories]];
         if (willRequestFilteredBlocks) {
             [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
@@ -625,7 +554,6 @@
     WSExceptionCheckIllegal(filter);
 
     [self.handler submitBlock:^{
-        self.filteredBlockCount = 0;
         [self unsafeSendMessage:[WSMessageFilterload messageWithParameters:self.parameters filter:filter]];
     }];
 }
@@ -711,9 +639,6 @@
 
     if (requestInventories.count > 0) {
         [self sendGetdataMessageWithInventories:requestInventories];
-        if (requestBlockHashes.count > 0) {
-            [self aheadRequestOnReceivedBlockHashes:requestBlockHashes];
-        }
     }
 }
 
@@ -773,9 +698,6 @@
             return;
         }
     }
-
-    [self aheadRequestOnReceivedHeaders:headers];
-    [self addBlockHeaders:headers];
 }
 
 - (void)receivePingMessage:(WSMessagePing *)message
@@ -808,207 +730,7 @@
     });
 }
 
-#pragma mark Download (external queue)
-
-- (void)downloadBlockChain:(WSBlockChain *)blockChain
-      fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
-             prestartBlock:(void (^)(NSUInteger, NSUInteger))prestartBlock
-               syncedBlock:(void (^)(NSUInteger))syncedBlock
-{
-#warning XXX: synchronization left out
-    if (self.isDownloading) {
-        return;
-    }
-    if (blockChain.currentHeight >= self.lastBlockHeight) {
-        if (syncedBlock) {
-            syncedBlock(blockChain.currentHeight);
-        }
-        return;
-    }
-    
-    WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:fastCatchUpTimestamp];
-    if (checkpoint) {
-        DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
-                   self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
-        
-        [blockChain addCheckpoint:checkpoint error:NULL];
-    }
-    else {
-        DDLogDebug(@"%@ No fast catch-up checkpoint", self);
-    }
-    
-    if (prestartBlock) {
-        const NSUInteger fromHeight = blockChain.currentHeight;
-        const NSUInteger toHeight = self.lastBlockHeight;
-        
-        prestartBlock(fromHeight, toHeight);
-    }
-    
-    self.isDownloading = YES;
-    self.fastCatchUpTimestamp = fastCatchUpTimestamp;
-    self.currentFilteredBlock = nil;
-    self.currentFilteredTransactions = nil;
-    
-    self.startingBlockChainLocator = [blockChain currentLocator];
-
-    if (!self.shouldDownloadBlocks || (blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
-        [self requestHeadersWithLocator:self.startingBlockChainLocator];
-    }
-    else {
-        [self requestBlocksWithLocator:self.startingBlockChainLocator];
-    }
-}
-
-- (void)requestOutdatedBlocks
-{
-    //
-    // since receive* and delegate methods run on the same queue,
-    // a peer should never request more hashes until delegate processed
-    // all blocks with last received hashes
-    //
-    //
-    // 1. start download calling getblocks with current chain locator
-    // ...
-    // 2. receiveInv called with max 500 inventories (in response to 1)
-    // 3. receiveInv: call getblocks with new locator
-    // 4. receiveInv: call getdata with received inventories
-    // 5. processingBlocksIds.count <= 500
-    // ...
-    // 6. receiveInv called with max 500 inventories (in response to 3)
-    // 7. receiveInv: call getblocks with new locator
-    // 8. receiveInv: call getdata with received inventories
-    // 9. processingBlocksIds.count <= 1000
-    // ...
-    // 10. receiveMerkleblock + receiveTx (in response to 4)
-    // 11. processingBlockIds.count <= 500
-    // ...
-    // 12. receiveInv called with max 500 inventories (in response to 7)
-    // 13. receiveInv: call getblocks with new locator
-    // 14. receiveInv: call getdata with received inventories
-    // 15. processingBlockIds.count <= 1000
-    // ...
-    //
-    //
-    // that's why processingBlockIds should reach 1000 at most (2 * max)
-    //
-
-//        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
-//                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
-
-    [self.handler submitBlock:^{
-        NSArray *outdatedIds = [self.processingBlockIds array];
-    
-#warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
-
-        if (outdatedIds.count > 0) {
-            DDLogDebug(@"Requesting %u outdated blocks with updated Bloom filter: %@", outdatedIds.count, outdatedIds);
-            [self sendGetdataMessageWithHashes:outdatedIds forInventoryType:WSInventoryTypeFilteredBlock];
-        }
-        else {
-            DDLogDebug(@"No outdated blocks to request with updated Bloom filter");
-        }
-    }];
-}
-
-#pragma mark Download automation (connection queue)
-
-- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
-{
-    NSParameterAssert(headers.count > 0);
-
-    if (!self.isDownloading) {
-        return;
-    }
-
-//    const NSUInteger currentHeight = self.blockChain.currentHeight;
-//    
-//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
-//               self, currentHeight, self.lastBlockHeight);
-    
-    WSBlockHeader *firstHeader = [headers firstObject];
-    WSBlockHeader *lastHeader = [headers lastObject];
-    WSBlockHeader *lastHeaderBeforeFCU = nil;
-    
-    // infer the header we'll stop at
-    for (WSBlockHeader *header in headers) {
-        if (header.timestamp >= self.fastCatchUpTimestamp) {
-            break;
-        }
-        lastHeaderBeforeFCU = header;
-    }
-//    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
-    
-    if (!lastHeaderBeforeFCU) {
-        DDLogInfo(@"%@ All received headers beyond catch-up, rerequesting blocks", self);
-
-        [self requestBlocksWithLocator:self.startingBlockChainLocator];
-    }
-    else {
-        // we won't cross fast catch-up, request more headers
-        if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
-            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
-            [self requestHeadersWithLocator:locator];
-        }
-        // we will cross fast catch-up, request blocks from crossing point
-        else {
-            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
-                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
-                      [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
-            
-            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
-            [self requestBlocksWithLocator:locator];
-        }
-    }
-}
-
-- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes
-{
-    NSParameterAssert(hashes.count > 0);
-    
-    if (!self.isDownloading || (hashes.count < WSMessageBlocksMaxCount)) {
-        return;
-    }
-
-//    const NSUInteger currentHeight = self.blockChain.currentHeight;
-//    
-//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
-//               self, currentHeight, self.lastBlockHeight);
-    
-    WSHash256 *firstId = [hashes firstObject];
-    WSHash256 *lastId = [hashes lastObject];
-    
-    WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
-    [self requestBlocksWithLocator:locator];
-}
-
-- (void)requestHeadersWithLocator:(WSBlockLocator *)locator
-{
-    DDLogDebug(@"%@ Behind catch-up (or headers-only mode), requesting headers with locator: %@", self, locator.hashes);
-    [self sendGetheadersMessageWithLocator:locator hashStop:nil];
-}
-
-- (void)requestBlocksWithLocator:(WSBlockLocator *)locator
-{
-    DDLogDebug(@"%@ Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", self, locator.hashes);
-    [self sendGetblocksMessageWithLocator:locator hashStop:nil];
-}
-
-- (void)addBlockHeaders:(NSArray *)headers
-{
-    NSParameterAssert(headers.count > 0);
-    
-    for (WSBlockHeader *header in headers) {
-        
-        // download peer should stop requesting headers when fast catch-up reached
-        if (self.shouldDownloadBlocks && self.isDownloading && (header.timestamp >= self.fastCatchUpTimestamp)) {
-            break;
-        }
-        
-        dispatch_async(self.delegateQueue, ^{
-            [self.delegate peer:self didReceiveHeader:header];
-        });
-    }
-}
+#pragma mark Complex messages
 
 - (void)beginFilteredBlock:(WSFilteredBlock *)filteredBlock
 {
@@ -1028,16 +750,6 @@
         return NO;
     }
 
-    // only accept txs from most recently requested block
-    WSHash256 *blockId = self.currentFilteredBlock.header.blockId;
-    if ([self.pendingBlockIds countForObject:blockId] > 1) {
-        DDLogDebug(@"%@ Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
-                   self, transaction.txId, blockId);
-
-        *outdated = YES;
-        return NO;
-    }
-    
     if (![self.currentFilteredBlock containsTransactionWithId:transaction.txId]) {
         DDLogDebug(@"%@ Transaction %@ is not contained in filtered block %@",
                    self, transaction.txId, self.currentFilteredBlock.header.blockId);
@@ -1062,18 +774,6 @@
     self.currentFilteredBlock = nil;
     self.currentFilteredTransactions = nil;
     
-    // only accept most recently requested block
-    WSHash256 *blockId = filteredBlock.header.blockId;
-
-    [self.pendingBlockIds removeObject:blockId];
-
-    if ([self.pendingBlockIds containsObject:blockId]) {
-        DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
-        return;
-    }
-
-    [self.processingBlockIds removeObject:blockId];
-
     dispatch_async(self.delegateQueue, ^{
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
     });

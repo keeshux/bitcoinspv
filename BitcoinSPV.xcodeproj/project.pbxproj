@@ -141,7 +141,6 @@
 		8CAC9C98197003F500A2596E /* WSMemoryBlockStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAC9C97197003F500A2596E /* WSMemoryBlockStore.m */; };
 		8CBB5B1C198D0C82006599DB /* BitcoinSPV.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8CBB5B06198D0A1D006599DB /* BitcoinSPV.bundle */; };
 		8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C402448198527D7008FDC5F /* WSBIP39Words.txt */; };
-		8CBEABEA198118FC001512C2 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */; };
 		8CBF49FB19699F0B00FAFF64 /* WSMessageFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF49FA19699F0B00FAFF64 /* WSMessageFactory.m */; };
 		8CBF4A051969DF6600FAFF64 /* WSProtocolDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF4A041969DF6600FAFF64 /* WSProtocolDeserializer.m */; };
 		8CBF4A0A196A850F00FAFF64 /* WSConnectionPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */; };
@@ -149,7 +148,6 @@
 		8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */; };
 		8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3EE9A196D912400FC48F1 /* WSReachability.m */; };
 		8CDD9A241983066300720304 /* WSTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A231983066300720304 /* WSTimerTests.m */; };
-		8CDE10F4196CE0C500A14493 /* WSPeerGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDE10F3196CE0C500A14493 /* WSPeerGroup.m */; };
 		B873CF4DF73F960DE972BC7B /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -443,8 +441,6 @@
 		8CBB5B06198D0A1D006599DB /* BitcoinSPV.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitcoinSPV.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8CBB5B13198D0AA8006599DB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8CBEABE8198118FC001512C2 /* WSPeerGroupNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroupNotifier.h; sourceTree = "<group>"; };
-		8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupNotifier.m; sourceTree = "<group>"; };
 		8CBF49F919699F0B00FAFF64 /* WSMessageFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageFactory.h; sourceTree = "<group>"; };
 		8CBF49FA19699F0B00FAFF64 /* WSMessageFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageFactory.m; sourceTree = "<group>"; };
 		8CBF4A031969DF6600FAFF64 /* WSProtocolDeserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSProtocolDeserializer.h; sourceTree = "<group>"; };
@@ -458,8 +454,6 @@
 		8CD3EE99196D912400FC48F1 /* WSReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSReachability.h; sourceTree = "<group>"; };
 		8CD3EE9A196D912400FC48F1 /* WSReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSReachability.m; sourceTree = "<group>"; };
 		8CDD9A231983066300720304 /* WSTimerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSTimerTests.m; sourceTree = "<group>"; };
-		8CDE10F2196CE0C500A14493 /* WSPeerGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroup.h; sourceTree = "<group>"; };
-		8CDE10F3196CE0C500A14493 /* WSPeerGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroup.m; sourceTree = "<group>"; };
 		D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -941,10 +935,6 @@
 				8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */,
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
 				8CBF4A0F196AA94D00FAFF64 /* WSPeer.m */,
-				8CDE10F2196CE0C500A14493 /* WSPeerGroup.h */,
-				8CDE10F3196CE0C500A14493 /* WSPeerGroup.m */,
-				8CBEABE8198118FC001512C2 /* WSPeerGroupNotifier.h */,
-				8CBEABE9198118FC001512C2 /* WSPeerGroupNotifier.m */,
 				8CBF4A031969DF6600FAFF64 /* WSProtocolDeserializer.h */,
 				8CBF4A041969DF6600FAFF64 /* WSProtocolDeserializer.m */,
 				8CD3EE99196D912400FC48F1 /* WSReachability.h */,
@@ -1284,7 +1274,6 @@
 				8C40244419847BB2008FDC5F /* WSTransactionMetadata.m in Sources */,
 				8C40243E19840622008FDC5F /* WSTransactionInput.m in Sources */,
 				8C8AE019196786CA007787ED /* NSData+Hash.m in Sources */,
-				8CBEABEA198118FC001512C2 /* WSPeerGroupNotifier.m in Sources */,
 				8C8ADFFB196786CA007787ED /* WSBIP32.m in Sources */,
 				8C9D4467196C184000E4C31C /* WSMessageHeaders.m in Sources */,
 				8C0EB608197D5C53004DBBC6 /* WSParametersFactoryRegtest.m in Sources */,
@@ -1302,7 +1291,6 @@
 				8CBF4A051969DF6600FAFF64 /* WSProtocolDeserializer.m in Sources */,
 				8C8AE00C196786CA007787ED /* WSMessageInv.m in Sources */,
 				8C8AE002196786CA007787ED /* WSConfig.m in Sources */,
-				8CDE10F4196CE0C500A14493 /* WSPeerGroup.m in Sources */,
 				8C9A76241976EBD3008BF471 /* WSTransactionEntity.m in Sources */,
 				0E761AC71AE66A3A00F1F068 /* WSPartialMerkleTree.m in Sources */,
 				0EA1471B1A5589B700AA400D /* WSBitcoinCurrency.m in Sources */,

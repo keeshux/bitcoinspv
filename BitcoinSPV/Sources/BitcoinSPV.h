@@ -50,7 +50,7 @@
 #import "WSBlock.h"
 #import "WSStorableBlock.h"
 
-#import "WSPeerGroup.h"
+//#import "WSPeerGroup.h"
 #import "WSSeed.h"
 #import "WSSeedGenerator.h"
 
