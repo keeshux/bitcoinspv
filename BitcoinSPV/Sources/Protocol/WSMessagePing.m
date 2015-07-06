@@ -39,7 +39,7 @@
 - (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
     if ((self = [super initWithParameters:parameters])) {
-        self.nonce = mrand48();
+        self.nonce = arc4random();
     }
     return self;
 }

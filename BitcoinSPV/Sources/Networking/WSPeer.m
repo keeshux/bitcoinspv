@@ -217,7 +217,7 @@
         _didReceiveVerack = NO;
         _didSendVerack = NO;
         _remoteServices = 0;
-        _nonce = mrand48();
+        _nonce = arc4random();
         _connectionStartTime = DBL_MAX;
         _connectionTime = DBL_MAX;
         _lastSeenTimestamp = NSTimeIntervalSince1970;

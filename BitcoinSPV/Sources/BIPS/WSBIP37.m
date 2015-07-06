@@ -45,7 +45,7 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
     if ((self = [super init])) {
         self.falsePositiveRate = DBL_EPSILON;
         self.flags = WSBIP37FlagsUpdateNone;
-        self.tweak = (uint32_t)mrand48();
+        self.tweak = (uint32_t)arc4random();
     }
     return self;
 }

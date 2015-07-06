@@ -82,7 +82,7 @@
         self.timestamp = WSCurrentTimestamp();
         self.remoteNetworkAddress = remoteNetworkAddress;
         self.localNetworkAddress = WSNetworkAddressMake(WSMessageVersionLocalhost, localPort, self.services, 0);
-        self.nonce = ((uint64_t)mrand48() << 32) | (uint32_t)mrand48(); // random nonce
+        self.nonce = ((uint64_t)arc4random() << 32) | (uint32_t)arc4random(); // random nonce
         self.userAgent = [[self class] userAgent];
         self.lastBlockHeight = 0;
 
