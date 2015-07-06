@@ -203,7 +203,7 @@
     self.maxConnections = _peerHosts.count;
 }
 
-#pragma mark Connection
+#pragma mark Connection (any queue)
 
 - (BOOL)startConnections
 {
@@ -436,24 +436,6 @@
     self.receivedBytes += numberOfBytes;
 }
 
-#pragma mark Application state (main queue)
-
-- (void)reachability:(WSReachability *)reachability didChangeStatus:(WSReachabilityStatus)reachabilityStatus
-{
-    DDLogVerbose(@"Reachability flags: %@ (reachable: %d)", [reachability reachabilityFlagsString], [reachability isReachable]);
-    
-    dispatch_async(self.queue, ^{
-        if (self.keepConnected && [reachability isReachable]) {
-            DDLogDebug(@"Network is reachable, connecting...");
-            [self connect];
-        }
-        else {
-            DDLogDebug(@"Network is unreachable, disconnecting...");
-            [self disconnect];
-        }
-    });
-}
-
 #pragma mark Connection helpers (unsafe)
 
 - (void)connect
@@ -524,69 +506,70 @@
         return;
     }
     
-    for (NSString *dns in [self.parameters dnsSeeds]) {
+    NSArray *dnsSeeds = [self.parameters dnsSeeds];
+    
+    dispatch_apply(dnsSeeds.count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(size_t i) {
+        NSString *dns = dnsSeeds[i];
         DDLogInfo(@"Resolving seed: %@", dns);
         
         ++self.activeDnsResolutions;
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            CFHostRef host = CFHostCreateWithName(NULL, (__bridge CFStringRef)dns);
-            if (!CFHostStartInfoResolution(host, kCFHostAddresses, NULL)) {
-                DDLogError(@"Error during resolution of %@", dns);
-                CFRelease(host);
-                
-                dispatch_sync(self.queue, ^{
-                    --self.activeDnsResolutions;
-                });
-                
-                return;
-            }
-            Boolean resolved;
-            CFArrayRef rawAddressesRef = CFHostGetAddressing(host, &resolved);
-            NSArray *rawAddresses = nil;
-            if (resolved) {
-                rawAddresses = CFBridgingRelease(CFArrayCreateCopy(NULL, rawAddressesRef));
-            }
+        CFHostRef host = CFHostCreateWithName(NULL, (__bridge CFStringRef)dns);
+        if (!CFHostStartInfoResolution(host, kCFHostAddresses, NULL)) {
+            DDLogError(@"Error during resolution of %@", dns);
             CFRelease(host);
             
             dispatch_sync(self.queue, ^{
                 --self.activeDnsResolutions;
             });
             
-            if (rawAddresses) {
-                DDLogDebug(@"Resolved %u addresses", rawAddresses.count);
-                
-                NSMutableArray *hosts = [[NSMutableArray alloc] init];
-                
-                // add a faulty host to test automatic removal
-                //                [hosts addObject:@"124.170.89.58"]; // behind
-                //                [hosts addObject:@"152.23.202.18"]; // timeout
-                
-                dispatch_sync(self.queue, ^{
-                    for (NSData *rawBytes in rawAddresses) {
-                        if (rawBytes.length != sizeof(struct sockaddr_in)) {
-                            continue;
-                        }
-                        struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
-                        const uint32_t address = rawAddress->sin_addr.s_addr;
-                        NSString *host = WSNetworkHostFromIPv4(address);
-                        
-                        if (host && ![self isInactiveHost:host]) {
-                            [hosts addObject:host];
-                        }
-                    }
-                });
-                
-                DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
-                
-                if (hosts.count > 0) {
-                    dispatch_async(self.queue, ^{
-                        resolutionCallback(dns, hosts);
-                    });
-                }
-            }
+            return;
+        }
+        Boolean resolved;
+        CFArrayRef rawAddressesRef = CFHostGetAddressing(host, &resolved);
+        NSArray *rawAddresses = nil;
+        if (resolved) {
+            rawAddresses = CFBridgingRelease(CFArrayCreateCopy(NULL, rawAddressesRef));
+        }
+        CFRelease(host);
+        
+        dispatch_sync(self.queue, ^{
+            --self.activeDnsResolutions;
         });
-    }
+        
+        if (rawAddresses) {
+            DDLogDebug(@"Resolved %u addresses", rawAddresses.count);
+            
+            NSMutableArray *hosts = [[NSMutableArray alloc] init];
+            
+            // add a faulty host to test automatic removal
+            //                [hosts addObject:@"124.170.89.58"]; // behind
+            //                [hosts addObject:@"152.23.202.18"]; // timeout
+            
+            dispatch_sync(self.queue, ^{
+                for (NSData *rawBytes in rawAddresses) {
+                    if (rawBytes.length != sizeof(struct sockaddr_in)) {
+                        continue;
+                    }
+                    struct sockaddr_in *rawAddress = (struct sockaddr_in *)rawBytes.bytes;
+                    const uint32_t address = rawAddress->sin_addr.s_addr;
+                    NSString *host = WSNetworkHostFromIPv4(address);
+                    
+                    if (host && ![self isInactiveHost:host]) {
+                        [hosts addObject:host];
+                    }
+                }
+            });
+            
+            DDLogDebug(@"Retained %u resolved addresses (pruned ipv6 and known from inactive)", hosts.count);
+            
+            if (hosts.count > 0) {
+                dispatch_async(self.queue, ^{
+                    resolutionCallback(dns, hosts);
+                });
+            }
+        }
+    });
 }
 
 - (void)triggerConnectionsFromSeed:(NSString *)seed addresses:(NSArray *)addresses
@@ -845,6 +828,24 @@
 - (BOOL)unsafeHasReachedMaxConnections
 {
     return (self.connectedPeers.count == self.maxConnections);
+}
+
+#pragma mark Application state (main queue)
+
+- (void)reachability:(WSReachability *)reachability didChangeStatus:(WSReachabilityStatus)reachabilityStatus
+{
+    DDLogVerbose(@"Reachability flags: %@ (reachable: %d)", [reachability reachabilityFlagsString], [reachability isReachable]);
+    
+    dispatch_async(self.queue, ^{
+        if (self.keepConnected && [reachability isReachable]) {
+            DDLogDebug(@"Network is reachable, connecting...");
+            [self connect];
+        }
+        else {
+            DDLogDebug(@"Network is unreachable, disconnecting...");
+            [self disconnect];
+        }
+    });
 }
 
 @end
