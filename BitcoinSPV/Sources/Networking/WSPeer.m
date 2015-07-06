@@ -380,8 +380,8 @@
 //
 // NOTE: we're assuming that peer connection and peer group run on different queues
 //
-- (void)cleanUpConnectionData
-{
+//- (void)cleanUpConnectionData
+//{
 //    self.delegate = nil;
 //
 //    self.remoteHost = nil;
@@ -391,7 +391,7 @@
 //    self.pingTime = DBL_MAX;
 //    self.lastSeenTimestamp = NSTimeIntervalSince1970;
 //    self.receivedVersion = nil;
-}
+//}
 
 #pragma mark Protocol: send* (any queue)
 

@@ -90,7 +90,7 @@ typedef enum {
 - (uint64_t)services;
 - (uint64_t)timestamp;
 - (uint32_t)lastBlockHeight;
-- (void)cleanUpConnectionData;
+//- (void)cleanUpConnectionData;
 
 // protocol
 - (void)sendInvMessageWithInventory:(WSInventory *)inventory;
