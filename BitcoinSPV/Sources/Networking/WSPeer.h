@@ -52,7 +52,6 @@ typedef enum {
 
 @interface WSPeerFlags : NSObject
 
-- (instancetype)init;
 - (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                          needsBloomFiltering:(BOOL)needsBloomFiltering;
 

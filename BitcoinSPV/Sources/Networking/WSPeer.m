@@ -51,12 +51,6 @@
 
 @implementation WSPeerFlags
 
-- (instancetype)init
-{
-    return [self initWithShouldDownloadBlocks:YES
-                          needsBloomFiltering:YES];
-}
-
 - (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
                          needsBloomFiltering:(BOOL)needsBloomFiltering
 {
