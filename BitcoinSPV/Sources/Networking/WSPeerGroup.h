@@ -70,6 +70,7 @@
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0
+@property (nonatomic, assign) NSTimeInterval seedTTL;                       // 600.0 (10 minutes)
 
 - (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
 //- (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
