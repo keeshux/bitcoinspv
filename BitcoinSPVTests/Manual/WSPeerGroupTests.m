@@ -53,7 +53,7 @@
 
     self.networkType = WSNetworkTypeTestnet3;
     
-    self.blockStore = [[WSMemoryBlockStore alloc] initWithParameters:WSParametersForNetworkType(WSNetworkTypeTestnet3)];
+    self.blockStore = [[WSMemoryBlockStore alloc] initWithParameters:WSParametersForNetworkType(self.networkType)];
     self.pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     self.queue = dispatch_queue_create("Test", DISPATCH_QUEUE_SERIAL);
 }
