@@ -29,10 +29,8 @@
 #import <errno.h>
 
 #import "WSPeerGroup.h"
-#import "WSBlockStore.h"
 #import "WSConnectionPool.h"
-#import "WSWallet.h"
-#import "WSHDWallet.h"
+#import "WSBlockChainDownloader.h"
 #import "WSHash256.h"
 #import "WSPeer.h"
 #import "WSBloomFilter.h"
@@ -77,7 +75,6 @@
 @property (nonatomic, strong) WSPeerGroupNotifier *notifier;
 @property (nonatomic, strong) WSConnectionPool *pool;
 @property (nonatomic, strong) dispatch_queue_t queue;
-@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSReachability *reachability;
 
 // connection
@@ -102,8 +99,6 @@
 - (void)removeInactiveHost:(NSString *)host;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
-//- (WSPeer *)bestPeer;
-
 - (BOOL)unsafeIsConnected;
 - (BOOL)unsafeHasReachedMaxAttempts;
 - (BOOL)unsafeHasReachedMaxConnections;
@@ -112,54 +107,23 @@
 
 @implementation WSPeerGroup
 
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
-    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
+    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:parameters];
     NSString *className = [self.class description];
     dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
 
-    return [self initWithPool:pool queue:queue blockStore:store];
+    return [self initWithParameters:parameters pool:pool queue:queue];
 }
 
-//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
-//{
-//    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
-//    NSString *className = [self.class description];
-//    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
-//
-//    return [self initWithPool:pool queue:queue blockStore:store fastCatchUpTimestamp:fastCatchUpTimestamp];
-//}
-//
-//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
-//{
-//    WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:store.parameters];
-//    NSString *className = [self.class description];
-//    dispatch_queue_t queue = dispatch_queue_create(className.UTF8String, DISPATCH_QUEUE_SERIAL);
-//
-//    return [self initWithPool:pool queue:queue blockStore:store wallet:wallet];
-//}
-
-- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store
+- (instancetype)initWithParameters:(id<WSParameters>)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue
 {
-    return [self initWithPool:pool queue:queue blockStore:store wallet:nil];
-}
-
-//- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
-//{
-//    if ((self = [self initWithPool:pool queue:queue blockStore:store wallet:nil])) {
-//        self.fastCatchUpTimestamp = fastCatchUpTimestamp;
-//    }
-//    return self;
-//}
-
-- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
-{
+    WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(pool);
     WSExceptionCheckIllegal(queue);
-    WSExceptionCheckIllegal(store);
     
     if ((self = [super init])) {
-        self.parameters = store.parameters;
+        self.parameters = parameters;
         self.notifier = [[WSPeerGroupNotifier alloc] initWithPeerGroup:self];
         self.pool = pool;
         self.pool.connectionTimeout = WSPeerConnectTimeout;
@@ -174,6 +138,7 @@
         self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
         self.reconnectionDelayOnFailure = WSPeerGroupDefaultReconnectionDelay;
         self.seedTTL = 10 * WSDatesOneMinute;
+        self.needsBloomFiltering = NO;
         
         self.keepConnected = NO;
         self.inactiveAddresses = [[NSMutableOrderedSet alloc] init];
@@ -669,8 +634,7 @@
 {
     NSParameterAssert(host);
     
-    WSPeerFlags *flags = [[WSPeerFlags alloc] initWithShouldDownloadBlocks:NO//[self shouldDownloadBlocks]
-                                                       needsBloomFiltering:NO];//[self needsBloomFiltering]];
+    WSPeerFlags *flags = [[WSPeerFlags alloc] initWithNeedsBloomFiltering:self.needsBloomFiltering];
     
     WSPeer *peer = [[WSPeer alloc] initWithHost:host parameters:self.parameters flags:flags];
     peer.delegate = self;
@@ -758,29 +722,6 @@
     
     return ((error.domain != WSErrorDomain) && [hardCodes[error.domain] containsObject:@(error.code)]);
 }
-
-#pragma mark Download helpers (unsafe)
-
-//- (WSPeer *)bestPeer
-//{
-//    WSPeer *bestPeer = nil;
-//    for (WSPeer *peer in self.connectedPeers) {
-//        
-//        // double check connection status
-//        if (peer.peerStatus != WSPeerStatusConnected) {
-//            continue;
-//        }
-//        
-//        // max chain height or min ping
-//        if (!bestPeer ||
-//            (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
-//            ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
-//            
-//            bestPeer = peer;
-//        }
-//    }
-//    return bestPeer;
-//}
 
 #pragma mark External interface (unsafe)
 

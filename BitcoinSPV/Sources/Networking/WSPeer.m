@@ -44,18 +44,15 @@
 
 @interface WSPeerFlags ()
 
-@property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 
 @end
 
 @implementation WSPeerFlags
 
-- (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
-                         needsBloomFiltering:(BOOL)needsBloomFiltering
+- (instancetype)initWithNeedsBloomFiltering:(BOOL)needsBloomFiltering
 {
     if ((self = [super init])) {
-        self.shouldDownloadBlocks = shouldDownloadBlocks;
         self.needsBloomFiltering = needsBloomFiltering;
     }
     return self;
@@ -128,13 +125,6 @@
 
 @implementation WSPeer
 
-- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters
-{
-    WSExceptionCheckIllegal(host);
-
-    return [self initWithHost:host parameters:parameters flags:[[WSPeerFlags alloc] init]];
-}
-
 - (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags
 {
     WSExceptionCheckIllegal(host);
@@ -142,7 +132,6 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.shouldDownloadBlocks = flags.shouldDownloadBlocks;
         self.needsBloomFiltering = flags.needsBloomFiltering;
         self.delegateQueue = dispatch_get_main_queue();
 
@@ -845,9 +834,9 @@
     return [self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer];
 }
 
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags
 {
-    WSPeer *peer = [[WSPeer alloc] initWithHost:peerHost parameters:parameters];
+    WSPeer *peer = [[WSPeer alloc] initWithHost:peerHost parameters:parameters flags:flags];
     if (![self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer]) {
         return nil;
     }

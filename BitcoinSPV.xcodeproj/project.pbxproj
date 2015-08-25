@@ -43,6 +43,7 @@
 		0ED5E2FD1B4AC5780057B9D8 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */; };
+		0EE34BAF1B8B61EA000A9B9F /* WSBlockChainDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EE34BAE1B8B61EA000A9B9F /* WSBlockChainDownloader.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
 		0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */; };
@@ -265,6 +266,8 @@
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
 		0ED831201B4849F8001447D1 /* WSWebTickerBitPay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBitPay.h; sourceTree = "<group>"; };
 		0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebTickerBitPay.m; sourceTree = "<group>"; };
+		0EE34BAD1B8B61EA000A9B9F /* WSBlockChainDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBlockChainDownloader.h; sourceTree = "<group>"; };
+		0EE34BAE1B8B61EA000A9B9F /* WSBlockChainDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBlockChainDownloader.m; sourceTree = "<group>"; };
 		0EF696751A34BF69006E027C /* WSJSONClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSJSONClient.h; sourceTree = "<group>"; };
 		0EF696761A34BF69006E027C /* WSJSONClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSJSONClient.m; sourceTree = "<group>"; };
 		0EF696781A34DC57006E027C /* WSBIP38.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP38.h; sourceTree = "<group>"; };
@@ -935,6 +938,8 @@
 		8CBF49FC1969DF0000FAFF64 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				0EE34BAD1B8B61EA000A9B9F /* WSBlockChainDownloader.h */,
+				0EE34BAE1B8B61EA000A9B9F /* WSBlockChainDownloader.m */,
 				0E0E7C6A1AC44E0E00E7840B /* WSConnection.h */,
 				0E0E7C6B1AC44E0E00E7840B /* WSConnection.m */,
 				8CBF4A08196A850F00FAFF64 /* WSConnectionPool.h */,
@@ -1284,6 +1289,7 @@
 				8C40244419847BB2008FDC5F /* WSTransactionMetadata.m in Sources */,
 				8C40243E19840622008FDC5F /* WSTransactionInput.m in Sources */,
 				8C8AE019196786CA007787ED /* NSData+Hash.m in Sources */,
+				0EE34BAF1B8B61EA000A9B9F /* WSBlockChainDownloader.m in Sources */,
 				8C8ADFFB196786CA007787ED /* WSBIP32.m in Sources */,
 				8C9D4467196C184000E4C31C /* WSMessageHeaders.m in Sources */,
 				8C0EB608197D5C53004DBBC6 /* WSParametersFactoryRegtest.m in Sources */,

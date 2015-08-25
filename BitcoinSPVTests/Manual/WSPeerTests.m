@@ -75,7 +75,9 @@
 
     NSString *address = addresses[mrand48() % addresses.count];
 //    address = @"54.173.19.184";
-    self.peer = [self.pool openConnectionToPeerHost:address parameters:self.networkParameters];
+    self.peer = [self.pool openConnectionToPeerHost:address
+                                         parameters:self.networkParameters
+                                              flags:[[WSPeerFlags alloc] initWithNeedsBloomFiltering:YES]];
 }
 
 - (void)tearDown

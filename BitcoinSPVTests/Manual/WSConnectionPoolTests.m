@@ -91,7 +91,7 @@
     NSString *anyHost = self.hosts[mrand48() % self.hosts.count];
     
     WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
-    [pool openConnectionToPeerHost:anyHost parameters:self.networkParameters];
+    [pool openConnectionToPeerHost:anyHost parameters:self.networkParameters flags:[self peerFlags]];
     [self runForSeconds:2.0];
     [pool closeAllConnections];
     [self runForSeconds:2.0];
@@ -101,7 +101,7 @@
 {
     WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     for (NSString *h in self.hosts) {
-        [pool openConnectionToPeerHost:h parameters:self.networkParameters];
+        [pool openConnectionToPeerHost:h parameters:self.networkParameters flags:[self peerFlags]];
     }
     [self runForSeconds:2.0];
     [pool closeAllConnections];
@@ -116,6 +116,11 @@
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     DDLogInfo(@"socket:%@ didReadData:%@", sock, data);
+}
+
+- (WSPeerFlags *)peerFlags
+{
+    return [[WSPeerFlags alloc] initWithNeedsBloomFiltering:NO];
 }
 
 @end

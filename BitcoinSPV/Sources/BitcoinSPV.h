@@ -51,6 +51,7 @@
 #import "WSStorableBlock.h"
 
 #import "WSPeerGroup.h"
+#import "WSBlockChainDownloader.h"
 #import "WSSeed.h"
 #import "WSSeedGenerator.h"
 

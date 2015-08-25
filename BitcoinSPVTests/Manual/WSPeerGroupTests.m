@@ -39,7 +39,6 @@
 
 @interface WSPeerGroupTests : XCTestCase
 
-@property (nonatomic, strong) id<WSBlockStore> blockStore;
 @property (nonatomic, strong) WSConnectionPool *pool;
 @property (nonatomic, strong) dispatch_queue_t queue;
 
@@ -53,7 +52,6 @@
 
     self.networkType = WSNetworkTypeTestnet3;
     
-    self.blockStore = [[WSMemoryBlockStore alloc] initWithParameters:WSParametersForNetworkType(self.networkType)];
     self.pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     self.queue = dispatch_queue_create("Test", DISPATCH_QUEUE_SERIAL);
 }
@@ -66,7 +64,7 @@
 
 - (void)testConnection
 {
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue parameters:self.networkParameters];
     peerGroup.maxConnections = 3;
     [peerGroup startConnections];
     [self runForSeconds:3.0];
@@ -76,7 +74,7 @@
 
 - (void)testMaxConnections
 {
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue parameters:self.networkParameters];
     peerGroup.maxConnections = 5;
     [peerGroup startConnections];
     [self runForSeconds:5.0];
@@ -88,7 +86,7 @@
 
 //- (void)testDisconnectionWithError
 //{
-//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue parameters:self.networkParameters];
 //    peerGroup.maxConnections = 5;
 //    [peerGroup startConnections];
 //    [self runForSeconds:3.0];
@@ -100,7 +98,7 @@
 
 - (void)testPersistentConnection
 {
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue parameters:self.networkParameters];
     peerGroup.maxConnections = 8;
     peerGroup.maxConnectionFailures = 20;
     [peerGroup startConnections];
@@ -109,7 +107,7 @@
 
 - (void)testDownloadPeerSelection
 {
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue blockStore:self.blockStore];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithPool:self.pool queue:self.queue parameters:self.networkParameters];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
     [self runForSeconds:3.0];

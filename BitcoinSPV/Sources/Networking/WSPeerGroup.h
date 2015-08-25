@@ -34,8 +34,7 @@
 
 @protocol WSParameters;
 @class WSConnectionPool;
-@protocol WSBlockStore;
-@protocol WSSynchronizableWallet;
+@protocol WSPeerGroupDownloadDelegate;
 
 #pragma mark -
 
@@ -65,23 +64,18 @@
 
 // WARNING: set properties before starting connections
 
-// connection
 @property (nonatomic, strong) NSArray *peerHosts;                           // nil
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0
 @property (nonatomic, assign) NSTimeInterval seedTTL;                       // 600.0 (10 minutes)
-
-- (instancetype)initWithBlockStore:(id<WSBlockStore>)store;
-//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
-//- (instancetype)initWithBlockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
+@property (nonatomic, assign) BOOL needsBloomFiltering;                     // NO
+@property (nonatomic, weak) id<WSPeerGroupDownloadDelegate> downloadDelegate;
 
 // WARNING: queue must be of type DISPATCH_QUEUE_SERIAL
-- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store;
-//- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
-//- (instancetype)initWithPool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue blockStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue;
 
-// connection
 - (BOOL)startConnections;
 - (BOOL)stopConnections;
 - (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock;
@@ -100,5 +94,11 @@
 // any WSPeerGroupDidDisconnectNotification resulting in completionBlock
 // never called
 //
+
+@end
+
+@protocol WSPeerGroupDownloadDelegate <NSObject>
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup didRequestFilterReloadForPeer:(WSPeer *)peer;
 
 @end

@@ -52,10 +52,7 @@ typedef enum {
 
 @interface WSPeerFlags : NSObject
 
-- (instancetype)initWithShouldDownloadBlocks:(BOOL)shouldDownloadBlocks
-                         needsBloomFiltering:(BOOL)needsBloomFiltering;
-
-- (BOOL)shouldDownloadBlocks;
+- (instancetype)initWithNeedsBloomFiltering:(BOOL)needsBloomFiltering;
 - (BOOL)needsBloomFiltering;
 
 @end
@@ -73,9 +70,7 @@ typedef enum {
 @property (nonatomic, weak) id<WSPeerDelegate> delegate;
 @property (nonatomic, weak) dispatch_queue_t delegateQueue;
 
-- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters;
 - (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags;
-
 - (id<WSParameters>)parameters;
 
 // connection
@@ -126,7 +121,6 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didReceivePongMesage:(WSMessagePong *)pong;
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message;
-- (void)peerDidRequestFilterReload:(WSPeer *)peer;
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes;
 - (void)peer:(WSPeer *)peer didReceiveNumberOfBytes:(NSUInteger)numberOfBytes;
 
@@ -137,6 +131,6 @@ typedef enum {
 @interface WSConnectionPool (Peer)
 
 - (BOOL)openConnectionToPeer:(WSPeer *)peer;
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters;
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags;
 
 @end
