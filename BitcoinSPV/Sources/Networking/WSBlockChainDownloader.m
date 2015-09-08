@@ -118,6 +118,8 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
+    WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
+
     if ((self = [self init])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
