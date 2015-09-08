@@ -89,7 +89,7 @@
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
 
-@property (nonatomic, weak) id<WSPeerGroupDownloadDelegate> downloadDelegate;
+@property (nonatomic, strong) id<WSPeerGroupDownloadDelegate> downloadDelegate;
 
 - (void)connect;
 - (void)disconnect;
