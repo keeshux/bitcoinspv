@@ -533,6 +533,11 @@
 
 #warning FIXME: handle full blocks, blockchain not extending in full blocks mode
 
+    // a dummy "return NO" here would case download peer to be
+    // disconnected as misbehaving each time a block is appended.
+    // the problem is that the peer would seem to disconnect
+    // "intentionally" because no disconnection error is specified
+
     return YES;
 }
 
