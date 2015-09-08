@@ -134,7 +134,7 @@
         self.reachability.delegateQueue = self.queue;
 
         // connection
-        self.peerHosts = nil;
+//        self.peerHosts = nil;
         self.maxConnections = WSPeerGroupDefaultMaxConnections;
         self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
         self.reconnectionDelayOnFailure = WSPeerGroupDefaultReconnectionDelay;
@@ -160,12 +160,12 @@
     [self.reachability stopNotifier];
 }
 
-- (void)setPeerHosts:(NSArray *)peerHosts
-{
-    _peerHosts = peerHosts;
-    
-    self.maxConnections = _peerHosts.count;
-}
+//- (void)setPeerHosts:(NSArray *)peerHosts
+//{
+//    _peerHosts = peerHosts;
+//    
+//    self.maxConnections = _peerHosts.count;
+//}
 
 #pragma mark Connection (any queue)
 
@@ -371,7 +371,6 @@
 {
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
-#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
     [self.downloadDelegate peerGroup:self peer:peer didReceiveBlock:block];
 }
 
@@ -393,9 +392,9 @@
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
     
-    if (self.peerHosts) {
-        return;
-    }
+//    if (self.peerHosts) {
+//        return;
+//    }
 
     [self.inactiveAddresses addObjectsFromArray:addresses];
 
