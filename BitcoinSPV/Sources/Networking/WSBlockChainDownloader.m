@@ -100,6 +100,10 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly
 {
+    if (!headersOnly) {
+        WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
+    }
+    
     if ((self = [self init])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
