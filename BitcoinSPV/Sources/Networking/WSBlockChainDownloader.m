@@ -219,7 +219,7 @@
 
     self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
-        DDLogError(@"No more peers for download (%@)", error);
+        DDLogError(@"No more peers for download%@", WSStringOptional(error, @" (%@)"));
         return;
     }
     DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
