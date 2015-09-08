@@ -31,6 +31,9 @@
 #import "WSBlockHeader.h"
 #import "WSWallet.h"
 #import "WSHDWallet.h"
+#import "WSConnectionPool.h"
+#import "WSLogging.h"
+#import "WSErrors.h"
 
 @interface WSBlockChainDownloader ()
 
@@ -43,17 +46,18 @@
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 
 // state
-@property (nonatomic, assign) BOOL isDownloading;
+@property (nonatomic, strong) WSPeer *downloadPeer;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
-- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
-- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
-- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
-- (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
-- (void)addBlockHeaders:(NSArray *)headers; // WSBlockHeader
+- (WSPeer *)bestPeerAmongPeers:(NSArray *)peers;
+//- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
+//- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
+//- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
+//- (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
+//- (void)addBlockHeaders:(NSArray *)headers; // WSBlockHeader
 
 @end
 
@@ -106,27 +110,96 @@
     return [self.store parameters];
 }
 
-#pragma mark Download helpers (unsafe)
+#pragma mark WSPeerGroupDownloadDelegate
 
-//- (WSPeer *)bestPeer
-//{
-//    WSPeer *bestPeer = nil;
-//    for (WSPeer *peer in self.connectedPeers) {
-//
-//        // double check connection status
-//        if (peer.peerStatus != WSPeerStatusConnected) {
-//            continue;
-//        }
-//
-//        // max chain height or min ping
-//        if (!bestPeer ||
-//            (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
-//            ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
-//
-//            bestPeer = peer;
-//        }
-//    }
-//    return bestPeer;
-//}
+- (void)peerGroup:(WSPeerGroup *)peerGroup didStartDownloadWithConnectedPeers:(NSArray *)connectedPeers
+{
+    self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
+    if (!self.downloadPeer) {
+        DDLogInfo(@"Delayed download until peer selection");
+        return;
+    }
+    DDLogInfo(@"Peer %@ is new download peer", self.downloadPeer);
+
+#warning TODO: download, request blocks
+}
+
+- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup pool:(WSConnectionPool *)pool
+{
+    if (self.downloadPeer) {
+        [pool closeConnectionForProcessor:self.downloadPeer
+                                    error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+    }
+    self.downloadPeer = nil;
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer
+{
+    if (!self.downloadPeer) {
+        self.downloadPeer = peer;
+        DDLogInfo(@"Peer %@ connected, is new download peer", self.downloadPeer);
+
+#warning TODO: download, request blocks
+    }
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error connectedPeers:(NSArray *)connectedPeers
+{
+    if (peer == self.downloadPeer) {
+        DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
+
+        self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
+        if (!self.downloadPeer) {
+            DDLogError(@"No more peers for download (%@)", error);
+            return;
+        }
+        DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+
+#warning TODO: download, request blocks
+    }
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header
+{
+#warning TODO: download, handle header
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
+{
+#warning TODO: download, handle block
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
+{
+#warning TODO: download, handle filtered block
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
+{
+#warning TODO: download, handle transaction
+}
+
+#pragma mark Helpers
+
+- (WSPeer *)bestPeerAmongPeers:(NSArray *)peers
+{
+    WSPeer *bestPeer = nil;
+    for (WSPeer *peer in peers) {
+
+        // double check connection status
+        if (peer.peerStatus != WSPeerStatusConnected) {
+            continue;
+        }
+
+        // max chain height or min ping
+        if (!bestPeer ||
+            (peer.lastBlockHeight > bestPeer.lastBlockHeight) ||
+            ((peer.lastBlockHeight == bestPeer.lastBlockHeight) && (peer.connectionTime < bestPeer.connectionTime))) {
+
+            bestPeer = peer;
+        }
+    }
+    return bestPeer;
+}
 
 @end

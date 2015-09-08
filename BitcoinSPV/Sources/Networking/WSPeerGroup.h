@@ -70,12 +70,12 @@
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0
 @property (nonatomic, assign) NSTimeInterval seedTTL;                       // 600.0 (10 minutes)
 @property (nonatomic, assign) BOOL needsBloomFiltering;                     // NO
-@property (nonatomic, weak) id<WSPeerGroupDownloadDelegate> downloadDelegate;
 
 // WARNING: queue must be of type DISPATCH_QUEUE_SERIAL
 - (instancetype)initWithParameters:(id<WSParameters>)parameters;
 - (instancetype)initWithParameters:(id<WSParameters>)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue;
 
+// connection
 - (BOOL)startConnections;
 - (BOOL)stopConnections;
 - (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock;
@@ -83,6 +83,10 @@
 - (BOOL)isConnected;
 - (NSUInteger)numberOfConnections;
 - (BOOL)hasReachedMaxConnections;
+
+// download
+- (void)startDownloadWithDelegate:(id<WSPeerGroupDownloadDelegate>)downloadDelegate;
+- (void)stopDownload;
 
 //
 // WARNING: do not nil out peerGroup strong references until disconnection!
@@ -97,8 +101,18 @@
 
 @end
 
+//
+// every method is executed in group queue
+//
 @protocol WSPeerGroupDownloadDelegate <NSObject>
 
-- (void)peerGroup:(WSPeerGroup *)peerGroup didRequestFilterReloadForPeer:(WSPeer *)peer;
+- (void)peerGroup:(WSPeerGroup *)peerGroup didStartDownloadWithConnectedPeers:(NSArray *)connectedPeers;
+- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup pool:(WSConnectionPool *)pool;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error connectedPeers:(NSArray *)connectedPeers;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction;
 
 @end

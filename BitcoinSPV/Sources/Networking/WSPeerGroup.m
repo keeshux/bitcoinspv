@@ -77,7 +77,6 @@
 @property (nonatomic, strong) dispatch_queue_t queue;
 @property (nonatomic, strong) WSReachability *reachability;
 
-// connection
 @property (nonatomic, assign) BOOL keepConnected;
 @property (nonatomic, assign) NSUInteger numberOfActiveResolutions;
 @property (nonatomic, strong) NSMutableDictionary *ttlBySeed;           // NSString -> NSDate (background DNS thread)
@@ -88,6 +87,8 @@
 @property (nonatomic, assign) NSUInteger connectionFailures;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
+
+@property (nonatomic, weak) id<WSPeerGroupDownloadDelegate> downloadDelegate;
 
 - (void)connect;
 - (void)disconnect;
@@ -255,6 +256,28 @@
     return hasReachedMaxConnections;
 }
 
+#pragma mark Download (any queue)
+
+- (void)startDownloadWithDelegate:(id<WSPeerGroupDownloadDelegate>)downloadDelegate
+{
+    dispatch_sync(self.queue, ^{
+        if (self.downloadDelegate) {
+            DDLogVerbose(@"Ignoring call because already downloading");
+            return;
+        }
+        self.downloadDelegate = downloadDelegate;
+        [self.downloadDelegate peerGroup:self didStartDownloadWithConnectedPeers:[self.connectedPeers allValues]];
+    });
+}
+
+- (void)stopDownload
+{
+    dispatch_sync(self.queue, ^{
+        [self.downloadDelegate peerGroupDidStopDownload:self pool:self.pool];
+        self.downloadDelegate = nil;
+    });
+}
+
 #pragma mark Events (group queue)
 
 - (void)peerDidConnect:(WSPeer *)peer
@@ -289,6 +312,8 @@
     
     // peer was accepted, request recent addresses
     [peer sendGetaddr];
+
+    [self.downloadDelegate peerGroup:self peerDidConnect:peer];
 }
 
 - (void)peer:(WSPeer *)peer didFailToConnectWithError:(NSError *)error
@@ -320,6 +345,8 @@
     }
 
     [self handleConnectionFailureFromPeer:peer error:error];
+
+    [self.downloadDelegate peerGroup:self peer:peer didDisconnectWithError:error connectedPeers:[self.connectedPeers allValues]];
 }
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
@@ -329,6 +356,8 @@
 - (void)peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header
 {
     DDLogVerbose(@"Received header from %@: %@", peer, header);
+
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveHeader:header];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
@@ -336,16 +365,21 @@
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
 #warning FIXME: handle full blocks, blockchain not extending in full blocks mode
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveBlock:block];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
 {
     DDLogVerbose(@"Received filtered block from %@: %@", peer, filteredBlock);
+
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
 {
     DDLogVerbose(@"Received transaction from %@: %@", peer, transaction);
+
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveTransaction:transaction];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay
@@ -380,11 +414,6 @@
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
 #warning TODO: handle reject message
-}
-
-- (void)peerDidRequestFilterReload:(WSPeer *)peer
-{
-    DDLogDebug(@"Received Bloom filter reload request from %@", peer);
 }
 
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes

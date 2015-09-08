@@ -27,12 +27,14 @@
 
 #import <Foundation/Foundation.h>
 
+#import "WSPeerGroup.h"
+
 @protocol WSBlockStore;
 @protocol WSParameters;
 @protocol WSSynchronizableWallet;
 @class WSCoreDataManager;
 
-@interface WSBlockChainDownloader : NSObject
+@interface WSBlockChainDownloader : NSObject <WSPeerGroupDownloadDelegate>
 
 @property (nonatomic, assign) double bloomFilterRateMin;                    // 0.0001
 @property (nonatomic, assign) double bloomFilterRateDelta;                  // 0.0004
