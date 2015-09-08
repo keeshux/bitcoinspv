@@ -526,20 +526,24 @@
 // main queue
 - (void)detectDownloadTimeout
 {
-    const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-    const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
-    
-    if (elapsed < self.requestTimeout) {
-        const NSTimeInterval delay = self.requestTimeout - elapsed;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-            [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:delay];
-        });
-        return;
-    }
-    
-    [self.peerGroup disconnectPeer:self.downloadPeer
-                             error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
+    [self.peerGroup executeBlockInGroupQueue:^{
+        const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
+        
+        if (elapsed < self.requestTimeout) {
+            const NSTimeInterval delay = self.requestTimeout - elapsed;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+                [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:delay];
+            });
+            return;
+        }
+        
+        if (self.downloadPeer) {
+            [self.peerGroup disconnectPeer:self.downloadPeer
+                                     error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
+        }
+    } synchronously:YES];
 }
 
 #pragma mark Blockchain

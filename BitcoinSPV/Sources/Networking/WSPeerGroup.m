@@ -815,13 +815,29 @@
 
 - (void)disconnectPeer:(WSPeer *)peer error:(NSError *)error
 {
+    NSParameterAssert(peer);
+
     [self.pool closeConnectionForProcessor:peer error:error];
 }
 
 - (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
 {
+    NSParameterAssert(peer);
+
     [self.misbehavingHosts addObject:peer.remoteHost];
     [self.pool closeConnectionForProcessor:peer error:error];
+}
+
+- (void)executeBlockInGroupQueue:(void (^)())block synchronously:(BOOL)synchronously
+{
+    NSParameterAssert(block);
+
+    if (synchronously) {
+        dispatch_sync(self.queue, block);
+    }
+    else {
+        dispatch_async(self.queue, block);
+    }
 }
 
 #pragma mark External interface (unsafe)
