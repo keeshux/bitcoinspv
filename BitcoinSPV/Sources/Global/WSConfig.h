@@ -61,15 +61,16 @@ extern const NSUInteger         WSPeerGroupDefaultMaxConnections;
 extern const NSUInteger         WSPeerGroupDefaultMaxConnectionFailures;
 extern const NSTimeInterval     WSPeerGroupDefaultReconnectionDelay;
 //extern const NSTimeInterval     WSPeerGroupDefaultPingInterval;
-extern const NSTimeInterval     WSPeerGroupDefaultRequestTimeout;
 //extern const NSUInteger         WSPeerGroupMaxPeerHours;
 extern const NSUInteger         WSPeerGroupMaxInactivePeers;
 
-extern const double             WSPeerGroupDefaultBFRateMin;
-extern const double             WSPeerGroupDefaultBFRateDelta;
-extern const double             WSPeerGroupDefaultBFObservedRateMax;
-extern const double             WSPeerGroupDefaultBFLowPassRatio;
-extern const NSUInteger         WSPeerGroupDefaultBFTxsPerBlock;
+extern const double             WSBlockChainDownloaderDefaultBFRateMin;
+extern const double             WSBlockChainDownloaderDefaultBFRateDelta;
+extern const double             WSBlockChainDownloaderDefaultBFObservedRateMax;
+extern const double             WSBlockChainDownloaderDefaultBFLowPassRatio;
+extern const NSUInteger         WSBlockChainDownloaderDefaultBFTxsPerBlock;
+extern const NSUInteger         WSBlockChainDownloaderDefaultBlockStoreSize;
+extern const NSTimeInterval     WSBlockChainDownloaderDefaultRequestTimeout;
 
 extern const uint32_t           WSMessageVersionLocalhost;
 

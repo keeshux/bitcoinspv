@@ -34,6 +34,7 @@
 #import "WSConnectionPool.h"
 #import "WSLogging.h"
 #import "WSErrors.h"
+#import "WSConfig.h"
 
 @interface WSBlockChainDownloader ()
 
@@ -53,6 +54,7 @@
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers;
+- (void)loadFilterAndStartDownload;
 //- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
 //- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
 //- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
@@ -63,9 +65,23 @@
 
 @implementation WSBlockChainDownloader
 
-- (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly
+- (instancetype)init
 {
     if ((self = [super init])) {
+        self.bloomFilterRateMin = WSBlockChainDownloaderDefaultBFRateMin;
+        self.bloomFilterRateDelta = WSBlockChainDownloaderDefaultBFRateDelta;
+        self.bloomFilterObservedRateMax = WSBlockChainDownloaderDefaultBFObservedRateMax;
+        self.bloomFilterLowPassRatio = WSBlockChainDownloaderDefaultBFLowPassRatio;
+        self.bloomFilterTxsPerBlock = WSBlockChainDownloaderDefaultBFTxsPerBlock;
+        self.blockStoreSize = WSBlockChainDownloaderDefaultBlockStoreSize;
+        self.requestTimeout = WSBlockChainDownloaderDefaultRequestTimeout;
+    }
+    return self;
+}
+
+- (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly
+{
+    if ((self = [self init])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = nil;
@@ -79,7 +95,7 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
-    if ((self = [super init])) {
+    if ((self = [self init])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = nil;
@@ -93,7 +109,7 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    if ((self = [super init])) {
+    if ((self = [self init])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = wallet;
@@ -121,7 +137,7 @@
     }
     DDLogInfo(@"Peer %@ is new download peer", self.downloadPeer);
 
-#warning TODO: download, request blocks
+    [self loadFilterAndStartDownload];
 }
 
 - (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup pool:(WSConnectionPool *)pool
@@ -139,7 +155,7 @@
         self.downloadPeer = peer;
         DDLogInfo(@"Peer %@ connected, is new download peer", self.downloadPeer);
 
-#warning TODO: download, request blocks
+        [self loadFilterAndStartDownload];
     }
 }
 
@@ -155,7 +171,7 @@
         }
         DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
-#warning TODO: download, request blocks
+        [self loadFilterAndStartDownload];
     }
 }
 
@@ -200,6 +216,13 @@
         }
     }
     return bestPeer;
+}
+
+- (void)loadFilterAndStartDownload
+{
+    if ([self needsBloomFiltering]) {
+        //
+    }
 }
 
 @end

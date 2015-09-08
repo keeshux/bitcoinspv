@@ -29,8 +29,8 @@
 
 #pragma mark - Library
 
-NSString *const         WSClientName                                = @"BitcoinSPV";
-NSString *const         WSClientVersion                             = @"0.5";
+NSString *const         WSClientName                                    = @"BitcoinSPV";
+NSString *const         WSClientVersion                                 = @"0.5";
 
 NSBundle *WSClientBundle(Class clazz)
 {
@@ -41,33 +41,34 @@ NSBundle *WSClientBundle(Class clazz)
 
 #pragma mark - Local parameters
 
-const uint32_t          WSSeedGeneratorDefaultEntropyBits           = 128;
+const uint32_t          WSSeedGeneratorDefaultEntropyBits               = 128;
 
-const uint32_t          WSBlockUnknownHeight                        = UINT32_MAX;
-const uint32_t          WSBlockUnknownTimestamp                     = UINT32_MAX;
+const uint32_t          WSBlockUnknownHeight                            = UINT32_MAX;
+const uint32_t          WSBlockUnknownTimestamp                         = UINT32_MAX;
 
-const NSTimeInterval    WSPeerConnectTimeout                        = 3.0;
-const uint32_t          WSPeerProtocol                              = 70002;
-const uint32_t          WSPeerMinProtocol                           = 70001;    // SPV mode required
-const NSUInteger        WSPeerEnabledServices                       = 0;        // we don't provide full blocks to remote nodes
-const NSUInteger        WSPeerMaxFilteredBlockCount                 = 2000;
+const NSTimeInterval    WSPeerConnectTimeout                            = 3.0;
+const uint32_t          WSPeerProtocol                                  = 70002;
+const uint32_t          WSPeerMinProtocol                               = 70001;    // SPV mode required
+const NSUInteger        WSPeerEnabledServices                           = 0;        // we don't provide full blocks to remote nodes
+const NSUInteger        WSPeerMaxFilteredBlockCount                     = 2000;
 
-const NSUInteger        WSPeerGroupDefaultMaxConnections            = 3;
-const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures     = 15;
-const NSTimeInterval    WSPeerGroupDefaultReconnectionDelay         = 10.0;
-//const NSTimeInterval    WSPeerGroupDefaultPingInterval              = 5.0;
-const NSTimeInterval    WSPeerGroupDefaultRequestTimeout            = 5.0;
-//const NSUInteger        WSPeerGroupMaxPeerHours                     = 4;
-const NSUInteger        WSPeerGroupMaxInactivePeers                 = 1000;
+const NSUInteger        WSPeerGroupDefaultMaxConnections                = 3;
+const NSUInteger        WSPeerGroupDefaultMaxConnectionFailures         = 15;
+const NSTimeInterval    WSPeerGroupDefaultReconnectionDelay             = 10.0;
+//const NSTimeInterval    WSPeerGroupDefaultPingInterval                  = 5.0;
+//const NSUInteger        WSPeerGroupMaxPeerHours                         = 4;
+const NSUInteger        WSPeerGroupMaxInactivePeers                     = 1000;
 
-const double            WSPeerGroupDefaultBFRateMin                 = 0.0001;
-const double            WSPeerGroupDefaultBFRateDelta               = 0.0004;
-const double            WSPeerGroupDefaultBFObservedRateMax         = 10.0 * (WSPeerGroupDefaultBFRateMin + WSPeerGroupDefaultBFRateDelta);
-const double            WSPeerGroupDefaultBFLowPassRatio            = 0.01;     // 1%
-const NSUInteger        WSPeerGroupDefaultBFTxsPerBlock             = 600;
+const double            WSBlockChainDownloaderDefaultBFRateMin          = 0.0001;
+const double            WSBlockChainDownloaderDefaultBFRateDelta        = 0.0004;
+const double            WSBlockChainDownloaderDefaultBFObservedRateMax  = 10.0 * (WSBlockChainDownloaderDefaultBFRateMin + WSBlockChainDownloaderDefaultBFRateDelta);
+const double            WSBlockChainDownloaderDefaultBFLowPassRatio     = 0.01;     // 1%
+const NSUInteger        WSBlockChainDownloaderDefaultBFTxsPerBlock      = 600;
+const NSUInteger        WSBlockChainDownloaderDefaultBlockStoreSize     = 2500;
+const NSTimeInterval    WSBlockChainDownloaderDefaultRequestTimeout     = 5.0;
 
-const uint32_t          WSMessageVersionLocalhost                   = 0x0100007f;
+const uint32_t          WSMessageVersionLocalhost                       = 0x0100007f;
 
-const NSUInteger        WSHDWalletDefaultGapLimit                   = 10;
+const NSUInteger        WSHDWalletDefaultGapLimit                       = 10;
 
-const NSTimeInterval    WSJSONClientDefaultTimeout                  = 10.0;
+const NSTimeInterval    WSJSONClientDefaultTimeout                      = 10.0;

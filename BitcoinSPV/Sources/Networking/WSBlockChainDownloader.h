@@ -42,7 +42,7 @@
 @property (nonatomic, assign) double bloomFilterLowPassRatio;               // 0.01
 @property (nonatomic, assign) NSUInteger bloomFilterTxsPerBlock;            // 600
 @property (nonatomic, assign) NSUInteger blockStoreSize;                    // 2500
-@property (nonatomic, assign) NSTimeInterval requestTimeout;                // 15.0
+@property (nonatomic, assign) NSTimeInterval requestTimeout;                // 5.0
 @property (nonatomic, strong) WSCoreDataManager *coreDataManager;           // nil
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly;
