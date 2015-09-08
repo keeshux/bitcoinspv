@@ -44,7 +44,7 @@
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
 @property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
-@property (nonatomic, assign) BOOL needsBloomFiltering;
+@property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
 
 // state
 @property (nonatomic, strong) WSPeer *downloadPeer;
@@ -54,6 +54,7 @@
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers;
+//- (void)rebuildBloomFilter;
 - (void)loadFilterAndStartDownload;
 //- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
 //- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
@@ -88,7 +89,7 @@
         self.fastCatchUpTimestamp = 0;
 
         self.shouldDownloadBlocks = !headersOnly;
-        self.needsBloomFiltering = NO;
+        self.bloomFilterParameters = nil;
     }
     return self;
 }
@@ -102,7 +103,7 @@
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
 
         self.shouldDownloadBlocks = NO;
-        self.needsBloomFiltering = NO;
+        self.bloomFilterParameters = nil;
     }
     return self;
 }
@@ -116,7 +117,10 @@
         self.fastCatchUpTimestamp = [self.wallet earliestKeyTimestamp];
 
         self.shouldDownloadBlocks = NO;
-        self.needsBloomFiltering = YES;
+        self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
+#if BSPV_WALLET_FILTER == BSPV_WALLET_FILTER_UNSPENT
+        self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
+#endif
     }
     return self;
 }
@@ -124,6 +128,11 @@
 - (id<WSParameters>)parameters
 {
     return [self.store parameters];
+}
+
+- (BOOL)needsBloomFiltering
+{
+    return (self.bloomFilterParameters != nil);
 }
 
 #pragma mark WSPeerGroupDownloadDelegate
@@ -220,9 +229,27 @@
 
 - (void)loadFilterAndStartDownload
 {
-    if ([self needsBloomFiltering]) {
-        //
+    if (self.wallet) {
+        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+        WSBloomFilter *bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
+        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+
+        DDLogDebug(@"Bloom filter rebuilt in %.3fs (false positive rate: %f)",
+                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+
+        DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
+        [self.downloadPeer sendFilterloadMessageWithFilter:bloomFilter];
     }
+    else if (self.shouldDownloadBlocks) {
+        DDLogDebug(@"No wallet provided, downloading full blocks");
+    }
+    else {
+        DDLogDebug(@"No wallet provided, downloading block headers");
+    }
+
+    DDLogInfo(@"Preparing for blockchain download");
+
+#warning TODO: download, start
 }
 
 @end
