@@ -99,6 +99,7 @@
 - (void)handleConnectionFailureFromPeer:(WSPeer *)peer error:(NSError *)error;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)removeInactiveHost:(NSString *)host;
+- (void)signalMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 - (BOOL)unsafeIsConnected;
@@ -274,7 +275,7 @@
 - (void)stopDownload
 {
     dispatch_sync(self.queue, ^{
-        [self.downloadDelegate peerGroupDidStopDownload:self pool:self.pool];
+        [self.downloadDelegate peerGroupDidStopDownload:self];
         self.downloadDelegate = nil;
     });
 }
@@ -774,6 +775,12 @@
         
         DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveAddresses.count);
     }
+}
+
+- (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
+{
+    [self.misbehavingHosts addObject:peer.remoteHost];
+    [self.pool closeConnectionForProcessor:peer error:error];
 }
 
 + (BOOL)isHardNetworkError:(NSError *)error

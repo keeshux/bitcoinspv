@@ -26,15 +26,18 @@
 //
 
 #import "WSBlockChainDownloader.h"
+#import "WSPeerGroup+Download.h"
 #import "WSBlockStore.h"
 #import "WSBlockChain.h"
 #import "WSBlockHeader.h"
+#import "WSFilteredBlock.h"
+#import "WSStorableBlock.h"
 #import "WSWallet.h"
 #import "WSHDWallet.h"
 #import "WSConnectionPool.h"
-#import "WSStorableBlock.h"
 #import "WSBlockLocator.h"
 #import "WSParameters.h"
+#import "WSHash256.h"
 #import "WSLogging.h"
 #import "WSErrors.h"
 #import "WSConfig.h"
@@ -56,15 +59,26 @@
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 
-- (WSPeer *)bestPeerAmongPeers:(NSArray *)peers;
-//- (void)rebuildBloomFilter;
+// business
+- (WSPeer *)bestPeerAmongPeers:(NSArray *)peers; // WSPeer
 - (void)loadFilterAndStartDownload;
 - (void)downloadBlockChain;
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
-//- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
-//- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
-//- (void)addBlockHeaders:(NSArray *)headers; // WSBlockHeader
+- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers; // WSBlockHeader
+- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes; // WSHash256
+
+// blockchain
+- (BOOL)appendBlockHeaders:(NSArray *)headers error:(NSError **)error; // WSBlockHeader
+- (BOOL)appendBlock:(WSBlock *)block error:(NSError **)error;
+- (BOOL)appendFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions error:(NSError **)error; // WSSignedTransaction
+
+// entity handlers
+- (void)handleAddedBlock:(WSStorableBlock *)block;
+- (void)handleReplacedBlock:(WSStorableBlock *)block;
+- (void)handleReceivedTransaction:(WSSignedTransaction *)transaction;
+- (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
 
 @end
 
@@ -153,13 +167,13 @@
     [self loadFilterAndStartDownload];
 }
 
-- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup pool:(WSConnectionPool *)pool
+- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup
 {
     if (self.downloadPeer) {
         DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
 
-        [pool closeConnectionForProcessor:self.downloadPeer
-                                    error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+        [peerGroup.pool closeConnectionForProcessor:self.downloadPeer
+                                              error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
     self.downloadPeer = nil;
 }
@@ -197,7 +211,13 @@
     if (peer != self.downloadPeer) {
         return;
     }
-#warning TODO: download, handle headers
+
+    [self aheadRequestOnReceivedHeaders:headers];
+
+    NSError *error;
+    if (![self appendBlockHeaders:headers error:&error]) {
+        [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
+    }
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
@@ -205,7 +225,8 @@
     if (peer != self.downloadPeer) {
         return;
     }
-#warning TODO: download, handle block hashes
+
+    [self aheadRequestOnReceivedBlockHashes:hashes];
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
@@ -213,7 +234,11 @@
     if (peer != self.downloadPeer) {
         return;
     }
-#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
+
+    NSError *error;
+    if (![self appendBlock:block error:&error]) {
+        [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
+    }
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
@@ -221,7 +246,11 @@
     if (peer != self.downloadPeer) {
         return;
     }
-#warning TODO: download, handle filtered block
+
+    NSError *error;
+    if (![self appendFilteredBlock:filteredBlock withTransactions:transactions error:&error]) {
+        [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
+    }
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
@@ -229,10 +258,32 @@
     if (peer != self.downloadPeer) {
         return;
     }
-#warning TODO: download, handle transaction
+
+    [self handleReceivedTransaction:transaction];
 }
 
-#pragma mark Helpers
+- (BOOL)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer shouldAcceptHeader:(WSBlockHeader *)header error:(NSError *__autoreleasing *)error
+{
+    WSStorableBlock *expected = [self.parameters checkpointAtHeight:(uint32_t)(self.blockChain.currentHeight + 1)];
+    if (!expected) {
+        return YES;
+    }
+    if ([header.blockId isEqual:expected.header.blockId]) {
+        return YES;
+    }
+    
+    DDLogError(@"Checkpoint validation failed at %u", expected.height);
+    DDLogError(@"Expected checkpoint: %@", expected);
+    DDLogError(@"Found block header: %@", header);
+    
+    if (error) {
+        *error = WSErrorMake(WSErrorCodePeerGroupRescan, @"Checkpoint validation failed at %u (%@ != %@)",
+                             expected.height, header.blockId, expected.blockId);
+    }
+    return NO;
+}
+
+#pragma mark Business
 
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers
 {
@@ -283,6 +334,7 @@
 - (void)downloadBlockChain
 {
     if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
+#warning TODO: download, notifier
 //        if (syncedBlock) {
 //            syncedBlock(blockChain.currentHeight);
 //        }
@@ -300,6 +352,7 @@
         DDLogDebug(@"%@ No fast catch-up checkpoint", self);
     }
     
+#warning TODO: download, notifier
 //    if (prestartBlock) {
 //        const NSUInteger fromHeight = self.blockChain.currentHeight;
 //        const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
@@ -320,14 +373,321 @@
 
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator
 {
+    NSParameterAssert(locator);
+
     DDLogDebug(@"%@ Behind catch-up (or headers-only mode), requesting headers with locator: %@", self, locator.hashes);
     [self.downloadPeer sendGetheadersMessageWithLocator:locator hashStop:nil];
 }
 
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator
 {
+    NSParameterAssert(locator);
+
     DDLogDebug(@"%@ Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", self, locator.hashes);
     [self.downloadPeer sendGetblocksMessageWithLocator:locator hashStop:nil];
+}
+
+- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers
+{
+    NSParameterAssert(headers.count > 0);
+    
+//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//
+//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
+//               self, currentHeight, self.lastBlockHeight);
+    
+    WSBlockHeader *firstHeader = [headers firstObject];
+    WSBlockHeader *lastHeader = [headers lastObject];
+    WSBlockHeader *lastHeaderBeforeFCU = nil;
+    
+    // infer the header we'll stop at
+    for (WSBlockHeader *header in headers) {
+        if (header.timestamp >= self.fastCatchUpTimestamp) {
+            break;
+        }
+        lastHeaderBeforeFCU = header;
+    }
+//    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
+    
+    if (!lastHeaderBeforeFCU) {
+        DDLogInfo(@"%@ All received headers beyond catch-up, rerequesting blocks", self);
+        
+        [self requestBlocksWithLocator:self.startingBlockChainLocator];
+    }
+    else {
+        // we won't cross fast catch-up, request more headers
+        if (!self.shouldDownloadBlocks || (lastHeaderBeforeFCU == lastHeader)) {
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeader.blockId, firstHeader.blockId]];
+            [self requestHeadersWithLocator:locator];
+        }
+        // we will cross fast catch-up, request blocks from crossing point
+        else {
+            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
+                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
+                      [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
+            
+            WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
+            [self requestBlocksWithLocator:locator];
+        }
+    }
+}
+
+- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes
+{
+    NSParameterAssert(hashes.count > 0);
+    
+    if (hashes.count < WSMessageBlocksMaxCount) {
+        return;
+    }
+    
+//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//
+//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
+//               self, currentHeight, self.lastBlockHeight);
+    
+    WSHash256 *firstId = [hashes firstObject];
+    WSHash256 *lastId = [hashes lastObject];
+    
+    WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
+    [self requestBlocksWithLocator:locator];
+}
+
+#pragma mark Blockchain
+
+- (BOOL)appendBlockHeaders:(NSArray *)headers error:(NSError *__autoreleasing *)error
+{
+    NSParameterAssert(headers.count > 0);
+    
+    for (WSBlockHeader *header in headers) {
+        
+        // download peer should stop requesting headers when fast catch-up reached
+        if (self.shouldDownloadBlocks && (header.timestamp >= self.fastCatchUpTimestamp)) {
+            break;
+        }
+
+        NSError *localError;
+        WSStorableBlock *block = nil;
+        __weak WSBlockChainDownloader *weakSelf = self;
+        
+        NSArray *connectedOrphans;
+        block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+            
+            [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
+            
+        } connectedOrphans:&connectedOrphans error:&localError];
+        
+        if (!block) {
+            if (!localError) {
+                DDLogDebug(@"Header not added: %@", header);
+            }
+            else {
+                DDLogDebug(@"Error adding header (%@): %@", localError, header);
+                
+                if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
+                    if (error) {
+                        *error = localError;
+                    }
+                }
+            }
+            DDLogDebug(@"Current head: %@", self.blockChain.head);
+            
+            return NO;
+        }
+        
+        for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
+            [self handleAddedBlock:addedBlock];
+        }
+    }
+
+    return YES;
+}
+
+- (BOOL)appendBlock:(WSBlock *)block error:(NSError *__autoreleasing *)error
+{
+    NSParameterAssert(block);
+
+#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
+
+    return NO;
+}
+
+- (BOOL)appendFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions error:(NSError *__autoreleasing *)error
+{
+    NSParameterAssert(filteredBlock);
+    NSParameterAssert(transactions);
+
+    NSError *localError;
+    WSStorableBlock *block = nil;
+    WSStorableBlock *previousHead = nil;
+    __weak WSBlockChainDownloader *weakSelf = self;
+    
+    NSArray *connectedOrphans;
+    previousHead = self.blockChain.head;
+    block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+        
+        [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
+        
+    } connectedOrphans:&connectedOrphans error:&localError];
+    
+    if (!block) {
+        if (!localError) {
+            DDLogDebug(@"Filtered block not added: %@", filteredBlock);
+        }
+        else {
+            DDLogDebug(@"Error adding filtered block (%@): %@", localError, filteredBlock);
+            
+            if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
+                if (error) {
+                    *error = localError;
+                }
+            }
+        }
+        DDLogDebug(@"Current head: %@", self.blockChain.head);
+        
+        return NO;
+    }
+    
+    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
+        if (![addedBlock.blockId isEqual:previousHead.blockId]) {
+            [self handleAddedBlock:addedBlock];
+        }
+        else {
+            [self handleReplacedBlock:addedBlock];
+        }
+    }
+    
+    return YES;
+}
+
+#pragma mark Entity handlers
+
+- (void)handleAddedBlock:(WSStorableBlock *)block
+{
+//#warning TODO: download, notifier
+////    [self.notifier notifyBlockAdded:block];
+//    
+//    const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
+//    const BOOL isDownloadFinished = (block.height == lastBlockHeight);
+//    
+//    if (isDownloadFinished) {
+//        for (WSPeer *peer in self.connectedPeers) {
+//            if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
+//                DDLogDebug(@"Loading Bloom filter for peer %@", peer);
+//                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+//            }
+//            DDLogDebug(@"Requesting mempool from peer %@", peer);
+//            [peer sendMempoolMessage];
+//        }
+//        
+//        [self trySaveBlockChainToCoreData];
+//        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+//        });
+//#warning TODO: download, notifier
+////        [self.notifier notifyDownloadFinished];
+//    }
+//    
+//    //
+//    
+//    if (self.wallet) {
+//        [self recoverMissedBlockTransactions:block fromPeer:peer];
+//    }
+}
+
+- (void)handleReplacedBlock:(WSStorableBlock *)block
+{
+//    if (self.wallet) {
+//        [self recoverMissedBlockTransactions:block fromPeer:peer];
+//    }
+}
+
+- (void)handleReceivedTransaction:(WSSignedTransaction *)transaction
+{
+//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+//    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+//    
+//    //
+//    
+//    BOOL didGenerateNewAddresses = NO;
+//    if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
+//        return;
+//    }
+//    
+//    if (didGenerateNewAddresses) {
+//        DDLogDebug(@"Last transaction triggered new addresses generation");
+//        
+//        if ([self maybeResetAndSendBloomFilter]) {
+//            [peer requestOutdatedBlocks];
+//        }
+//    }
+}
+
+- (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks
+{
+//    DDLogDebug(@"Reorganized blockchain at block: %@", base);
+//    DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
+//    DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
+//    
+//    for (WSStorableBlock *block in newBlocks) {
+//        for (WSSignedTransaction *transaction in block.transactions) {
+//            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+//#warning TODO: download, notifier
+////            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+//        }
+//    }
+//    
+//    //
+//    // wallet should already contain transactions from new blocks, reorganize will only
+//    // change their parent block (thus updating wallet metadata)
+//    //
+//    // that's because after a 'merkleblock' message the following 'tx' messages are received
+//    // and registered anyway, even if the 'merkleblock' is later considered orphan or on fork
+//    // by local blockchain
+//    //
+//    // for the above reason, a reorg should never generate new addresses
+//    //
+//    
+//    if (!self.wallet) {
+//        return;
+//    }
+//    
+//    BOOL didGenerateNewAddresses = NO;
+//    [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
+//    
+//    if (didGenerateNewAddresses) {
+//        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
+//        
+//        if ([self maybeResetAndSendBloomFilter]) {
+//            [peer requestOutdatedBlocks];
+//        }
+//    }
+}
+
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block
+{
+//    //
+//    // enforce registration in case we lost these transactions
+//    //
+//    // see note in [WSHDWallet isRelevantTransaction:savingReceivingAddresses:]
+//    //
+//    BOOL didGenerateNewAddresses = NO;
+//    for (WSSignedTransaction *transaction in block.transactions) {
+//        BOOL txDidGenerateNewAddresses = NO;
+//        [self.wallet registerTransaction:transaction didGenerateNewAddresses:&txDidGenerateNewAddresses];
+//
+//        didGenerateNewAddresses |= txDidGenerateNewAddresses;
+//    }
+//
+//    [self.wallet registerBlock:block];
+//
+//    if (didGenerateNewAddresses) {
+//        DDLogWarn(@"Block registration triggered new addresses generation");
+//
+//        if ([self maybeResetAndSendBloomFilter]) {
+//            [peer requestOutdatedBlocks];
+//        }
+//    }
 }
 
 @end

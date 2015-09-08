@@ -204,6 +204,8 @@
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
 		0E282B1B1B0AAB8900D9C959 /* WSAbstractKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSAbstractKey.h; sourceTree = "<group>"; };
+		0E570D041B9EF171000E9D7C /* WSDownloadTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSDownloadTests.m; sourceTree = "<group>"; };
+		0E570D061B9F4E1E000E9D7C /* WSPeerGroup+Download.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WSPeerGroup+Download.h"; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0E761AB41AE6629A00F1F068 /* WSMacrosCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMacrosCore.h; sourceTree = "<group>"; };
 		0E761AB51AE6629A00F1F068 /* WSMacrosCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMacrosCore.m; sourceTree = "<group>"; };
@@ -906,6 +908,7 @@
 			children = (
 				0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */,
 				8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */,
+				0E570D041B9EF171000E9D7C /* WSDownloadTests.m */,
 				8C0EB60A197D7A01004DBBC6 /* WSLocalNetworkTests.m */,
 				8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */,
 				8CB6D2971979D18000783ADF /* WSPeerTests.m */,
@@ -946,6 +949,7 @@
 				8CBF4A09196A850F00FAFF64 /* WSConnectionPool.m */,
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
 				8CBF4A0F196AA94D00FAFF64 /* WSPeer.m */,
+				0E570D061B9F4E1E000E9D7C /* WSPeerGroup+Download.h */,
 				0ED5E2F81B4A9C860057B9D8 /* WSPeerGroup.h */,
 				0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */,
 				0ED5E2FB1B4AC5780057B9D8 /* WSPeerGroupNotifier.h */,
