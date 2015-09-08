@@ -32,6 +32,9 @@
 #import "WSWallet.h"
 #import "WSHDWallet.h"
 #import "WSConnectionPool.h"
+#import "WSStorableBlock.h"
+#import "WSBlockLocator.h"
+#import "WSParameters.h"
 #import "WSLogging.h"
 #import "WSErrors.h"
 #import "WSConfig.h"
@@ -56,10 +59,11 @@
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers;
 //- (void)rebuildBloomFilter;
 - (void)loadFilterAndStartDownload;
+- (void)downloadBlockChain;
+- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
+- (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
 //- (void)aheadRequestOnReceivedHeaders:(NSArray *)headers;
 //- (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes;
-//- (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
-//- (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
 //- (void)addBlockHeaders:(NSArray *)headers; // WSBlockHeader
 
 @end
@@ -186,9 +190,14 @@
     }
 }
 
-- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
 {
-#warning TODO: download, handle header
+#warning TODO: download, handle headers
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
+{
+#warning TODO: download, handle block hashes
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
@@ -251,7 +260,57 @@
 
     DDLogInfo(@"Preparing for blockchain download");
 
-#warning TODO: download, start
+    [self downloadBlockChain];
+}
+
+- (void)downloadBlockChain
+{
+    if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
+//        if (syncedBlock) {
+//            syncedBlock(blockChain.currentHeight);
+//        }
+        return;
+    }
+
+    WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:self.fastCatchUpTimestamp];
+    if (checkpoint) {
+        DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
+                   self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
+        
+        [self.blockChain addCheckpoint:checkpoint error:NULL];
+    }
+    else {
+        DDLogDebug(@"%@ No fast catch-up checkpoint", self);
+    }
+    
+//    if (prestartBlock) {
+//        const NSUInteger fromHeight = self.blockChain.currentHeight;
+//        const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+//        
+//        prestartBlock(fromHeight, toHeight);
+//    }
+    
+    self.fastCatchUpTimestamp = self.fastCatchUpTimestamp;
+    self.startingBlockChainLocator = [self.blockChain currentLocator];
+    
+    if (!self.shouldDownloadBlocks || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
+        [self requestHeadersWithLocator:self.startingBlockChainLocator];
+    }
+    else {
+        [self requestBlocksWithLocator:self.startingBlockChainLocator];
+    }
+}
+
+- (void)requestHeadersWithLocator:(WSBlockLocator *)locator
+{
+    DDLogDebug(@"%@ Behind catch-up (or headers-only mode), requesting headers with locator: %@", self, locator.hashes);
+    [self.downloadPeer sendGetheadersMessageWithLocator:locator hashStop:nil];
+}
+
+- (void)requestBlocksWithLocator:(WSBlockLocator *)locator
+{
+    DDLogDebug(@"%@ Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", self, locator.hashes);
+    [self.downloadPeer sendGetblocksMessageWithLocator:locator hashStop:nil];
 }
 
 @end

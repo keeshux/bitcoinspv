@@ -622,6 +622,12 @@
 
     if (requestInventories.count > 0) {
         [self sendGetdataMessageWithInventories:requestInventories];
+
+        if (requestBlockHashes.count > 0) {
+            dispatch_async(self.delegateQueue, ^{
+                [self.delegate peer:self didReceiveBlockHashes:requestBlockHashes];
+            });
+        }
     }
 }
 
@@ -681,6 +687,10 @@
             return;
         }
     }
+
+    dispatch_async(self.delegateQueue, ^{
+        [self.delegate peer:self didReceiveHeaders:headers];
+    });
 }
 
 - (void)receivePingMessage:(WSMessagePing *)message

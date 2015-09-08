@@ -353,11 +353,18 @@
 {
 }
 
-- (void)peer:(WSPeer *)peer didReceiveHeader:(WSBlockHeader *)header
+- (void)peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
 {
-    DDLogVerbose(@"Received header from %@: %@", peer, header);
+    DDLogVerbose(@"Received headers from %@: %@", peer, headers);
 
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveHeader:header];
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveHeaders:headers];
+}
+
+- (void)peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
+{
+    DDLogVerbose(@"Received block hashes from %@: %@", peer, hashes);
+    
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveBlockHashes:hashes];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
