@@ -161,9 +161,9 @@
 
 #pragma mark WSPeerGroupDownloadDelegate
 
-- (void)peerGroup:(WSPeerGroup *)peerGroup didStartDownloadWithConnectedPeers:(NSArray *)connectedPeers
+- (void)peerGroupDidStartDownload:(WSPeerGroup *)peerGroup
 {
-    self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
+    self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
         DDLogInfo(@"Delayed download until peer selection");
         return;
@@ -193,7 +193,7 @@
     }
 }
 
-- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error connectedPeers:(NSArray *)connectedPeers
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error
 {
     if (peer != self.downloadPeer) {
         return;
@@ -201,7 +201,7 @@
 
     DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
 
-    self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
+    self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
         DDLogError(@"No more peers for download (%@)", error);
         return;

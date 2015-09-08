@@ -250,6 +250,15 @@
     return numberOfConnections;
 }
 
+- (NSArray *)allConnectedPeers
+{
+    __block NSArray *allConnectedPeers;
+    dispatch_sync(self.queue, ^{
+        allConnectedPeers = [self.connectedPeers allValues];
+    });
+    return allConnectedPeers;
+}
+
 - (BOOL)hasReachedMaxConnections
 {
     __block BOOL hasReachedMaxConnections;
@@ -269,7 +278,7 @@
             return;
         }
         self.downloadDelegate = downloadDelegate;
-        [self.downloadDelegate peerGroup:self didStartDownloadWithConnectedPeers:[self.connectedPeers allValues]];
+        [self.downloadDelegate peerGroupDidStartDownload:self];
     });
 }
 
@@ -349,7 +358,7 @@
 
     [self handleConnectionFailureFromPeer:peer error:error];
 
-    [self.downloadDelegate peerGroup:self peer:peer didDisconnectWithError:error connectedPeers:[self.connectedPeers allValues]];
+    [self.downloadDelegate peerGroup:self peer:peer didDisconnectWithError:error];
 }
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
