@@ -61,7 +61,6 @@
 
 // business
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers; // WSPeer
-- (void)loadFilterAndStartDownload;
 - (void)downloadBlockChain;
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
@@ -164,7 +163,7 @@
     }
     DDLogInfo(@"Peer %@ is new download peer", self.downloadPeer);
 
-    [self loadFilterAndStartDownload];
+    [self downloadBlockChain];
 }
 
 - (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup
@@ -184,7 +183,7 @@
         self.downloadPeer = peer;
         DDLogInfo(@"Peer %@ connected, is new download peer", self.downloadPeer);
 
-        [self loadFilterAndStartDownload];
+        [self downloadBlockChain];
     }
 }
 
@@ -203,7 +202,7 @@
     }
     DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
-    [self loadFilterAndStartDownload];
+    [self downloadBlockChain];
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
@@ -306,7 +305,7 @@
     return bestPeer;
 }
 
-- (void)loadFilterAndStartDownload
+- (void)downloadBlockChain
 {
     if (self.wallet) {
         const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
@@ -328,11 +327,6 @@
 
     DDLogInfo(@"Preparing for blockchain download");
 
-    [self downloadBlockChain];
-}
-
-- (void)downloadBlockChain
-{
     if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
 #warning TODO: download, notifier
 //        if (syncedBlock) {
