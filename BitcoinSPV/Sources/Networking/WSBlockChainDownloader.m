@@ -120,7 +120,7 @@
         self.wallet = nil;
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
 
-        self.shouldDownloadBlocks = NO;
+        self.shouldDownloadBlocks = YES;
         self.bloomFilterParameters = nil;
     }
     return self;
@@ -134,7 +134,7 @@
         self.wallet = wallet;
         self.fastCatchUpTimestamp = [self.wallet earliestKeyTimestamp];
 
-        self.shouldDownloadBlocks = NO;
+        self.shouldDownloadBlocks = YES;
         self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
 #if BSPV_WALLET_FILTER == BSPV_WALLET_FILTER_UNSPENT
         self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
@@ -428,7 +428,7 @@
     }
 //    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
     
-    if (!lastHeaderBeforeFCU) {
+    if (self.shouldDownloadBlocks && !lastHeaderBeforeFCU) {
         DDLogInfo(@"%@ All received headers beyond catch-up, rerequesting blocks", self);
         
         [self requestBlocksWithLocator:self.startingBlockChainLocator];
