@@ -254,15 +254,6 @@
     return numberOfConnections;
 }
 
-- (NSArray *)allConnectedPeers
-{
-    __block NSArray *allConnectedPeers;
-    dispatch_sync(self.queue, ^{
-        allConnectedPeers = [self.connectedPeers allValues];
-    });
-    return allConnectedPeers;
-}
-
 - (BOOL)hasReachedMaxConnections
 {
     __block BOOL hasReachedMaxConnections;
@@ -816,6 +807,11 @@
 }
 
 #pragma mark Download interface (unsafe)
+
+- (NSArray *)allConnectedPeers
+{
+    return [self.connectedPeers allValues];
+}
 
 - (void)disconnectPeer:(WSPeer *)peer error:(NSError *)error
 {
