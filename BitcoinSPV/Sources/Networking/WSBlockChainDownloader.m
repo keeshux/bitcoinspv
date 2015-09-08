@@ -54,11 +54,13 @@
 @property (nonatomic, strong) WSBIP37FilterParameters *bloomFilterParameters;
 
 // state
+@property (nonatomic, weak) WSPeerGroup *peerGroup;
 @property (nonatomic, strong) WSPeer *downloadPeer;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
+@property (nonatomic, assign) NSTimeInterval lastKeepAliveTime;
 
 // business
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers; // WSPeer
@@ -67,6 +69,7 @@
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers; // WSBlockHeader
 - (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes; // WSHash256
+- (void)detectDownloadTimeout;
 
 // blockchain
 - (BOOL)appendBlockHeaders:(NSArray *)headers error:(NSError **)error; // WSBlockHeader
@@ -163,6 +166,7 @@
 
 - (void)peerGroupDidStartDownload:(WSPeerGroup *)peerGroup
 {
+    self.peerGroup = peerGroup;
     self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
         DDLogInfo(@"Delayed download until peer selection");
@@ -181,6 +185,7 @@
         [peerGroup disconnectPeer:self.downloadPeer error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
     self.downloadPeer = nil;
+    self.peerGroup = nil;
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer
@@ -209,6 +214,15 @@
     DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
     [self downloadBlockChain];
+}
+
+- (void)peerGroup:(WSPeerGroup *)peerGroup peerDidKeepAlive:(WSPeer *)peer
+{
+    if (peer != self.downloadPeer) {
+        return;
+    }
+    
+    self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
@@ -387,6 +401,12 @@
     
     self.fastCatchUpTimestamp = self.fastCatchUpTimestamp;
     self.startingBlockChainLocator = [self.blockChain currentLocator];
+    self.lastKeepAliveTime = [NSDate timeIntervalSinceReferenceDate];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+        [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:self.requestTimeout];
+    });
     
     if (!self.shouldDownloadBlocks || (self.blockChain.currentTimestamp < self.fastCatchUpTimestamp)) {
         [self requestHeadersWithLocator:self.startingBlockChainLocator];
@@ -475,6 +495,25 @@
     
     WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
     [self requestBlocksWithLocator:locator];
+}
+
+// main queue
+- (void)detectDownloadTimeout
+{
+    const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    const NSTimeInterval elapsed = now - self.lastKeepAliveTime;
+    
+    if (elapsed < self.requestTimeout) {
+        const NSTimeInterval delay = self.requestTimeout - elapsed;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+            [self performSelector:@selector(detectDownloadTimeout) withObject:nil afterDelay:delay];
+        });
+        return;
+    }
+    
+    [self.peerGroup disconnectPeer:self.downloadPeer
+                             error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
 }
 
 #pragma mark Blockchain

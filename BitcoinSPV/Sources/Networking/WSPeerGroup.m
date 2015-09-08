@@ -363,6 +363,7 @@
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
 {
+    [self.downloadDelegate peerGroup:self peerDidKeepAlive:peer];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
