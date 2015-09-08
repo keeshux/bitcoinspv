@@ -56,6 +56,7 @@
 // state
 @property (nonatomic, weak) WSPeerGroup *peerGroup;
 @property (nonatomic, strong) WSPeer *downloadPeer;
+@property (nonatomic, strong) WSBloomFilter *bloomFilter;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
 @property (nonatomic, assign) NSUInteger filteredBlockCount;
@@ -65,10 +66,12 @@
 // business
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers; // WSPeer
 - (void)downloadBlockChain;
+- (void)rebuildBloomFilter;
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator;
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers; // WSBlockHeader
 - (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes; // WSHash256
+- (void)trySaveBlockChainToCoreData;
 - (void)detectDownloadTimeout;
 
 // blockchain
@@ -82,6 +85,7 @@
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
+- (BOOL)maybeRebuildAndSendBloomFilter;
 
 @end
 
@@ -179,6 +183,8 @@
 
 - (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup
 {
+    [self trySaveBlockChainToCoreData];
+    
     if (self.downloadPeer) {
         DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
 
@@ -186,6 +192,11 @@
     }
     self.downloadPeer = nil;
     self.peerGroup = nil;
+}
+
+- (void)peerGroupShouldPersistDownloadState:(WSPeerGroup *)peerGroup
+{
+    [self trySaveBlockChainToCoreData];
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer
@@ -353,15 +364,10 @@
 - (void)downloadBlockChain
 {
     if (self.wallet) {
-        const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
-        WSBloomFilter *bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
-        const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
-
-        DDLogDebug(@"Bloom filter rebuilt in %.3fs (false positive rate: %f)",
-                   rebuildTime, self.bloomFilterParameters.falsePositiveRate);
+        [self rebuildBloomFilter];
 
         DDLogDebug(@"Loading Bloom filter for download peer %@", self.downloadPeer);
-        [self.downloadPeer sendFilterloadMessageWithFilter:bloomFilter];
+        [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
     }
     else if (self.shouldDownloadBlocks) {
         DDLogDebug(@"No wallet provided, downloading full blocks");
@@ -374,9 +380,15 @@
 
     if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
 #warning TODO: download, notifier
-//        if (syncedBlock) {
-//            syncedBlock(blockChain.currentHeight);
-//        }
+//        const NSUInteger height = self.blockChain.currentHeight;
+//        [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
+        
+        DDLogInfo(@"Blockchain is up to date");
+        
+        [self trySaveBlockChainToCoreData];
+        
+#warning TODO: download, notifier
+//        [self.notifier notifyDownloadFinished];
         return;
     }
 
@@ -392,12 +404,9 @@
     }
     
 #warning TODO: download, notifier
-//    if (prestartBlock) {
-//        const NSUInteger fromHeight = self.blockChain.currentHeight;
-//        const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
-//        
-//        prestartBlock(fromHeight, toHeight);
-//    }
+//    const NSUInteger fromHeight = self.blockChain.currentHeight;
+//    const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+//    [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
     
     self.fastCatchUpTimestamp = self.fastCatchUpTimestamp;
     self.startingBlockChainLocator = [self.blockChain currentLocator];
@@ -414,6 +423,16 @@
     else {
         [self requestBlocksWithLocator:self.startingBlockChainLocator];
     }
+}
+
+- (void)rebuildBloomFilter
+{
+    const NSTimeInterval rebuildStartTime = [NSDate timeIntervalSinceReferenceDate];
+    self.bloomFilter = [self.wallet bloomFilterWithParameters:self.bloomFilterParameters];
+    const NSTimeInterval rebuildTime = [NSDate timeIntervalSinceReferenceDate] - rebuildStartTime;
+    
+    DDLogDebug(@"Bloom filter rebuilt in %.3fs (false positive rate: %f)",
+               rebuildTime, self.bloomFilterParameters.falsePositiveRate);
 }
 
 - (void)requestHeadersWithLocator:(WSBlockLocator *)locator
@@ -495,6 +514,13 @@
     
     WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastId, firstId]];
     [self requestBlocksWithLocator:locator];
+}
+
+- (void)trySaveBlockChainToCoreData
+{
+    if (self.coreDataManager) {
+        [self.blockChain saveToCoreDataManager:self.coreDataManager];
+    }
 }
 
 // main queue
@@ -632,131 +658,177 @@
 
 - (void)handleAddedBlock:(WSStorableBlock *)block
 {
-//#warning TODO: download, notifier
-////    [self.notifier notifyBlockAdded:block];
-//    
-//    const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
-//    const BOOL isDownloadFinished = (block.height == lastBlockHeight);
-//    
-//    if (isDownloadFinished) {
-//        for (WSPeer *peer in self.connectedPeers) {
-//            if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
-//                DDLogDebug(@"Loading Bloom filter for peer %@", peer);
-//                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
-//            }
-//            DDLogDebug(@"Requesting mempool from peer %@", peer);
-//            [peer sendMempoolMessage];
-//        }
-//        
-//        [self trySaveBlockChainToCoreData];
-//        
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-//        });
-//#warning TODO: download, notifier
-////        [self.notifier notifyDownloadFinished];
-//    }
-//    
-//    //
-//    
-//    if (self.wallet) {
-//        [self recoverMissedBlockTransactions:block fromPeer:peer];
-//    }
+#warning TODO: download, notifier
+//    [self.notifier notifyBlockAdded:block];
+    
+    const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
+    const BOOL isDownloadFinished = (block.height == lastBlockHeight);
+    
+    if (isDownloadFinished) {
+        for (WSPeer *peer in [self.peerGroup allConnectedPeers]) {
+            if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
+                DDLogDebug(@"Loading Bloom filter for peer %@", peer);
+                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+            }
+            DDLogDebug(@"Requesting mempool from peer %@", peer);
+            [peer sendMempoolMessage];
+        }
+        
+        [self trySaveBlockChainToCoreData];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+        });
+#warning TODO: download, notifier
+//        [self.notifier notifyDownloadFinished];
+    }
+    
+    //
+    
+    if (self.wallet) {
+        [self recoverMissedBlockTransactions:block];
+    }
 }
 
 - (void)handleReplacedBlock:(WSStorableBlock *)block
 {
-//    if (self.wallet) {
-//        [self recoverMissedBlockTransactions:block fromPeer:peer];
-//    }
+    if (self.wallet) {
+        [self recoverMissedBlockTransactions:block];
+    }
 }
 
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction
 {
-//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+#warning TODO: download, notifier
+//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
 //    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
-//    
-//    //
-//    
-//    BOOL didGenerateNewAddresses = NO;
-//    if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
-//        return;
-//    }
-//    
-//    if (didGenerateNewAddresses) {
-//        DDLogDebug(@"Last transaction triggered new addresses generation");
-//        
-//        if ([self maybeResetAndSendBloomFilter]) {
+    
+    //
+    
+    BOOL didGenerateNewAddresses = NO;
+    if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
+        return;
+    }
+    
+    if (didGenerateNewAddresses) {
+        DDLogDebug(@"Last transaction triggered new addresses generation");
+        
+        if ([self maybeRebuildAndSendBloomFilter]) {
+#warning FIXME: download, outdated blocks
 //            [peer requestOutdatedBlocks];
-//        }
-//    }
+        }
+    }
 }
 
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks
 {
-//    DDLogDebug(@"Reorganized blockchain at block: %@", base);
-//    DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
-//    DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
-//    
+    DDLogDebug(@"Reorganized blockchain at block: %@", base);
+    DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
+    DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
+    
+#warning TODO: download, notifier
 //    for (WSStorableBlock *block in newBlocks) {
 //        for (WSSignedTransaction *transaction in block.transactions) {
-//            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
-//#warning TODO: download, notifier
-////            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+//            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
+//            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
 //        }
 //    }
-//    
-//    //
-//    // wallet should already contain transactions from new blocks, reorganize will only
-//    // change their parent block (thus updating wallet metadata)
-//    //
-//    // that's because after a 'merkleblock' message the following 'tx' messages are received
-//    // and registered anyway, even if the 'merkleblock' is later considered orphan or on fork
-//    // by local blockchain
-//    //
-//    // for the above reason, a reorg should never generate new addresses
-//    //
-//    
-//    if (!self.wallet) {
-//        return;
-//    }
-//    
-//    BOOL didGenerateNewAddresses = NO;
-//    [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
-//    
-//    if (didGenerateNewAddresses) {
-//        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
-//        
-//        if ([self maybeResetAndSendBloomFilter]) {
+    
+    //
+    // wallet should already contain transactions from new blocks, reorganize will only
+    // change their parent block (thus updating wallet metadata)
+    //
+    // that's because after a 'merkleblock' message the following 'tx' messages are received
+    // and registered anyway, even if the 'merkleblock' is later considered orphan or on fork
+    // by local blockchain
+    //
+    // for the above reason, a reorg should never generate new addresses
+    //
+    
+    if (!self.wallet) {
+        return;
+    }
+    
+    BOOL didGenerateNewAddresses = NO;
+    [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
+    
+    if (didGenerateNewAddresses) {
+        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
+        
+        if ([self maybeRebuildAndSendBloomFilter]) {
+#warning FIXME: download, outdated blocks
 //            [peer requestOutdatedBlocks];
-//        }
-//    }
+        }
+    }
 }
 
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block
 {
-//    //
-//    // enforce registration in case we lost these transactions
-//    //
-//    // see note in [WSHDWallet isRelevantTransaction:savingReceivingAddresses:]
-//    //
-//    BOOL didGenerateNewAddresses = NO;
-//    for (WSSignedTransaction *transaction in block.transactions) {
-//        BOOL txDidGenerateNewAddresses = NO;
-//        [self.wallet registerTransaction:transaction didGenerateNewAddresses:&txDidGenerateNewAddresses];
-//
-//        didGenerateNewAddresses |= txDidGenerateNewAddresses;
-//    }
-//
-//    [self.wallet registerBlock:block];
-//
-//    if (didGenerateNewAddresses) {
-//        DDLogWarn(@"Block registration triggered new addresses generation");
-//
-//        if ([self maybeResetAndSendBloomFilter]) {
+    //
+    // enforce registration in case we lost these transactions
+    //
+    // see note in [WSHDWallet isRelevantTransaction:savingReceivingAddresses:]
+    //
+    BOOL didGenerateNewAddresses = NO;
+    for (WSSignedTransaction *transaction in block.transactions) {
+        BOOL txDidGenerateNewAddresses = NO;
+        [self.wallet registerTransaction:transaction didGenerateNewAddresses:&txDidGenerateNewAddresses];
+
+        didGenerateNewAddresses |= txDidGenerateNewAddresses;
+    }
+
+    [self.wallet registerBlock:block];
+
+    if (didGenerateNewAddresses) {
+        DDLogWarn(@"Block registration triggered new addresses generation");
+
+        if ([self maybeRebuildAndSendBloomFilter]) {
+#warning FIXME: download, outdated blocks
 //            [peer requestOutdatedBlocks];
-//        }
-//    }
+        }
+    }
+}
+
+- (BOOL)maybeRebuildAndSendBloomFilter
+{
+    if (![self needsBloomFiltering]) {
+        return NO;
+    }
+    
+    DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
+               self.blockChain.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+    
+    if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
+        DDLogDebug(@"Wallet is still covered by current Bloom filter, not rebuilding");
+        return NO;
+    }
+    
+    DDLogDebug(@"Wallet is not covered by current Bloom filter anymore, rebuilding now");
+    
+    if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
+        WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
+        
+        DDLogDebug(@"HD wallet: generating %u look-ahead addresses", hdWallet.gapLimit);
+        [hdWallet generateAddressesWithLookAhead:hdWallet.gapLimit];
+        DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
+    }
+    
+    [self rebuildBloomFilter];
+    
+    if ([self needsBloomFiltering]) {
+        if (self.blockChain.currentHeight < self.downloadPeer.lastBlockHeight) {
+            DDLogDebug(@"Still syncing, loading rebuilt Bloom filter only for download peer %@", self.downloadPeer);
+            [self.downloadPeer sendFilterloadMessageWithFilter:self.bloomFilter];
+        }
+        else {
+            for (WSPeer *peer in [self.peerGroup allConnectedPeers]) {
+                DDLogDebug(@"Synced, loading rebuilt Bloom filter for peer %@", peer);
+                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+            }
+        }
+    }
+    
+    return YES;
 }
 
 @end

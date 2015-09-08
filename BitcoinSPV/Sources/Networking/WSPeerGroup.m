@@ -202,9 +202,11 @@
 
         if ([self unsafeIsConnected]) {
             __weak NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+            __weak WSPeerGroup *weakSelf = self;
 
             observer = [nc addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
                 [nc removeObserver:observer];
+                [weakSelf.downloadDelegate peerGroupShouldPersistDownloadState:weakSelf];
 
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
@@ -218,6 +220,8 @@
     });
     
     if (notConnected && onceCompletionBlock) {
+        [self.downloadDelegate peerGroupShouldPersistDownloadState:self];
+
         onceCompletionBlock();
         onceCompletionBlock = NULL;
     }
@@ -434,6 +438,10 @@
 {
     DDLogVerbose(@"Received transaction from %@: %@", peer, transaction);
 
+#warning TODO: download, notifier
+//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
+//    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+    
     [self.downloadDelegate peerGroup:self peer:peer didReceiveTransaction:transaction];
 }
 

@@ -108,6 +108,7 @@
 
 - (void)peerGroupDidStartDownload:(WSPeerGroup *)peerGroup;
 - (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup;
+- (void)peerGroupShouldPersistDownloadState:(WSPeerGroup *)peerGroup;
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer;
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error;
