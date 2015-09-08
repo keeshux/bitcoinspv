@@ -152,6 +152,8 @@
 - (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup pool:(WSConnectionPool *)pool
 {
     if (self.downloadPeer) {
+        DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
+
         [pool closeConnectionForProcessor:self.downloadPeer
                                     error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
