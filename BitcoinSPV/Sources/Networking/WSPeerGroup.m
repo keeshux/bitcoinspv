@@ -29,6 +29,7 @@
 #import <errno.h>
 
 #import "WSPeerGroup.h"
+#import "WSPeerGroup+Download.h"
 #import "WSConnectionPool.h"
 #import "WSBlockChainDownloader.h"
 #import "WSHash256.h"
@@ -374,15 +375,15 @@
     [self.downloadDelegate peerGroup:self peer:peer didReceiveHeaders:headers];
 }
 
-- (void)peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
+- (void)peer:(WSPeer *)peer didReceiveInventories:(NSArray *)inventories
 {
-    DDLogVerbose(@"Received block hashes from %@: %@", peer, hashes);
+    DDLogVerbose(@"Received inventories from %@: %@", peer, inventories);
     
     if (!self.downloadDelegate) {
         return;
     }
 
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveBlockHashes:hashes];
+    [self.downloadDelegate peerGroup:self peer:peer didReceiveInventories:inventories];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
@@ -777,12 +778,6 @@
     }
 }
 
-- (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
-{
-    [self.misbehavingHosts addObject:peer.remoteHost];
-    [self.pool closeConnectionForProcessor:peer error:error];
-}
-
 + (BOOL)isHardNetworkError:(NSError *)error
 {
     static NSMutableDictionary *hardCodes;
@@ -800,6 +795,19 @@
     });
     
     return ((error.domain != WSErrorDomain) && [hardCodes[error.domain] containsObject:@(error.code)]);
+}
+
+#pragma mark Download interface (unsafe)
+
+- (void)disconnectPeer:(WSPeer *)peer error:(NSError *)error
+{
+    [self.pool closeConnectionForProcessor:peer error:error];
+}
+
+- (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
+{
+    [self.misbehavingHosts addObject:peer.remoteHost];
+    [self.pool closeConnectionForProcessor:peer error:error];
 }
 
 #pragma mark External interface (unsafe)

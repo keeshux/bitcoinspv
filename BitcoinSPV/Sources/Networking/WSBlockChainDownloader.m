@@ -39,6 +39,7 @@
 #import "WSParameters.h"
 #import "WSHash256.h"
 #import "WSLogging.h"
+#import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "WSConfig.h"
 
@@ -171,8 +172,7 @@
     if (self.downloadPeer) {
         DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
 
-        [peerGroup.pool closeConnectionForProcessor:self.downloadPeer
-                                              error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+        [peerGroup disconnectPeer:self.downloadPeer error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
     self.downloadPeer = nil;
 }
@@ -219,13 +219,38 @@
     }
 }
 
-- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
+- (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveInventories:(NSArray *)inventories
 {
     if (peer != self.downloadPeer) {
         return;
     }
 
-    [self aheadRequestOnReceivedBlockHashes:hashes];
+    NSMutableArray *requestInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
+    NSMutableArray *requestBlockHashes = [[NSMutableArray alloc] initWithCapacity:inventories.count];
+    
+    for (WSInventory *inv in inventories) {
+        if ([inv isBlockInventory]) {
+            if ([self needsBloomFiltering]) {
+                [requestInventories addObject:WSInventoryFilteredBlock(inv.inventoryHash)];
+            }
+            else {
+                [requestInventories addObject:WSInventoryBlock(inv.inventoryHash)];
+            }
+            [requestBlockHashes addObject:inv.inventoryHash];
+        }
+        else {
+            [requestInventories addObject:inv];
+        }
+    }
+    NSAssert(requestBlockHashes.count <= requestInventories.count, @"Requesting more blocks than total inventories?");
+    
+    if (requestInventories.count > 0) {
+        [peer sendGetdataMessageWithInventories:requestInventories];
+        
+        if (requestBlockHashes.count > 0) {
+            [self aheadRequestOnReceivedBlockHashes:requestBlockHashes];
+        }
+    }
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block

@@ -13,7 +13,7 @@
 
 @interface WSPeerGroup (Download)
 
-- (WSConnectionPool *)pool;
+- (void)disconnectPeer:(WSPeer *)peer error:(NSError *)error;
 - (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 
 @end

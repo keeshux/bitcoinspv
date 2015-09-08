@@ -601,34 +601,9 @@
  
     DDLogDebug(@"%@ Received %u inventories", self, message.inventories.count);
 
-    NSMutableArray *requestInventories = [[NSMutableArray alloc] initWithCapacity:message.inventories.count];
-    NSMutableArray *requestBlockHashes = [[NSMutableArray alloc] initWithCapacity:message.inventories.count];
-    
-    for (WSInventory *inv in message.inventories) {
-        if ([inv isBlockInventory]) {
-            if (self.needsBloomFiltering) {
-                [requestInventories addObject:WSInventoryFilteredBlock(inv.inventoryHash)];
-            }
-            else {
-                [requestInventories addObject:WSInventoryBlock(inv.inventoryHash)];
-            }
-            [requestBlockHashes addObject:inv.inventoryHash];
-        }
-        else {
-            [requestInventories addObject:inv];
-        }
-    }
-    NSAssert(requestBlockHashes.count <= requestInventories.count, @"Requesting more blocks than total inventories?");
-
-    if (requestInventories.count > 0) {
-        [self sendGetdataMessageWithInventories:requestInventories];
-
-        if (requestBlockHashes.count > 0) {
-            dispatch_async(self.delegateQueue, ^{
-                [self.delegate peer:self didReceiveBlockHashes:requestBlockHashes];
-            });
-        }
-    }
+    dispatch_async(self.delegateQueue, ^{
+        [self.delegate peer:self didReceiveInventories:inventories];
+    });
 }
 
 - (void)receiveGetdataMessage:(WSMessageGetdata *)message

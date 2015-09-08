@@ -114,10 +114,10 @@ typedef enum {
 - (void)peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error;
 - (void)peerDidKeepAlive:(WSPeer *)peer;
 
-- (void)peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers;
-- (void)peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes;
+- (void)peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers; // WSBlockHeader
+- (void)peer:(WSPeer *)peer didReceiveInventories:(NSArray *)inventories; // WSInventory
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block;
-- (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;
+- (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions; // WSSignedTransaction
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction;
 
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay; // WSNetworkAddress
