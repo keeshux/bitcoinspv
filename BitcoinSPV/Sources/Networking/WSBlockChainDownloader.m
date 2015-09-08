@@ -531,7 +531,7 @@
 
 #warning FIXME: handle full blocks, blockchain not extending in full blocks mode
 
-    return NO;
+    return YES;
 }
 
 - (BOOL)appendFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions error:(NSError *__autoreleasing *)error
