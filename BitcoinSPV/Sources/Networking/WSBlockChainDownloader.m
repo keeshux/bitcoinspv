@@ -176,42 +176,59 @@
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error connectedPeers:(NSArray *)connectedPeers
 {
-    if (peer == self.downloadPeer) {
-        DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
-
-        self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
-        if (!self.downloadPeer) {
-            DDLogError(@"No more peers for download (%@)", error);
-            return;
-        }
-        DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
-
-        [self loadFilterAndStartDownload];
+    if (peer != self.downloadPeer) {
+        return;
     }
+
+    DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
+
+    self.downloadPeer = [self bestPeerAmongPeers:connectedPeers];
+    if (!self.downloadPeer) {
+        DDLogError(@"No more peers for download (%@)", error);
+        return;
+    }
+    DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+
+    [self loadFilterAndStartDownload];
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
 {
+    if (peer != self.downloadPeer) {
+        return;
+    }
 #warning TODO: download, handle headers
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlockHashes:(NSArray *)hashes
 {
+    if (peer != self.downloadPeer) {
+        return;
+    }
 #warning TODO: download, handle block hashes
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
 {
-#warning TODO: download, handle block
+    if (peer != self.downloadPeer) {
+        return;
+    }
+#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
 {
+    if (peer != self.downloadPeer) {
+        return;
+    }
 #warning TODO: download, handle filtered block
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
 {
+    if (peer != self.downloadPeer) {
+        return;
+    }
 #warning TODO: download, handle transaction
 }
 
