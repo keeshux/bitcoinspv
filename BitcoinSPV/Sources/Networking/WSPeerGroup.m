@@ -34,6 +34,7 @@
 #import "WSHash256.h"
 #import "WSPeer.h"
 #import "WSBloomFilter.h"
+#import "WSBlock.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
@@ -357,6 +358,18 @@
 {
     DDLogVerbose(@"Received headers from %@: %@", peer, headers);
 
+    if (!self.downloadDelegate) {
+        return;
+    }
+
+    for (WSBlockHeader *header in headers) {
+        NSError *error;
+        if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:header error:&error]) {
+            [self.pool closeConnectionForProcessor:peer error:error];
+            return;
+        }
+    }
+    
     [self.downloadDelegate peerGroup:self peer:peer didReceiveHeaders:headers];
 }
 
@@ -364,12 +377,26 @@
 {
     DDLogVerbose(@"Received block hashes from %@: %@", peer, hashes);
     
+    if (!self.downloadDelegate) {
+        return;
+    }
+
     [self.downloadDelegate peerGroup:self peer:peer didReceiveBlockHashes:hashes];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
 {
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
+
+    if (!self.downloadDelegate) {
+        return;
+    }
+
+    NSError *error;
+    if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:block.header error:&error]) {
+        [self.pool closeConnectionForProcessor:peer error:error];
+        return;
+    }
 
     [self.downloadDelegate peerGroup:self peer:peer didReceiveBlock:block];
 }
@@ -378,6 +405,16 @@
 {
     DDLogVerbose(@"Received filtered block from %@: %@", peer, filteredBlock);
 
+    if (!self.downloadDelegate) {
+        return;
+    }
+
+    NSError *error;
+    if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:filteredBlock.header error:&error]) {
+        [self.pool closeConnectionForProcessor:peer error:error];
+        return;
+    }
+    
     [self.downloadDelegate peerGroup:self peer:peer didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
 }
 
