@@ -46,6 +46,7 @@
 @interface WSBlockChainDownloader ()
 
 // configuration
+@property (nonatomic, strong) id<WSParameters> parameters;
 @property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
@@ -63,7 +64,10 @@
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 @property (nonatomic, assign) NSTimeInterval lastKeepAliveTime;
 
+- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+
 // business
+- (BOOL)needsBloomFiltering;
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers; // WSPeer
 - (void)downloadBlockChain;
 - (void)rebuildBloomFilter;
@@ -91,9 +95,12 @@
 
 @implementation WSBlockChainDownloader
 
-- (instancetype)init
+- (instancetype)initWithParameters:(id<WSParameters>)parameters
 {
+    NSParameterAssert(parameters);
+    
     if ((self = [super init])) {
+        self.parameters = parameters;
         self.bloomFilterRateMin = WSBlockChainDownloaderDefaultBFRateMin;
         self.bloomFilterRateDelta = WSBlockChainDownloaderDefaultBFRateDelta;
         self.bloomFilterObservedRateMax = WSBlockChainDownloaderDefaultBFObservedRateMax;
@@ -107,11 +114,12 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly
 {
+    WSExceptionCheckIllegal(store);
     if (!headersOnly) {
         WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
     }
     
-    if ((self = [self init])) {
+    if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = nil;
@@ -125,9 +133,10 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
+    WSExceptionCheckIllegal(store);
     WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
 
-    if ((self = [self init])) {
+    if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = nil;
@@ -141,7 +150,10 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
 {
-    if ((self = [self init])) {
+    WSExceptionCheckIllegal(store);
+    WSExceptionCheckIllegal(wallet);
+
+    if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
         self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
         self.wallet = wallet;
@@ -154,16 +166,6 @@
 #endif
     }
     return self;
-}
-
-- (id<WSParameters>)parameters
-{
-    return [self.store parameters];
-}
-
-- (BOOL)needsBloomFiltering
-{
-    return (self.bloomFilterParameters != nil);
 }
 
 #pragma mark WSPeerGroupDownloadDelegate
@@ -339,6 +341,11 @@
 }
 
 #pragma mark Business
+
+- (BOOL)needsBloomFiltering
+{
+    return (self.bloomFilterParameters != nil);
+}
 
 - (WSPeer *)bestPeerAmongPeers:(NSArray *)peers
 {

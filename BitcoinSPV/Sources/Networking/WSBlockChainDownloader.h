@@ -48,8 +48,5 @@
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly;
 - (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
 - (instancetype)initWithStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet;
-- (id<WSParameters>)parameters;
-- (BOOL)shouldDownloadBlocks;
-- (BOOL)needsBloomFiltering;
 
 @end
