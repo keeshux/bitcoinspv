@@ -371,7 +371,7 @@
 
     for (WSBlockHeader *header in headers) {
         NSError *error;
-        if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:header error:&error]) {
+        if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:header error:&error]) {
             [self.pool closeConnectionForProcessor:peer error:error];
             return;
         }
@@ -400,7 +400,7 @@
     }
 
     NSError *error;
-    if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:block.header error:&error]) {
+    if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:block.header error:&error]) {
         [self.pool closeConnectionForProcessor:peer error:error];
         return;
     }
@@ -417,7 +417,7 @@
     }
 
     NSError *error;
-    if (![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:filteredBlock.header error:&error]) {
+    if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:filteredBlock.header error:&error]) {
         [self.pool closeConnectionForProcessor:peer error:error];
         return;
     }
