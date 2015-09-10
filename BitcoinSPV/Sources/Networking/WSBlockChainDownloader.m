@@ -61,7 +61,6 @@
 @property (nonatomic, strong) WSBloomFilter *bloomFilter;
 @property (nonatomic, strong) NSCountedSet *pendingBlockIds;
 @property (nonatomic, strong) NSMutableOrderedSet *processingBlockIds;
-@property (nonatomic, assign) NSUInteger filteredBlockCount;
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 @property (nonatomic, assign) NSTimeInterval lastKeepAliveTime;
 
