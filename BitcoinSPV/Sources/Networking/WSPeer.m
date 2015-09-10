@@ -717,6 +717,10 @@
         DDLogDebug(@"%@ Transaction %@ outside filtered block", self, transaction.txId);
         return NO;
     }
+    
+    if (self.delegate && ![self.delegate peer:self shouldAddTransaction:transaction toFilteredBlock:self.currentFilteredBlock]) {
+        return NO;
+    }
 
     if (![self.currentFilteredBlock containsTransactionWithId:transaction.txId]) {
         DDLogDebug(@"%@ Transaction %@ is not contained in filtered block %@",

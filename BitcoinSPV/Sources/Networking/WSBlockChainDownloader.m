@@ -31,6 +31,7 @@
 #import "WSBlockChain.h"
 #import "WSBlockHeader.h"
 #import "WSFilteredBlock.h"
+#import "WSTransaction.h"
 #import "WSStorableBlock.h"
 #import "WSWallet.h"
 #import "WSHDWallet.h"
@@ -75,6 +76,7 @@
 - (void)requestBlocksWithLocator:(WSBlockLocator *)locator;
 - (void)aheadRequestOnReceivedHeaders:(NSArray *)headers; // WSBlockHeader
 - (void)aheadRequestOnReceivedBlockHashes:(NSArray *)hashes; // WSHash256
+- (void)requestOutdatedBlocks;
 - (void)trySaveBlockChainToCoreData;
 - (void)detectDownloadTimeout;
 
@@ -108,6 +110,9 @@
         self.bloomFilterTxsPerBlock = WSBlockChainDownloaderDefaultBFTxsPerBlock;
         self.blockStoreSize = WSBlockChainDownloaderDefaultBlockStoreSize;
         self.requestTimeout = WSBlockChainDownloaderDefaultRequestTimeout;
+
+        self.pendingBlockIds = [[NSCountedSet alloc] init];
+        self.processingBlockIds = [[NSMutableOrderedSet alloc] initWithCapacity:(2 * WSMessageBlocksMaxCount)];
     }
     return self;
 }
@@ -278,6 +283,9 @@
     NSAssert(requestBlockHashes.count <= requestInventories.count, @"Requesting more blocks than total inventories?");
     
     if (requestInventories.count > 0) {
+        [self.pendingBlockIds addObjectsFromArray:requestBlockHashes];
+        [self.processingBlockIds addObjectsFromArray:requestBlockHashes];
+        
         [peer sendGetdataMessageWithInventories:requestInventories];
         
         if (requestBlockHashes.count > 0) {
@@ -298,11 +306,38 @@
     }
 }
 
+- (BOOL)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer shouldAddTransaction:(WSSignedTransaction *)transaction toFilteredBlock:(WSFilteredBlock *)filteredBlock
+{
+    if (peer != self.downloadPeer) {
+        return YES;
+    }
+
+    // only accept txs from most recently requested block
+    WSHash256 *blockId = filteredBlock.header.blockId;
+    if ([self.pendingBlockIds countForObject:blockId] > 1) {
+        DDLogDebug(@"%@ Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
+                   self, transaction.txId, blockId);
+        
+        return NO;
+    }
+    return YES;
+}
+
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
 {
     if (peer != self.downloadPeer) {
         return;
     }
+
+    WSHash256 *blockId = filteredBlock.header.blockId;
+
+    [self.pendingBlockIds removeObject:blockId];
+    if ([self.pendingBlockIds containsObject:blockId]) {
+        DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
+        return;
+    }
+    
+    [self.processingBlockIds removeObject:blockId];
 
     NSError *error;
     if (![self appendFilteredBlock:filteredBlock withTransactions:transactions error:&error]) {
@@ -523,6 +558,55 @@
     [self requestBlocksWithLocator:locator];
 }
 
+- (void)requestOutdatedBlocks
+{
+    //
+    // since receive* and delegate methods run on the same queue,
+    // a peer should never request more hashes until delegate processed
+    // all blocks with last received hashes
+    //
+    //
+    // 1. start download calling getblocks with current chain locator
+    // ...
+    // 2. receiveInv called with max 500 inventories (in response to 1)
+    // 3. receiveInv: call getblocks with new locator
+    // 4. receiveInv: call getdata with received inventories
+    // 5. processingBlocksIds.count <= 500
+    // ...
+    // 6. receiveInv called with max 500 inventories (in response to 3)
+    // 7. receiveInv: call getblocks with new locator
+    // 8. receiveInv: call getdata with received inventories
+    // 9. processingBlocksIds.count <= 1000
+    // ...
+    // 10. receiveMerkleblock + receiveTx (in response to 4)
+    // 11. processingBlockIds.count <= 500
+    // ...
+    // 12. receiveInv called with max 500 inventories (in response to 7)
+    // 13. receiveInv: call getblocks with new locator
+    // 14. receiveInv: call getdata with received inventories
+    // 15. processingBlockIds.count <= 1000
+    // ...
+    //
+    //
+    // that's why processingBlockIds should reach 1000 at most (2 * max)
+    //
+    
+    //        NSAssert(self.processingBlockIds.count <= 2 * WSMessageBlocksMaxCount, @"Processing too many blocks (%u > %u)",
+    //                 self.processingBlockIds.count, 2 * WSMessageBlocksMaxCount);
+    
+    NSArray *outdatedIds = [self.processingBlockIds array];
+    
+#warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
+    
+    if (outdatedIds.count > 0) {
+        DDLogDebug(@"Requesting %u outdated blocks with updated Bloom filter: %@", outdatedIds.count, outdatedIds);
+        [self.downloadPeer sendGetdataMessageWithHashes:outdatedIds forInventoryType:WSInventoryTypeFilteredBlock];
+    }
+    else {
+        DDLogDebug(@"No outdated blocks to request with updated Bloom filter");
+    }
+}
+
 - (void)trySaveBlockChainToCoreData
 {
     if (self.coreDataManager) {
@@ -725,8 +809,7 @@
         DDLogDebug(@"Last transaction triggered new addresses generation");
         
         if ([self maybeRebuildAndSendBloomFilter]) {
-#warning FIXME: download, outdated blocks
-//            [peer requestOutdatedBlocks];
+            [self requestOutdatedBlocks];
         }
     }
 }
@@ -767,8 +850,7 @@
         DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
         
         if ([self maybeRebuildAndSendBloomFilter]) {
-#warning FIXME: download, outdated blocks
-//            [peer requestOutdatedBlocks];
+            [self requestOutdatedBlocks];
         }
     }
 }
@@ -794,8 +876,7 @@
         DDLogWarn(@"Block registration triggered new addresses generation");
 
         if ([self maybeRebuildAndSendBloomFilter]) {
-#warning FIXME: download, outdated blocks
-//            [peer requestOutdatedBlocks];
+            [self requestOutdatedBlocks];
         }
     }
 }

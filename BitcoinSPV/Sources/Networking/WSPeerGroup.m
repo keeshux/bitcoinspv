@@ -100,7 +100,6 @@
 - (void)handleConnectionFailureFromPeer:(WSPeer *)peer error:(NSError *)error;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)removeInactiveHost:(NSString *)host;
-- (void)signalMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 - (BOOL)unsafeIsConnected;
@@ -406,6 +405,11 @@
     }
 
     [self.downloadDelegate peerGroup:self peer:peer didReceiveBlock:block];
+}
+
+- (BOOL)peer:(WSPeer *)peer shouldAddTransaction:(WSSignedTransaction *)transaction toFilteredBlock:(WSFilteredBlock *)filteredBlock
+{
+    return (!self.downloadDelegate || [self.downloadDelegate peerGroup:self peer:peer shouldAddTransaction:transaction toFilteredBlock:filteredBlock]);
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
