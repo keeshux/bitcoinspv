@@ -41,6 +41,9 @@
 		0EA9FB831A5906FF00A7FFCC /* WSNetworkType.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9FB821A5906FF00A7FFCC /* WSNetworkType.m */; };
 		0ED5E2FA1B4A9C860057B9D8 /* WSPeerGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */; };
 		0ED5E2FD1B4AC5780057B9D8 /* WSPeerGroupNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */; };
+		0ED680681BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */; };
+		0ED680691BA2CAC100ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */; };
+		0ED6806B1BA303F700ED3AF0 /* WSPeerGroup+Download.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED6806A1BA303F700ED3AF0 /* WSPeerGroup+Download.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */; };
 		0EE34BAF1B8B61EA000A9B9F /* WSBlockChainDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EE34BAE1B8B61EA000A9B9F /* WSBlockChainDownloader.m */; };
@@ -264,6 +267,8 @@
 		0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroup.m; sourceTree = "<group>"; };
 		0ED5E2FB1B4AC5780057B9D8 /* WSPeerGroupNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSPeerGroupNotifier.h; sourceTree = "<group>"; };
 		0ED5E2FC1B4AC5780057B9D8 /* WSPeerGroupNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupNotifier.m; sourceTree = "<group>"; };
+		0ED680671BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WSCoreDataBlockStore.xcdatamodel; sourceTree = "<group>"; };
+		0ED6806A1BA303F700ED3AF0 /* WSPeerGroup+Download.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WSPeerGroup+Download.m"; sourceTree = "<group>"; };
 		0ED738101A34B90400669C07 /* WSWebExplorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebExplorer.h; sourceTree = "<group>"; };
 		0ED738111A34B90400669C07 /* WSWebExplorer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSWebExplorer.m; sourceTree = "<group>"; };
 		0ED831201B4849F8001447D1 /* WSWebTickerBitPay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSWebTickerBitPay.h; sourceTree = "<group>"; };
@@ -559,6 +564,7 @@
 			children = (
 				8CBB5B13198D0AA8006599DB /* Info.plist */,
 				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
+				0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -950,6 +956,7 @@
 				8CBF4A0E196AA94D00FAFF64 /* WSPeer.h */,
 				8CBF4A0F196AA94D00FAFF64 /* WSPeer.m */,
 				0E570D061B9F4E1E000E9D7C /* WSPeerGroup+Download.h */,
+				0ED6806A1BA303F700ED3AF0 /* WSPeerGroup+Download.m */,
 				0ED5E2F81B4A9C860057B9D8 /* WSPeerGroup.h */,
 				0ED5E2F91B4A9C860057B9D8 /* WSPeerGroup.m */,
 				0ED5E2FB1B4AC5780057B9D8 /* WSPeerGroupNotifier.h */,
@@ -1121,6 +1128,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8CBB5B1D198D0E79006599DB /* WSBIP39Words.txt in Resources */,
+				0ED680691BA2CAC100ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1253,6 +1261,7 @@
 				8C4982581970B316007CE061 /* WSBlockHeaderEntity.m in Sources */,
 				0E7FB6691A4B10A100095193 /* WSWebExplorerBlockExplorer.m in Sources */,
 				8C40245219853B54008FDC5F /* WSParametersFactory.m in Sources */,
+				0ED6806B1BA303F700ED3AF0 /* WSPeerGroup+Download.m in Sources */,
 				0E761AC61AE66A3A00F1F068 /* WSFilteredBlock.m in Sources */,
 				0EA147221A5596E000AA400D /* WSPhysicalCurrency.m in Sources */,
 				0E7FB6681A4B10A100095193 /* WSWebExplorerBlockchain.m in Sources */,
@@ -1305,6 +1314,7 @@
 				8CAC9C92196FFA1000A2596E /* WSBlockStore.m in Sources */,
 				8C937E2A19699B5B0009B169 /* WSAbstractMessageInventoryBased.m in Sources */,
 				0E767A851AE6581F00297C63 /* WSBloomFilter.m in Sources */,
+				0ED680681BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld in Sources */,
 				8C497061196EEEF800BD9D3B /* WSSeed.m in Sources */,
 				8C49825C1970B316007CE061 /* WSStorableBlockEntity.m in Sources */,
 				0ED5E2FA1B4A9C860057B9D8 /* WSPeerGroup.m in Sources */,
@@ -1663,6 +1673,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				0ED680671BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodel */,
+			);
+			currentVersion = 0ED680671BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodel */;
+			path = WSCoreDataBlockStore.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 8C60057C1949EC9400248F04 /* Project object */;
 }

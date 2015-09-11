@@ -43,7 +43,7 @@ typedef enum {
     WSErrorCodeNetworking,
     WSErrorCodeConnectionTimeout,
     WSErrorCodePeerGroupTimeout,
-    WSErrorCodePeerGroupSync,
+    WSErrorCodePeerGroupDownload,
     WSErrorCodePeerGroupStop,
     WSErrorCodePeerGroupRescan,
     WSErrorCodeInvalidPartialMerkleTree,

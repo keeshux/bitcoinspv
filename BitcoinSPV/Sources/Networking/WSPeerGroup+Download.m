@@ -1,8 +1,8 @@
 //
-//  WSPeerGroup+Download.h
+//  WSPeerGroup+Download.m
 //  BitcoinSPV
 //
-//  Created by Davide De Rosa on 08/09/15.
+//  Created by Davide De Rosa on 11/09/15.
 //  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
 //  http://github.com/keeshux
@@ -25,16 +25,4 @@
 //  along with BitcoinSPV.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import "WSPeerGroup.h"
-
-@class WSConnectionPool;
-@class WSPeer;
-
-@interface WSPeerGroup (Download)
-
-- (NSArray *)allConnectedPeers;
-- (void)disconnectPeer:(WSPeer *)peer error:(NSError *)error;
-- (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
-- (void)executeBlockInGroupQueue:(void (^)())block synchronously:(BOOL)synchronously;
-
-@end
+#import <Foundation/Foundation.h>
