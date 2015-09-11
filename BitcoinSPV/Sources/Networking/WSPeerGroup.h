@@ -88,6 +88,9 @@
 - (void)startDownloadWithDelegate:(id<WSPeerGroupDownloadDelegate>)downloadDelegate;
 - (void)stopDownload;
 
+// interaction
+- (void)saveState;
+
 //
 // WARNING: do not nil out peerGroup strong references until disconnection!
 //

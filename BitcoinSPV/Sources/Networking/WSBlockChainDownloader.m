@@ -788,12 +788,6 @@
 
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction
 {
-#warning TODO: download, notifier
-//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
-//    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
-    
-    //
-    
     BOOL didGenerateNewAddresses = NO;
     if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
         return;

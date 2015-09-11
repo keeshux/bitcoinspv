@@ -81,14 +81,15 @@
 
 @property (nonatomic, assign) BOOL keepConnected;
 @property (nonatomic, assign) NSUInteger numberOfActiveResolutions;
-@property (nonatomic, strong) NSMutableDictionary *ttlBySeed;           // NSString -> NSDate (background DNS thread)
-@property (nonatomic, strong) NSMutableOrderedSet *inactiveAddresses;   // WSNetworkAddress
-@property (nonatomic, strong) NSMutableDictionary *pendingPeers;        // NSString -> WSPeer
-@property (nonatomic, strong) NSMutableDictionary *connectedPeers;      // NSString -> WSPeer
-@property (nonatomic, strong) NSMutableSet *misbehavingHosts;           // NSString
+@property (nonatomic, strong) NSMutableDictionary *ttlBySeed;               // NSString -> NSDate (background DNS thread)
+@property (nonatomic, strong) NSMutableOrderedSet *inactiveAddresses;       // WSNetworkAddress
+@property (nonatomic, strong) NSMutableDictionary *pendingPeers;            // NSString -> WSPeer
+@property (nonatomic, strong) NSMutableDictionary *connectedPeers;          // NSString -> WSPeer
+@property (nonatomic, strong) NSMutableSet *misbehavingHosts;               // NSString
 @property (nonatomic, assign) NSUInteger connectionFailures;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
+@property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSHash256 -> WSSignedTransaction
 
 @property (nonatomic, strong) id<WSPeerGroupDownloadDelegate> downloadDelegate;
 
@@ -100,6 +101,7 @@
 - (void)handleConnectionFailureFromPeer:(WSPeer *)peer error:(NSError *)error;
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)removeInactiveHost:(NSString *)host;
+- (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 - (BOOL)unsafeIsConnected;
@@ -145,9 +147,10 @@
         
         self.keepConnected = NO;
         self.inactiveAddresses = [[NSMutableOrderedSet alloc] init];
-        self.misbehavingHosts = [[NSMutableSet alloc] init];
         self.pendingPeers = [[NSMutableDictionary alloc] init];
         self.connectedPeers = [[NSMutableDictionary alloc] init];
+        self.misbehavingHosts = [[NSMutableSet alloc] init];
+        self.publishedTransactions = [[NSMutableDictionary alloc] init];
 
         [self.reachability startNotifier];
     }
@@ -281,6 +284,15 @@
     dispatch_sync(self.queue, ^{
         [self.downloadDelegate peerGroupDidStopDownload:self];
         self.downloadDelegate = nil;
+    });
+}
+
+#pragma mark Interaction (any queue)
+
+- (void)saveState
+{
+    dispatch_sync(self.queue, ^{
+        [self.downloadDelegate peerGroupShouldPersistDownloadState:self];
     });
 }
 
@@ -433,9 +445,8 @@
 {
     DDLogVerbose(@"Received transaction from %@: %@", peer, transaction);
 
-#warning TODO: download, notifier
-//    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
-//    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+    const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
     
     [self.downloadDelegate peerGroup:self peer:peer didReceiveTransaction:transaction];
 }
@@ -789,6 +800,18 @@
         
         DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveAddresses.count);
     }
+}
+
+- (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer
+{
+    BOOL isPublished = NO;
+    if (self.publishedTransactions[transaction.txId]) {
+        [self.publishedTransactions removeObjectForKey:transaction.txId];
+        isPublished = YES;
+        
+        DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction);
+    }
+    return isPublished;
 }
 
 + (BOOL)isHardNetworkError:(NSError *)error
