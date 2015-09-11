@@ -420,16 +420,14 @@
     DDLogInfo(@"Preparing for blockchain download");
 
     if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
-#warning TODO: download, notifier
-//        const NSUInteger height = self.blockChain.currentHeight;
-//        [self.notifier notifyDownloadStartedFromHeight:height toHeight:height];
+        const NSUInteger height = self.blockChain.currentHeight;
+        [self.peerGroup.notifier notifyDownloadStartedFromHeight:height toHeight:height];
         
         DDLogInfo(@"Blockchain is up to date");
         
         [self trySaveBlockChainToCoreData];
         
-#warning TODO: download, notifier
-//        [self.notifier notifyDownloadFinished];
+        [self.peerGroup.notifier notifyDownloadFinished];
         return;
     }
 
@@ -444,10 +442,9 @@
         DDLogDebug(@"%@ No fast catch-up checkpoint", self);
     }
     
-#warning TODO: download, notifier
-//    const NSUInteger fromHeight = self.blockChain.currentHeight;
-//    const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
-//    [self.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
+    const NSUInteger fromHeight = self.blockChain.currentHeight;
+    const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+    [self.peerGroup.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
     
     self.fastCatchUpTimestamp = self.fastCatchUpTimestamp;
     self.startingBlockChainLocator = [self.blockChain currentLocator];
@@ -752,8 +749,7 @@
 
 - (void)handleAddedBlock:(WSStorableBlock *)block
 {
-#warning TODO: download, notifier
-//    [self.notifier notifyBlockAdded:block];
+    [self.peerGroup.notifier notifyBlockAdded:block];
     
     const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
     const BOOL isDownloadFinished = (block.height == lastBlockHeight);
@@ -773,8 +769,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
         });
-#warning TODO: download, notifier
-//        [self.notifier notifyDownloadFinished];
+        [self.peerGroup.notifier notifyDownloadFinished];
     }
     
     //
