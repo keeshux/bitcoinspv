@@ -86,7 +86,7 @@
 - (BOOL)hasReachedMaxConnections;
 
 // download
-- (void)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader;
+- (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader;
 - (void)stopDownload;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;

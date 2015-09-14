@@ -267,20 +267,24 @@
 
 #pragma mark Download (any queue)
 
-- (void)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader
+- (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader
 {
+    if (self.downloader) {
+        DDLogError(@"Another downloader is currently set, stop download first");
+        return NO;
+    }
     dispatch_sync(self.queue, ^{
-        if (self.downloader) {
-            DDLogVerbose(@"Ignoring call because already downloading");
-            return;
-        }
         self.downloader = downloader;
         [self.downloader startWithPeerGroup:self];
     });
+    return YES;
 }
 
 - (void)stopDownload
 {
+    if (!self.downloader) {
+        return;
+    }
     dispatch_sync(self.queue, ^{
         [self.downloader stop];
         self.downloader = nil;
@@ -289,24 +293,46 @@
 
 - (NSUInteger)currentHeight
 {
-#warning TODO: peer group implementation
-    return 0;
+    if (!self.downloader) {
+        return NSNotFound;
+    }
+    __block NSUInteger currentHeight;
+    dispatch_sync(self.queue, ^{
+        currentHeight = [self.downloader currentHeight];
+    });
+    return currentHeight;
 }
 
 - (NSUInteger)numberOfBlocksLeft
 {
-#warning TODO: peer group implementation
-    return 0;
+    if (!self.downloader) {
+        return NSNotFound;
+    }
+    __block NSUInteger numberOfBlocksLeft;
+    dispatch_sync(self.queue, ^{
+        numberOfBlocksLeft = [self.downloader numberOfBlocksLeft];
+    });
+    return numberOfBlocksLeft;
 }
 
 - (void)reconnectForDownload
 {
-#warning TODO: peer group implementation
+    if (!self.downloader) {
+        return;
+    }
+    dispatch_sync(self.queue, ^{
+        [self.downloader reconnectForDownload];
+    });
 }
 
 - (void)rescanBlockChain
 {
-#warning TODO: peer group implementation
+    if (!self.downloader) {
+        return;
+    }
+    dispatch_sync(self.queue, ^{
+        [self.downloader rescanBlockChain];
+    });
 }
 
 #pragma mark Interaction (any queue)
