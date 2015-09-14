@@ -90,8 +90,8 @@
 - (void)stopDownload;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
-- (void)reconnectForDownload;
-- (void)rescanBlockChain;
+- (BOOL)reconnectForDownload;
+- (BOOL)rescanBlockChain;
 
 // interaction
 - (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;

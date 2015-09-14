@@ -315,24 +315,38 @@
     return numberOfBlocksLeft;
 }
 
-- (void)reconnectForDownload
+- (BOOL)reconnectForDownload
 {
     if (!self.downloader) {
-        return;
+        return NO;
     }
+    __block BOOL reconnected = NO;
     dispatch_sync(self.queue, ^{
+        if (!self.keepConnected) {
+            DDLogVerbose(@"Ignoring call because not connected");
+            return;
+        }
         [self.downloader reconnectForDownload];
+        reconnected = YES;
     });
+    return reconnected;
 }
 
-- (void)rescanBlockChain
+- (BOOL)rescanBlockChain
 {
     if (!self.downloader) {
-        return;
+        return NO;
     }
+    __block BOOL rescanned = NO;
     dispatch_sync(self.queue, ^{
+        if (!self.keepConnected) {
+            DDLogVerbose(@"Ignoring call because not connected");
+            return;
+        }
         [self.downloader rescanBlockChain];
+        rescanned = YES;
     });
+    return rescanned;
 }
 
 #pragma mark Interaction (any queue)

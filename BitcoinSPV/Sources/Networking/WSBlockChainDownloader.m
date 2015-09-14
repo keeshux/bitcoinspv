@@ -195,7 +195,8 @@
     if (self.downloadPeer) {
         DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
         
-        [self.peerGroup disconnectPeer:self.downloadPeer error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+        [self.peerGroup disconnectPeer:self.downloadPeer
+                                 error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
     self.downloadPeer = nil;
     self.peerGroup = nil;
@@ -237,12 +238,14 @@
 
 - (void)reconnectForDownload
 {
-#warning TODO: downloader implementation
+    [self.peerGroup disconnectPeer:self.downloadPeer
+                             error:WSErrorMake(WSErrorCodePeerGroupReconnect, @"Rehashing download peer")];
 }
 
 - (void)rescanBlockChain
 {
-#warning TODO: downloader implementation
+    [self.peerGroup disconnectPeer:self.downloadPeer
+                             error:WSErrorMake(WSErrorCodePeerGroupRescan, @"Preparing for rescan")];
 }
 
 - (void)saveState
