@@ -219,14 +219,14 @@
         else {
             notConnected = YES;
         }
-    });
     
-    if (notConnected && onceCompletionBlock) {
-        [self.downloader saveState];
+        if (notConnected && onceCompletionBlock) {
+            [self.downloader saveState];
 
-        onceCompletionBlock();
-        onceCompletionBlock = NULL;
-    }
+            onceCompletionBlock();
+            onceCompletionBlock = NULL;
+        }
+    });
 }
 
 - (BOOL)isStarted
@@ -269,23 +269,25 @@
 
 - (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader
 {
-    if (self.downloader) {
-        DDLogError(@"Another downloader is currently set, stop download first");
-        return NO;
-    }
+    __block BOOL started = NO;
     dispatch_sync(self.queue, ^{
+        if (self.downloader) {
+            DDLogError(@"Another downloader is currently set, stop download first");
+            return;
+        }
         self.downloader = downloader;
         [self.downloader startWithPeerGroup:self];
+        started = YES;
     });
-    return YES;
+    return started;
 }
 
 - (void)stopDownload
 {
-    if (!self.downloader) {
-        return;
-    }
     dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
         [self.downloader stop];
         self.downloader = nil;
     });
@@ -293,11 +295,11 @@
 
 - (NSUInteger)currentHeight
 {
-    if (!self.downloader) {
-        return NSNotFound;
-    }
-    __block NSUInteger currentHeight;
+    __block NSUInteger currentHeight = NSNotFound;
     dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
         currentHeight = [self.downloader currentHeight];
     });
     return currentHeight;
@@ -305,11 +307,11 @@
 
 - (NSUInteger)numberOfBlocksLeft
 {
-    if (!self.downloader) {
-        return NSNotFound;
-    }
-    __block NSUInteger numberOfBlocksLeft;
+    __block NSUInteger numberOfBlocksLeft = NSNotFound;
     dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
         numberOfBlocksLeft = [self.downloader numberOfBlocksLeft];
     });
     return numberOfBlocksLeft;
@@ -317,11 +319,11 @@
 
 - (BOOL)reconnectForDownload
 {
-    if (!self.downloader) {
-        return NO;
-    }
     __block BOOL reconnected = NO;
     dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
         if (!self.keepConnected) {
             DDLogVerbose(@"Ignoring call because not connected");
             return;
@@ -334,11 +336,11 @@
 
 - (BOOL)rescanBlockChain
 {
-    if (!self.downloader) {
-        return NO;
-    }
     __block BOOL rescanned = NO;
     dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
         if (!self.keepConnected) {
             DDLogVerbose(@"Ignoring call because not connected");
             return;
@@ -378,12 +380,11 @@
 {
     WSExceptionCheckIllegal(transaction);
     
-    if (safely && ![self.downloader isSynced]) {
-        return NO;
-    }
-    
     __block BOOL published = NO;
     dispatch_sync(self.queue, ^{
+        if (safely && ![self.downloader isSynced]) {
+            return;
+        }
         if (!self.keepConnected || self.publishedTransactions[transaction.txId]) {
             return;
         }
