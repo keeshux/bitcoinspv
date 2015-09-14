@@ -139,8 +139,10 @@
 
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup;
 - (void)stop;
+- (NSUInteger)lastBlockHeight;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
+- (NSArray *)recentBlocksWithCount:(NSUInteger)count;
 - (void)reconnectForDownload;
 - (void)rescanBlockChain;
 - (void)saveState;

@@ -33,6 +33,7 @@
 #import "WSFilteredBlock.h"
 #import "WSTransaction.h"
 #import "WSStorableBlock.h"
+#import "WSStorableBlock+BlockChain.h"
 #import "WSWallet.h"
 #import "WSHDWallet.h"
 #import "WSConnectionPool.h"
@@ -200,6 +201,14 @@
     self.peerGroup = nil;
 }
 
+- (NSUInteger)lastBlockHeight
+{
+    if (!self.downloadPeer) {
+        return NSNotFound;
+    }
+    return self.downloadPeer.lastBlockHeight;
+}
+
 - (NSUInteger)currentHeight
 {
     return self.blockChain.currentHeight;
@@ -208,6 +217,17 @@
 - (NSUInteger)numberOfBlocksLeft
 {
     return (self.downloadPeer.lastBlockHeight - self.blockChain.currentHeight);
+}
+
+- (NSArray *)recentBlocksWithCount:(NSUInteger)count
+{
+    NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:count];
+    WSStorableBlock *block = self.blockChain.head;
+    while (block && (recentBlocks.count < count)) {
+        [recentBlocks addObject:block];
+        block = [block previousBlockInChain:self.blockChain];
+    }
+    return recentBlocks;
 }
 
 - (void)reconnectForDownload

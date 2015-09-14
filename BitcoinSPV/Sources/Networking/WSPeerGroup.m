@@ -339,8 +339,25 @@
 
 - (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks
 {
-#warning TODO: peer group implementation
-    return nil;
+    WSPeerGroupStatus *status = [[WSPeerGroupStatus alloc] init];
+    dispatch_sync(self.queue, ^{
+        status.parameters = self.parameters;
+        status.isConnected = (self.connectedPeers.count > 0);
+        status.isDownloading = (self.downloader != nil);
+
+        if (status.isDownloading) {
+            status.currentHeight = self.downloader.currentHeight;
+            status.targetHeight = self.downloader.lastBlockHeight;
+            status.downloadProgress = [self.notifier downloadProgressAtHeight:status.currentHeight];
+            if (numberOfRecentBlocks > 0) {
+                status.recentBlocks = [self.downloader recentBlocksWithCount:numberOfRecentBlocks];
+            }
+        }
+        
+        status.sentBytes = self.sentBytes;
+        status.receivedBytes = self.receivedBytes;
+    });
+    return status;
 }
 
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction
