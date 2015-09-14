@@ -95,7 +95,7 @@
 
 // interaction
 - (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
-- (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction safely:(BOOL)safely;
 - (void)saveState;
 
 //
@@ -143,6 +143,7 @@
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count;
+- (BOOL)isSynced;
 - (void)reconnectForDownload;
 - (void)rescanBlockChain;
 - (void)saveState;

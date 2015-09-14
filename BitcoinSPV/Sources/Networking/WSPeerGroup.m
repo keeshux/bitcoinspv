@@ -360,10 +360,35 @@
     return status;
 }
 
-- (BOOL)publishTransaction:(WSSignedTransaction *)transaction
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction safely:(BOOL)safely
 {
-#warning TODO: peer group implementation
-    return NO;
+    WSExceptionCheckIllegal(transaction);
+    
+    if (safely && ![self.downloader isSynced]) {
+        return NO;
+    }
+    
+    __block BOOL published = NO;
+    dispatch_sync(self.queue, ^{
+        if (!self.keepConnected || self.publishedTransactions[transaction.txId]) {
+            return;
+        }
+        
+        self.publishedTransactions[transaction.txId] = transaction;
+        
+        // exclude one random peer to receive tx broadcast back
+        const NSUInteger excluded = mrand48() % self.connectedPeers.count;
+        
+        NSUInteger i = 0;
+        for (WSPeer *peer in self.connectedPeers) {
+            if (i != excluded) {
+                [peer sendInvMessageWithInventory:WSInventoryTx(transaction.txId)];
+            }
+            ++i;
+        }
+        published = YES;
+    });
+    return published;
 }
 
 - (void)saveState

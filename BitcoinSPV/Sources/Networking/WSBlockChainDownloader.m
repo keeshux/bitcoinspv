@@ -230,6 +230,11 @@
     return recentBlocks;
 }
 
+- (BOOL)isSynced
+{
+    return (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight);
+}
+
 - (void)reconnectForDownload
 {
 #warning TODO: downloader implementation
