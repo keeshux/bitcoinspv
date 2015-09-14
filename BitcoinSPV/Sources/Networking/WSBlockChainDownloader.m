@@ -855,14 +855,6 @@
     DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
     DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
     
-#warning TODO: download, notifier
-//    for (WSStorableBlock *block in newBlocks) {
-//        for (WSSignedTransaction *transaction in block.transactions) {
-//            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction];
-//            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
-//        }
-//    }
-    
     //
     // wallet should already contain transactions from new blocks, reorganize will only
     // change their parent block (thus updating wallet metadata)
