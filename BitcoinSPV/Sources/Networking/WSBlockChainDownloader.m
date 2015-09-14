@@ -173,6 +173,13 @@
     return self;
 }
 
+- (void)setCoreDataManager:(WSCoreDataManager *)coreDataManager
+{
+    _coreDataManager = coreDataManager;
+
+    [self.blockChain loadFromCoreDataManager:coreDataManager];
+}
+
 #pragma mark WSPeerGroupDownloader
 
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup
