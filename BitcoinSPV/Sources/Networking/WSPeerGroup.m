@@ -479,9 +479,9 @@
         [self removeInactiveHost:peer.remoteHost];
     }
 
-    [self handleConnectionFailureFromPeer:peer error:error];
-
     [self.downloader peerGroup:self peer:peer didDisconnectWithError:error];
+
+    [self handleConnectionFailureFromPeer:peer error:error];
 }
 
 - (void)peerDidKeepAlive:(WSPeer *)peer

@@ -239,7 +239,7 @@
 - (void)reconnectForDownload
 {
     [self.peerGroup disconnectPeer:self.downloadPeer
-                             error:WSErrorMake(WSErrorCodePeerGroupReconnect, @"Rehashing download peer")];
+                             error:WSErrorMake(WSErrorCodePeerGroupDownload, @"Rehashing download peer")];
 }
 
 - (void)rescanBlockChain
@@ -273,13 +273,40 @@
 
     DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
 
+    switch (error.code) {
+        case WSErrorCodePeerGroupDownload: {
+            break;
+        }
+        case WSErrorCodePeerGroupRescan: {
+            DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+
+            [self.store truncate];
+            [self.wallet removeAllTransactions];
+
+            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+            NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+
+            DDLogDebug(@"Rescan, truncate complete");
+            [self.peerGroup.notifier notifyRescan];
+            break;
+        }
+    }
+    
     self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
-        DDLogError(@"No more peers for download%@", WSStringOptional(error, @" (%@)"));
+//        if (!self.keepDownloading) {
+//            [self.peerGroup.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+//        }
+//        else {
+            [self.peerGroup.notifier notifyDownloadFailedWithError:WSErrorMake(WSErrorCodePeerGroupDownload, @"No more peers for download")];
+//        }
         return;
     }
-    DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
 
+    [self.peerGroup.notifier notifyDownloadFailedWithError:error];
+
+    DDLogDebug(@"Switched to next best download peer %@", self.downloadPeer);
+    
     [self downloadBlockChain];
 }
 
