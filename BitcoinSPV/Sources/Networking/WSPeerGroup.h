@@ -34,6 +34,7 @@
 
 @protocol WSParameters;
 @class WSConnectionPool;
+@protocol WSPeerGroupDownloader;
 @protocol WSPeerGroupDownloadDelegate;
 
 #pragma mark -
@@ -85,10 +86,16 @@
 - (BOOL)hasReachedMaxConnections;
 
 // download
-- (void)startDownloadWithDelegate:(id<WSPeerGroupDownloadDelegate>)downloadDelegate;
+- (void)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader;
 - (void)stopDownload;
+- (NSUInteger)currentHeight;
+- (NSUInteger)numberOfBlocksLeft;
+- (void)reconnectForDownload;
+- (void)rescanBlockChain;
 
 // interaction
+- (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
 - (void)saveState;
 
 //
@@ -111,10 +118,6 @@
 //
 @protocol WSPeerGroupDownloadDelegate <NSObject>
 
-- (void)peerGroupDidStartDownload:(WSPeerGroup *)peerGroup;
-- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup;
-- (void)peerGroupShouldPersistDownloadState:(WSPeerGroup *)peerGroup;
-
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer;
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error;
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidKeepAlive:(WSPeer *)peer;
@@ -126,5 +129,20 @@
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions;
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction;
 - (BOOL)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer shouldAcceptHeader:(WSBlockHeader *)header error:(NSError **)error;
+
+@end
+
+//
+// every method is executed in group queue
+//
+@protocol WSPeerGroupDownloader <WSPeerGroupDownloadDelegate>
+
+- (void)startWithPeerGroup:(WSPeerGroup *)peerGroup;
+- (void)stop;
+- (NSUInteger)currentHeight;
+- (NSUInteger)numberOfBlocksLeft;
+- (void)reconnectForDownload;
+- (void)rescanBlockChain;
+- (void)saveState;
 
 @end

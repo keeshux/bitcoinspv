@@ -172,9 +172,9 @@
     return self;
 }
 
-#pragma mark WSPeerGroupDownloadDelegate
+#pragma mark WSPeerGroupDownloader
 
-- (void)peerGroupDidStartDownload:(WSPeerGroup *)peerGroup
+- (void)startWithPeerGroup:(WSPeerGroup *)peerGroup
 {
     self.peerGroup = peerGroup;
     self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
@@ -183,27 +183,49 @@
         return;
     }
     DDLogInfo(@"Peer %@ is new download peer", self.downloadPeer);
-
+    
     [self downloadBlockChain];
 }
 
-- (void)peerGroupDidStopDownload:(WSPeerGroup *)peerGroup
+- (void)stop
 {
     [self trySaveBlockChainToCoreData];
     
     if (self.downloadPeer) {
         DDLogInfo(@"Download from peer %@ is being stopped", self.downloadPeer);
-
-        [peerGroup disconnectPeer:self.downloadPeer error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
+        
+        [self.peerGroup disconnectPeer:self.downloadPeer error:WSErrorMake(WSErrorCodePeerGroupStop, @"Download stopped")];
     }
     self.downloadPeer = nil;
     self.peerGroup = nil;
 }
 
-- (void)peerGroupShouldPersistDownloadState:(WSPeerGroup *)peerGroup
+- (NSUInteger)currentHeight
+{
+    return self.blockChain.currentHeight;
+}
+
+- (NSUInteger)numberOfBlocksLeft
+{
+    return (self.downloadPeer.lastBlockHeight - self.blockChain.currentHeight);
+}
+
+- (void)reconnectForDownload
+{
+#warning TODO: downloader implementation
+}
+
+- (void)rescanBlockChain
+{
+#warning TODO: downloader implementation
+}
+
+- (void)saveState
 {
     [self trySaveBlockChainToCoreData];
 }
+
+#pragma mark WSPeerGroupDownloadDelegate
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peerDidConnect:(WSPeer *)peer
 {

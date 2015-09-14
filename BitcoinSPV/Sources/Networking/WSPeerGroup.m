@@ -91,7 +91,7 @@
 @property (nonatomic, assign) NSUInteger receivedBytes;
 @property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSHash256 -> WSSignedTransaction
 
-@property (nonatomic, strong) id<WSPeerGroupDownloadDelegate> downloadDelegate;
+@property (nonatomic, strong) id<WSPeerGroupDownloader> downloader;
 
 - (void)connect;
 - (void)disconnect;
@@ -208,7 +208,7 @@
 
             observer = [nc addObserverForName:WSPeerGroupDidDisconnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
                 [nc removeObserver:observer];
-                [weakSelf.downloadDelegate peerGroupShouldPersistDownloadState:weakSelf];
+                [weakSelf.downloader saveState];
 
                 if (onceCompletionBlock) {
                     onceCompletionBlock();
@@ -222,7 +222,7 @@
     });
     
     if (notConnected && onceCompletionBlock) {
-        [self.downloadDelegate peerGroupShouldPersistDownloadState:self];
+        [self.downloader saveState];
 
         onceCompletionBlock();
         onceCompletionBlock = NULL;
@@ -267,32 +267,66 @@
 
 #pragma mark Download (any queue)
 
-- (void)startDownloadWithDelegate:(id<WSPeerGroupDownloadDelegate>)downloadDelegate
+- (void)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader
 {
     dispatch_sync(self.queue, ^{
-        if (self.downloadDelegate) {
+        if (self.downloader) {
             DDLogVerbose(@"Ignoring call because already downloading");
             return;
         }
-        self.downloadDelegate = downloadDelegate;
-        [self.downloadDelegate peerGroupDidStartDownload:self];
+        self.downloader = downloader;
+        [self.downloader startWithPeerGroup:self];
     });
 }
 
 - (void)stopDownload
 {
     dispatch_sync(self.queue, ^{
-        [self.downloadDelegate peerGroupDidStopDownload:self];
-        self.downloadDelegate = nil;
+        [self.downloader stop];
+        self.downloader = nil;
     });
+}
+
+- (NSUInteger)currentHeight
+{
+#warning TODO: peer group implementation
+    return 0;
+}
+
+- (NSUInteger)numberOfBlocksLeft
+{
+#warning TODO: peer group implementation
+    return 0;
+}
+
+- (void)reconnectForDownload
+{
+#warning TODO: peer group implementation
+}
+
+- (void)rescanBlockChain
+{
+#warning TODO: peer group implementation
 }
 
 #pragma mark Interaction (any queue)
 
+- (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks
+{
+#warning TODO: peer group implementation
+    return nil;
+}
+
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction
+{
+#warning TODO: peer group implementation
+    return NO;
+}
+
 - (void)saveState
 {
     dispatch_sync(self.queue, ^{
-        [self.downloadDelegate peerGroupShouldPersistDownloadState:self];
+        [self.downloader saveState];
     });
 }
 
@@ -331,7 +365,7 @@
     // peer was accepted, request recent addresses
     [peer sendGetaddr];
 
-    [self.downloadDelegate peerGroup:self peerDidConnect:peer];
+    [self.downloader peerGroup:self peerDidConnect:peer];
 }
 
 - (void)peer:(WSPeer *)peer didFailToConnectWithError:(NSError *)error
@@ -364,81 +398,81 @@
 
     [self handleConnectionFailureFromPeer:peer error:error];
 
-    [self.downloadDelegate peerGroup:self peer:peer didDisconnectWithError:error];
+    [self.downloader peerGroup:self peer:peer didDisconnectWithError:error];
 }
 
 - (void)peerDidKeepAlive:(WSPeer *)peer
 {
-    [self.downloadDelegate peerGroup:self peerDidKeepAlive:peer];
+    [self.downloader peerGroup:self peerDidKeepAlive:peer];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveHeaders:(NSArray *)headers
 {
     DDLogVerbose(@"Received headers from %@: %@", peer, headers);
 
-    if (!self.downloadDelegate) {
+    if (!self.downloader) {
         return;
     }
 
     for (WSBlockHeader *header in headers) {
         NSError *error;
-        if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:header error:&error]) {
+        if (self.downloader && ![self.downloader peerGroup:self peer:peer shouldAcceptHeader:header error:&error]) {
             [self.pool closeConnectionForProcessor:peer error:error];
             return;
         }
     }
     
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveHeaders:headers];
+    [self.downloader peerGroup:self peer:peer didReceiveHeaders:headers];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveInventories:(NSArray *)inventories
 {
     DDLogVerbose(@"Received inventories from %@: %@", peer, inventories);
     
-    if (!self.downloadDelegate) {
+    if (!self.downloader) {
         return;
     }
 
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveInventories:inventories];
+    [self.downloader peerGroup:self peer:peer didReceiveInventories:inventories];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveBlock:(WSBlock *)block
 {
     DDLogVerbose(@"Received full block from %@: %@", peer, block);
 
-    if (!self.downloadDelegate) {
+    if (!self.downloader) {
         return;
     }
 
     NSError *error;
-    if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:block.header error:&error]) {
+    if (self.downloader && ![self.downloader peerGroup:self peer:peer shouldAcceptHeader:block.header error:&error]) {
         [self.pool closeConnectionForProcessor:peer error:error];
         return;
     }
 
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveBlock:block];
+    [self.downloader peerGroup:self peer:peer didReceiveBlock:block];
 }
 
 - (BOOL)peer:(WSPeer *)peer shouldAddTransaction:(WSSignedTransaction *)transaction toFilteredBlock:(WSFilteredBlock *)filteredBlock
 {
-    return (!self.downloadDelegate || [self.downloadDelegate peerGroup:self peer:peer shouldAddTransaction:transaction toFilteredBlock:filteredBlock]);
+    return (!self.downloader || [self.downloader peerGroup:self peer:peer shouldAddTransaction:transaction toFilteredBlock:filteredBlock]);
 }
 
 - (void)peer:(WSPeer *)peer didReceiveFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions
 {
     DDLogVerbose(@"Received filtered block from %@: %@", peer, filteredBlock);
 
-    if (!self.downloadDelegate) {
+    if (!self.downloader) {
         return;
     }
 
     NSError *error;
-    if (self.downloadDelegate && ![self.downloadDelegate peerGroup:self peer:peer shouldAcceptHeader:filteredBlock.header error:&error]) {
+    if (self.downloader && ![self.downloader peerGroup:self peer:peer shouldAcceptHeader:filteredBlock.header error:&error]) {
         [self.pool closeConnectionForProcessor:peer error:error];
         return;
     }
     
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
+    [self.downloader peerGroup:self peer:peer didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
@@ -448,7 +482,7 @@
     const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
     [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
     
-    [self.downloadDelegate peerGroup:self peer:peer didReceiveTransaction:transaction];
+    [self.downloader peerGroup:self peer:peer didReceiveTransaction:transaction];
 }
 
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay
