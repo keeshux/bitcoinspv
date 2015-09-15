@@ -268,6 +268,7 @@
                 DDLogDebug(@"Extending fork to height %u with block %@ (%u transactions)", newForkHead.height, header.blockId, transactions.count);
 
                 [self.store putBlock:newForkHead];
+                addedBlock = newForkHead;
             }
         }
         // fork is new best chain, reorganize
@@ -283,6 +284,7 @@
             
             [self.store putBlock:newForkHead];
             [self.store setHead:newForkHead];
+            addedBlock = newForkHead;
 
             if (reorganizeBlock) {
                 reorganizeBlock(forkBase, oldBlocks, newBlocks);
