@@ -967,6 +967,8 @@
 - (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error
 {
     NSParameterAssert(peer);
+    
+    DDLogDebug(@"Peer %@ is misbehaving", peer);
 
     [self.misbehavingHosts addObject:peer.remoteHost];
     [self.pool closeConnectionForProcessor:peer error:error];

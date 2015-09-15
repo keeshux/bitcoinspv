@@ -335,7 +335,7 @@
     [self aheadRequestOnReceivedHeaders:headers];
 
     NSError *error;
-    if (![self appendBlockHeaders:headers error:&error]) {
+    if (![self appendBlockHeaders:headers error:&error] && error) {
         [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
     }
 }
