@@ -1060,10 +1060,11 @@
     
     if ([self isSynced]) {
         if (!onFork) {
-            DDLogInfo(@"New main head: %@", block);
+            DDLogInfo(@"New head: %@", block);
         }
         else {
             DDLogInfo(@"New fork head: %@", block);
+            DDLogInfo(@"Fork base: %@", [self.blockChain findForkBaseFromHead:block]);
         }
     }
 }

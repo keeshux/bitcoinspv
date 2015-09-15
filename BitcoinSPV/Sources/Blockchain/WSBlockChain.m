@@ -60,7 +60,6 @@
                                   error:(NSError *__autoreleasing *)error;
 
 - (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock;
-- (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead;
 - (NSArray *)subchainFromHead:(WSStorableBlock *)head toBase:(WSStorableBlock *)base;
 
 @end
@@ -160,6 +159,19 @@
 }
 
 #pragma mark Modification
+
+- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError *__autoreleasing *)error
+{
+    WSExceptionCheckIllegal(checkpoint);
+    
+    if (![self isBehindBlock:checkpoint]) {
+        return nil;
+    }
+    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:checkpoint.header transactions:nil height:checkpoint.height work:checkpoint.workData];
+    [self.store putBlock:block];
+    [self.store setHead:block];
+    return block;
+}
 
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
@@ -417,19 +429,6 @@
     WSExceptionCheckIllegal(block);
 
     return (self.currentHeight < block.height);
-}
-
-- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError *__autoreleasing *)error
-{
-    WSExceptionCheckIllegal(checkpoint);
-    
-    if (![self isBehindBlock:checkpoint]) {
-        return nil;
-    }
-    WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:checkpoint.header transactions:nil height:checkpoint.height work:checkpoint.workData];
-    [self.store putBlock:block];
-    [self.store setHead:block];
-    return block;
 }
 
 #pragma mark Core Data

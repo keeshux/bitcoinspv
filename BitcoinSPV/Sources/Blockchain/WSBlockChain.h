@@ -60,6 +60,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (uint32_t)currentTimestamp;
 - (WSBlockLocator *)currentLocator;
 
+- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
                                  onFork:(BOOL *)onFork
@@ -68,7 +69,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
                                   error:(NSError **)error;
 
 - (BOOL)isBehindBlock:(WSStorableBlock *)block;
-- (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
+- (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead;
 
 - (void)loadFromCoreDataManager:(WSCoreDataManager *)manager;
 - (void)saveToCoreDataManager:(WSCoreDataManager *)manager;
