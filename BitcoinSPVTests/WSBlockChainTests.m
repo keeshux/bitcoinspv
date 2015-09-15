@@ -274,6 +274,8 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     DDLogInfo(@"Head: %@", chain.head);
 
     XCTAssertEqualObjects(chain.head.workString, @"4295032833");
+    
+    NSArray *connectedOrphans;
 
     //
     // add to genesis block (G=4295032833)
@@ -283,7 +285,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 10)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H1)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -302,7 +304,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H2, G, 2)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H2)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -316,7 +318,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 1)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H1)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -336,7 +338,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H5, H4, 1)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H5)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -356,7 +358,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H4, H3, 1)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H4)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -385,7 +387,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H3, H2, 5)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H3)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
@@ -403,7 +405,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H6, H1, 7)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H6)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
@@ -423,7 +425,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H7, H3, 8)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H7)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
@@ -445,7 +447,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H8, H5, 12)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H8)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
@@ -467,7 +469,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, HA, H9, 4)
                  transactions:WSMakeDummyTransactions(self.networkParameters, HA)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
@@ -503,7 +505,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H9, H1, 24)
                  transactions:WSMakeDummyTransactions(self.networkParameters, H9)
                      location:NULL
-             connectedOrphans:NULL
+             connectedOrphans:&connectedOrphans
               reorganizeBlock:NULL
                         error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, HA);
