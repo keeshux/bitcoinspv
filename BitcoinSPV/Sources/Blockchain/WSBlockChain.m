@@ -388,7 +388,11 @@
 {
     WSExceptionCheckIllegal(block);
     
-    return (self.currentHeight < block.height);
+    WSStorableBlock *ancestor = block;
+    while (ancestor && (ancestor.blockId != self.head.blockId)) {
+        ancestor = [ancestor previousBlockInChain:self];
+    }
+    return (ancestor != nil);
 }
 
 - (BOOL)isOrphanBlock:(WSStorableBlock *)block
