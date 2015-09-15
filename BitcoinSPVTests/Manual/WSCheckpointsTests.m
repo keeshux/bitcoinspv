@@ -87,7 +87,7 @@
     [self privateTestDeserialize];
 }
 
-#pragma mark Private
+#pragma mark Helpers
 
 - (void)privateTestSerialize
 {
@@ -106,16 +106,20 @@
 
 - (void)privateTestFinishSerializeCheckpoints:(WSBuffer *)checkpoints
 {
-    [checkpoints.data writeToFile:[self filename] atomically:YES];
+    NSString *checkpointsPath = [self checkpointsPath];
+    [checkpoints.data writeToFile:checkpointsPath atomically:YES];
 
+    DDLogInfo(@"Checkpoints path: %@", checkpointsPath);
     DDLogInfo(@"Embeddable hex: %@", [checkpoints hexString]);
 }
 
 - (void)privateTestDeserialize
 {
-    NSData *checkpointsData = [NSData dataWithContentsOfFile:[self filename]];
+    NSString *checkpointsPath = [self checkpointsPath];
+    NSData *checkpointsData = [NSData dataWithContentsOfFile:checkpointsPath];
     WSBuffer *checkpoints = [[WSBuffer alloc] initWithData:checkpointsData];
 
+    DDLogInfo(@"Checkpoints path: %@", checkpointsPath);
     DDLogInfo(@"Embeddable hex: %@", [checkpoints hexString]);
     DDLogInfo(@"Size: %u", checkpoints.length);
 
@@ -128,11 +132,9 @@
     XCTAssertEqual(offset, checkpoints.length);
 }
 
-- (NSString *)filename
+- (NSString *)checkpointsPath
 {
-    NSString *filename = [self mockPathForFile:[NSString stringWithFormat:@"BitcoinSPV-%@.checkpoints", WSNetworkTypeString([self.networkParameters networkType])]];
-    DDLogInfo(@"File: %@", filename);
-    return filename;
+    return [self mockNetworkPathForFilename:@"BitcoinSPV" extension:@"checkpoints"];
 }
 
 @end

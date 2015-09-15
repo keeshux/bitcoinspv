@@ -46,6 +46,11 @@
 		0ED6806B1BA303F700ED3AF0 /* WSPeerGroup+Download.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED6806A1BA303F700ED3AF0 /* WSPeerGroup+Download.m */; };
 		0ED738121A34B90400669C07 /* WSWebExplorer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED738111A34B90400669C07 /* WSWebExplorer.m */; };
 		0ED831221B4849F8001447D1 /* WSWebTickerBitPay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ED831211B4849F8001447D1 /* WSWebTickerBitPay.m */; };
+		0EDB14811BA8762D00AE1131 /* WSCheckpointsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */; };
+		0EDB14821BA8797500AE1131 /* WSConnectionPoolTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */; };
+		0EDB14831BA8799800AE1131 /* WSLocalNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0EB60A197D7A01004DBBC6 /* WSLocalNetworkTests.m */; };
+		0EDB14841BA87EA000AE1131 /* WSPeerGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */; };
+		0EDB14851BA87F4E00AE1131 /* WSPeerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB6D2971979D18000783ADF /* WSPeerTests.m */; };
 		0EE34BAF1B8B61EA000A9B9F /* WSBlockChainDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EE34BAE1B8B61EA000A9B9F /* WSBlockChainDownloader.m */; };
 		0EF696771A34BF69006E027C /* WSJSONClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696761A34BF69006E027C /* WSJSONClient.m */; };
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
@@ -207,7 +212,6 @@
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
 		0E282B1B1B0AAB8900D9C959 /* WSAbstractKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSAbstractKey.h; sourceTree = "<group>"; };
-		0E570D041B9EF171000E9D7C /* WSDownloadTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSDownloadTests.m; sourceTree = "<group>"; };
 		0E570D061B9F4E1E000E9D7C /* WSPeerGroup+Download.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WSPeerGroup+Download.h"; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0E761AB41AE6629A00F1F068 /* WSMacrosCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMacrosCore.h; sourceTree = "<group>"; };
@@ -453,7 +457,7 @@
 		8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSConnectionPoolTests.m; sourceTree = "<group>"; };
 		8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerGroupTests.m; sourceTree = "<group>"; };
 		8CB6D2971979D18000783ADF /* WSPeerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSPeerTests.m; sourceTree = "<group>"; };
-		8CB6D2981979D18000783ADF /* WSSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSSyncTests.m; sourceTree = "<group>"; };
+		8CB6D2981979D18000783ADF /* WSDownloadTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSDownloadTests.m; sourceTree = "<group>"; };
 		8CBB5B06198D0A1D006599DB /* BitcoinSPV.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitcoinSPV.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8CBB5B13198D0AA8006599DB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -914,11 +918,10 @@
 			children = (
 				0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */,
 				8CB6D2941979D18000783ADF /* WSConnectionPoolTests.m */,
-				0E570D041B9EF171000E9D7C /* WSDownloadTests.m */,
+				8CB6D2981979D18000783ADF /* WSDownloadTests.m */,
 				8C0EB60A197D7A01004DBBC6 /* WSLocalNetworkTests.m */,
 				8CB6D2961979D18000783ADF /* WSPeerGroupTests.m */,
 				8CB6D2971979D18000783ADF /* WSPeerTests.m */,
-				8CB6D2981979D18000783ADF /* WSSyncTests.m */,
 				8C7B3AF2197BE59100FC676B /* WSWalletNetworkTests.m */,
 			);
 			path = Manual;
@@ -1366,14 +1369,19 @@
 				0E7FB6701A4B326000095193 /* WSWebTests.m in Sources */,
 				8CDD9A241983066300720304 /* WSTimerTests.m in Sources */,
 				8C8FB831196776F300A07156 /* WSKeysTests.m in Sources */,
+				0EDB14811BA8762D00AE1131 /* WSCheckpointsTests.m in Sources */,
 				8C8FB82E196776F300A07156 /* WSBIP39Tests.m in Sources */,
+				0EDB14841BA87EA000AE1131 /* WSPeerGroupTests.m in Sources */,
 				8C8FB82B196776F300A07156 /* WSAddressTests.m in Sources */,
 				8C5DB95419677E9100AF079E /* BitcoinSPVTests.m in Sources */,
 				8C8FB832196776F300A07156 /* WSMessageTests.m in Sources */,
+				0EDB14851BA87F4E00AE1131 /* WSPeerTests.m in Sources */,
+				0EDB14831BA8799800AE1131 /* WSLocalNetworkTests.m in Sources */,
 				8C8FB835196776F300A07156 /* WSScriptTests.m in Sources */,
 				8C8FB82D196776F300A07156 /* WSBIP37Tests.m in Sources */,
 				8C8FB82F196776F300A07156 /* WSBlockChainTests.m in Sources */,
 				8C8FB836196776F300A07156 /* WSTransactionTests.m in Sources */,
+				0EDB14821BA8797500AE1131 /* WSConnectionPoolTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

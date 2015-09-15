@@ -569,6 +569,8 @@
 //    [self runForever];
 }
 
+#pragma mark Helpers
+
 - (id<WSMessage>)assertPeerMessageClass:(Class)clazz
 {
     return [self assertPeerMessageClass:clazz timeout:3.0];
