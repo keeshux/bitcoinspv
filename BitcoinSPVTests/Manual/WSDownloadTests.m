@@ -47,8 +47,8 @@
     peerGroup.maxConnectionFailures = 20;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-    [self runForSeconds:5.0];
-    [peerGroup stopDownload];
+//    [self runForSeconds:5.0];
+//    [peerGroup stopDownload];
 //    [peerGroup stopConnectionsWithCompletionBlock:NULL];
     [self runForever];
 }
