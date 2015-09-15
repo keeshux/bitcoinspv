@@ -47,9 +47,9 @@
 #import "WSMemoryBlockStore.h"
 #import "WSCoreDataManager.h"
 #import "WSBlockHeader.h"
-#import "WSBlock.h"
 #import "WSStorableBlock.h"
 
+#import "WSConnectionPool.h"
 #import "WSPeerGroup.h"
 #import "WSBlockChainDownloader.h"
 #import "WSSeed.h"

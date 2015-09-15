@@ -30,7 +30,6 @@
 
 #import "XCTestCase+BitcoinSPV.h"
 #import "WSConfig.h"
-#import "WSConnectionPool.h"
 #import "WSBlockChain.h"
 #import "WSPeer.h"
 #import "WSBlockLocator.h"

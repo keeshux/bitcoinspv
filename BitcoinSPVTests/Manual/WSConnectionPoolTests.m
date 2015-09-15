@@ -28,8 +28,6 @@
 #import "GCDAsyncSocket.h"
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSConnectionPool.h"
-#import "WSPeerGroup.h"
 
 // testnet-seed.bitcoin.petertodd.org
 

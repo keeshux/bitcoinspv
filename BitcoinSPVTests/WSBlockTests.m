@@ -26,6 +26,7 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
+#import "WSBlock.h"
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
 #import "WSMessageHeaders.h"
