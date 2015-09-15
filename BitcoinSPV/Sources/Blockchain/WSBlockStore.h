@@ -42,9 +42,10 @@
 - (id<WSParameters>)parameters;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;
 - (void)putBlock:(WSStorableBlock *)block;
-- (void)removeTailBlock;
 - (WSStorableBlock *)head;
 - (void)setHead:(WSStorableBlock *)head;
+- (void)removeTail;
+- (void)findAndRestoreTail;
 - (NSArray *)allBlocks;
 - (NSUInteger)size;
 - (void)truncate;

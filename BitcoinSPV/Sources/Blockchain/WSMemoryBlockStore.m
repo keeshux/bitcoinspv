@@ -88,13 +88,20 @@
     self.nextIdsById[block.previousBlockId] = blockId;
 }
 
-- (void)removeTailBlock
+- (void)setHead:(WSStorableBlock *)head
+{
+    WSExceptionCheckIllegal(head);
+    
+    _head = head;
+}
+
+- (void)removeTail
 {
     NSAssert(self.blocks.count > 0, @"Empty blocks");
     
     WSHash256 *tailId = self.tail.blockId;
     NSAssert(tailId, @"Tail is nil, store truncated without resetting?");
-
+    
     WSHash256 *newTailId = self.nextIdsById[tailId];
     if (!newTailId) {
         WSStorableBlock *block = self.head;
@@ -103,17 +110,21 @@
             block = self.blocks[block.previousBlockId];
         }
     }
-
+    
     [self.blocks removeObjectForKey:tailId];
     [self.nextIdsById removeObjectForKey:tailId];
     self.tail = self.blocks[newTailId];
 }
 
-- (void)setHead:(WSStorableBlock *)head
+- (void)findAndRestoreTail
 {
-    WSExceptionCheckIllegal(head);
-    
-    _head = head;
+    WSStorableBlock *block = self.head;
+    WSStorableBlock *tail;
+    while (block) {
+        tail = block;
+        block = self.blocks[block.previousBlockId];
+    }
+    self.tail = tail;
 }
 
 - (NSArray *)allBlocks

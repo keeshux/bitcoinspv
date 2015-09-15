@@ -234,7 +234,7 @@
         addedBlock = newHead;
 
         while (self.store.size > self.maxSize) {
-            [self.store removeTailBlock];
+            [self.store removeTail];
         }
         
         [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationMain];
@@ -436,8 +436,7 @@
                 [self.store setHead:block];
             }
         }
-        
-#warning FIXME: reload store tail from Core Data
+        [self.store findAndRestoreTail];
 
         DDLogInfo(@"Loaded blockchain (%u) from Core Data: %@", self.head.height, manager.storeURL);
     }];
