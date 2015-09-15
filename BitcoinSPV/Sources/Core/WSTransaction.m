@@ -73,10 +73,10 @@
         self.lockTime = lockTime;
 
         WSBuffer *buffer = [self toBuffer];
-        if (buffer.length > WSTransactionMaxSize) {
-            WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Transaction is too big (size: %u > %u)", buffer.length, WSTransactionMaxSize);
-            return nil;
-        }
+//        if (buffer.length > WSTransactionMaxSize) {
+//            WSErrorSet(error, WSErrorCodeInvalidTransaction, @"Transaction is too big (size: %u > %u)", buffer.length, WSTransactionMaxSize);
+//            return nil;
+//        }
 
         self.txId = [buffer computeHash256];
         self.txIdPrefix = *(NSUInteger *)self.txId.bytes;
