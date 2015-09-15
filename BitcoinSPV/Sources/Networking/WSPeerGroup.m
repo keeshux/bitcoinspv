@@ -399,7 +399,7 @@
         self.publishedTransactions[transaction.txId] = transaction;
         
         // exclude one random peer to receive tx broadcast back
-        const NSUInteger excluded = mrand48() % self.connectedPeers.count;
+        const NSUInteger excluded = arc4random() % self.connectedPeers.count;
         
         NSUInteger i = 0;
         for (WSPeer *peer in self.connectedPeers) {

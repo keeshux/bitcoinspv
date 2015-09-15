@@ -88,7 +88,7 @@
 
 - (void)testSinglePeerPool
 {
-    NSString *anyHost = self.hosts[mrand48() % self.hosts.count];
+    NSString *anyHost = self.hosts[arc4random() % self.hosts.count];
     
     WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     [pool openConnectionToPeerHost:anyHost parameters:self.networkParameters flags:[self peerFlags]];
@@ -108,6 +108,8 @@
     [self runForSeconds:2.0];
 }
 
+#pragma mark GCDAsyncSocketDelegate
+
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
     DDLogInfo(@"socket:%@ didConnectToHost:%@ port:%u", sock, host, port);
@@ -117,6 +119,8 @@
 {
     DDLogInfo(@"socket:%@ didReadData:%@", sock, data);
 }
+
+#pragma mark Helpers
 
 - (WSPeerFlags *)peerFlags
 {
