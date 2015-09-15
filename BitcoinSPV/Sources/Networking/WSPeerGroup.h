@@ -137,6 +137,7 @@
 //
 @protocol WSPeerGroupDownloader <WSPeerGroupDownloadDelegate>
 
+- (id<WSParameters>)parameters;
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup;
 - (void)stop;
 - (NSUInteger)lastBlockHeight;

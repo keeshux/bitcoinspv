@@ -269,6 +269,13 @@
 
 - (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader
 {
+    WSExceptionCheckIllegal(downloader);
+    WSExceptionCheck(downloader.parameters == self.parameters,
+                     WSExceptionIllegalArgument,
+                     @"Downloader configured for %@ network (expected: %@)",
+                     WSNetworkTypeString([downloader.parameters networkType]),
+                     WSNetworkTypeString([self.parameters networkType]));
+    
     __block BOOL started = NO;
     dispatch_sync(self.queue, ^{
         if (self.downloader) {

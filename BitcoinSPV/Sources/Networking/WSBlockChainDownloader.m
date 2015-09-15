@@ -192,13 +192,17 @@
 {
     _coreDataManager = coreDataManager;
 
-    [self.blockChain loadFromCoreDataManager:coreDataManager];
+    if (_coreDataManager) {
+        [self.blockChain loadFromCoreDataManager:_coreDataManager];
+    }
 }
 
 #pragma mark WSPeerGroupDownloader
 
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup
 {
+    WSExceptionCheckIllegal(peerGroup);
+    
     self.peerGroup = peerGroup;
     self.downloadPeer = [self bestPeerAmongPeers:[peerGroup allConnectedPeers]];
     if (!self.downloadPeer) {
@@ -244,6 +248,8 @@
 
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count
 {
+    WSExceptionCheckIllegal(count > 0);
+
     NSMutableArray *recentBlocks = [[NSMutableArray alloc] initWithCapacity:count];
     WSStorableBlock *block = self.blockChain.head;
     while (block && (recentBlocks.count < count)) {
