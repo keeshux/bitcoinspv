@@ -212,7 +212,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     
     WSFilteredBlock *block = WSFilteredBlockFromHex(self.networkParameters, hex);
     WSBlockChain *chain = [self chainWithLocalHeaders];
-    [chain addBlockWithHeader:block.header transactions:nil reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:block.header transactions:nil onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqual(chain.currentHeight, 21);
 
     DDLogInfo(@"BlockChain: %@", chain);
@@ -227,9 +227,9 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     WSStorableBlock *block;
     
     WSBlockChain *chain = [self chainWithLocalHeaders];
-    block = [chain addBlockWithHeader:header transactions:nil connectedOrphans:NULL error:NULL];
+    block = [chain addBlockWithHeader:header transactions:nil onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertNil(block);
-    block = [chain addBlockWithHeader:header transactions:[NSOrderedSet orderedSetWithObject:transaction] connectedOrphans:NULL error:NULL];
+    block = [chain addBlockWithHeader:header transactions:[NSOrderedSet orderedSetWithObject:transaction] onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertNotNil(block);
     
     DDLogInfo(@"BlockChain: %@", chain);
@@ -280,7 +280,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     // G -> H1=10
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 10) transactions:WSMakeDummyTransactions(self.networkParameters, H1) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 10) transactions:WSMakeDummyTransactions(self.networkParameters, H1) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -294,7 +294,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //   \
     //    \--> H2=2
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H2, G, 2) transactions:WSMakeDummyTransactions(self.networkParameters, H2) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H2, G, 2) transactions:WSMakeDummyTransactions(self.networkParameters, H2) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -303,7 +303,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     // skip duplicated H1 at same height
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H1) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H1, G, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H1) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -318,7 +318,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     //    (H4) --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H5, H4, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H5) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H5, H4, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H5) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -333,7 +333,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     //    (H3) --> H4=1 --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H4, H3, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H4) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H4, H3, 1) transactions:WSMakeDummyTransactions(self.networkParameters, H4) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -357,7 +357,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     // H5 is new fork head
     // work(H4) < work(H1) = (9 < 10), extend fork
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H3, H2, 5) transactions:WSMakeDummyTransactions(self.networkParameters, H3) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H3, H2, 5) transactions:WSMakeDummyTransactions(self.networkParameters, H3) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H1);
     XCTAssertEqual(chain.currentHeight, 1);
     XCTAssertEqualObjects(chain.head.workString, @"4295032843");
@@ -370,7 +370,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //   \
     //    \--> H2=2 --> H3=5 --> H4=1 --> H5=1
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H6, H1, 7) transactions:WSMakeDummyTransactions(self.networkParameters, H6) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H6, H1, 7) transactions:WSMakeDummyTransactions(self.networkParameters, H6) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
     XCTAssertEqual(chain.currentHeight, 2);
     XCTAssertEqualObjects(chain.head.workString, @"4295032850");
@@ -385,7 +385,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //                   \
     //                    \---- H7=8
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H7, H3, 8) transactions:WSMakeDummyTransactions(self.networkParameters, H7) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H7, H3, 8) transactions:WSMakeDummyTransactions(self.networkParameters, H7) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H6);
     XCTAssertEqual(chain.currentHeight, 2);
     XCTAssertEqualObjects(chain.head.workString, @"4295032850");
@@ -402,7 +402,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     // work(H8) > work(H6) = (21 > 17), reorganize
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H8, H5, 12) transactions:WSMakeDummyTransactions(self.networkParameters, H8) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H8, H5, 12) transactions:WSMakeDummyTransactions(self.networkParameters, H8) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
     XCTAssertEqual(chain.currentHeight, 5);
     XCTAssertEqualObjects(chain.head.workString, @"4295032854");
@@ -419,7 +419,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //                   \
     //                    \---- H7=8
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, HA, H9, 4) transactions:WSMakeDummyTransactions(self.networkParameters, HA) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, HA, H9, 4) transactions:WSMakeDummyTransactions(self.networkParameters, HA) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, H8);
     XCTAssertEqual(chain.currentHeight, 5);
     XCTAssertEqualObjects(chain.head.workString, @"4295032854");
@@ -450,7 +450,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     //
     // work(HA) > work(H8) = (38 > 21), reorganize
     //
-    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H9, H1, 24) transactions:WSMakeDummyTransactions(self.networkParameters, H9) connectedOrphans:NULL error:NULL];
+    [chain addBlockWithHeader:WSMakeDummyHeader(self.networkParameters, H9, H1, 24) transactions:WSMakeDummyTransactions(self.networkParameters, H9) onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:NULL];
     XCTAssertEqualObjects(chain.head.blockId, HA);
     XCTAssertEqual(chain.currentHeight, 3);
     XCTAssertEqualObjects(chain.head.workString, @"4295032871");
@@ -538,7 +538,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     for (NSString *hex in headers) {
         WSBlockHeader *header = WSBlockHeaderFromHex(self.networkParameters, hex);
 //        DDLogInfo(@"Header: %@", header);
-        XCTAssertTrue([chain addBlockWithHeader:header reorganizeBlock:NULL connectedOrphans:NULL error:&error], @"Unable to add block %@: %@", header.blockId, error);
+        XCTAssertTrue([chain addBlockWithHeader:header transactions:nil onFork:NULL reorganizeBlock:NULL connectedOrphans:NULL error:&error], @"Unable to add block %@: %@", header.blockId, error);
     }
 
     return chain;

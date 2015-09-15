@@ -53,6 +53,7 @@
 
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
+                                 onFork:(BOOL *)onFork
                         reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                          connectOrphans:(BOOL)connectOrphans
                        connectedOrphans:(NSArray **)connectedOrphans
@@ -160,31 +161,35 @@
 
 #pragma mark Modification
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
+                           transactions:(NSOrderedSet *)transactions
+                                 onFork:(BOOL *)onFork
+                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
+                       connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
+                                  error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header reorganizeBlock:NULL connectedOrphans:connectedOrphans error:error];
+    return [self addBlockWithHeader:header
+                       transactions:transactions
+                             onFork:onFork
+                    reorganizeBlock:reorganizeBlock
+                     connectOrphans:YES
+                   connectedOrphans:connectedOrphans
+                              error:error];
 }
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
-{
-    return [self addBlockWithHeader:header transactions:nil reorganizeBlock:reorganizeBlock connectedOrphans:connectedOrphans error:error];
-}
-
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
-{
-    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:NULL connectOrphans:YES connectedOrphans:connectedOrphans error:error];
-}
-
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
-{
-    return [self addBlockWithHeader:header transactions:transactions reorganizeBlock:reorganizeBlock connectOrphans:YES connectedOrphans:connectedOrphans error:error];
-}
-
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectOrphans:(BOOL)connectOrphans connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans error:(NSError *__autoreleasing *)error
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
+                           transactions:(NSOrderedSet *)transactions
+                                 onFork:(BOOL *)onFork
+                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
+                         connectOrphans:(BOOL)connectOrphans
+                       connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
+                                  error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(header);
     
-    WSStorableBlock *addedBlock = nil;
+    if (onFork) {
+        *onFork = NO;
+    }
     
     if ([header.blockId isEqual:self.head.blockId]) {
 
@@ -216,6 +221,8 @@
         return nil;
     }
 
+    WSStorableBlock *addedBlock = nil;
+
     // main chain
     if ([header.previousBlockId isEqual:self.head.blockId]) {
         DDLogVerbose(@"Block %@ is on main chain (head: %@)", header.blockId, self.head.blockId);
@@ -236,12 +243,16 @@
             [self.store removeTailBlock];
         }
         
-        [self.delegate blockChain:self didAddNewBlock:newHead];
+        [self.delegate blockChain:self didAddNewBlock:newHead onFork:NO];
 
         addedBlock = newHead;
     }
     // fork
     else {
+        
+        if (onFork) {
+            *onFork = YES;
+        }
         
         // try connecting new block to fork
         WSStorableBlock *forkHead = [self.store blockForId:header.previousBlockId];
@@ -249,9 +260,13 @@
         // no parent, block is orphan
         if (!forkHead) {
             DDLogDebug(@"Added orphan block %@ (unknown height)", header.blockId);
-            self.orphans[header.blockId] = [[WSStorableBlock alloc] initWithHeader:header transactions:transactions];
+            
+            WSStorableBlock *orphan = [[WSStorableBlock alloc] initWithHeader:header transactions:transactions];
+            self.orphans[header.blockId] = orphan;
 
-            return nil;
+            [self.delegate blockChain:self didAddNewBlock:orphan onFork:YES];
+
+            return orphan;
         }
 
         DDLogDebug(@"Block %@ may be on a fork (head: %@)", header.blockId, forkHead.blockId);
@@ -269,6 +284,8 @@
 
                 [self.store putBlock:newForkHead];
                 addedBlock = newForkHead;
+
+                [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
             }
         }
         // fork is new best chain, reorganize
@@ -285,6 +302,8 @@
             [self.store putBlock:newForkHead];
             [self.store setHead:newForkHead];
             addedBlock = newForkHead;
+
+            [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
 
             if (reorganizeBlock) {
                 reorganizeBlock(forkBase, oldBlocks, newBlocks);
@@ -324,9 +343,11 @@
 
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
+            BOOL onFork;
             NSArray *otherConnectedOrphans;
             WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
                                                            transactions:orphan.transactions
+                                                                 onFork:&onFork
                                                         reorganizeBlock:reorganizeBlock
                                                          connectOrphans:NO
                                                        connectedOrphans:&otherConnectedOrphans

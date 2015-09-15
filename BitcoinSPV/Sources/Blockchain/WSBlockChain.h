@@ -60,10 +60,12 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (uint32_t)currentTimestamp;
 - (WSBlockLocator *)currentLocator;
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header transactions:(NSOrderedSet *)transactions reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock connectedOrphans:(NSArray **)connectedOrphans error:(NSError **)error;
+- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
+                           transactions:(NSOrderedSet *)transactions
+                                 onFork:(BOOL *)onFork
+                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
+                       connectedOrphans:(NSArray **)connectedOrphans
+                                  error:(NSError **)error;
 
 - (BOOL)isBehindBlock:(WSStorableBlock *)block;
 - (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
@@ -80,7 +82,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 
 @protocol WSBlockChainDelegate <NSObject>
 
-- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block;
+- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block onFork:(BOOL)onFork;
 - (void)blockChain:(WSBlockChain *)blockChain didReplaceHead:(WSStorableBlock *)head;
 - (void)blockChain:(WSBlockChain *)blockChain didReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 

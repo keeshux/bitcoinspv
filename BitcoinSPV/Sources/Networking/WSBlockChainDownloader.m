@@ -746,8 +746,12 @@
         WSStorableBlock *block = nil;
         __weak WSBlockChainDownloader *weakSelf = self;
         
+        BOOL onFork;
         NSArray *connectedOrphans;
-        block = [self.blockChain addBlockWithHeader:header reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+        block = [self.blockChain addBlockWithHeader:header
+                                       transactions:nil
+                                             onFork:&onFork
+                                    reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
             
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
             
@@ -771,7 +775,9 @@
             return NO;
         }
         
-        [self logNewHead];
+        if (!onFork) {
+            [self logNewHead];
+        }
 
         for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
             [self handleAddedBlock:addedBlock];
@@ -795,9 +801,13 @@
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
+    BOOL onFork;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
-    block = [self.blockChain addBlockWithHeader:fullBlock.header transactions:fullBlock.transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+    block = [self.blockChain addBlockWithHeader:fullBlock.header
+                                   transactions:fullBlock.transactions
+                                         onFork:&onFork
+                                reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
@@ -821,7 +831,9 @@
         return NO;
     }
     
-    [self logNewHead];
+    if (!onFork) {
+        [self logNewHead];
+    }
 
     for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
         if (![addedBlock.blockId isEqual:previousHead.blockId]) {
@@ -845,9 +857,13 @@
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
+    BOOL onFork;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
-    block = [self.blockChain addBlockWithHeader:filteredBlock.header transactions:transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+    block = [self.blockChain addBlockWithHeader:filteredBlock.header
+                                   transactions:transactions
+                                         onFork:&onFork
+                                reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
@@ -871,7 +887,9 @@
         return NO;
     }
     
-    [self logNewHead];
+    if (!onFork) {
+        [self logNewHead];
+    }
 
     for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
         if (![addedBlock.blockId isEqual:previousHead.blockId]) {
