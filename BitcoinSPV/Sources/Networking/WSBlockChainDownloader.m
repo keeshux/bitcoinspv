@@ -93,7 +93,9 @@
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
 - (BOOL)maybeRebuildAndSendBloomFilter;
-- (void)logNewHead;
+
+// macros
+- (void)logAddedBlock:(WSStorableBlock *)block onFork:(BOOL)onFork;
 
 @end
 
@@ -743,21 +745,21 @@
         }
 
         NSError *localError;
-        WSStorableBlock *block = nil;
+        WSStorableBlock *addedBlock = nil;
         __weak WSBlockChainDownloader *weakSelf = self;
         
         BOOL onFork;
         NSArray *connectedOrphans;
-        block = [self.blockChain addBlockWithHeader:header
-                                       transactions:nil
-                                             onFork:&onFork
-                                    reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+        addedBlock = [self.blockChain addBlockWithHeader:header
+                                            transactions:nil
+                                                  onFork:&onFork
+                                         reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
             
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
             
         } connectedOrphans:&connectedOrphans error:&localError];
         
-        if (!block) {
+        if (!addedBlock) {
             if (!localError) {
                 DDLogDebug(@"Header not added: %@", header);
             }
@@ -775,12 +777,10 @@
             return NO;
         }
         
-        if (!onFork) {
-            [self logNewHead];
-        }
+        [self logAddedBlock:addedBlock onFork:onFork];
 
-        for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
-            [self handleAddedBlock:addedBlock];
+        for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
+            [self handleAddedBlock:block];
         }
     }
 
@@ -791,29 +791,24 @@
 {
     NSParameterAssert(fullBlock);
 
-    // a dummy "return NO" here would case download peer to be
-    // disconnected as misbehaving each time a block is appended.
-    // the problem is that the peer would seem to disconnect
-    // "intentionally" because no disconnection error is specified
-
     NSError *localError;
-    WSStorableBlock *block = nil;
+    WSStorableBlock *addedBlock = nil;
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
     BOOL onFork;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
-    block = [self.blockChain addBlockWithHeader:fullBlock.header
-                                   transactions:fullBlock.transactions
-                                         onFork:&onFork
-                                reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+    addedBlock = [self.blockChain addBlockWithHeader:fullBlock.header
+                                        transactions:fullBlock.transactions
+                                              onFork:&onFork
+                                     reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
     } connectedOrphans:&connectedOrphans error:&localError];
     
-    if (!block) {
+    if (!addedBlock) {
         if (!localError) {
             DDLogDebug(@"Block not added: %@", fullBlock);
         }
@@ -831,16 +826,14 @@
         return NO;
     }
     
-    if (!onFork) {
-        [self logNewHead];
-    }
+    [self logAddedBlock:addedBlock onFork:onFork];
 
-    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
-        if (![addedBlock.blockId isEqual:previousHead.blockId]) {
-            [self handleAddedBlock:addedBlock];
+    for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
+        if (![block.blockId isEqual:previousHead.blockId]) {
+            [self handleAddedBlock:block];
         }
         else {
-            [self handleReplacedBlock:addedBlock];
+            [self handleReplacedBlock:block];
         }
     }
 
@@ -853,23 +846,23 @@
     NSParameterAssert(transactions);
 
     NSError *localError;
-    WSStorableBlock *block = nil;
+    WSStorableBlock *addedBlock = nil;
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
     BOOL onFork;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
-    block = [self.blockChain addBlockWithHeader:filteredBlock.header
-                                   transactions:transactions
-                                         onFork:&onFork
-                                reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+    addedBlock = [self.blockChain addBlockWithHeader:filteredBlock.header
+                                        transactions:transactions
+                                              onFork:&onFork
+                                     reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
     } connectedOrphans:&connectedOrphans error:&localError];
     
-    if (!block) {
+    if (!addedBlock) {
         if (!localError) {
             DDLogDebug(@"Filtered block not added: %@", filteredBlock);
         }
@@ -887,16 +880,14 @@
         return NO;
     }
     
-    if (!onFork) {
-        [self logNewHead];
-    }
+    [self logAddedBlock:addedBlock onFork:onFork];
 
-    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
-        if (![addedBlock.blockId isEqual:previousHead.blockId]) {
-            [self handleAddedBlock:addedBlock];
+    for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
+        if (![block.blockId isEqual:previousHead.blockId]) {
+            [self handleAddedBlock:block];
         }
         else {
-            [self handleReplacedBlock:addedBlock];
+            [self handleReplacedBlock:block];
         }
     }
     
@@ -1061,10 +1052,19 @@
     return YES;
 }
 
-- (void)logNewHead
+#pragma mark Macros
+
+- (void)logAddedBlock:(WSStorableBlock *)block onFork:(BOOL)onFork
 {
+    NSParameterAssert(block);
+    
     if ([self isSynced]) {
-        DDLogInfo(@"New head: %@", self.blockChain.head);
+        if (!onFork) {
+            DDLogInfo(@"New main head: %@", block);
+        }
+        else {
+            DDLogInfo(@"New fork head: %@", block);
+        }
     }
 }
 
