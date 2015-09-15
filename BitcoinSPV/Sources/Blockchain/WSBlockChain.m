@@ -428,7 +428,7 @@
 {
     NSParameterAssert(head);
     NSParameterAssert(base);
-    NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
+//    NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
 
     NSMutableArray *chain = [[NSMutableArray alloc] initWithCapacity:(head.height - base.height)];
 
