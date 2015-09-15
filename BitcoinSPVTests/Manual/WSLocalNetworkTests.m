@@ -43,7 +43,7 @@
 {
     [super setUp];
 
-    WSParametersSetCurrentType(WSNetworkTypeRegtest);
+    self.networkType = WSNetworkTypeRegtest;
 }
 
 - (void)tearDown
@@ -53,15 +53,15 @@
 
 - (void)testMemorySync
 {
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithGenesisBlock];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store headersOnly:NO];
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.peerHosts = @[@"127.0.0.1",
                             @"173.230.142.58"];
 
-    peerGroup.maxConnections = 2;
     [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
+    [peerGroup startDownloadWithDownloader:downloader];
     [self runForever];
 }
 
@@ -181,7 +181,9 @@
 {
     NSString *storePath = [self mockPathForFile:@"LocalNetworkTests-Reorganize.sqlite"];
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:storePath error:NULL];
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store headersOnly:YES];
+    downloader.coreDataManager = manager;
     
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -190,7 +192,7 @@
         DDLogInfo(@"Downloaded block #%u: %@", block.height, block);
     }];
 
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.peerHosts = @[
                             @"127.0.0.1",
                             @"173.230.142.58"
@@ -199,10 +201,10 @@
     peerGroup.maxConnections = 2;
     [peerGroup startConnections];
     [self runForSeconds:3.0];
-    [peerGroup startBlockChainDownload];
+    [peerGroup startDownloadWithDownloader:downloader];
 //    [self runForever];
     [self runForSeconds:3.0];
-    [store save];
+    [peerGroup saveState];
 }
 
 //
@@ -231,19 +233,13 @@
     NSString *storePath = [self mockPathForFile:@"LocalNetworkTests-WalletSync.sqlite"];
     NSString *walletPath = [self mockPathForFile:@"LocalNetworkTests-WalletSync.wallet"];
 
-    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:storePath error:NULL];
-
     [[NSFileManager defaultManager] removeItemAtPath:walletPath error:NULL];
 
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
-    // WARNING: reset state
-    [store truncate];
-
     NSString *mnemonic = [self mockWalletMnemonic];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];
+    WSSeed *seed = WSSeedMakeUnknown(mnemonic);
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath parameters:self.networkParameters seed:seed];
     if (!wallet) {
-        WSSeed *seed = WSSeedMake(mnemonic, 0.0);
-        wallet = [[WSHDWallet alloc] initWithSeed:seed gapLimit:4];
+        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:seed gapLimit:4];
     }
 
     static dispatch_once_t onceToken;
@@ -275,11 +271,15 @@
         }];
     });
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+    downloader.coreDataManager = [[WSCoreDataManager alloc] initWithPath:storePath error:NULL];
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.peerHosts = @[@"127.0.0.1"];
     peerGroup.maxConnections = 1;
     [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
+    [peerGroup startDownloadWithDownloader:downloader];
 //    [self runForSeconds:10.0];
     [self runForever];
     
@@ -295,12 +295,14 @@
     NSString *walletPath = [self mockPathForFile:@"LocalNetworkTests-WalletSync.wallet"];
 
     WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:storePath error:NULL];
-    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
     WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
+    [chain loadFromCoreDataManager:manager];
+
     DDLogInfo(@"Blockchain: %@", [chain descriptionWithMaxBlocks:10]);
 
     NSString *mnemonic = [self mockWalletMnemonic];
-    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath mnemonic:mnemonic];
+    WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath parameters:self.networkParameters seed:WSSeedMakeUnknown(mnemonic)];
 
     [wallet sortTransactions];
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
