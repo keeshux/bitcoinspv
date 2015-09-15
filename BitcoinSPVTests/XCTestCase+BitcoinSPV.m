@@ -73,6 +73,13 @@ static id<WSParameters> networkParameters;
     return [testDirectory stringByAppendingPathComponent:file];
 }
 
+- (NSString *)mockNetworkPathForFilename:(NSString *)filename extension:(NSString *)extension
+{
+    NSString *file = [NSString stringWithFormat:@"%@-%@.%@", filename, WSNetworkTypeString(self.networkType), extension];
+    
+    return [self mockPathForFile:file];
+}
+
 - (void)runForever
 {
     running = YES;

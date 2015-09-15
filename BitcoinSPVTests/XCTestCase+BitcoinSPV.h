@@ -42,6 +42,7 @@
 - (NSString *)mockWalletMnemonic;
 - (WSSeed *)mockWalletSeed;
 - (NSString *)mockPathForFile:(NSString *)file;
+- (NSString *)mockNetworkPathForFilename:(NSString *)filename extension:(NSString *)extension;
 
 - (void)runForever;
 - (void)runForSeconds:(NSTimeInterval)seconds;
