@@ -85,6 +85,7 @@
 - (BOOL)appendBlockHeaders:(NSArray *)headers error:(NSError **)error; // WSBlockHeader
 - (BOOL)appendBlock:(WSBlock *)fullBlock error:(NSError **)error;
 - (BOOL)appendFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions error:(NSError **)error; // WSSignedTransaction
+- (void)truncateBlockChainForRescan;
 
 // entity handlers
 - (void)handleAddedBlock:(WSStorableBlock *)block;
@@ -263,12 +264,19 @@
 
 - (void)reconnectForDownload
 {
+    if (!self.downloadPeer) {
+        return;
+    }
     [self.peerGroup disconnectPeer:self.downloadPeer
                              error:WSErrorMake(WSErrorCodePeerGroupDownload, @"Rehashing download peer")];
 }
 
 - (void)rescanBlockChain
 {
+    if (!self.downloadPeer) {
+        [self truncateBlockChainForRescan];
+        return;
+    }
     [self.peerGroup disconnectPeer:self.downloadPeer
                              error:WSErrorMake(WSErrorCodePeerGroupRescan, @"Preparing for rescan")];
 }
@@ -311,17 +319,7 @@
             break;
         }
         case WSErrorCodePeerGroupRescan: {
-            DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
-
-            [self.store truncate];
-            [self.wallet removeAllTransactions];
-
-            const NSUInteger maxSize = self.blockChain.maxSize;
-            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
-            NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
-
-            DDLogDebug(@"Rescan, truncate complete");
-            [self.peerGroup.notifier notifyRescan];
+            [self truncateBlockChainForRescan];
             break;
         }
     }
@@ -910,6 +908,21 @@
     }
     
     return YES;
+}
+
+- (void)truncateBlockChainForRescan
+{
+    DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
+    
+    [self.store truncate];
+    [self.wallet removeAllTransactions];
+    
+    const NSUInteger maxSize = self.blockChain.maxSize;
+    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
+    NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+    
+    DDLogDebug(@"Rescan, truncate complete");
+    [self.peerGroup.notifier notifyRescan];
 }
 
 #pragma mark Entity handlers
