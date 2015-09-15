@@ -53,7 +53,7 @@
 
     self.pool = [[WSConnectionPool alloc] initWithParameters:self.networkParameters];
     self.bloomFilterParameters = [[WSBIP37FilterParameters alloc] init];
-    self.bloomFilterParameters.falsePositiveRate = WSPeerGroupDefaultBFRateMin;
+    self.bloomFilterParameters.falsePositiveRate = WSBlockChainDownloaderDefaultBFRateMin;
     DDLogInfo(@"Bloom filter parameters: %@", self.bloomFilterParameters);
 
     NSString *dnsSeed = [self.networkParameters dnsSeeds][0];
@@ -74,7 +74,7 @@
     }
 
     NSString *address = addresses[mrand48() % addresses.count];
-//    address = @"54.173.19.184";
+    address = @"5.9.123.81";
     self.peer = [self.pool openConnectionToPeerHost:address
                                          parameters:self.networkParameters
                                               flags:[[WSPeerFlags alloc] initWithNeedsBloomFiltering:YES]];
