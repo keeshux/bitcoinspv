@@ -270,6 +270,14 @@
 
         [self downloadBlockChain];
     }
+    // new peer is way ahead
+    else if (peer.lastBlockHeight > self.downloadPeer.lastBlockHeight + 10) {
+        DDLogInfo(@"Peer %@ connected, is way ahead of current download peer (%u >> %u)",
+                  peer, peer.lastBlockHeight, self.downloadPeer.lastBlockHeight);
+        
+        [self.peerGroup disconnectPeer:self.downloadPeer
+                                 error:WSErrorMake(WSErrorCodePeerGroupDownload, @"Found a better download peer")];
+    }
 }
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didDisconnectWithError:(NSError *)error
