@@ -93,6 +93,7 @@
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
 - (BOOL)maybeRebuildAndSendBloomFilter;
+- (void)logNewHead;
 
 @end
 
@@ -768,6 +769,8 @@
             return NO;
         }
         
+        [self logNewHead];
+
         for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
             [self handleAddedBlock:addedBlock];
         }
@@ -816,6 +819,8 @@
         return NO;
     }
     
+    [self logNewHead];
+
     for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
         if (![addedBlock.blockId isEqual:previousHead.blockId]) {
             [self handleAddedBlock:addedBlock];
@@ -864,6 +869,8 @@
         return NO;
     }
     
+    [self logNewHead];
+
     for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
         if (![addedBlock.blockId isEqual:previousHead.blockId]) {
             [self handleAddedBlock:addedBlock];
@@ -1032,6 +1039,13 @@
     }
     
     return YES;
+}
+
+- (void)logNewHead
+{
+    if ([self isSynced]) {
+        DDLogInfo(@"New head: %@", self.blockChain.head);
+    }
 }
 
 @end
