@@ -95,7 +95,7 @@
 - (BOOL)maybeRebuildAndSendBloomFilter;
 
 // macros
-- (void)logAddedBlock:(WSStorableBlock *)block onFork:(BOOL)onFork;
+- (void)logAddedBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location;
 
 @end
 
@@ -763,11 +763,11 @@
         WSStorableBlock *addedBlock = nil;
         __weak WSBlockChainDownloader *weakSelf = self;
         
-        BOOL onFork;
+        WSBlockChainLocation location;
         NSArray *connectedOrphans;
         addedBlock = [self.blockChain addBlockWithHeader:header
                                             transactions:nil
-                                                  onFork:&onFork
+                                                location:&location
                                          reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
             
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
@@ -792,7 +792,7 @@
             return NO;
         }
         
-        [self logAddedBlock:addedBlock onFork:onFork];
+        [self logAddedBlock:addedBlock location:location];
 
         for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
             [self handleAddedBlock:block];
@@ -811,12 +811,12 @@
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
-    BOOL onFork;
+    WSBlockChainLocation location;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
     addedBlock = [self.blockChain addBlockWithHeader:fullBlock.header
                                         transactions:fullBlock.transactions
-                                              onFork:&onFork
+                                            location:&location
                                      reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
@@ -841,7 +841,7 @@
         return NO;
     }
     
-    [self logAddedBlock:addedBlock onFork:onFork];
+    [self logAddedBlock:addedBlock location:location];
 
     for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
         if (![block.blockId isEqual:previousHead.blockId]) {
@@ -865,12 +865,12 @@
     WSStorableBlock *previousHead = nil;
     __weak WSBlockChainDownloader *weakSelf = self;
     
-    BOOL onFork;
+    WSBlockChainLocation location;
     NSArray *connectedOrphans;
     previousHead = self.blockChain.head;
     addedBlock = [self.blockChain addBlockWithHeader:filteredBlock.header
                                         transactions:transactions
-                                              onFork:&onFork
+                                            location:&location
                                      reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
@@ -895,7 +895,7 @@
         return NO;
     }
     
-    [self logAddedBlock:addedBlock onFork:onFork];
+    [self logAddedBlock:addedBlock location:location];
 
     for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
         if (![block.blockId isEqual:previousHead.blockId]) {
@@ -1069,17 +1069,25 @@
 
 #pragma mark Macros
 
-- (void)logAddedBlock:(WSStorableBlock *)block onFork:(BOOL)onFork
+- (void)logAddedBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location
 {
     NSParameterAssert(block);
     
     if ([self isSynced]) {
-        if (!onFork) {
-            DDLogInfo(@"New head: %@", block);
-        }
-        else {
-            DDLogInfo(@"New fork head: %@", block);
-            DDLogInfo(@"Fork base: %@", [self.blockChain findForkBaseFromHead:block]);
+        switch (location) {
+            case WSBlockChainLocationMain: {
+                DDLogInfo(@"New head: %@", block);
+                break;
+            }
+            case WSBlockChainLocationFork: {
+                DDLogInfo(@"New fork head: %@", block);
+                DDLogInfo(@"Fork base: %@", [self.blockChain findForkBaseFromHead:block]);
+                break;
+            }
+            case WSBlockChainLocationOrphan: {
+                DDLogInfo(@"New orphan: %@", block);
+                break;
+            }
         }
     }
 }

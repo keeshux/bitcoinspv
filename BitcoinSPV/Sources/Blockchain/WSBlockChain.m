@@ -175,14 +175,14 @@
 
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
-                                 onFork:(BOOL *)onFork
+                               location:(WSBlockChainLocation *)location
                         reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                        connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
                                   error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(header);
     
-    BOOL localOnFork = NO;
+    WSBlockChainLocation localLocation = WSBlockChainLocationMain;
     
     if ([header.blockId isEqual:self.head.blockId]) {
 
@@ -237,7 +237,7 @@
             [self.store removeTailBlock];
         }
         
-        [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:NO];
+        [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationMain];
     }
     // fork
     else {
@@ -251,10 +251,12 @@
             
             WSStorableBlock *orphan = [[WSStorableBlock alloc] initWithHeader:header transactions:transactions];
             self.orphans[header.blockId] = orphan;
+            addedBlock = orphan;
+            localLocation = WSBlockChainLocationOrphan;
 
-            [self.delegate blockChain:self didAddNewBlock:orphan onFork:NO];
+            [self.delegate blockChain:self didAddNewBlock:orphan location:WSBlockChainLocationOrphan];
 
-            return orphan;
+            return addedBlock;
         }
 
         DDLogDebug(@"Block %@ may be on a fork (head: %@)", header.blockId, forkHead.blockId);
@@ -272,9 +274,9 @@
 
                 [self.store putBlock:newForkHead];
                 addedBlock = newForkHead;
-                localOnFork = YES;
+                localLocation = WSBlockChainLocationFork;
 
-                [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
+                [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationFork];
             }
         }
         // fork is new best chain, reorganize
@@ -291,9 +293,9 @@
             [self.store putBlock:newForkHead];
             [self.store setHead:newForkHead];
             addedBlock = newForkHead;
-            localOnFork = YES;
+            localLocation = WSBlockChainLocationFork;
 
-            [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
+            [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationFork];
 
             if (reorganizeBlock) {
                 reorganizeBlock(forkBase, oldBlocks, newBlocks);
@@ -303,8 +305,8 @@
         }
     }
     
-    if (onFork) {
-        *onFork = localOnFork;
+    if (location) {
+        *location = localLocation;
     }
 
     // blockchain updated, orphans might not be anymore
@@ -334,10 +336,9 @@
 
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
-            BOOL onFork;
             WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
                                                            transactions:orphan.transactions
-                                                                 onFork:&onFork
+                                                               location:NULL
                                                         reorganizeBlock:reorganizeBlock
                                                        connectedOrphans:NULL
                                                                   error:NULL];

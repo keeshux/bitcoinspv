@@ -41,6 +41,12 @@
 
 @protocol WSBlockChainDelegate;
 
+typedef enum {
+    WSBlockChainLocationMain,
+    WSBlockChainLocationFork,
+    WSBlockChainLocationOrphan
+} WSBlockChainLocation;
+
 typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArray *);
 
 //
@@ -64,7 +70,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (WSStorableBlock *)addCheckpoint:(WSStorableBlock *)checkpoint error:(NSError **)error;
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
-                                 onFork:(BOOL *)onFork
+                               location:(WSBlockChainLocation *)location
                         reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                        connectedOrphans:(NSArray **)connectedOrphans
                                   error:(NSError **)error;
@@ -84,7 +90,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 
 @protocol WSBlockChainDelegate <NSObject>
 
-- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block onFork:(BOOL)onFork;
+- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location;
 - (void)blockChain:(WSBlockChain *)blockChain didReplaceHead:(WSStorableBlock *)head;
 - (void)blockChain:(WSBlockChain *)blockChain didReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 
