@@ -383,7 +383,8 @@
 {
     NSParameterAssert(head);
     NSParameterAssert(base);
-    NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
+    NSAssert([base isBehindBlock:head inChain:self], @"Head %@ (#%u) is not a descendant of fork base %@ (#%u)",
+             head.blockId, head.height, base.blockId, base.height);
 
     NSMutableArray *chain = [[NSMutableArray alloc] initWithCapacity:(head.height - base.height)];
 
