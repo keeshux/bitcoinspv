@@ -75,6 +75,13 @@
     return (ancestor != nil);
 }
 
+- (BOOL)isOrphanInChain:(WSBlockChain *)blockChain
+{
+    WSExceptionCheckIllegal(blockChain);
+    
+    return [blockChain isOrphanBlock:self];
+}
+
 - (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(blockChain);

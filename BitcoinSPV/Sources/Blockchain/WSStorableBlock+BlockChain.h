@@ -36,6 +36,7 @@
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain;
 - (WSStorableBlock *)previousBlockInChain:(WSBlockChain *)blockChain maxStep:(NSUInteger)maxStep lastPreviousBlock:(WSStorableBlock **)lastPreviousBlock;
 - (BOOL)isBehindBlock:(WSStorableBlock *)block inChain:(WSBlockChain *)blockChain;
+- (BOOL)isOrphanInChain:(WSBlockChain *)blockChain;
 - (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError **)error;
 - (BOOL)validateTargetFromPreviousBlock:(WSStorableBlock *)previousBlock retargetBlock:(WSStorableBlock *)retargetBlock error:(NSError **)error;
 
