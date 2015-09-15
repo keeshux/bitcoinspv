@@ -46,6 +46,8 @@ const uint32_t          WSSeedGeneratorDefaultEntropyBits               = 128;
 const uint32_t          WSBlockUnknownHeight                            = UINT32_MAX;
 const uint32_t          WSBlockUnknownTimestamp                         = UINT32_MAX;
 
+const NSUInteger        WSBlockChainDefaultMaxSize                      = 2500;
+
 const NSTimeInterval    WSPeerConnectTimeout                            = 3.0;
 const uint32_t          WSPeerProtocol                                  = 70002;
 const uint32_t          WSPeerMinProtocol                               = 70001;    // SPV mode required
@@ -64,7 +66,6 @@ const double            WSBlockChainDownloaderDefaultBFRateDelta        = 0.0004
 const double            WSBlockChainDownloaderDefaultBFObservedRateMax  = 10.0 * (WSBlockChainDownloaderDefaultBFRateMin + WSBlockChainDownloaderDefaultBFRateDelta);
 const double            WSBlockChainDownloaderDefaultBFLowPassRatio     = 0.01;     // 1%
 const NSUInteger        WSBlockChainDownloaderDefaultBFTxsPerBlock      = 600;
-const NSUInteger        WSBlockChainDownloaderDefaultBlockStoreSize     = 2500;
 const NSTimeInterval    WSBlockChainDownloaderDefaultRequestTimeout     = 5.0;
 
 const uint32_t          WSMessageVersionLocalhost                       = 0x0100007f;

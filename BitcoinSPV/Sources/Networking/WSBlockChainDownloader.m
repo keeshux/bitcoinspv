@@ -112,7 +112,6 @@
         self.bloomFilterObservedRateMax = WSBlockChainDownloaderDefaultBFObservedRateMax;
         self.bloomFilterLowPassRatio = WSBlockChainDownloaderDefaultBFLowPassRatio;
         self.bloomFilterTxsPerBlock = WSBlockChainDownloaderDefaultBFTxsPerBlock;
-        self.blockStoreSize = WSBlockChainDownloaderDefaultBlockStoreSize;
         self.requestTimeout = WSBlockChainDownloaderDefaultRequestTimeout;
 
         self.pendingBlockIds = [[NSCountedSet alloc] init];
@@ -123,6 +122,21 @@
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly
 {
+    return [self initWithStore:store maxSize:WSBlockChainDefaultMaxSize headersOnly:headersOnly];
+}
+
+- (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+{
+    return [self initWithStore:store maxSize:WSBlockChainDefaultMaxSize fastCatchUpTimestamp:fastCatchUpTimestamp];
+}
+
+- (instancetype)initWithStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
+{
+    return [self initWithStore:store maxSize:WSBlockChainDefaultMaxSize wallet:wallet];
+}
+
+- (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize headersOnly:(BOOL)headersOnly
+{
     WSExceptionCheckIllegal(store);
     if (!headersOnly) {
         WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
@@ -130,7 +144,7 @@
     
     if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
         self.wallet = nil;
         self.fastCatchUpTimestamp = 0;
 
@@ -140,14 +154,14 @@
     return self;
 }
 
-- (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
+- (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
     WSExceptionCheckIllegal(store);
     WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
 
     if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
         self.wallet = nil;
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
 
@@ -157,14 +171,14 @@
     return self;
 }
 
-- (instancetype)initWithStore:(id<WSBlockStore>)store wallet:(id<WSSynchronizableWallet>)wallet
+- (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize wallet:(id<WSSynchronizableWallet>)wallet
 {
     WSExceptionCheckIllegal(store);
     WSExceptionCheckIllegal(wallet);
 
     if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
         self.wallet = wallet;
         self.fastCatchUpTimestamp = [self.wallet earliestKeyTimestamp];
 
@@ -302,7 +316,8 @@
             [self.store truncate];
             [self.wallet removeAllTransactions];
 
-            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store];
+            const NSUInteger maxSize = self.blockChain.maxSize;
+            self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
             NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
 
             DDLogDebug(@"Rescan, truncate complete");

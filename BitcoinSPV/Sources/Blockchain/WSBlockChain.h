@@ -48,10 +48,11 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 //
 @interface WSBlockChain : NSObject <WSIndentableDescription>
 
-@property (nonatomic, assign) NSUInteger blockStoreSize;    // 2500
 @property (nonatomic, weak) id<WSBlockChainDelegate> delegate;
 
-- (instancetype)initWithStore:(id<WSBlockStore>)blockStore;
+- (instancetype)initWithStore:(id<WSBlockStore>)store;
+- (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize;
+- (NSUInteger)maxSize;
 
 - (WSStorableBlock *)head;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;

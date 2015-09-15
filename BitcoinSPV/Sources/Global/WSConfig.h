@@ -51,6 +51,8 @@ extern const uint32_t           WSSeedGeneratorDefaultEntropyBits;
 extern const uint32_t           WSBlockUnknownHeight;
 extern const uint32_t           WSBlockUnknownTimestamp;
 
+extern const NSUInteger         WSBlockChainDefaultMaxSize;
+
 extern const NSTimeInterval     WSPeerConnectTimeout;
 extern const uint32_t           WSPeerProtocol;
 extern const uint32_t           WSPeerMinProtocol;
@@ -69,7 +71,6 @@ extern const double             WSBlockChainDownloaderDefaultBFRateDelta;
 extern const double             WSBlockChainDownloaderDefaultBFObservedRateMax;
 extern const double             WSBlockChainDownloaderDefaultBFLowPassRatio;
 extern const NSUInteger         WSBlockChainDownloaderDefaultBFTxsPerBlock;
-extern const NSUInteger         WSBlockChainDownloaderDefaultBlockStoreSize;
 extern const NSTimeInterval     WSBlockChainDownloaderDefaultRequestTimeout;
 
 extern const uint32_t           WSMessageVersionLocalhost;

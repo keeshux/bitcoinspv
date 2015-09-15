@@ -33,6 +33,7 @@
 #import "WSBlockHeader.h"
 #import "WSBlockLocator.h"
 #import "WSLogging.h"
+#import "WSConfig.h"
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
 #import "WSCoreDataManager.h"
@@ -48,6 +49,7 @@
 @interface WSBlockChain ()
 
 @property (nonatomic, strong) id<WSBlockStore> store;
+@property (nonatomic, assign) NSUInteger maxSize;
 @property (nonatomic, strong) NSMutableDictionary *orphans; // WSHash256 -> WSStorableBlock
 @property (nonatomic, assign) BOOL doValidate;
 
@@ -58,15 +60,21 @@
 
 @implementation WSBlockChain
 
-- (instancetype)initWithStore:(id<WSBlockStore>)blockStore
+- (instancetype)initWithStore:(id<WSBlockStore>)store
 {
-    WSExceptionCheckIllegal(blockStore);
-    WSExceptionCheck(blockStore.head != nil, WSExceptionIllegalArgument, @"Missing head from blockStore (genesis block is required at a minimum)");
+    return [self initWithStore:store maxSize:WSBlockChainDefaultMaxSize];
+}
+
+- (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize
+{
+    WSExceptionCheckIllegal(store);
+    WSExceptionCheckIllegal(maxSize >= 2016);
+    WSExceptionCheck(store.head != nil, WSExceptionIllegalArgument, @"Missing head from blockStore (genesis block is required at a minimum)");
 
     if ((self = [super init])) {
-        self.store = blockStore;
+        self.store = store;
+        self.maxSize = maxSize;
         self.orphans = [[NSMutableDictionary alloc] init];
-        self.blockStoreSize = 2500;
 
         //
         // test networks (testnet3/regtest) validates blocks in
@@ -225,7 +233,7 @@
         [self.store setHead:newHead];
         addedBlock = newHead;
 
-        while (self.store.size > self.blockStoreSize) {
+        while (self.store.size > self.maxSize) {
             [self.store removeTailBlock];
         }
         
