@@ -51,14 +51,6 @@
 @property (nonatomic, strong) NSMutableDictionary *orphans; // WSHash256 -> WSStorableBlock
 @property (nonatomic, assign) BOOL doValidate;
 
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
-                           transactions:(NSOrderedSet *)transactions
-                                 onFork:(BOOL *)onFork
-                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
-                         connectOrphans:(BOOL)connectOrphans
-                       connectedOrphans:(NSArray **)connectedOrphans
-                                  error:(NSError *__autoreleasing *)error;
-
 - (NSArray *)connectCurrentOrphansWithReorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock;
 - (NSArray *)subchainFromHead:(WSStorableBlock *)head toBase:(WSStorableBlock *)base;
 
@@ -180,23 +172,6 @@
                        connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
                                   error:(NSError *__autoreleasing *)error
 {
-    return [self addBlockWithHeader:header
-                       transactions:transactions
-                             onFork:onFork
-                    reorganizeBlock:reorganizeBlock
-                     connectOrphans:YES
-                   connectedOrphans:connectedOrphans
-                              error:error];
-}
-
-- (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
-                           transactions:(NSOrderedSet *)transactions
-                                 onFork:(BOOL *)onFork
-                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
-                         connectOrphans:(BOOL)connectOrphans
-                       connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
-                                  error:(NSError *__autoreleasing *)error
-{
     WSExceptionCheckIllegal(header);
     
     BOOL localOnFork = NO;
@@ -226,7 +201,7 @@
             return nil;
         }
     }
-    if (connectOrphans && self.orphans[header.blockId]) {
+    if (connectedOrphans && self.orphans[header.blockId]) {
         DDLogDebug(@"Ignoring known orphan: %@", header.blockId);
         return nil;
     }
@@ -320,16 +295,13 @@
         }
     }
     
-    // blockchain updated, orphans might not be anymore
-    if (connectOrphans) {
-        NSArray *localConnectedOrphans = [self connectCurrentOrphansWithReorganizeBlock:reorganizeBlock];
-        if (connectedOrphans) {
-            *connectedOrphans = localConnectedOrphans;
-        }
-    }
-
     if (onFork) {
         *onFork = localOnFork;
+    }
+
+    // blockchain updated, orphans might not be anymore
+    if (connectedOrphans) {
+        *connectedOrphans = [self connectCurrentOrphansWithReorganizeBlock:reorganizeBlock];
     }
 
     return addedBlock;
@@ -355,20 +327,14 @@
             // orphan has a parent, try readding to main chain or some fork (non-recursive)
             DDLogDebug(@"Trying to connect orphan block %@", orphan.blockId);
             BOOL onFork;
-            NSArray *otherConnectedOrphans;
             WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
                                                            transactions:orphan.transactions
                                                                  onFork:&onFork
                                                         reorganizeBlock:reorganizeBlock
-                                                         connectOrphans:NO
-                                                       connectedOrphans:&otherConnectedOrphans
+                                                       connectedOrphans:NULL
                                                                   error:NULL];
             if (connectedOrphan) {
                 [allConnectedOrphans addObject:connectedOrphan];
-                anyConnected = YES;
-            }
-            if (otherConnectedOrphans) {
-                [allConnectedOrphans addObjectsFromArray:otherConnectedOrphans];
                 anyConnected = YES;
             }
 
