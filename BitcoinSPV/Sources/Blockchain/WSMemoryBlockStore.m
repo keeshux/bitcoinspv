@@ -41,8 +41,8 @@
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 @property (nonatomic, strong) NSMutableDictionary *blocks;          // WSHash256 -> WSStorableBlock
 @property (nonatomic, strong) NSMutableDictionary *nextIdsById;     // WSHash256 -> WSHash256
-@property (nonatomic, weak) WSStorableBlock *head;
-@property (nonatomic, weak) WSStorableBlock *tail;
+@property (nonatomic, strong) WSStorableBlock *head;
+@property (nonatomic, strong) WSStorableBlock *tail;
 
 @end
 

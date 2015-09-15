@@ -436,6 +436,8 @@
                 [self.store setHead:block];
             }
         }
+        
+#warning FIXME: reload store tail from Core Data
 
         DDLogInfo(@"Loaded blockchain (%u) from Core Data: %@", self.head.height, manager.storeURL);
     }];
