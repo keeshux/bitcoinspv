@@ -199,9 +199,7 @@
 {
     WSExceptionCheckIllegal(header);
     
-    if (onFork) {
-        *onFork = NO;
-    }
+    BOOL localOnFork = NO;
     
     if ([header.blockId isEqual:self.head.blockId]) {
 
@@ -250,21 +248,16 @@
         DDLogVerbose(@"Extending main chain to %u with block %@ (%u transactions)", newHead.height, header.blockId, transactions.count);
         [self.store putBlock:newHead];
         [self.store setHead:newHead];
+        addedBlock = newHead;
 
         while (self.store.size > self.blockStoreSize) {
             [self.store removeTailBlock];
         }
         
-        [self.delegate blockChain:self didAddNewBlock:newHead onFork:NO];
-
-        addedBlock = newHead;
+        [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:NO];
     }
     // fork
     else {
-        
-        if (onFork) {
-            *onFork = YES;
-        }
         
         // try connecting new block to fork
         WSStorableBlock *forkHead = [self.store blockForId:header.previousBlockId];
@@ -296,6 +289,7 @@
 
                 [self.store putBlock:newForkHead];
                 addedBlock = newForkHead;
+                localOnFork = YES;
 
                 [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
             }
@@ -314,6 +308,7 @@
             [self.store putBlock:newForkHead];
             [self.store setHead:newForkHead];
             addedBlock = newForkHead;
+            localOnFork = YES;
 
             [self.delegate blockChain:self didAddNewBlock:addedBlock onFork:YES];
 
@@ -331,6 +326,10 @@
         if (connectedOrphans) {
             *connectedOrphans = localConnectedOrphans;
         }
+    }
+
+    if (onFork) {
+        *onFork = localOnFork;
     }
 
     return addedBlock;
