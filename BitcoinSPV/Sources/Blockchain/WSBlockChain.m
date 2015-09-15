@@ -384,6 +384,20 @@
     return allConnectedOrphans;
 }
 
+- (BOOL)isBehindBlock:(WSStorableBlock *)block
+{
+    WSExceptionCheckIllegal(block);
+    
+    return (self.currentHeight < block.height);
+}
+
+- (BOOL)isOrphanBlock:(WSStorableBlock *)block
+{
+    WSExceptionCheckIllegal(block);
+    
+    return ![self.store blockForId:block.previousBlockId];
+}
+
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead
 {
     NSParameterAssert(forkHead);
@@ -421,13 +435,6 @@
     } while (![block isEqual:base]);
 
     return chain;
-}
-
-- (BOOL)isBehindBlock:(WSStorableBlock *)block
-{
-    WSExceptionCheckIllegal(block);
-
-    return (self.currentHeight < block.height);
 }
 
 #pragma mark Core Data
