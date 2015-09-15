@@ -427,8 +427,8 @@
     // only accept txs from most recently requested block
     WSHash256 *blockId = filteredBlock.header.blockId;
     if ([self.pendingBlockIds countForObject:blockId] > 1) {
-        DDLogDebug(@"%@ Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
-                   self, transaction.txId, blockId);
+        DDLogDebug(@"Drop transaction %@ from current filtered block %@ (outdated by new pending request)",
+                   transaction.txId, blockId);
         
         return NO;
     }
@@ -445,7 +445,7 @@
 
     [self.pendingBlockIds removeObject:blockId];
     if ([self.pendingBlockIds containsObject:blockId]) {
-        DDLogDebug(@"%@ Drop filtered block %@ (outdated by new pending request)", self, blockId);
+        DDLogDebug(@"Drop filtered block %@ (outdated by new pending request)", blockId);
         return;
     }
     
@@ -546,13 +546,15 @@
 
     WSStorableBlock *checkpoint = [self.parameters lastCheckpointBeforeTimestamp:self.fastCatchUpTimestamp];
     if (checkpoint) {
-        DDLogDebug(@"%@ Last checkpoint before catch-up: %@ (%@)",
-                   self, checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
+        DDLogDebug(@"Last checkpoint before catch-up: %@ (%@)",
+                   checkpoint, [NSDate dateWithTimeIntervalSince1970:checkpoint.header.timestamp]);
         
-        [self.blockChain addCheckpoint:checkpoint error:NULL];
+        if (![self.blockChain addCheckpoint:checkpoint error:NULL]) {
+            DDLogDebug(@"Checkpoint discarded, local blockchain is ahead");
+        }
     }
     else {
-        DDLogDebug(@"%@ No fast catch-up checkpoint", self);
+        DDLogDebug(@"No fast catch-up checkpoint");
     }
     
     const NSUInteger fromHeight = self.blockChain.currentHeight;
@@ -590,7 +592,7 @@
 {
     NSParameterAssert(locator);
 
-    DDLogDebug(@"%@ Behind catch-up (or headers-only mode), requesting headers with locator: %@", self, locator.hashes);
+    DDLogDebug(@"Behind catch-up (or headers-only mode), requesting headers with locator: %@", locator.hashes);
     [self.downloadPeer sendGetheadersMessageWithLocator:locator hashStop:nil];
 }
 
@@ -598,7 +600,7 @@
 {
     NSParameterAssert(locator);
 
-    DDLogDebug(@"%@ Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", self, locator.hashes);
+    DDLogDebug(@"Beyond catch-up (or full blocks mode), requesting block hashes with locator: %@", locator.hashes);
     [self.downloadPeer sendGetblocksMessageWithLocator:locator hashStop:nil];
 }
 
@@ -608,8 +610,8 @@
     
 //    const NSUInteger currentHeight = self.blockChain.currentHeight;
 //
-//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more headers ahead of time",
-//               self, currentHeight, self.lastBlockHeight);
+//    DDLogDebug(@"Still behind (%u < %u), requesting more headers ahead of time",
+//               currentHeight, self.lastBlockHeight);
     
     WSBlockHeader *firstHeader = [headers firstObject];
     WSBlockHeader *lastHeader = [headers lastObject];
@@ -625,7 +627,7 @@
 //    NSAssert(lastHeaderBeforeFCU, @"No headers should have been requested beyond catch-up");
     
     if (self.shouldDownloadBlocks && !lastHeaderBeforeFCU) {
-        DDLogInfo(@"%@ All received headers beyond catch-up, rerequesting blocks", self);
+        DDLogInfo(@"All received headers beyond catch-up, rerequesting blocks");
         
         [self requestBlocksWithLocator:self.startingBlockChainLocator];
     }
@@ -637,8 +639,8 @@
         }
         // we will cross fast catch-up, request blocks from crossing point
         else {
-            DDLogInfo(@"%@ Last header before catch-up at block %@, timestamp %u (%@)",
-                      self, lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
+            DDLogInfo(@"Last header before catch-up at block %@, timestamp %u (%@)",
+                      lastHeaderBeforeFCU.blockId, lastHeaderBeforeFCU.timestamp,
                       [NSDate dateWithTimeIntervalSince1970:lastHeaderBeforeFCU.timestamp]);
             
             WSBlockLocator *locator = [[WSBlockLocator alloc] initWithHashes:@[lastHeaderBeforeFCU.blockId, firstHeader.blockId]];
@@ -657,8 +659,8 @@
     
 //    const NSUInteger currentHeight = self.blockChain.currentHeight;
 //
-//    DDLogDebug(@"%@ Still behind (%u < %u), requesting more blocks ahead of time",
-//               self, currentHeight, self.lastBlockHeight);
+//    DDLogDebug(@"Still behind (%u < %u), requesting more blocks ahead of time",
+//               currentHeight, self.lastBlockHeight);
     
     WSHash256 *firstId = [hashes firstObject];
     WSHash256 *lastId = [hashes lastObject];
