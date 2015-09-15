@@ -139,9 +139,6 @@
 - (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize headersOnly:(BOOL)headersOnly
 {
     WSExceptionCheckIllegal(store);
-    if (!headersOnly) {
-        WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
-    }
     
     if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
@@ -158,7 +155,6 @@
 - (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp
 {
     WSExceptionCheckIllegal(store);
-    WSExceptionRaiseUnsupported(@"Full blocks download not yet implemented");
 
     if ((self = [self initWithParameters:store.parameters])) {
         self.store = store;
