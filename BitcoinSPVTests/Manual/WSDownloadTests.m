@@ -26,15 +26,11 @@
 //
 
 #import "XCTestCase+BitcoinSPV.h"
-#import "WSPeerGroup.h"
+#import "WSStorableBlock+BlockChain.h"
 
 @interface WSDownloadTests : XCTestCase
 
-@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, assign) volatile BOOL stopOnSync;
-
-- (id<WSBlockStore>)memoryStore;
-- (NSString *)storePath;
 
 @end
 
@@ -44,6 +40,8 @@
 {
     [super setUp];
 
+    self.networkType = WSNetworkTypeTestnet3;
+    
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
     [nc addObserverForName:WSPeerGroupDidStartDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -80,15 +78,13 @@
     [super tearDown];
 }
 
-- (void)testMemory
+- (void)testMemoryHeaders
 {
-    self.networkType = WSNetworkTypeTestnet3;
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store headersOnly:YES];
 
-    self.store = [self memoryStore];
-    
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store headersOnly:YES];
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 1;
+    peerGroup.maxConnections = 3;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
     [self runForever];
@@ -96,106 +92,85 @@
 
 - (void)testMemoryWithFCU
 {
-    self.networkType = WSNetworkTypeTestnet3;
-
-    self.store = [self memoryStore];
+    id<WSBlockStore> store = [self memoryStore];
     const uint32_t timestamp = WSTimestampFromISODate(@"2013-08-29");
-    
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:timestamp];
+
     DDLogInfo(@"Catch-up: %u", timestamp);
 
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store fastCatchUpTimestamp:timestamp];
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 1;
+    peerGroup.maxConnections = 3;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
     [self runForSeconds:10.0];
 }
 
-- (void)testPersistent
+- (void)testPersistentHeaders
 {
-    self.networkType = WSNetworkTypeTestnet3;
-
-    self.store = [self memoryStore];
-    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:self.storePath error:NULL];
-    
-//    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store fastCatchUpTimestamp:WSTimestampFromISODate(@"2012-04-18")];
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store headersOnly:YES];
-    downloader.coreDataManager = manager;
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store headersOnly:YES];
+    downloader.coreDataManager = [self persistentManager];
     
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 3;
-    peerGroup.maxConnectionFailures = 20;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-//    [self runForSeconds:5.0];
-//    [peerGroup stopDownload];
-//    [peerGroup stopConnectionsWithCompletionBlock:NULL];
     [self runForever];
 }
 
-- (void)testPersistentWithFCU_Test3
+- (void)testPersistentWithFCU
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    [self privateTestPersistentWithFCU];
-}
-
-- (void)testPersistentWithFCU_Main
-{
-    self.networkType = WSNetworkTypeMain;
-
-    [self privateTestPersistentWithFCU];
-}
-
-- (void)testPersistentStoredHeads
-{
-    self.networkType = WSNetworkTypeTestnet3;
-    self.store = [self persistentStoreTruncating:NO];
-    DDLogInfo(@"Test: %@", self.store.head);
-
-    self.networkType = WSNetworkTypeMain;
-    self.store = [self persistentStoreTruncating:NO];
-    DDLogInfo(@"Main: %@", self.store.head);
-}
-
-- (void)testPersistentStoredWork_Test3
-{
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    [self privateTestPersistentStoredWork];
-}
-
-- (void)testPersistentStoredWork_Main
-{
-    self.networkType = WSNetworkTypeMain;
-    
-    [self privateTestPersistentStoredWork];
-}
-
-- (void)testPersistent1
-{
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    // WARNING: check this, may clear all blockchain store!
-    self.store = [self persistentStoreTruncating:YES];
     self.stopOnSync = YES;
     
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store headersOnly:YES];
+    id<WSBlockStore> store = [self memoryStore];
+    const uint32_t timestamp = WSTimestampFromISODate(@"2013-02-09");
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:timestamp];
+    downloader.coreDataManager = [self persistentManager];
+
+    DDLogInfo(@"Catch-up: %u", timestamp);
+    
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 1;
+    peerGroup.maxConnections = 10;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-    
     [self runForever];
 }
 
-- (void)testPersistent2
+- (void)testPersistentStoredHead
 {
-    self.networkType = WSNetworkTypeTestnet3;
+    WSBlockChain *blockChain = [self persistentChain];
+    DDLogInfo(@"Head: %@", blockChain.head);
+}
+
+- (void)testPersistentStoredWork
+{
+    WSBlockChain *blockChain = [self persistentChain];
+    DDLogInfo(@"Head: %@", blockChain.head);
     
-    // WARNING: check this, may clear all blockchain store!
-    self.store = [self persistentStoreTruncating:NO];
+    //
+    // notice delta(work) changing at:
+    //
+    // 28 * 2016 = 56448 (+11)
+    // 27 * 2016 = 54432 (+12)
+    // 26 * 2016 = 52416 (+11)
+    // 25 * 2016 = 50400 (+7)
+    // 24 * 2016 = 48384 (+6)
+    // 23 * 2016 = 46368 (+4)
+    // ...
+    // ...
+
+    WSStorableBlock *block = blockChain.head;
+    while (block) {
+        DDLogInfo(@"Work at #%u = %@", block.height, block.workString);
+        block = [block previousBlockInChain:blockChain];
+    }
+}
+
+- (void)testAnalysis
+{
     self.stopOnSync = YES;
+    
+    id<WSBlockStore> store = [self memoryStore];
 
     // = ?, headers should stop at #266668
     const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-04");
@@ -207,9 +182,11 @@
 //    // = 1405288800, headers should stop at #268578
 //    const uint32_t timestamp = WSTimestampFromISODate(@"2014-07-14");
 
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:timestamp];
+    downloader.coreDataManager = [self persistentManager];
+
     DDLogInfo(@"Catch-up: %u", timestamp);
     
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store fastCatchUpTimestamp:timestamp];
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
@@ -238,31 +215,26 @@
 //    [self.store save];
 }
 
-- (void)testPersistent2StoredHead
+- (void)testAnalysisStoredHead
 {
-    self.networkType = WSNetworkTypeTestnet3;
-
-    self.store = [self persistentStoreTruncating:NO];
-    DDLogInfo(@"Head: %@", [self.store head]);
+    WSBlockChain *blockChain = [self persistentChain];
+    DDLogInfo(@"Head: %@", blockChain.head);
 }
 
-- (void)testPersistent2StoredChain
+- (void)testAnalysisStoredChain
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.store = [self persistentStoreTruncating:NO];
-    WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.store];
-    DDLogInfo(@"Chain: %@", [chain descriptionWithMaxBlocks:50]);
+    WSBlockChain *blockChain = [self persistentChain];
+    DDLogInfo(@"Chain: %@", [blockChain descriptionWithMaxBlocks:50]);
 }
 
-- (void)testPersistent2StoredBlock
+- (void)testAnalysisStoredBlock
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.store = [self persistentStoreTruncating:NO];
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChain *blockChain = [[WSBlockChain alloc] initWithStore:store];
+    [blockChain loadFromCoreDataManager:[self persistentManager]];
     
     WSHash256 *blockId = WSHash256FromHex(@"0000000000006a4ac43153c23121f95ce7cced8e18abcf6ece0235e6435472f5");
-    WSStorableBlock *block = [self.store blockForId:blockId];
+    WSStorableBlock *block = [store blockForId:blockId];
     
     DDLogInfo(@"Transactions in #%u = %u", block.height, block.transactions.count);
     XCTAssertEqual(block.height, 268977);
@@ -273,10 +245,8 @@
     }
 }
 
-//- (void)testPersistent2ConnectedTransactions
+//- (void)testAnalysisConnectedTransactions
 //{
-//    self.networkType = WSNetworkTypeTestnet3;
-//
 //    self.store = [self persistentStoreTruncating:NO];
 //
 //    // considering:
@@ -320,78 +290,6 @@
 //    }
 //}
 
-- (void)testMemorySearchingNullBlockChainBug
-{
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.store = [self memoryStore];
-    
-    const uint32_t timestamp = 1489667954;//1482932908 + mrand48() % 10000000;
-    
-    DDLogInfo(@"Catch-up: %u", timestamp);
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        [self stopRunning];
-        
-        [self performSelector:@selector(testMemorySearchingNullBlockChainBug) withObject:self afterDelay:2.0];
-    }];
-    
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store fastCatchUpTimestamp:timestamp];
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-//    peerGroup.peerHosts = @[@"203.69.212.66"];
-    peerGroup.maxConnections = 10;
-    [peerGroup startConnections];
-    [peerGroup startDownloadWithDownloader:downloader];
-    
-    [self runForever];
-}
-
-#pragma mark Reusable
-
-- (void)privateTestPersistentWithFCU
-{
-    // WARNING: check this, may clear all blockchain store!
-    self.store = [self persistentStoreTruncating:NO];
-    self.stopOnSync = YES;
-
-    const uint32_t timestamp = WSTimestampFromISODate(@"2013-02-09");
-    DDLogInfo(@"Catch-up: %u", timestamp);
-
-    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:self.store fastCatchUpTimestamp:timestamp];
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 10;
-    [peerGroup startConnections];
-    [peerGroup startDownloadWithDownloader:downloader];
-    
-    [self runForever];
-}
-
-- (void)privateTestPersistentStoredWork
-{
-    // WARNING: check this, may clear all blockchain store!
-    self.store = [self persistentStoreTruncating:NO];
-    
-    DDLogInfo(@"Head: %@", self.store.head);
-    
-    //
-    // notice delta(work) changing at:
-    //
-    // 28 * 2016 = 56448 (+11)
-    // 27 * 2016 = 54432 (+12)
-    // 26 * 2016 = 52416 (+11)
-    // 25 * 2016 = 50400 (+7)
-    // 24 * 2016 = 48384 (+6)
-    // 23 * 2016 = 46368 (+4)
-    // ...
-    // ...
-    //
-    //    WSStorableBlock *block = chain.head;
-    //    while (block) {
-    //        DDLogInfo(@"Work at #%u = %@", block.height, block.workString);
-    //        block = [block previousBlockInChain:chain];
-    //    }
-}
-
 #pragma mark Helpers
 
 - (id<WSBlockStore>)memoryStore
@@ -399,9 +297,21 @@
     return [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
 }
 
+- (WSCoreDataManager *)persistentManager
+{
+    return [[WSCoreDataManager alloc] initWithPath:[self storePath] error:NULL];
+}
+
+- (WSBlockChain *)persistentChain
+{
+    WSBlockChain *blockChain = [[WSBlockChain alloc] initWithStore:[self memoryStore]];
+    [blockChain loadFromCoreDataManager:[self persistentManager]];
+    return blockChain;
+}
+
 - (NSString *)storePath
 {
-    return [self mockNetworkPathForFilename:@"SyncTests" extension:@"sqlite"];
+    return [self mockNetworkPathForFilename:@"DownloadTests" extension:@"sqlite"];
     
 }
 
