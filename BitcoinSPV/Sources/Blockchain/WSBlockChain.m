@@ -252,7 +252,7 @@
             WSStorableBlock *orphan = [[WSStorableBlock alloc] initWithHeader:header transactions:transactions];
             self.orphans[header.blockId] = orphan;
 
-            [self.delegate blockChain:self didAddNewBlock:orphan onFork:YES];
+            [self.delegate blockChain:self didAddNewBlock:orphan onFork:NO];
 
             return orphan;
         }
