@@ -468,7 +468,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
 
 - (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block onFork:(BOOL)onFork
 {
-    DDLogInfo(@"Added block: %@", block);
+    DDLogInfo(@"Added block (%@): %@", (onFork ? @"fork" : @"main"), block);
     
     for (WSSignedTransaction *tx in block.transactions) {
         [self.wallet registerTransaction:tx didGenerateNewAddresses:NULL];
