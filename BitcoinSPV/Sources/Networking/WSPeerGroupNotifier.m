@@ -109,7 +109,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight
 {
-    DDLogInfo(@"Started download, status = %u/%u", fromHeight, toHeight);
+    DDLogInfo(@"Download started, status = %u/%u", fromHeight, toHeight);
 
     self.syncFromHeight = fromHeight;
     self.syncToHeight = toHeight;
@@ -135,7 +135,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         self.syncTaskId = UIBackgroundTaskInvalid;
     }
 
-    DDLogInfo(@"Finished download, %u -> %u", fromHeight, toHeight);
+    DDLogInfo(@"Download finished, %u -> %u", fromHeight, toHeight);
     
     [self notifyWithName:WSPeerGroupDidFinishDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
                                                                              WSPeerGroupDownloadToHeightKey: @(toHeight)}];
