@@ -92,12 +92,13 @@
 - (void)privateTestSerialize
 {
     WSMemoryBlockStore *store = [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store];
-//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:1386098130];
-//    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:WSTimestampFromISODate(@"2014-08-03")];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store headersOnly:YES];
+//    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:1386098130];
+//    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:WSTimestampFromISODate(@"2014-08-03")];
+
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 5;
-    peerGroup.headersOnly = YES;
-    [peerGroup startBlockChainDownload];
+    [peerGroup startDownloadWithDownloader:downloader];
     [peerGroup startConnections];
     
     [self runForever];
