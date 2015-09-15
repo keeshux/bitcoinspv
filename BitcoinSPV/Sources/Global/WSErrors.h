@@ -37,22 +37,29 @@ extern NSString *const          WSExceptionUnsupported;
 extern NSString *const          WSErrorDomain;
 
 typedef enum {
-    WSErrorCodeMalformed = 1001,
+    WSErrorCodeMaskGeneric              = 0x0100,
+    WSErrorCodeMalformed,
     WSErrorCodeUnknownMessage,
     WSErrorCodeUndecodableMessage,
     WSErrorCodeNetworking,
     WSErrorCodeConnectionTimeout,
+    WSErrorCodeWebService,
+    //
+    WSErrorCodeMaskPeerGroup            = 0x0200,
     WSErrorCodePeerGroupTimeout,
     WSErrorCodePeerGroupDownload,
     WSErrorCodePeerGroupStop,
     WSErrorCodePeerGroupRescan,
-    WSErrorCodeInvalidPartialMerkleTree,
+    //
+    WSErrorCodeMaskInvalid              = 0x0400,
     WSErrorCodeInvalidBlock,
+    WSErrorCodeInvalidPartialMerkleTree,
     WSErrorCodeInvalidTransaction,
+    //
+    WSErrorCodeMaskWallet               = 0x0800,
     WSErrorCodeInsufficientFunds,
     WSErrorCodeSignature,
-    WSErrorCodeBIP39BadMnemonic,
-    WSErrorCodeWebService
+    WSErrorCodeBIP39BadMnemonic
 } WSErrorCode;
 
 extern NSString *const          WSErrorMessageTypeKey;
@@ -75,3 +82,8 @@ void WSErrorSet(NSError **error, WSErrorCode code, NSString *format, ...);
 void WSErrorSetUserInfo(NSError **error, WSErrorCode code, NSDictionary *userInfo, NSString *format, ...);
 void WSErrorSetNotEnoughBytes(NSError **error, Class bufferClass, NSUInteger found, NSUInteger expected);
 void WSErrorSetNotEnoughMessageBytes(NSError **error, NSString *messageType, NSUInteger found, NSUInteger expected);
+
+static inline BOOL WSErrorCodeIsMask(WSErrorCode code, WSErrorCode mask)
+{
+    return ((code & 0xff00) == mask);
+}
