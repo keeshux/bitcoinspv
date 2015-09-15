@@ -65,7 +65,7 @@
 
 // WARNING: set properties before starting connections
 
-//@property (nonatomic, strong) NSArray *peerHosts;                           // nil
+@property (nonatomic, strong) NSArray *peerHosts;                           // nil
 @property (nonatomic, assign) NSUInteger maxConnections;                    // 3
 @property (nonatomic, assign) NSUInteger maxConnectionFailures;             // 20
 @property (nonatomic, assign) NSTimeInterval reconnectionDelayOnFailure;    // 10.0

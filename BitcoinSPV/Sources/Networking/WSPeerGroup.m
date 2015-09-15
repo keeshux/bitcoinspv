@@ -138,7 +138,7 @@
         self.reachability.delegateQueue = self.queue;
 
         // connection
-//        self.peerHosts = nil;
+        self.peerHosts = nil;
         self.maxConnections = WSPeerGroupDefaultMaxConnections;
         self.maxConnectionFailures = WSPeerGroupDefaultMaxConnectionFailures;
         self.reconnectionDelayOnFailure = WSPeerGroupDefaultReconnectionDelay;
@@ -165,12 +165,12 @@
     [self.reachability stopNotifier];
 }
 
-//- (void)setPeerHosts:(NSArray *)peerHosts
-//{
-//    _peerHosts = peerHosts;
-//    
-//    self.maxConnections = _peerHosts.count;
-//}
+- (void)setPeerHosts:(NSArray *)peerHosts
+{
+    _peerHosts = peerHosts;
+    
+    self.maxConnections = _peerHosts.count;
+}
 
 #pragma mark Connection (any queue)
 
@@ -579,9 +579,9 @@
 {
     DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
     
-//    if (self.peerHosts) {
-//        return;
-//    }
+    if (self.peerHosts) {
+        return;
+    }
 
     [self.inactiveAddresses addObjectsFromArray:addresses];
 
@@ -636,21 +636,13 @@
         return;
     }
     
-#warning TODO: fixed hosts list
-//    if (self.peerHosts.count > 0) {
-//        self.inactiveAddresses = [[NSMutableOrderedSet alloc] initWithCapacity:self.peerHosts.count];
-//        for (NSString *host in self.peerHosts) {
-//            
-//        }
-//        WSNetworkAddress *address = WSNetworkAddressMake(WSNetworkIPv4FromHost(host), [self.parameters peerPort], 0, WSCurrentTimestamp() - WSDatesOneWeek);
-//        NSArray *newAddresses = [self disconnectedAddressesWithHosts:self.peerHosts];
-//        [self.inactiveAddresses addObjectsFromArray:newAddresses];
-//        
-//        DDLogInfo(@"Connecting to inactive peers (available: %u)", self.inactiveAddresses.count);
-////        DDLogDebug(@"%@", self.inactiveAddresses);
-//        [self triggerConnectionsFromInactive];
-//        return;
-//    }
+    if (self.peerHosts.count > 0) {
+        DDLogInfo(@"Connecting to fixed peers (available: %u)", self.peerHosts.count);
+        for (NSString *host in self.peerHosts) {
+            [self openConnectionToPeerHost:host];
+        }
+        return;
+    }
 
     if (self.inactiveAddresses.count > 0) {
         [self triggerConnectionsFromInactive];
@@ -872,32 +864,32 @@
     // give up if no error (disconnected intentionally)
     if (!error) {
         DDLogDebug(@"Not recovering intentional disconnection from %@", peer);
+        return;
     }
-    else {
-        ++self.connectionFailures;
-        if (self.connectionFailures > self.maxConnectionFailures) {
+
+    ++self.connectionFailures;
+    if (self.connectionFailures > self.maxConnectionFailures) {
+        return;
+    }
+    
+    // reconnect if persistent
+    if (self.keepConnected) {
+        DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+        
+        if (self.connectionFailures == self.maxConnectionFailures) {
+            DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
+            [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
             return;
         }
         
-        // reconnect if persistent
-        if (self.keepConnected) {
-            DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
-            
-            if (self.connectionFailures == self.maxConnectionFailures) {
-                DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
-                [self reconnectAfterDelay:self.reconnectionDelayOnFailure];
-                return;
-            }
-            
-            if ([[self class] isHardNetworkError:error]) {
-                DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
-                [self removeInactiveHost:peer.remoteHost];
-            }
-            
-            if (self.connectedPeers.count < self.maxConnections) {
-                DDLogInfo(@"Searching for new peers");
-                [self connect];
-            }
+        if ([[self class] isHardNetworkError:error]) {
+            DDLogDebug(@"Hard error from peer %@", peer.remoteHost);
+            [self removeInactiveHost:peer.remoteHost];
+        }
+        
+        if (self.connectedPeers.count < self.maxConnections) {
+            DDLogInfo(@"Searching for new peers");
+            [self connect];
         }
     }
 }
