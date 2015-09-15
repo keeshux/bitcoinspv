@@ -164,7 +164,7 @@
 {
     WSExceptionCheckIllegal(checkpoint);
     
-    if (![self isBehindBlock:checkpoint]) {
+    if (![self.head isBehindBlock:checkpoint inChain:self]) {
         return nil;
     }
     WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:checkpoint.header transactions:nil height:checkpoint.height work:checkpoint.workData];
@@ -384,17 +384,6 @@
     return allConnectedOrphans;
 }
 
-- (BOOL)isBehindBlock:(WSStorableBlock *)block
-{
-    WSExceptionCheckIllegal(block);
-    
-    WSStorableBlock *ancestor = block;
-    while (ancestor && (ancestor.blockId != self.head.blockId)) {
-        ancestor = [ancestor previousBlockInChain:self];
-    }
-    return (ancestor != nil);
-}
-
 - (BOOL)isOrphanBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block);
@@ -428,7 +417,7 @@
 {
     NSParameterAssert(head);
     NSParameterAssert(base);
-//    NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
+    NSAssert(head.height > base.height, @"Head is not above base (%u <= %u)", head.height, base.height);
 
     NSMutableArray *chain = [[NSMutableArray alloc] initWithCapacity:(head.height - base.height)];
 

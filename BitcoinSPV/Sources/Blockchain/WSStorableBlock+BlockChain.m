@@ -63,6 +63,18 @@
     return previousBlock;
 }
 
+- (BOOL)isBehindBlock:(WSStorableBlock *)block inChain:(WSBlockChain *)blockChain
+{
+    WSExceptionCheckIllegal(block);
+    WSExceptionCheckIllegal(blockChain);
+    
+    WSStorableBlock *ancestor = block;
+    while (ancestor && ![ancestor.blockId isEqual:self.blockId]) {
+        ancestor = [ancestor previousBlockInChain:blockChain];
+    }
+    return (ancestor != nil);
+}
+
 - (BOOL)validateTargetInChain:(WSBlockChain *)blockChain error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(blockChain);
