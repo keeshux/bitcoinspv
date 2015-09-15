@@ -86,7 +86,7 @@
 
 - (instancetype)initWithChunks:(NSArray *)chunks
 {
-    WSExceptionCheckIllegal(chunks.count > 0);
+    WSExceptionCheckIllegal(chunks);
     
     if ((self = [super init])) {
         self.chunks = chunks;
