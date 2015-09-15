@@ -359,6 +359,8 @@
     NSMutableArray *requestInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
     NSMutableArray *requestBlockHashes = [[NSMutableArray alloc] initWithCapacity:inventories.count];
     
+#warning XXX: if !shouldDownloadBlocks, only download headers of new announced blocks
+    
     for (WSInventory *inv in inventories) {
         if ([inv isBlockInventory]) {
             if ([self needsBloomFiltering]) {
