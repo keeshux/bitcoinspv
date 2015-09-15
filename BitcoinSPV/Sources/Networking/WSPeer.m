@@ -114,6 +114,7 @@
 
 // helpers
 - (void)unsafeSendMessage:(id<WSMessage>)message;
+- (void)unsafeDelegateBlock:(void (^)())block;
 - (BOOL)tryFinishHandshake;
 
 #ifdef BSPV_TEST_MESSAGE_QUEUE
@@ -214,10 +215,10 @@
 
 - (void)processMessage:(id<WSMessage>)message
 {
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveNumberOfBytes:message.length];
         [self.delegate peerDidKeepAlive:self];
-    });
+    }];
     
     [self.handler submitBlock:^{
         if (message.originalLength < 1024) {
@@ -265,14 +266,14 @@
         _peerStatus = WSPeerStatusDisconnected;
     }
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         if (wasConnected) {
             [self.delegate peer:self didDisconnectWithError:error];
         }
         else {
             [self.delegate peer:self didFailToConnectWithError:error];
         }
-    });
+    }];
 }
 
 #pragma mark State
@@ -586,9 +587,9 @@
     
     const BOOL isLastRelay = ((message.addresses.count > 1) && (message.addresses.count < WSMessageAddrMaxCount));
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveAddresses:message.addresses isLastRelay:isLastRelay];
-    });
+    }];
 }
 
 - (void)receiveInvMessage:(WSMessageInv *)message
@@ -601,16 +602,16 @@
  
     DDLogDebug(@"%@ Received %u inventories", self, message.inventories.count);
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveInventories:inventories];
-    });
+    }];
 }
 
 - (void)receiveGetdataMessage:(WSMessageGetdata *)message
 {
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveDataRequestWithInventories:message.inventories];
-    });
+    }];
 }
 
 - (void)receiveNotfoundMessage:(WSMessageNotfound *)message
@@ -627,9 +628,9 @@
         return;
     }
     
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveTransaction:transaction];
-    });
+    }];
 }
 
 - (void)receiveBlockMessage:(WSMessageBlock *)message
@@ -642,9 +643,9 @@
         return;
     }
     
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveBlock:block];
-    });
+    }];
 }
 
 - (void)receiveHeadersMessage:(WSMessageHeaders *)message
@@ -663,9 +664,9 @@
         }
     }
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveHeaders:headers];
-    });
+    }];
 }
 
 - (void)receivePingMessage:(WSMessagePing *)message
@@ -675,9 +676,9 @@
 
 - (void)receivePongMessage:(WSMessagePong *)message
 {
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceivePongMesage:message];
-    });
+    }];
 }
 
 - (void)receiveMerkleblockMessage:(WSMessageMerkleblock *)message
@@ -693,9 +694,9 @@
 
 - (void)receiveRejectMessage:(WSMessageReject *)message
 {
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveRejectMessage:message];
-    });
+    }];
 }
 
 #pragma mark Complex messages
@@ -746,9 +747,9 @@
     self.currentFilteredBlock = nil;
     self.currentFilteredTransactions = nil;
     
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
-    });
+    }];
 }
 
 #pragma mark Helpers
@@ -764,9 +765,17 @@
 
     [self.handler writeMessage:message];
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peer:self didSendNumberOfBytes:message.length];
-    });
+    }];
+}
+
+- (void)unsafeDelegateBlock:(void (^)())block
+{
+    if (!self.delegate || !self.delegateQueue) {
+        return;
+    }
+    dispatch_async(self.delegateQueue, block);
 }
 
 - (BOOL)tryFinishHandshake
@@ -782,9 +791,9 @@
     
     DDLogDebug(@"%@ Handshake complete", self);
 
-    dispatch_async(self.delegateQueue, ^{
+    [self unsafeDelegateBlock:^{
         [self.delegate peerDidConnect:self];
-    });
+    }];
     
     return YES;
 }
