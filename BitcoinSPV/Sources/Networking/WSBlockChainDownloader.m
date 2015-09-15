@@ -392,7 +392,7 @@
     }
 
     NSError *error;
-    if (![self appendBlock:block error:&error]) {
+    if (![self appendBlock:block error:&error] && error) {
         [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
     }
 }
@@ -431,7 +431,7 @@
     [self.processingBlockIds removeObject:blockId];
 
     NSError *error;
-    if (![self appendFilteredBlock:filteredBlock withTransactions:transactions error:&error]) {
+    if (![self appendFilteredBlock:filteredBlock withTransactions:transactions error:&error] && error) {
         [peerGroup reportMisbehavingPeer:self.downloadPeer error:error];
     }
 }
