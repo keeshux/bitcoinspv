@@ -466,7 +466,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
 
 #pragma mark WSBlockChainDelegate
 
-- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block
+- (void)blockChain:(WSBlockChain *)blockChain didAddNewBlock:(WSStorableBlock *)block onFork:(BOOL)onFork
 {
     DDLogInfo(@"Added block: %@", block);
     
