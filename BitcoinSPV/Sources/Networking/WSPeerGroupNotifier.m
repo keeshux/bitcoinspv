@@ -169,10 +169,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
             DDLogInfo(@"Download progress = %u/%u (%.2f%%)", currentHeight, toHeight, 100.0 * progress);
         }
     }
-    // only notify blocks after sync
-    else {
-        [self notifyWithName:WSPeerGroupDidDownloadBlockNotification userInfo:@{WSPeerGroupDownloadBlockKey: block}];
-    }
+
+    [self notifyWithName:WSPeerGroupDidDownloadBlockNotification userInfo:@{WSPeerGroupDownloadBlockKey: block}];
 }
 
 - (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished
