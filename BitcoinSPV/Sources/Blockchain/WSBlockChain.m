@@ -436,7 +436,7 @@
     do {
         [chain addObject:block];
         block = [block previousBlockInChain:self];
-    } while (![block isEqual:base]);
+    } while (![block.blockId isEqual:base.blockId]);
 
     return chain;
 }
