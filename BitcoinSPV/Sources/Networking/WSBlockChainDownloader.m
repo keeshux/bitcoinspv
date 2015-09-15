@@ -30,6 +30,7 @@
 #import "WSBlockStore.h"
 #import "WSBlockChain.h"
 #import "WSBlockHeader.h"
+#import "WSBlock.h"
 #import "WSFilteredBlock.h"
 #import "WSTransaction.h"
 #import "WSStorableBlock.h"
@@ -82,7 +83,7 @@
 
 // blockchain
 - (BOOL)appendBlockHeaders:(NSArray *)headers error:(NSError **)error; // WSBlockHeader
-- (BOOL)appendBlock:(WSBlock *)block error:(NSError **)error;
+- (BOOL)appendBlock:(WSBlock *)fullBlock error:(NSError **)error;
 - (BOOL)appendFilteredBlock:(WSFilteredBlock *)filteredBlock withTransactions:(NSOrderedSet *)transactions error:(NSError **)error; // WSSignedTransaction
 
 // entity handlers
@@ -775,16 +776,54 @@
     return YES;
 }
 
-- (BOOL)appendBlock:(WSBlock *)block error:(NSError *__autoreleasing *)error
+- (BOOL)appendBlock:(WSBlock *)fullBlock error:(NSError *__autoreleasing *)error
 {
-    NSParameterAssert(block);
-
-#warning FIXME: handle full blocks, blockchain not extending in full blocks mode
+    NSParameterAssert(fullBlock);
 
     // a dummy "return NO" here would case download peer to be
     // disconnected as misbehaving each time a block is appended.
     // the problem is that the peer would seem to disconnect
     // "intentionally" because no disconnection error is specified
+
+    NSError *localError;
+    WSStorableBlock *block = nil;
+    WSStorableBlock *previousHead = nil;
+    __weak WSBlockChainDownloader *weakSelf = self;
+    
+    NSArray *connectedOrphans;
+    previousHead = self.blockChain.head;
+    block = [self.blockChain addBlockWithHeader:fullBlock.header transactions:fullBlock.transactions reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
+        
+        [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
+        
+    } connectedOrphans:&connectedOrphans error:&localError];
+    
+    if (!block) {
+        if (!localError) {
+            DDLogDebug(@"Block not added: %@", fullBlock);
+        }
+        else {
+            DDLogDebug(@"Error adding block (%@): %@", localError, fullBlock);
+            
+            if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
+                if (error) {
+                    *error = localError;
+                }
+            }
+        }
+        DDLogDebug(@"Current head: %@", self.blockChain.head);
+        
+        return NO;
+    }
+    
+    for (WSStorableBlock *addedBlock in [connectedOrphans arrayByAddingObject:block]) {
+        if (![addedBlock.blockId isEqual:previousHead.blockId]) {
+            [self handleAddedBlock:addedBlock];
+        }
+        else {
+            [self handleReplacedBlock:addedBlock];
+        }
+    }
 
     return YES;
 }
