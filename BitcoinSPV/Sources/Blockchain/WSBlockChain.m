@@ -176,8 +176,8 @@
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
                                location:(WSBlockChainLocation *)location
-                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                        connectedOrphans:(NSArray *__autoreleasing *)connectedOrphans
+                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                                   error:(NSError *__autoreleasing *)error
 {
     WSExceptionCheckIllegal(header);
@@ -339,8 +339,8 @@
             WSStorableBlock *connectedOrphan = [self addBlockWithHeader:orphan.header
                                                            transactions:orphan.transactions
                                                                location:NULL
-                                                        reorganizeBlock:reorganizeBlock
                                                        connectedOrphans:NULL
+                                                        reorganizeBlock:reorganizeBlock
                                                                   error:NULL];
             if (connectedOrphan) {
                 [allConnectedOrphans addObject:connectedOrphan];

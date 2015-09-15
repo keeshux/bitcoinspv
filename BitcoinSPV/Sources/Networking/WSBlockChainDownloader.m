@@ -768,11 +768,12 @@
         addedBlock = [self.blockChain addBlockWithHeader:header
                                             transactions:nil
                                                 location:&location
+                                        connectedOrphans:&connectedOrphans
                                          reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
             
             [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
             
-        } connectedOrphans:&connectedOrphans error:&localError];
+        } error:&localError];
         
         if (!addedBlock) {
             if (!localError) {
@@ -817,11 +818,12 @@
     addedBlock = [self.blockChain addBlockWithHeader:fullBlock.header
                                         transactions:fullBlock.transactions
                                             location:&location
+                                    connectedOrphans:&connectedOrphans
                                      reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
-    } connectedOrphans:&connectedOrphans error:&localError];
+    } error:&localError];
     
     if (!addedBlock) {
         if (!localError) {
@@ -871,11 +873,12 @@
     addedBlock = [self.blockChain addBlockWithHeader:filteredBlock.header
                                         transactions:transactions
                                             location:&location
+                                    connectedOrphans:&connectedOrphans
                                      reorganizeBlock:^(WSStorableBlock *base, NSArray *oldBlocks, NSArray *newBlocks) {
         
         [weakSelf handleReorganizeAtBase:base oldBlocks:oldBlocks newBlocks:newBlocks];
         
-    } connectedOrphans:&connectedOrphans error:&localError];
+    } error:&localError];
     
     if (!addedBlock) {
         if (!localError) {

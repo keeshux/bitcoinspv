@@ -71,8 +71,8 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (WSStorableBlock *)addBlockWithHeader:(WSBlockHeader *)header
                            transactions:(NSOrderedSet *)transactions
                                location:(WSBlockChainLocation *)location
-                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                        connectedOrphans:(NSArray **)connectedOrphans
+                        reorganizeBlock:(WSBlockChainReorganizeBlock)reorganizeBlock
                                   error:(NSError **)error;
 
 - (BOOL)isOrphanBlock:(WSStorableBlock *)block;
