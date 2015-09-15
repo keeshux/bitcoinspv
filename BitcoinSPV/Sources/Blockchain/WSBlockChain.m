@@ -164,9 +164,12 @@
 {
     WSExceptionCheckIllegal(checkpoint);
     
-    if (![self.head isBehindBlock:checkpoint inChain:self]) {
+    // weak check because checkpoint has no ancestors
+//    if (![self.head isBehindBlock:checkpoint inChain:self]) {
+    if (self.head.height >= checkpoint.height) {
         return nil;
     }
+
     WSStorableBlock *block = [[WSStorableBlock alloc] initWithHeader:checkpoint.header transactions:nil height:checkpoint.height work:checkpoint.workData];
     [self.store putBlock:block];
     [self.store setHead:block];
