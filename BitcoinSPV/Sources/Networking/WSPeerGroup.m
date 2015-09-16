@@ -521,6 +521,18 @@
 {
     DDLogVerbose(@"Received inventories from %@: %@", peer, inventories);
     
+    for (WSInventory *inv in inventories) {
+
+        // look for relayed transaction
+        if ((inv.inventoryType == WSInventoryTypeTx) &&
+            self.publishedTransactions[inv.inventoryHash]) {
+            
+            WSSignedTransaction *transaction = self.publishedTransactions[inv.inventoryHash];
+            const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+        }
+    }
+    
     if (!self.downloader) {
         return;
     }
