@@ -44,12 +44,6 @@
 
     self.networkType = WSNetworkTypeTestnet3;
     
-//    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-//        WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
-//
-//        DDLogInfo(@"Downloaded block: %@", block);
-//    }];
-
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         [self saveWallet:self.persistentWallet];
         
@@ -58,12 +52,17 @@
             [self stopRunning];
         }
     }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidRelayTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        WSSignedTransaction *tx = note.userInfo[WSPeerGroupRelayTransactionKey];
+        const BOOL isPublished = [note.userInfo[WSPeerGroupRelayIsPublishedKey] boolValue];
+        DDLogInfo(@"Relayed transaction (isPublished = %u): %@", isPublished, tx);
+    }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidRegisterTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         [self saveWallet:note.object];
         
         WSSignedTransaction *tx = note.userInfo[WSWalletTransactionKey];
-        DDLogInfo(@"Relayed transaction: %@", tx);
+        DDLogInfo(@"Registered transaction: %@", tx);
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateBalanceNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         id<WSWallet> wallet = note.object;
@@ -169,7 +168,7 @@
     DDLogInfo(@"Current change address: %@", wallet.changeAddress);
 }
 
-- (void)testSignedTransaction
+- (void)testBasicTransaction
 {
     WSHDWallet *wallet = [self loadWallet];
 
@@ -226,8 +225,11 @@
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 5;
     [peerGroup startConnections];
-    [self runForSeconds:3.0];
-    [peerGroup publishTransaction:tx];
+    [self runForSeconds:5.0];
+    if (![peerGroup publishTransaction:tx]) {
+        DDLogInfo(@"Publish failed, no connected peers");
+        return;
+    }
     [self runForever];
 }
 
@@ -266,38 +268,6 @@
     for (WSSignedTransaction *tx in txs) {
         [peerGroup publishTransaction:tx];
     }
-    [self runForever];
-}
-
-- (void)testSweep
-{
-    WSHDWallet *wallet = [self loadWallet];
-    
-    NSError *error;
-    WSAddress *address = WSAddressFromString(self.networkParameters, @"n1tUe8bgzDnyDv8V2P4iSrBUMUxXMX597E");
-    WSTransactionBuilder *builder = [wallet buildSweepTransactionToAddress:address fee:0 error:&error];
-    XCTAssertNotNil(builder, @"Unable to build transaction: %@", error);
-
-    WSSignedTransaction *tx = [wallet signedTransactionWithBuilder:builder error:&error];
-    XCTAssertNotNil(tx, @"Unable to sign transaction: %@", error);
-    
-    DDLogInfo(@"Tx: %@", tx);
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidRelayTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        WSSignedTransaction *published = note.userInfo[WSPeerGroupRelayTransactionKey];
-        const BOOL isPublished = [note.userInfo[WSPeerGroupRelayIsPublishedKey] boolValue];
-
-        if (isPublished && (published == tx)) {
-            DDLogInfo(@"Wallet emptied, leaving");
-            [self stopRunning];
-        }
-    }];
-    
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 5;
-    [peerGroup startConnections];
-    [self runForSeconds:3.0];
-    [peerGroup publishTransaction:tx];
     [self runForever];
 }
 
