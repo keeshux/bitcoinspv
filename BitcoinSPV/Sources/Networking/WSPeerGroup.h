@@ -95,6 +95,7 @@
 
 // interaction
 - (WSPeerGroupStatus *)statusWithNumberOfRecentBlocks:(NSUInteger)numberOfRecentBlocks;
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction;
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction safely:(BOOL)safely;
 - (void)saveState;
 

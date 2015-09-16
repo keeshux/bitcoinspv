@@ -383,6 +383,11 @@
     return status;
 }
 
+- (BOOL)publishTransaction:(WSSignedTransaction *)transaction
+{
+    return [self publishTransaction:transaction safely:NO];
+}
+
 - (BOOL)publishTransaction:(WSSignedTransaction *)transaction safely:(BOOL)safely
 {
     WSExceptionCheckIllegal(transaction);
