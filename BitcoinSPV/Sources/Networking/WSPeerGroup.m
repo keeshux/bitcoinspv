@@ -605,6 +605,47 @@
 - (void)peer:(WSPeer *)peer didReceiveDataRequestWithInventories:(NSArray *)inventories
 {
     DDLogDebug(@"Received data request from %@ with inventories: %@", peer, inventories);
+
+    NSMutableArray *notfoundInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
+    NSMutableDictionary *relayingPeersByTxId = [[NSMutableDictionary alloc] initWithCapacity:inventories.count];
+    
+    for (WSInventory *inv in inventories) {
+        
+        // we don't relay blocks
+        if (inv.inventoryType != WSInventoryTypeTx) {
+            [notfoundInventories addObject:inv];
+            continue;
+        }
+        
+        WSHash256 *txId = inv.inventoryHash;
+        WSSignedTransaction *transaction = self.publishedTransactions[txId];
+        
+        // requested transaction we don't own
+        if (!transaction) {
+            [notfoundInventories addObject:inv];
+            continue;
+        }
+        
+        [peer sendTxMessageWithTransaction:transaction];
+        
+        NSMutableArray *relayingPeers = relayingPeersByTxId[transaction.txId];
+        if (!relayingPeers) {
+            relayingPeers = [[NSMutableArray alloc] init];
+            relayingPeersByTxId[transaction.txId] = relayingPeers;
+        }
+        [relayingPeers addObject:peer.remoteHost];
+    }
+    
+    if (notfoundInventories.count > 0) {
+        [peer sendNotfoundMessageWithInventories:notfoundInventories];
+    }
+    
+    if (relayingPeersByTxId.count > 0) {
+        DDLogDebug(@"Published transactions to peers: %@", relayingPeersByTxId);
+    }
+    else {
+        DDLogDebug(@"No published transactions");
+    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message
