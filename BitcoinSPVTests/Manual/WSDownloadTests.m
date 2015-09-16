@@ -214,9 +214,10 @@
     //
     [peerGroup startDownloadWithDownloader:downloader];
     
-    [self runForever];
-//    [self runForSeconds:15.0];
-//    [self.store save];
+    [self runForSeconds:20.0];
+    [peerGroup saveState];
+    [self runForSeconds:5.0];
+//    [self runForever];
 }
 
 - (void)testAnalysisStoredHead
@@ -237,12 +238,12 @@
     WSBlockChain *blockChain = [[WSBlockChain alloc] initWithStore:store];
     [blockChain loadFromCoreDataManager:[self persistentManager]];
     
-    WSHash256 *blockId = WSHash256FromHex(@"0000000000006a4ac43153c23121f95ce7cced8e18abcf6ece0235e6435472f5");
+    WSHash256 *blockId = WSHash256FromHex(@"000000009c3754679ccef8a8a4266c4e5eb84fe1c1791e274ad7a617ff9874b6");
     WSStorableBlock *block = [store blockForId:blockId];
     
     DDLogInfo(@"Transactions in #%u = %u", block.height, block.transactions.count);
-    XCTAssertEqual(block.height, 268977);
-    XCTAssertEqual(block.transactions.count, 10);
+    XCTAssertEqual(block.height, 266749);
+    XCTAssertEqual(block.transactions.count, 198);
 
     for (WSSignedTransaction *tx in block.transactions) {
         DDLogInfo(@"%@", tx);
