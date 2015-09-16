@@ -1,5 +1,4 @@
 source 'https://github.com/CocoaPods/Specs.git'
-link_with 'BitcoinSPVTests', 'BitcoinSPVDemo'
 
 pod 'OpenSSL-Universal', '~> 1.0.1.l'
 pod 'CocoaLumberjack', '~> 1.9'

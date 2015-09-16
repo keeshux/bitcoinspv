@@ -20,4 +20,4 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 628fca2e88ef06f7cf6817309aa405f325d9a6fa
   OpenSSL-Universal: eeb215fff0c6b65b6ba8f4262ef52d3baf2df2d7
 
-COCOAPODS: 0.36.3
+COCOAPODS: 0.38.2
