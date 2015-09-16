@@ -600,7 +600,13 @@
         return;
     }
  
-    DDLogDebug(@"%@ Received %u inventories", self, message.inventories.count);
+    const NSUInteger count = message.inventories.count;
+    if (count < 10) {
+        DDLogDebug(@"%@ Received %u inventories: %@", self, count, message.inventories);
+    }
+    else {
+        DDLogDebug(@"%@ Received %u inventories", self, count);
+    }
 
     [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveInventories:inventories];
