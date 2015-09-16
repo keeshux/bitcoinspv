@@ -109,6 +109,26 @@
     [self runForever];
 }
 
+- (void)testRestartSync
+{
+    self.stopOnSync = YES;
+    
+    WSHDWallet *wallet = [self loadWallet];
+    self.persistentWallet = wallet;
+    
+    DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
+    
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+    downloader.coreDataManager = [self persistentManager];
+    
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
+    peerGroup.maxConnections = 5;
+    [peerGroup startConnections];
+    [peerGroup startDownloadWithDownloader:downloader];
+    [self runForever];
+}
+
 - (void)testRescan
 {
     self.stopOnSync = YES;
