@@ -46,6 +46,7 @@ Grouped by area:
 
 * Networking
     * Enter the P2P Bitcoin network ([WSPeerGroup](BitcoinSPV/Sources/Networking/WSPeerGroup.h)).
+    * Download the blockchain from the network ([WSBlockChainDownloader](BitcoinSPV/Sources/Networking/WSBlockChainDownloader.h)).
     * Connection pooling when dealing with multiple peers ([WSConnectionPool](BitcoinSPV/Sources/Networking/WSConnectionPool.h)).
     * Blockchain SPV synchronization with Bloom filtering for low bandwidth usage.
 
@@ -85,7 +86,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'BitcoinSPV', '~> 0.5-beta2'
+    pod 'BitcoinSPV', '~> 0.6'
 
 and run on the terminal:
 
@@ -128,12 +129,13 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
         // now's the time to backup the seed somewhere, show it to the user etc.
 
-        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
-
         id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:parameters];
-        WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
+        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
+        WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+        
+        WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:parameters];
         [peerGroup startConnections];
-        [peerGroup startBlockChainDownload];
+        [peerGroup startDownloadWithDownloader:downloader];
 
         // strongly retain peer group
         self.peerGroup = peerGroup;
@@ -149,12 +151,13 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
         WSSeed *seed = WSSeedMakeFromISODate(@"enter your bip39 mnemonic seed phrase", @"2014-02-28");
 
-        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
-
         id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:parameters];
-        WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:wallet];
+        WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:parameters seed:seed];
+        WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+        
+        WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:parameters];
         [peerGroup startConnections];
-        [peerGroup startBlockChainDownload];
+        [peerGroup startDownloadWithDownloader:downloader];
 
         // strongly retain peer group
         self.peerGroup = peerGroup;
