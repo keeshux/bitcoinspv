@@ -316,6 +316,9 @@
 
     DDLogDebug(@"Peer %@ disconnected, was download peer", peer);
 
+    [self.pendingBlockIds removeAllObjects];
+    [self.processingBlockIds removeAllObjects];
+
     switch (error.code) {
         case WSErrorCodePeerGroupDownload: {
             break;
