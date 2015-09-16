@@ -607,7 +607,7 @@
     DDLogDebug(@"Received data request from %@ with inventories: %@", peer, inventories);
 
     NSMutableArray *notfoundInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
-    NSMutableDictionary *relayingPeersByTxId = [[NSMutableDictionary alloc] initWithCapacity:inventories.count];
+    NSMutableSet *publishedTransactions = [[NSMutableSet alloc] initWithCapacity:inventories.count];
     
     for (WSInventory *inv in inventories) {
         
@@ -627,21 +627,15 @@
         }
         
         [peer sendTxMessageWithTransaction:transaction];
-        
-        NSMutableArray *relayingPeers = relayingPeersByTxId[transaction.txId];
-        if (!relayingPeers) {
-            relayingPeers = [[NSMutableArray alloc] init];
-            relayingPeersByTxId[transaction.txId] = relayingPeers;
-        }
-        [relayingPeers addObject:peer.remoteHost];
+        [publishedTransactions addObject:transaction.txId];
     }
     
     if (notfoundInventories.count > 0) {
         [peer sendNotfoundMessageWithInventories:notfoundInventories];
     }
     
-    if (relayingPeersByTxId.count > 0) {
-        DDLogDebug(@"Published transactions to peers: %@", relayingPeersByTxId);
+    if (publishedTransactions.count > 0) {
+        DDLogDebug(@"Published transactions to peer %@: %@", peer, publishedTransactions);
     }
     else {
         DDLogDebug(@"No published transactions");
