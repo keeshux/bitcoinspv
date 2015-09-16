@@ -114,7 +114,7 @@
 
 // helpers
 - (void)unsafeSendMessage:(id<WSMessage>)message;
-- (void)unsafeDelegateBlock:(void (^)())block;
+- (void)safelyDelegateBlock:(void (^)())block;
 - (BOOL)tryFinishHandshake;
 
 #ifdef BSPV_TEST_MESSAGE_QUEUE
@@ -215,7 +215,7 @@
 
 - (void)processMessage:(id<WSMessage>)message
 {
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveNumberOfBytes:message.length];
         [self.delegate peerDidKeepAlive:self];
     }];
@@ -266,7 +266,7 @@
         _peerStatus = WSPeerStatusDisconnected;
     }
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         if (wasConnected) {
             [self.delegate peer:self didDisconnectWithError:error];
         }
@@ -587,7 +587,7 @@
     
     const BOOL isLastRelay = ((message.addresses.count > 1) && (message.addresses.count < WSMessageAddrMaxCount));
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveAddresses:message.addresses isLastRelay:isLastRelay];
     }];
 }
@@ -602,14 +602,14 @@
  
     DDLogDebug(@"%@ Received %u inventories", self, message.inventories.count);
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveInventories:inventories];
     }];
 }
 
 - (void)receiveGetdataMessage:(WSMessageGetdata *)message
 {
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveDataRequestWithInventories:message.inventories];
     }];
 }
@@ -628,7 +628,7 @@
         return;
     }
     
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveTransaction:transaction];
     }];
 }
@@ -643,7 +643,7 @@
         return;
     }
     
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveBlock:block];
     }];
 }
@@ -664,7 +664,7 @@
         }
     }
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveHeaders:headers];
     }];
 }
@@ -676,7 +676,7 @@
 
 - (void)receivePongMessage:(WSMessagePong *)message
 {
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceivePongMesage:message];
     }];
 }
@@ -694,7 +694,7 @@
 
 - (void)receiveRejectMessage:(WSMessageReject *)message
 {
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveRejectMessage:message];
     }];
 }
@@ -747,7 +747,7 @@
     self.currentFilteredBlock = nil;
     self.currentFilteredTransactions = nil;
     
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didReceiveFilteredBlock:filteredBlock withTransactions:transactions];
     }];
 }
@@ -765,12 +765,12 @@
 
     [self.handler writeMessage:message];
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peer:self didSendNumberOfBytes:message.length];
     }];
 }
 
-- (void)unsafeDelegateBlock:(void (^)())block
+- (void)safelyDelegateBlock:(void (^)())block
 {
     if (!self.delegate || !self.delegateQueue) {
         return;
@@ -791,7 +791,7 @@
     
     DDLogDebug(@"%@ Handshake complete", self);
 
-    [self unsafeDelegateBlock:^{
+    [self safelyDelegateBlock:^{
         [self.delegate peerDidConnect:self];
     }];
     
