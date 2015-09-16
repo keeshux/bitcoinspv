@@ -61,7 +61,7 @@
     [nc addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
         
-        if (block.height % 100 == 0) {
+        if (block.height % 10 == 0) {
             DDLogInfo(@"Downloaded block #%u: %@", block.height, block);
         }
     }];
@@ -102,7 +102,8 @@
     peerGroup.maxConnections = 3;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-    [self runForSeconds:10.0];
+//    [self runForSeconds:10.0];
+    [self runForever];
 }
 
 - (void)testPersistentHeaders
@@ -133,7 +134,10 @@
     peerGroup.maxConnections = 10;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-    [self runForever];
+    [self runForSeconds:10.0];
+    [peerGroup saveState];
+    [self runForSeconds:5.0];
+//    [self runForever];
 }
 
 - (void)testPersistentStoredHead
