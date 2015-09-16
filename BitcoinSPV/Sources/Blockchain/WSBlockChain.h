@@ -42,6 +42,7 @@
 @protocol WSBlockChainDelegate;
 
 typedef enum {
+    WSBlockChainLocationNone,
     WSBlockChainLocationMain,
     WSBlockChainLocationFork,
     WSBlockChainLocationOrphan

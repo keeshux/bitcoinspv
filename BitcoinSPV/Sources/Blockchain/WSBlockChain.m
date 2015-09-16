@@ -185,7 +185,9 @@
 {
     WSExceptionCheckIllegal(header);
     
-    WSBlockChainLocation localLocation = WSBlockChainLocationMain;
+    if (location) {
+        *location = WSBlockChainLocationNone;
+    }
     
     if ([header.blockId isEqual:self.head.blockId]) {
 
@@ -202,6 +204,9 @@
 
             [self.store putBlock:newHead];
             [self.store setHead:newHead];
+            if (location) {
+                *location = WSBlockChainLocationMain;
+            }
             
             [self.delegate blockChain:self didReplaceHead:newHead];
 
@@ -209,6 +214,9 @@
         }
         else {
             DDLogDebug(@"Ignoring duplicated head: %@", header.blockId);
+            if (location) {
+                *location = WSBlockChainLocationMain;
+            }
             return nil;
         }
     }
@@ -238,6 +246,9 @@
         [self.store putBlock:newHead];
         [self.store setHead:newHead];
         addedBlock = newHead;
+        if (location) {
+            *location = WSBlockChainLocationMain;
+        }
 
         while (self.store.size > self.maxSize) {
             [self.store removeTail];
@@ -258,7 +269,9 @@
             WSStorableBlock *orphan = [[WSStorableBlock alloc] initWithHeader:header transactions:transactions];
             self.orphans[header.blockId] = orphan;
             addedBlock = orphan;
-            localLocation = WSBlockChainLocationOrphan;
+            if (location) {
+                *location = WSBlockChainLocationOrphan;
+            }
 
             [self.delegate blockChain:self didAddNewBlock:orphan location:WSBlockChainLocationOrphan];
 
@@ -274,13 +287,18 @@
 
             if (forkBase && [forkBase isEqual:newForkHead]) {
                 DDLogDebug(@"Ignoring duplicated block in main chain at height %u: %@", newForkHead.height, newForkHead.blockId);
+                if (location) {
+                    *location = WSBlockChainLocationMain;
+                }
             }
             else {
                 DDLogDebug(@"Extending fork to height %u with block %@ (%u transactions)", newForkHead.height, header.blockId, transactions.count);
 
                 [self.store putBlock:newForkHead];
                 addedBlock = newForkHead;
-                localLocation = WSBlockChainLocationFork;
+                if (location) {
+                    *location = WSBlockChainLocationFork;
+                }
 
                 [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationFork];
             }
@@ -299,7 +317,9 @@
             [self.store putBlock:newForkHead];
             [self.store setHead:newForkHead];
             addedBlock = newForkHead;
-            localLocation = WSBlockChainLocationFork;
+            if (location) {
+                *location = WSBlockChainLocationFork;
+            }
 
             [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationFork];
 
@@ -311,10 +331,6 @@
         }
     }
     
-    if (location) {
-        *location = localLocation;
-    }
-
     // blockchain updated, orphans might not be anymore
     if (connectedOrphans) {
         *connectedOrphans = [self connectCurrentOrphansWithReorganizeBlock:reorganizeBlock];
