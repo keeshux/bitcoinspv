@@ -53,6 +53,7 @@ static id<WSParameters> networkParameters;
 
 - (NSString *)mockWalletMnemonic
 {
+    // 70 transactions as of 09/16/2015
     return @"news snake whip verb camera renew siege never eager physical type wet";
 }
 
