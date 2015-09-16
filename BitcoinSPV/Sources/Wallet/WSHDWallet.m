@@ -313,6 +313,13 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
     }
 }
 
+- (NSArray *)unspentOutputs
+{
+    @synchronized (self) {
+        return [_unspentOutpoints array];
+    }
+}
+
 - (NSArray *)transactionsInRange:(NSRange)range
 {
     @synchronized (self) {

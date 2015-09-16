@@ -148,7 +148,9 @@
     NSArray *txs = wallet.allTransactions;
 
     DDLogInfo(@"Balance: %llu", wallet.balance);
+    DDLogInfo(@"UTXO: %@", wallet.unspentOutputs);
     DDLogInfo(@"Transactions: %u", txs.count);
+
     for (WSSignedTransaction *tx in txs) {
         DDLogInfo(@"%@", tx);
         DDLogInfo(@"Sent:     %llu", [wallet sentValueByTransaction:tx]);
@@ -158,6 +160,7 @@
         DDLogInfo(@"Value:    %lld", [wallet valueForTransaction:tx]);
         DDLogInfo(@"Fee:      %llu", [wallet feeForTransaction:tx]);
     }
+
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
     DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
     DDLogInfo(@"Watched receive addresses: %@", wallet.watchedReceiveAddresses);
@@ -209,7 +212,7 @@
     
     NSError *error;
     WSAddress *address = WSAddressFromString(self.networkParameters, @"mnChN9xy1zvyixmkof6yKxPyuuTb6YDPTX");
-    const uint64_t value = 100000;
+    const uint64_t value = 99000;
 
     WSTransactionBuilder *builder = [wallet buildTransactionToAddress:address forValue:value fee:0 error:&error];
     XCTAssertNotNil(builder, @"Unable to build transaction: %@", error);

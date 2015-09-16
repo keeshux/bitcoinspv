@@ -67,7 +67,8 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)isWalletAddress:(WSAddress *)address;
 
 // history
-- (NSArray *)allTransactions; // recent first
+- (NSArray *)allTransactions;               // WSSignedTransaction
+- (NSArray *)unspentOutputs;                // WSTransactionOutPoint
 - (NSArray *)transactionsInRange:(NSRange)range;
 - (uint64_t)receivedValueFromTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)sentValueByTransaction:(WSSignedTransaction *)transaction;
