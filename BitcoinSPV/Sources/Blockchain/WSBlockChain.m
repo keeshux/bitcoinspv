@@ -416,6 +416,8 @@
     WSExceptionCheckIllegal(manager);
     
     [self.store truncate];
+    
+#warning FIXME: load from Core Data is very, very slow
 
     __block NSArray *blockEntities = nil;
     [manager.context performBlockAndWait:^{
