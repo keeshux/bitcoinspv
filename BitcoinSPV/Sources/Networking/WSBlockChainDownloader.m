@@ -97,6 +97,8 @@
 
 // macros
 - (void)logAddedBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location;
+- (void)logRejectedBlock:(id)block error:(NSError *)error;
+- (void)storeRelevantError:(NSError *)error intoError:(NSError **)outError;
 
 @end
 
@@ -781,20 +783,8 @@
         } error:&localError];
         
         if (!addedBlock) {
-            if (!localError) {
-                DDLogDebug(@"Header not added: %@", header);
-            }
-            else {
-                DDLogDebug(@"Error adding header (%@): %@", localError, header);
-                
-                if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
-                    if (error) {
-                        *error = localError;
-                    }
-                }
-            }
-            DDLogDebug(@"Current head: %@", self.blockChain.head);
-            
+            [self logRejectedBlock:header error:localError];
+            [self storeRelevantError:localError intoError:error];
             return NO;
         }
         
@@ -831,20 +821,8 @@
     } error:&localError];
     
     if (!addedBlock) {
-        if (!localError) {
-            DDLogDebug(@"Block not added: %@", fullBlock);
-        }
-        else {
-            DDLogDebug(@"Error adding block (%@): %@", localError, fullBlock);
-            
-            if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
-                if (error) {
-                    *error = localError;
-                }
-            }
-        }
-        DDLogDebug(@"Current head: %@", self.blockChain.head);
-        
+        [self logRejectedBlock:fullBlock error:localError];
+        [self storeRelevantError:localError intoError:error];
         return NO;
     }
     
@@ -886,20 +864,8 @@
     } error:&localError];
     
     if (!addedBlock) {
-        if (!localError) {
-            DDLogDebug(@"Filtered block not added: %@", filteredBlock);
-        }
-        else {
-            DDLogDebug(@"Error adding filtered block (%@): %@", localError, filteredBlock);
-            
-            if ((localError.domain == WSErrorDomain) && (localError.code == WSErrorCodeInvalidBlock)) {
-                if (error) {
-                    *error = localError;
-                }
-            }
-        }
-        DDLogDebug(@"Current head: %@", self.blockChain.head);
-        
+        [self logRejectedBlock:filteredBlock error:localError];
+        [self storeRelevantError:localError intoError:error];
         return NO;
     }
     
@@ -1112,6 +1078,27 @@
                 break;
             }
         }
+    }
+}
+
+- (void)logRejectedBlock:(id)block error:(NSError *)error
+{
+    if (!error) {
+        DDLogDebug(@"%@ not added: %@", [block class], block);
+    }
+    else {
+        DDLogDebug(@"Error adding %@ (%@): %@", [block class], error, block);
+    }
+    DDLogDebug(@"Current head: %@", self.blockChain.head);
+}
+
+- (void)storeRelevantError:(NSError *)error intoError:(NSError *__autoreleasing *)outError
+{
+    if (!outError) {
+        return;
+    }
+    if ((error.domain == WSErrorDomain) && (error.code == WSErrorCodeInvalidBlock)) {
+        *outError = error;
     }
 }
 
