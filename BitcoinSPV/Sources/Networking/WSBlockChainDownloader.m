@@ -1077,6 +1077,9 @@
                 DDLogInfo(@"New orphan: %@", block);
                 break;
             }
+            case WSBlockChainLocationNone: {
+                break;
+            }
         }
     }
 }
