@@ -404,14 +404,11 @@
         self.publishedTransactions[transaction.txId] = transaction;
         
         // exclude one random peer to receive tx broadcast back
-        const NSUInteger excluded = arc4random() % self.connectedPeers.count;
+        NSMutableArray *publishingPeers = [[self.connectedPeers allValues] mutableCopy];
+        [publishingPeers removeObjectAtIndex:(arc4random() % publishingPeers.count)];
         
-        NSUInteger i = 0;
-        for (WSPeer *peer in [self.connectedPeers allValues]) {
-            if (i != excluded) {
-                [peer sendInvMessageWithInventory:WSInventoryTx(transaction.txId)];
-            }
-            ++i;
+        for (WSPeer *peer in publishingPeers) {
+            [peer sendInvMessageWithInventory:WSInventoryTx(transaction.txId)];
         }
         published = YES;
     });
