@@ -88,6 +88,7 @@
 // download
 - (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader;
 - (void)stopDownload;
+- (BOOL)isDownloading;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
 - (BOOL)reconnectForDownload;

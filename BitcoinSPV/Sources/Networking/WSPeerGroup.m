@@ -300,6 +300,17 @@
     });
 }
 
+- (BOOL)isDownloading
+{
+    __block BOOL isDownloading = NO;
+    dispatch_sync(self.queue, ^{
+        if (self.downloader) {
+            isDownloading = YES;
+        }
+    });
+    return isDownloading;
+}
+
 - (NSUInteger)currentHeight
 {
     __block NSUInteger currentHeight = NSNotFound;
