@@ -1,5 +1,5 @@
 //
-//  WSWalletNetworkTests.m
+//  WSDownloadWalletTests.m
 //  BitcoinSPV
 //
 //  Created by Davide De Rosa on 20/07/14.
@@ -29,34 +29,20 @@
 
 #define WALLET_GAP_LIMIT            10
 
-@interface WSWalletNetworkTests : XCTestCase
+@interface WSDownloadWalletTests : XCTestCase
 
-@property (nonatomic, copy) NSString *storeMainPath;
-@property (nonatomic, copy) NSString *storeTestPath;
-@property (nonatomic, copy) NSString *walletMainPath;
-@property (nonatomic, copy) NSString *walletTestPath;
-@property (nonatomic, strong) id<WSBlockStore> currentStore;
-@property (nonatomic, strong) NSString *currentWalletPath;
 @property (nonatomic, assign) volatile BOOL stopOnSync;
-
-- (id<WSBlockStore>)networkStore;
-- (NSString *)networkWalletPath;
-- (WSHDWallet *)loadWalletFromCurrentPath;
-- (void)saveWallet:(id<WSWallet>)wallet;
 
 @end
 
-@implementation WSWalletNetworkTests
+@implementation WSDownloadWalletTests
 
 - (void)setUp
 {
     [super setUp];
 
-    self.storeMainPath = [self mockPathForFile:@"WalletNetworkTests-Main.sqlite"];
-    self.storeTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.sqlite"];
-    self.walletMainPath = [self mockPathForFile:@"WalletNetworkTests-Main.wallet"];
-    self.walletTestPath = [self mockPathForFile:@"WalletNetworkTests-Test3.wallet"];
-
+    self.networkType = WSNetworkTypeTestnet3;
+    
 //    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidDownloadBlockNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 //        WSStorableBlock *block = note.userInfo[WSPeerGroupDownloadBlockKey];
 //
@@ -106,95 +92,63 @@
 
 - (void)testSync
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
     self.stopOnSync = YES;
 
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    WSHDWallet *wallet = [self loadWallet];
     if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self newWalletSeed] gapLimit:WALLET_GAP_LIMIT];
-        [wallet saveToPath:self.currentWalletPath];
+        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+        [wallet saveToPath:[self walletPath]];
         wallet.shouldAutosave = YES;
     }
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
+
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+    downloader.coreDataManager = [self persistentManager];
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 5;
     [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
-    
-    [self runForever];
-}
-
-- (void)testSyncPerformanceAndDroppedBlocks
-{
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    self.stopOnSync = YES;
-    
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
-    if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self newWalletSeed] gapLimit:WALLET_GAP_LIMIT];
-        [wallet saveToPath:self.currentWalletPath];
-        wallet.shouldAutosave = YES;
-    }
-    
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
-    peerGroup.maxConnections = 1;
-    peerGroup.peerHosts = @[@"91.250.86.18"];
-    [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
-    
+    [peerGroup startDownloadWithDownloader:downloader];
     [self runForever];
 }
 
 - (void)testRescan
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
     self.stopOnSync = YES;
     
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    WSHDWallet *wallet = [self loadWallet];
     if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self newWalletSeed] gapLimit:WALLET_GAP_LIMIT];
-        [wallet saveToPath:self.currentWalletPath];
+        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+        [wallet saveToPath:[self walletPath]];
         wallet.shouldAutosave = YES;
     }
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
+    downloader.coreDataManager = [self persistentManager];
+
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 3;
     [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
-    
-    [peerGroup performSelector:@selector(rescan) withObject:nil afterDelay:20.0];
-    
+    [peerGroup startDownloadWithDownloader:downloader];
+    [peerGroup performSelector:@selector(rescanBlockChain) withObject:nil afterDelay:20.0];
     [self runForever];
 }
 
 - (void)testChain
 {
-    self.networkType = WSNetworkTypeTestnet3;
-
-    self.currentStore = [self networkStore];
-    WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:self.currentStore];
+    id<WSBlockStore> store = [self memoryStore];
+    WSBlockChain *chain = [[WSBlockChain alloc] initWithStore:store];
+    [chain loadFromCoreDataManager:[self persistentManager]];
     
     DDLogInfo(@"Blockchain: %@", [chain descriptionWithMaxBlocks:50]);
 }
 
 - (void)testWallet
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    WSHDWallet *wallet = [self loadWallet];
 
     DDLogInfo(@"Balance: %llu", wallet.balance);
     DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
@@ -219,11 +173,7 @@
 
 - (void)testSignedTransaction
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    WSHDWallet *wallet = [self loadWallet];
 
     WSAddress *address = WSAddressFromString(self.networkParameters, @"mnChN9xy1zvyixmkof6yKxPyuuTb6YDPTX");
     
@@ -260,16 +210,7 @@
 
 - (void)testPublishTransactionSingleInput
 {
-    self.networkType = WSNetworkTypeTestnet3;
-    
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
-    
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
-    peerGroup.maxConnections = 2;
-    [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
+    WSHDWallet *wallet = [self loadWallet];
     
     NSError *error;
     WSAddress *address = WSAddressFromString(self.networkParameters, @"mnChN9xy1zvyixmkof6yKxPyuuTb6YDPTX");
@@ -284,26 +225,18 @@
 
     DDLogInfo(@"Tx: %@", tx);
     
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
+    peerGroup.maxConnections = 5;
+    [peerGroup startConnections];
     [self runForSeconds:3.0];
-
     [peerGroup publishTransaction:tx];
-    
     [self runForever];
 }
 
 - (void)testPublishTransactionMultipleInputs
 {
-    self.networkType = WSNetworkTypeTestnet3;
+    WSHDWallet *wallet = [self loadWallet];
     
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
-    
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
-    peerGroup.maxConnections = 2;
-    [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
-
     NSArray *addresses = @[WSAddressFromString(self.networkParameters, @"mvm26jv7vPUruu9RAgo4fL5ib5ewirdrgR"),  // account 5
                            WSAddressFromString(self.networkParameters, @"n2Rne11pvJBtpVX7KkinPcSs5JJdpLPvaz")]; // account 6
     
@@ -328,22 +261,19 @@
         DDLogInfo(@"Tx: %@", tx);
     }
     
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
+    peerGroup.maxConnections = 5;
+    [peerGroup startConnections];
     [self runForSeconds:3.0];
-
     for (WSSignedTransaction *tx in txs) {
         [peerGroup publishTransaction:tx];
     }
-    
     [self runForever];
 }
 
 - (void)testSweep
 {
-    self.networkType = WSNetworkTypeTestnet3;
-
-    self.currentStore = [self networkStore];
-    self.currentWalletPath = [self networkWalletPath];
-    WSHDWallet *wallet = [self loadWalletFromCurrentPath];
+    WSHDWallet *wallet = [self loadWallet];
     
     NSError *error;
     WSAddress *address = WSAddressFromString(self.networkParameters, @"n1tUe8bgzDnyDv8V2P4iSrBUMUxXMX597E");
@@ -365,69 +295,63 @@
         }
     }];
     
-    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithBlockStore:self.currentStore wallet:wallet];
+    WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
     peerGroup.maxConnections = 5;
     [peerGroup startConnections];
-    [peerGroup startBlockChainDownload];
-    
-    [self runForSeconds:2.0];
+    [self runForSeconds:3.0];
     [peerGroup publishTransaction:tx];
     [self runForever];
 }
 
 #pragma mark Helpers
 
-- (id<WSBlockStore>)networkStore
+- (id<WSBlockStore>)memoryStore
 {
-    NSString *path = nil;
-    if (self.networkType == WSNetworkTypeMain) {
-        path = self.storeMainPath;
-    }
-    else {
-        path = self.storeTestPath;
-    }
-    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:path error:NULL];
-    return [[WSCoreDataBlockStore alloc] initWithParameters:self.networkParameters manager:manager];
+    return [[WSMemoryBlockStore alloc] initWithParameters:self.networkParameters];
 }
 
-- (NSString *)networkWalletPath
+- (WSCoreDataManager *)persistentManager
 {
-    NSString *path = nil;
-    if (self.networkType == WSNetworkTypeMain) {
-        path = self.walletMainPath;
-    }
-    else {
-        path = self.walletTestPath;
-    }
-    return path;
+    return [[WSCoreDataManager alloc] initWithPath:[self storePath] error:NULL];
 }
 
-- (WSSeed *)newWalletSeed
+- (WSHDWallet *)loadWallet
 {
-//    // spam blocks around #205000 on testnet + dropped blocks analysis
-//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-01-01") - NSTimeIntervalSince1970;
-//    const NSTimeInterval creationTime = 1393813869 - NSTimeIntervalSince1970;
-
-    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-06-02") - NSTimeIntervalSince1970;
-//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
-//    const NSTimeInterval creationTime = 0.0;
-
-    return WSSeedMake([self mockWalletMnemonic], creationTime);
-}
-
-- (WSHDWallet *)loadWalletFromCurrentPath
-{
-    return [WSHDWallet loadFromPath:self.currentWalletPath parameters:self.networkParameters seed:[self mockWalletSeed]];
+    return [WSHDWallet loadFromPath:[self walletPath] parameters:self.networkParameters seed:[self walletSeed]];
 }
 
 - (void)saveWallet:(id<WSWallet>)wallet
 {
-    if ([wallet saveToPath:self.currentWalletPath]) {
-        DDLogInfo(@"Wallet successfully saved to %@", self.currentWalletPath);
+    NSString *path = [self walletPath];
+    if ([wallet saveToPath:path]) {
+        DDLogInfo(@"Wallet successfully saved to %@", path);
     }
     else {
-        DDLogInfo(@"Failed to save wallet to %@", self.currentWalletPath);
+        DDLogInfo(@"Failed to save wallet to %@", path);
     }
+}
+
+- (NSString *)storePath
+{
+    return [self mockNetworkPathForFilename:@"WalletNetworkTests" extension:@"sqlite"];
+}
+
+- (NSString *)walletPath
+{
+    return [self mockNetworkPathForFilename:@"WalletNetworkTests" extension:@"wallet"];
+}
+
+- (WSSeed *)walletSeed
+{
+//    // spam blocks around #205000 on testnet + dropped blocks analysis
+//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-01-01") - NSTimeIntervalSince1970;
+//    const NSTimeInterval creationTime = 1393813869 - NSTimeIntervalSince1970;
+    
+    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-06-02") - NSTimeIntervalSince1970;
+//    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
+//    const NSTimeInterval creationTime = 0.0;
+    
+    return WSSeedMake([self mockWalletMnemonic], creationTime);
 }
 
 @end
