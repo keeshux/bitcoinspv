@@ -318,7 +318,7 @@
             [self.store setHead:newForkHead];
             addedBlock = newForkHead;
             if (location) {
-                *location = WSBlockChainLocationFork;
+                *location = WSBlockChainLocationMain; // after reorg
             }
 
             [self.delegate blockChain:self didAddNewBlock:addedBlock location:WSBlockChainLocationFork];
