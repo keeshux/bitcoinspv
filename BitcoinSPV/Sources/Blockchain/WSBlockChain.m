@@ -214,6 +214,9 @@
     }
     if (connectedOrphans && self.orphans[header.blockId]) {
         DDLogDebug(@"Ignoring known orphan: %@", header.blockId);
+        if (location) {
+            *location = WSBlockChainLocationOrphan;
+        }
         return nil;
     }
 
