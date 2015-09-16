@@ -98,8 +98,6 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 @protocol WSSynchronizableWallet <WSWallet>
 
 - (uint32_t)earliestKeyTimestamp;
-- (NSOrderedSet *)allReceiveAddresses;
-- (NSOrderedSet *)allChangeAddresses;
 - (BOOL)generateAddressesIfNeeded;
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead;
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters;
