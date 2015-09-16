@@ -31,6 +31,7 @@
 
 @interface WSDownloadWalletTests : XCTestCase
 
+@property (nonatomic, strong) id<WSWallet> persistentWallet;
 @property (nonatomic, assign) volatile BOOL stopOnSync;
 
 @end
@@ -50,10 +51,7 @@
 //    }];
 
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-
-        // XXX
-        id<WSWallet> wallet = [note.object valueForKey:@"wallet"];
-        [self saveWallet:wallet];
+        [self saveWallet:self.persistentWallet];
         
         [self runForSeconds:3.0];
         if (self.stopOnSync) {
@@ -100,6 +98,7 @@
         [wallet saveToPath:[self walletPath]];
         wallet.shouldAutosave = YES;
     }
+    self.persistentWallet = wallet;
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
 
@@ -124,6 +123,7 @@
         [wallet saveToPath:[self walletPath]];
         wallet.shouldAutosave = YES;
     }
+    self.persistentWallet = wallet;
     
     id<WSBlockStore> store = [self memoryStore];
     WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
