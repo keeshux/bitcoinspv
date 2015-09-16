@@ -130,10 +130,10 @@
     downloader.coreDataManager = [self persistentManager];
 
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
-    peerGroup.maxConnections = 3;
+    peerGroup.maxConnections = 5;
     [peerGroup startConnections];
     [peerGroup startDownloadWithDownloader:downloader];
-    [peerGroup performSelector:@selector(rescanBlockChain) withObject:nil afterDelay:20.0];
+    [peerGroup rescanBlockChain];
     [self runForever];
 }
 
