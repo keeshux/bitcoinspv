@@ -112,7 +112,7 @@ static id<WSParameters> networkParameters;
 {
     id<WSMessage> lastMessage = nil;
     
-    NSUInteger i = 1;
+    unsigned i = 1;
     for (Class clazz in expectedClasses) {
         DDLogInfo(@"Waiting for message #%u...", i);
         lastMessage = [peer dequeueMessageSynchronouslyWithTimeout:timeout];

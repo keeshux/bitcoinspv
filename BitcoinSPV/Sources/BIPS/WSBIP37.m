@@ -197,8 +197,8 @@ static uint32_t WSBIP37MurmurHash3(NSData *data, uint32_t seed);
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"{size=%u, estimatedFalsePositiveRate=%f}",
-            self.size, self.estimatedFalsePositiveRate];
+    return [NSString stringWithFormat:@"{size=%lu, estimatedFalsePositiveRate=%f}",
+            (unsigned long)self.size, self.estimatedFalsePositiveRate];
 }
 
 #pragma mark NSCopying

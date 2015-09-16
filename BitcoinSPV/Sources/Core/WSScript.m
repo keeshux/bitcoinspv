@@ -204,7 +204,9 @@
         return NO;
     }
 
-    NSAssert(localSignatures.count == outNumberOfSignatures, @"Incorrect number of signatures (%u != %u)", localSignatures.count, outNumberOfSignatures);
+    NSAssert(localSignatures.count == outNumberOfSignatures, @"Incorrect number of signatures (%lu != %lu)",
+             (unsigned long)localSignatures.count,
+             (unsigned long)outNumberOfSignatures);
 
     if (signatures) {
         *signatures = localSignatures;
@@ -251,7 +253,7 @@
         return NO;
     }
     if (chunkN < chunkM) {
-        DDLogDebug(@"Invalid multiSig, N < M (%u < %u)", chunkN, chunkM);
+        DDLogDebug(@"Invalid multiSig, N < M (%lu < %lu)", (unsigned long)chunkN, (unsigned long)chunkM);
         return NO;
     }
     
@@ -859,7 +861,7 @@
                 [heightData getBytes:&_blockHeight length:heightData.length];
             }
             else {
-                DDLogVerbose(@"Corrupted height in coinbase script (length: %u)", heightData.length);
+                DDLogVerbose(@"Corrupted height in coinbase script (length: %lu)", (unsigned long)heightData.length);
                 self.blockHeight = WSBlockUnknownHeight;
             }
         }
@@ -1116,7 +1118,7 @@ NSString *WSScriptOpcodeString(WSScriptOpcode opcode)
         //        names[@(WSScriptOpcode_PUSHDATA2)]              = @"OP_PUSHDATA2";
         //        names[@(WSScriptOpcode_PUSHDATA4)]              = @"OP_PUSHDATA4";
         for (int numberOpcode = WSScriptOpcode_OP_1; numberOpcode <= WSScriptOpcode_OP_16; ++numberOpcode) {
-            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%d", WSScriptOpcodeToValue(numberOpcode)];
+            names[@(numberOpcode)] = [NSString stringWithFormat:@"OP_%ld", (long)WSScriptOpcodeToValue(numberOpcode)];
         }
         names[@(WSScriptOpcode_OP_RETURN)]              = @"RETURN";
         names[@(WSScriptOpcode_DUP)]                    = @"DUP";

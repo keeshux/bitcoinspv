@@ -56,7 +56,9 @@
 {
     const uint32_t txCount = (uint32_t)[self.txCount unsignedIntegerValue];
 
-    NSAssert((self.hashesData.length % WSHash256Length == 0), @"Corrupted hashesData, not multiple of %u", WSHash256Length);
+    NSAssert((self.hashesData.length % WSHash256Length == 0),
+             @"Corrupted hashesData, not multiple of %lu",
+             (unsigned long)WSHash256Length);
 
     const NSUInteger hashesCount = self.hashesData.length / WSHash256Length;
     NSMutableArray *hashes = [[NSMutableArray alloc] initWithCapacity:hashesCount];

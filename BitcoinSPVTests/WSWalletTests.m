@@ -80,7 +80,7 @@
     WSAddress *target = WSAddressFromString(self.networkParameters, @"mgjkgSBEfR2K4XZM1vM5xxYzFfTExsvYc9");
 
     BOOL found = NO;
-    NSUInteger c = 0;
+    int c = 0;
     for (id<WSBIP32Keyring> chain in chains) {
         for (int i = 0; i < 10; ++i) {
             id<WSBIP32Keyring> kr = [chain keyringForAccount:i];
@@ -192,7 +192,7 @@
         WSSignedTransaction *tx = WSTransactionFromHex(self.networkParameters, expTxHex);
         [txs addObject:tx];
 
-        DDLogInfo(@"Tx #%u: %@", txs.count, tx);
+        DDLogInfo(@"Tx #%lu: %@", (unsigned long)txs.count, tx);
 
         NSString *txHex = [[tx toBuffer] hexString];
         XCTAssertEqualObjects(txHex, expTxHex);

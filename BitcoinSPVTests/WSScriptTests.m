@@ -196,8 +196,8 @@
             const NSUInteger n = publicKeys.count;
 
             XCTAssertTrue(isMultiSig);
-            XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
-            DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
+            XCTAssertTrue((m == expM) && (n == expN), @"Not a %lu-of-%lu multiSig script", (unsigned long)expM, (unsigned long)expN);
+            DDLogInfo(@"MultiSig: %u (%lu-of-%lu)", isMultiSig, (unsigned long)m, (unsigned long)n);
             
             if (checkPublicKeys) {
                 XCTAssertEqualObjects(publicKeys, checkPublicKeys);
@@ -229,8 +229,8 @@
             }
 
             XCTAssertTrue(isMultiSig);
-            XCTAssertTrue((m == expM) && (n == expN), @"Not a %u-of-%u multiSig script", expM, expN);
-            DDLogInfo(@"MultiSig: %u (%u-of-%u)", isMultiSig, m, n);
+            XCTAssertTrue((m == expM) && (n == expN), @"Not a %lu-of-%lu multiSig script", (unsigned long)expM, (unsigned long)expN);
+            DDLogInfo(@"MultiSig: %u (%lu-of-%lu)", isMultiSig, (unsigned long)m, (unsigned long)n);
         }
     }
 }
@@ -370,14 +370,14 @@
 
         const NSUInteger scriptLength = [script estimatedSize];
         const NSUInteger expScriptLength = [expLengths[i] unsignedIntegerValue];
-        DDLogInfo(@"Length  : %u", scriptLength);
-        DDLogInfo(@"Expected: %u", expScriptLength);
+        DDLogInfo(@"Length  : %lu", (unsigned long)scriptLength);
+        DDLogInfo(@"Expected: %lu", (unsigned long)expScriptLength);
         XCTAssertEqual(scriptLength, expScriptLength);
 
         DDLogInfo(@"Script: %@", script);
         
         const uint32_t height = script.blockHeight;
-        const uint32_t expHeight = [expHeights[i] unsignedIntegerValue];
+        const uint32_t expHeight = (uint32_t)[expHeights[i] unsignedIntegerValue];
         DDLogInfo(@"Height  : %u", height);
         DDLogInfo(@"Expected: %u", expHeight);
         XCTAssertEqual(height, expHeight);

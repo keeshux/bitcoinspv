@@ -189,7 +189,9 @@
         return nil;
     }
     
-    NSAssert(self.builtHeader.length == WSMessageHeaderLength, @"Unexpected header length (%u != %u)", self.builtHeader.length, WSMessageHeaderLength);
+    NSAssert(self.builtHeader.length == WSMessageHeaderLength, @"Unexpected header length (%lu != %lu)",
+             (unsigned long)self.builtHeader.length,
+             (unsigned long)WSMessageHeaderLength);
     
     DDLogVerbose(@"%@ Deserialized header: %@", self.identifier, [self.builtHeader hexString]);
     if (ddLogLevel >= LOG_LEVEL_VERBOSE) {
@@ -197,7 +199,7 @@
             DDLogVerbose(@"%@ Deserialized payload: %@", self.identifier, [self.builtPayload hexString]);
         }
         else {
-            DDLogVerbose(@"%@ Deserialized payload: %u bytes (too long to display)", self.identifier, self.builtPayload.length);
+            DDLogVerbose(@"%@ Deserialized payload: %lu bytes (too long to display)", self.identifier, (unsigned long)self.builtPayload.length);
         }
     }
 

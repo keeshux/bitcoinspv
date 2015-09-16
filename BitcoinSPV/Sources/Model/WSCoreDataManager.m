@@ -55,7 +55,7 @@
     }
     
     NSArray *entities = [model entities];
-    DDLogDebug(@"Loaded %u entities from merged Core Data model", entities.count);
+    DDLogDebug(@"Loaded %lu entities from merged Core Data model", (unsigned long)entities.count);
     for (NSEntityDescription *entity in entities) {
         DDLogDebug(@"\t%@", entity.name);
     }

@@ -532,7 +532,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     }
     [self.wallet registerBlock:block];
 
-    DDLogInfo(@"Wallet transactions (%u): %@", self.wallet.allTransactions.count, self.wallet.allTransactions);
+    DDLogInfo(@"Wallet transactions (%lu): %@", (unsigned long)self.wallet.allTransactions.count, self.wallet.allTransactions);
 }
 
 - (void)blockChain:(WSBlockChain *)blockChain didReplaceHead:(WSStorableBlock *)head
@@ -547,7 +547,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     DDLogInfo(@"Reorganize: old blocks: %@", oldBlocks);
     DDLogInfo(@"Reorganize: new blocks: %@", newBlocks);
 
-    DDLogInfo(@"BEFORE: Wallet metadata (%u)", self.wallet.allTransactions.count);
+    DDLogInfo(@"BEFORE: Wallet metadata (%lu)", (unsigned long)self.wallet.allTransactions.count);
     for (WSSignedTransaction *tx in self.wallet.allTransactions) {
         WSTransactionMetadata *metadata = [self.wallet metadataForTransactionId:tx.txId];
         DDLogInfo(@"\t%@ -> %@", tx.txId, metadata);
@@ -555,7 +555,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
 
     [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:NULL];
 
-    DDLogInfo(@"AFTER: Wallet metadata (%u)", self.wallet.allTransactions.count);
+    DDLogInfo(@"AFTER: Wallet metadata (%lu)", (unsigned long)self.wallet.allTransactions.count);
     for (WSSignedTransaction *tx in self.wallet.allTransactions) {
         WSTransactionMetadata *metadata = [self.wallet metadataForTransactionId:tx.txId];
         DDLogInfo(@"\t%@ -> %@", tx.txId, metadata);
@@ -615,7 +615,7 @@ static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHa
     
     BN_CTX *ctx = BN_CTX_new();
     BN_set_bit(&bnLargest, 256);
-    BN_set_word(&bnWork, work);
+    BN_set_word(&bnWork, (unsigned)work);
     BN_div(&bnTarget, NULL, &bnLargest, &bnWork, ctx);
     BN_sub(&bnTarget, &bnTarget, BN_value_one());
     BN_CTX_free(ctx);
@@ -650,7 +650,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     NSMutableOrderedSet *txs = [[NSMutableOrderedSet alloc] initWithCapacity:3];
     WSHash256 *outpointTxId = WSHash256FromHex(@"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
     
-    for (NSUInteger i = 0; i < 1; ++i) {
+    for (unsigned i = 0; i < 1; ++i) {
         NSMutableString *hex = [[blockId.data hexString] mutableCopy];
         [hex replaceCharactersInRange:NSMakeRange(0, 2) withString:[NSString stringWithFormat:@"%u%u", i, i]];
         [hex replaceCharactersInRange:NSMakeRange(2, 6) withString:@"ffffff"];

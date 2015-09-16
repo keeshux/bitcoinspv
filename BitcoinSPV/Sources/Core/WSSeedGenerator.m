@@ -68,7 +68,7 @@
         DDLogInfo(@"No loaded wordList, reloading from: %@", self.wordsPath);
         NSString *wordListString = [NSString stringWithContentsOfFile:self.wordsPath encoding:NSUTF8StringEncoding error:NULL];
         NSArray *wordList = [wordListString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-        DDLogInfo(@"Loaded mnemonic wordList (%d words)", wordList.count);
+        DDLogInfo(@"Loaded mnemonic wordList (%lu words)", (unsigned long)wordList.count);
 //        DDLogVerbose(@"All words: %@", self.wordList);
         
         _bip39 = [[WSBIP39 alloc] initWithWordListNoCopy:wordList];

@@ -441,7 +441,9 @@
     [self.pendingPeers removeObjectForKey:peer.remoteHost];
     self.connectedPeers[peer.remoteHost] = peer;
     
-    DDLogInfo(@"Connected to %@ at height %u (active: %u)", peer, peer.lastBlockHeight, self.connectedPeers.count);
+    DDLogInfo(@"Connected to %@ at height %lu (active: %lu)", peer,
+              (unsigned long)peer.lastBlockHeight, (unsigned long)self.connectedPeers.count);
+
     DDLogInfo(@"Active peers: %@", self.connectedPeers);
 
     self.connectionFailures = 0;
@@ -475,7 +477,8 @@
 {
     [self.pendingPeers removeObjectForKey:peer.remoteHost];
 
-    DDLogInfo(@"Failed to connect to %@%@", peer, WSStringOptional(error, @" (%@)"));
+    DDLogInfo(@"Failed to connect to %@%@", peer,
+              WSStringOptional(error, @" (%@)"));
 
     [self handleConnectionFailureFromPeer:peer error:error];
 }
@@ -485,7 +488,10 @@
     [self.pendingPeers removeObjectForKey:peer.remoteHost];
     [self.connectedPeers removeObjectForKey:peer.remoteHost];
 
-    DDLogInfo(@"Disconnected from %@ (active: %u)%@", peer, self.connectedPeers.count, WSStringOptional(error, @" (%@)"));
+    DDLogInfo(@"Disconnected from %@ (active: %lu)%@", peer,
+              (unsigned long)self.connectedPeers.count,
+              WSStringOptional(error, @" (%@)"));
+
     DDLogInfo(@"Active peers: %@", self.connectedPeers);
     
     // group gets disconnected on last disconnection
@@ -602,7 +608,7 @@
 
 - (void)peer:(WSPeer *)peer didReceiveAddresses:(NSArray *)addresses isLastRelay:(BOOL)isLastRelay
 {
-    DDLogDebug(@"Received %u addresses from %@", addresses.count, peer);
+    DDLogDebug(@"Received %lu addresses from %@", (unsigned long)addresses.count, peer);
     
     if (self.peerHosts) {
         return;
@@ -684,7 +690,7 @@
 - (void)connect
 {
     if ([self unsafeHasReachedMaxAttempts]) {
-        DDLogInfo(@"Maximum connections or attempts reached (%u)", self.maxConnections);
+        DDLogInfo(@"Maximum connections or attempts reached (%lu)", (unsigned long)self.maxConnections);
         return;
     }
     if (![self.reachability isReachable]) {
@@ -697,7 +703,7 @@
     }
     
     if (self.peerHosts.count > 0) {
-        DDLogInfo(@"Connecting to fixed peers (available: %u)", self.peerHosts.count);
+        DDLogInfo(@"Connecting to fixed peers (available: %lu)", (unsigned long)self.peerHosts.count);
         for (NSString *host in self.peerHosts) {
             [self openConnectionToPeerHost:host];
         }
@@ -709,13 +715,15 @@
         return;
     }
     if ((self.connectedPeers.count > 0) || (self.pendingPeers.count > 0)) {
-        DDLogDebug(@"Active peers around, skip DNS discovery (connected: %u, pending: %u)", self.connectedPeers.count, self.pendingPeers.count);
+        DDLogDebug(@"Active peers around, skip DNS discovery (connected: %lu, pending: %lu)",
+                   (unsigned long)self.connectedPeers.count,
+                   (unsigned long)self.pendingPeers.count);
         return;
     }
     
     // first bootstrap is from DNS
     [self discoverNewHostsWithResolutionCallback:^(NSString *seed, NSArray *newHosts) {
-        DDLogDebug(@"Discovered %u new peers from %@", newHosts.count, seed);
+        DDLogDebug(@"Discovered %lu new peers from %@", (unsigned long)newHosts.count, seed);
         DDLogDebug(@"%@", newHosts);
         
         NSMutableArray *newAddresses = [[NSMutableArray alloc] initWithCapacity:newHosts.count];
@@ -738,7 +746,7 @@
             return;
         }
         
-        DDLogInfo(@"Connecting to discovered non-connected peers (available: %u)", newAddresses.count);
+        DDLogInfo(@"Connecting to discovered non-connected peers (available: %lu)", (unsigned long)newAddresses.count);
         DDLogDebug(@"%@", newAddresses);
         [self triggerConnectionsFromInactive];
     } failure:^(NSError *error) {
@@ -758,7 +766,7 @@
     
     // if discovery ongoing, fall back to current inactive hosts
     if (self.numberOfActiveResolutions > 0) {
-        DDLogWarn(@"Waiting for %u ongoing resolutions to complete", self.numberOfActiveResolutions);
+        DDLogWarn(@"Waiting for %lu ongoing resolutions to complete", (unsigned long)self.numberOfActiveResolutions);
         failure(WSErrorMake(WSErrorCodeNetworking, @"Another DNS discovery is still ongoing"));
         return;
     }
@@ -806,7 +814,7 @@
         self.ttlBySeed[dns] = [NSDate dateWithTimeIntervalSinceNow:self.seedTTL];
  
         if (rawAddresses.count > 0) {
-            DDLogDebug(@"%@ Resolved %u addresses", dns, rawAddresses.count);
+            DDLogDebug(@"%@ Resolved %lu addresses", dns, (unsigned long)rawAddresses.count);
             
             NSMutableArray *hosts = [[NSMutableArray alloc] init];
             
@@ -827,7 +835,7 @@
                 }
             }
             
-            DDLogDebug(@"%@ Retained %u resolved addresses (pruned ipv6)", dns, hosts.count);
+            DDLogDebug(@"%@ Retained %lu resolved addresses (pruned ipv6)", dns, (unsigned long)hosts.count);
             
             if (hosts.count > 0) {
                 dispatch_async(self.queue, ^{
@@ -860,7 +868,7 @@
         [self.inactiveAddresses removeObjectsInRange:NSMakeRange(WSPeerGroupMaxInactivePeers, self.inactiveAddresses.count - WSPeerGroupMaxInactivePeers)];
     }
     
-    DDLogDebug(@"Sorted %u inactive addresses", self.inactiveAddresses.count);
+    DDLogDebug(@"Sorted %lu inactive addresses", (unsigned long)self.inactiveAddresses.count);
 //    DDLogDebug(@">>> %@", self.inactiveAddresses);
 //
 //    // sequential
@@ -901,7 +909,7 @@
         [self.inactiveAddresses removeObject:address];
     }
     
-    DDLogDebug(@"Triggered %u new connections from inactive", triggered.count);
+    DDLogDebug(@"Triggered %lu new connections from inactive", (unsigned long)triggered.count);
 }
 
 - (void)openConnectionToPeerHost:(NSString *)host
@@ -934,7 +942,9 @@
     
     // reconnect if persistent
     if (self.keepConnected) {
-        DDLogDebug(@"Current connection failures %u/%u", self.connectionFailures, self.maxConnectionFailures);
+        DDLogDebug(@"Current connection failures %lu/%lu",
+                   (unsigned long)self.connectionFailures,
+                   (unsigned long)self.maxConnectionFailures);
         
         if (self.connectionFailures == self.maxConnectionFailures) {
             DDLogError(@"Too many failures, delaying reconnection for %.3fs", self.reconnectionDelayOnFailure);
@@ -974,7 +984,7 @@
     if (addressToRemove) {
         [self.inactiveAddresses removeObject:addressToRemove];
         
-        DDLogDebug(@"Removed host %@ from inactive (available: %u)", host, self.inactiveAddresses.count);
+        DDLogDebug(@"Removed host %@ from inactive (available: %lu)", host, (unsigned long)self.inactiveAddresses.count);
     }
 }
 

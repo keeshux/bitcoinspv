@@ -81,7 +81,8 @@
 
         offset += [block estimatedSize];
     }
-    NSAssert(offset == buffer.length, @"Malformed checkpoints file (consumed bytes: %u != %u)", offset, buffer.length);
+    NSAssert(offset == buffer.length, @"Malformed checkpoints file (consumed bytes: %lu != %lu)",
+             (unsigned long)offset, (unsigned long)buffer.length);
 
     [checkpoints enumerateObjectsUsingBlock:^(WSStorableBlock *cp, NSUInteger idx, BOOL *stop) {
         if (idx > 0) {

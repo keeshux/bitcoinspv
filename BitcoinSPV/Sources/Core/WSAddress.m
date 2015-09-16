@@ -73,7 +73,8 @@
     
     NSData *data = [encoded dataFromBase58Check];
     if (data.length != WSAddressLength) {
-        DDLogVerbose(@"Invalid Bitcoin address (length: %u != %u)", data.length, WSAddressLength);
+        DDLogVerbose(@"Invalid Bitcoin address (length: %lu != %lu)",
+                     (unsigned long)data.length, (unsigned long)WSAddressLength);
         return nil;
     }
     

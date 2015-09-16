@@ -47,7 +47,7 @@ static NSString *const          WSWebExplorerBiteasyObjectBlock             = @"
 static NSString *const          WSWebExplorerBiteasyObjectTransaction       = @"transactions";
 
 static NSString *const          WSWebExplorerBiteasyBaseAPIFormat           = @"https://api.biteasy.com/%@/v1/";
-static NSString *const          WSWebExplorerBiteasyUnspentPathFormat       = @"addresses/%@/unspent-outputs?page=%u&per_page=%u";
+static NSString *const          WSWebExplorerBiteasyUnspentPathFormat       = @"addresses/%@/unspent-outputs?page=%lu&per_page=%lu";
 static const NSUInteger         WSWebExplorerBiteasyUnspentPerPage          = 100;
 static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.0;
 
@@ -147,20 +147,34 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
         const NSUInteger estimatedTxSizeBefore = [builder estimatedSizeWithExtraInputs:nil outputs:1];
         const NSUInteger estimatedTxSizeAfter = [builder estimatedSizeWithExtraInputs:@[input] outputs:1];
         
-        DDLogVerbose(@"#%u Sweep transaction estimated size: %u->%u > %u ?",
-                     numberOfTransactions, estimatedTxSizeBefore, estimatedTxSizeAfter, maxTxSize);
+        DDLogVerbose(@"#%lu Sweep transaction estimated size: %lu->%lu > %lu ?",
+                     (unsigned long)numberOfTransactions,
+                     (unsigned long)estimatedTxSizeBefore,
+                     (unsigned long)estimatedTxSizeAfter,
+                     (unsigned long)maxTxSize);
         
         if (isLast || ((estimatedTxSizeBefore <= maxTxSize) && (estimatedTxSizeAfter > maxTxSize))) {
-            DDLogVerbose(@"#%u Sweep inputs (%u): %@", numberOfTransactions, builder.signableInputs.count, builder.signableInputs);
-            DDLogVerbose(@"#%u Sweep input value: %llu", numberOfTransactions, [builder inputValue]);
+
+            DDLogVerbose(@"#%lu Sweep inputs (%lu): %@",
+                         (unsigned long)numberOfTransactions,
+                         (unsigned long)builder.signableInputs.count, builder.signableInputs);
+
+            DDLogVerbose(@"#%lu Sweep input value: %llu",
+                         (unsigned long)numberOfTransactions,
+                         [builder inputValue]);
             
             if (![builder addSweepOutputAddress:toAddress fee:fee]) {
                 failure(WSErrorMake(WSErrorCodeInsufficientFunds, @"Unspent balance is less than fee + min output value"));
                 return;
             }
             
-            DDLogVerbose(@"#%u Sweep output value: %llu", numberOfTransactions, [builder outputValue]);
-            DDLogVerbose(@"#%u Sweep fee: %llu", numberOfTransactions, [builder fee]);
+            DDLogVerbose(@"#%lu Sweep output value: %llu",
+                         (unsigned long)numberOfTransactions,
+                         [builder outputValue]);
+
+            DDLogVerbose(@"#%lu Sweep fee: %llu",
+                         (unsigned long)numberOfTransactions,
+                         [builder fee]);
             
             NSError *error;
             NSDictionary *keys = @{fromAddress: fromKey};
@@ -172,7 +186,10 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
                 failure(error);
                 return;
             }
-            DDLogVerbose(@"#%u Sweep transaction: %@", numberOfTransactions, transaction);
+            DDLogVerbose(@"#%lu Sweep transaction: %@",
+                         (unsigned long)numberOfTransactions,
+                         transaction);
+
             ++numberOfTransactions;
             
             if (callback) {
@@ -221,7 +238,8 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
     id<WSParameters> parameters = address.parameters;
 
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyBaseAPIFormat, [self networkName]]];
-    NSString *path = [NSString stringWithFormat:WSWebExplorerBiteasyUnspentPathFormat, address, page, WSWebExplorerBiteasyUnspentPerPage];
+    NSString *path = [NSString stringWithFormat:WSWebExplorerBiteasyUnspentPathFormat,
+                      address, (unsigned long)page, (unsigned long)WSWebExplorerBiteasyUnspentPerPage];
     
     [[WSJSONClient sharedInstance] asynchronousRequestWithBaseURL:baseURL path:path success:^(NSInteger statusCode, id object) {
         NSDictionary *jsonData = object[@"data"];

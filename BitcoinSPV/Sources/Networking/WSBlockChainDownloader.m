@@ -715,7 +715,7 @@
 #warning XXX: outdatedIds size shouldn't overflow WSMessageMaxInventories
     
     if (outdatedIds.count > 0) {
-        DDLogDebug(@"Requesting %u outdated blocks with updated Bloom filter: %@", outdatedIds.count, outdatedIds);
+        DDLogDebug(@"Requesting %lu outdated blocks with updated Bloom filter: %@", (unsigned long)outdatedIds.count, outdatedIds);
         [self.downloadPeer sendGetdataMessageWithHashes:outdatedIds forInventoryType:WSInventoryTypeFilteredBlock];
     }
     else {
@@ -1020,8 +1020,10 @@
         return NO;
     }
     
-    DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %u, change: %u)",
-               self.blockChain.currentHeight, self.wallet.allReceiveAddresses.count, self.wallet.allChangeAddresses.count);
+    DDLogDebug(@"Bloom filter may be outdated (height: %lu, receive: %lu, change: %lu)",
+               (unsigned long)self.blockChain.currentHeight,
+               (unsigned long)self.wallet.allReceiveAddresses.count,
+               (unsigned long)self.wallet.allChangeAddresses.count);
     
     if ([self.wallet isCoveredByBloomFilter:self.bloomFilter]) {
         DDLogDebug(@"Wallet is still covered by current Bloom filter, not rebuilding");
@@ -1033,9 +1035,11 @@
     if ([self.wallet isKindOfClass:[WSHDWallet class]]) {
         WSHDWallet *hdWallet = (WSHDWallet *)self.wallet;
         
-        DDLogDebug(@"HD wallet: generating %u look-ahead addresses", hdWallet.gapLimit);
+        DDLogDebug(@"HD wallet: generating %lu look-ahead addresses", (unsigned long)hdWallet.gapLimit);
         [hdWallet generateAddressesWithLookAhead:hdWallet.gapLimit];
-        DDLogDebug(@"HD wallet: receive: %u, change: %u)", hdWallet.allReceiveAddresses.count, hdWallet.allChangeAddresses.count);
+        DDLogDebug(@"HD wallet: receive: %lu, change: %lu)",
+                   (unsigned long)hdWallet.allReceiveAddresses.count,
+                   (unsigned long)hdWallet.allChangeAddresses.count);
     }
     
     [self rebuildBloomFilter];

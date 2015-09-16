@@ -68,8 +68,10 @@
 - (instancetype)initWithData:(NSData *)data
 {
     if ((data.length != WSPublicKeyUncompressedLength) && (data.length != WSPublicKeyCompressedLength)) {
-        DDLogVerbose(@"Incorrect public key data (length: %u != %u | %u)",
-                     data.length, WSPublicKeyUncompressedLength, WSPublicKeyCompressedLength);
+        DDLogVerbose(@"Incorrect public key data (length: %lu != %lu | %lu)",
+                     (unsigned long)data.length,
+                     (unsigned long)WSPublicKeyUncompressedLength,
+                     (unsigned long)WSPublicKeyCompressedLength);
 
         return nil;
     }

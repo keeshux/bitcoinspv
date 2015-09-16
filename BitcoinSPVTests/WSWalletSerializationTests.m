@@ -96,7 +96,7 @@
             break;
         }
     }
-    DDLogInfo(@"Receive (%d): %@", addresses.count, addresses);
+    DDLogInfo(@"Receive (%lu): %@", (unsigned long)addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expReceiveAddresses);
 
     addresses = [[NSMutableArray alloc] init];
@@ -106,7 +106,7 @@
             break;
         }
     }
-    DDLogInfo(@"Change (%d): %@", addresses.count, addresses);
+    DDLogInfo(@"Change (%lu): %@", (unsigned long)addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expChangeAddresses);
 
     wallet = [self rehashWallet:wallet];
@@ -118,7 +118,7 @@
             break;
         }
     }
-    DDLogInfo(@"Deserialized receive (%d): %@", addresses.count, addresses);
+    DDLogInfo(@"Deserialized receive (%lu): %@", (unsigned long)addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expReceiveAddresses);
 
     addresses = [[NSMutableArray alloc] init];
@@ -128,7 +128,7 @@
             break;
         }
     }
-    DDLogInfo(@"Deserialized change (%d): %@", addresses.count, addresses);
+    DDLogInfo(@"Deserialized change (%lu): %@", (unsigned long)addresses.count, addresses);
     XCTAssertEqualObjects(addresses, expChangeAddresses);
 }
 

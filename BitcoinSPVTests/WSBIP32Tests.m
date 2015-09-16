@@ -133,7 +133,7 @@
                           @"xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc",
                           @"xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j"];
     
-    NSUInteger i = 0;
+    unsigned i = 0;
     for (NSString *n in nodes) {
         WSBIP32Node *node = [WSBIP32Node nodeWithString:n];
         if (node) {
@@ -151,8 +151,8 @@
         DDLogInfo(@"%@ (PRV): %@", n, [testPriv hexFromBase58Check]);
         DDLogInfo(@"");
         
-        XCTAssertEqualObjects([epubKey serializedKey], testPub, @"Depth %d", i);
-        XCTAssertEqualObjects([eprivKey serializedKey], testPriv, @"Depth %d", i);
+        XCTAssertEqualObjects([epubKey serializedKey], testPub, @"Depth %u", i);
+        XCTAssertEqualObjects([eprivKey serializedKey], testPriv, @"Depth %u", i);
         
         ++i;
     }
@@ -338,19 +338,19 @@
     NSTimeInterval startTime;
     
     startTime = [NSDate timeIntervalSinceReferenceDate];
-    for (NSUInteger i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         [bip32 privateKeyForAccount:i];
     }
     DDLogInfo(@"%u private keys = %.3fs", count, [NSDate timeIntervalSinceReferenceDate] - startTime);
 
     startTime = [NSDate timeIntervalSinceReferenceDate];
-    for (NSUInteger i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         [bip32 publicKeyForAccount:i];
     }
     DDLogInfo(@"%u public keys = %.3fs", count, [NSDate timeIntervalSinceReferenceDate] - startTime);
 
     startTime = [NSDate timeIntervalSinceReferenceDate];
-    for (NSUInteger i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         [[bip32 privateKeyForAccount:i] publicKey];
     }
     DDLogInfo(@"%u public keys (indirect) = %.3fs", count, [NSDate timeIntervalSinceReferenceDate] - startTime);

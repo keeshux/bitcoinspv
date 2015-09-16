@@ -781,23 +781,25 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         
         *currentAccount = (uint32_t)accountOfFirstUnusedAddress;
         
-        DDLogDebug(@"Used %u/%u accounts", numberOfUsedAddresses, targetAddresses.count);
+        DDLogDebug(@"Used %lu/%lu accounts", (unsigned long)numberOfUsedAddresses, (unsigned long)targetAddresses.count);
         DDLogDebug(@"Current account set to first unused account (%u)", *currentAccount);
         
         const NSUInteger watchedCount = _gapLimit + lookAhead;
         if (forced) {
-            DDLogDebug(@"Forcing generation of %u watched addresses", watchedCount);
+            DDLogDebug(@"Forcing generation of %lu watched addresses", (unsigned long)watchedCount);
         }
         else {
             const NSUInteger available = targetAddresses.count - numberOfUsedAddresses;
             if (available >= watchedCount) {
-                DDLogDebug(@"Still more available addresses than watched (%u >= %u), skipping generation",
-                           available, watchedCount);
+                DDLogDebug(@"Still more available addresses than watched (%lu >= %lu), skipping generation",
+                           (unsigned long)available,
+                           (unsigned long)watchedCount);
 
                 return NO;
             }
             else {
-                DDLogDebug(@"All available addresses were used, reestablish watched addresses (%u)", watchedCount);
+                DDLogDebug(@"All available addresses were used, reestablish watched addresses (%lu)",
+                           (unsigned long)watchedCount);
             }
         }
         
@@ -811,12 +813,16 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         }
         
         __unused const NSUInteger expectedWatchedCount = lastGenAccount - *currentAccount;
-        NSAssert(expectedWatchedCount == watchedCount, @"Number of watched addresses must be equal to gap limit plus look-ahead (%u != %u)",
-                 expectedWatchedCount, watchedCount);
+        NSAssert(expectedWatchedCount == watchedCount, @"Number of watched addresses must be equal to gap limit plus look-ahead (%lu != %lu)",
+                 (unsigned long)expectedWatchedCount,
+                 (unsigned long)watchedCount);
         
         const NSTimeInterval generationTime = [NSDate timeIntervalSinceReferenceDate] - generationStartTime;
-        DDLogDebug(@"Generated accounts in %.3fs: %u -> %u (watched: %u)",
-                   generationTime, firstGenAccount, lastGenAccount, watchedCount);
+        DDLogDebug(@"Generated accounts in %.3fs: %lu -> %lu (watched: %lu)",
+                   generationTime,
+                   (unsigned long)firstGenAccount,
+                   (unsigned long)lastGenAccount,
+                   (unsigned long)watchedCount);
         
         return YES;
     }
@@ -1352,7 +1358,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (void)removeAllTransactions
 {
     @synchronized (self) {
-        DDLogDebug(@"Removing %u wallet transactions", _txs.count);
+        DDLogDebug(@"Removing %lu wallet transactions", (unsigned long)_txs.count);
         
         [_txs removeAllObjects];
         [_txsById removeAllObjects];
@@ -1384,7 +1390,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
     @synchronized (self) {
         [tokens addObject:[NSString stringWithFormat:@"created = %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.creationTime]]];
         [tokens addObject:[NSString stringWithFormat:@"receive = %@", self.receiveAddress]];
-        [tokens addObject:[NSString stringWithFormat:@"transactions = %u", _txs.count]];
+        [tokens addObject:[NSString stringWithFormat:@"transactions = %lu", (unsigned long)_txs.count]];
         [tokens addObject:[NSString stringWithFormat:@"balance = %llu", _balance]];
     }
 

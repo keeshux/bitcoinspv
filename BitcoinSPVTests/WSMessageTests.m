@@ -91,7 +91,7 @@
     
     id<WSMessage> messageFull = [deserializer parseMessageFromStream:streamFull error:&error];
     XCTAssertNotNil(messageFull);
-    DDLogInfo(@"Message (full, %u bytes): %@", messageFull.length, messageFull);
+    DDLogInfo(@"Message (full, %lu bytes): %@", (unsigned long)messageFull.length, messageFull);
     XCTAssertNil(error, @"Error: %@", error);
 
 //    id<WSMessage> messagePartial = nil;

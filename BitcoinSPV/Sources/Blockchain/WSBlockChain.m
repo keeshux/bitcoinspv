@@ -242,7 +242,11 @@
             }
         }
         
-        DDLogVerbose(@"Extending main chain to %u with block %@ (%u transactions)", newHead.height, header.blockId, transactions.count);
+        DDLogVerbose(@"Extending main chain to %u with block %@ (%lu transactions)",
+                     newHead.height,
+                     header.blockId,
+                     (unsigned long)transactions.count);
+
         [self.store putBlock:newHead];
         [self.store setHead:newHead];
         addedBlock = newHead;
@@ -292,7 +296,10 @@
                 }
             }
             else {
-                DDLogDebug(@"Extending fork to height %u with block %@ (%u transactions)", newForkHead.height, header.blockId, transactions.count);
+                DDLogDebug(@"Extending fork to height %u with block %@ (%lu transactions)",
+                           newForkHead.height,
+                           header.blockId,
+                           (unsigned long)transactions.count);
 
                 [self.store putBlock:newForkHead];
                 addedBlock = newForkHead;
@@ -374,7 +381,7 @@
         }
         
         if (allConnectedOrphans.count > 0) {
-            DDLogDebug(@"Connected %u orphan blocks: %@", allConnectedOrphans.count, allConnectedOrphans);
+            DDLogDebug(@"Connected %lu orphan blocks: %@", (unsigned long)allConnectedOrphans.count, allConnectedOrphans);
         }
     } while (anyConnected);
 
@@ -444,7 +451,7 @@
         NSError *error;
         blockEntities = [manager.context executeFetchRequest:request error:&error];
         if (blockEntities) {
-            DDLogDebug(@"Found %u blocks in store", blockEntities.count);
+            DDLogDebug(@"Found %lu blocks in store", (unsigned long)blockEntities.count);
         }
         else {
             DDLogError(@"Error fetching all blocks (%@)", error);

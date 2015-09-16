@@ -53,24 +53,24 @@
     NSString *uncompressed = @"5KBJ4EzBx8JfHJpLwoPpUin2gzUJpg5EgwuKi4Mz1dFtkiHwdTj";
 
     NSData *privateData = [hex dataFromHex];
-    DDLogInfo(@"Decoded: %@ (%u bytes)", [privateData hexString], privateData.length);
+    DDLogInfo(@"Decoded: %@ (%lu bytes)", [privateData hexString], (unsigned long)privateData.length);
     
     NSData *compressedData = [compressed dataFromBase58Check];
-    DDLogInfo(@"Compressed  : %@ (%u bytes)", [compressedData hexString], compressedData.length);
+    DDLogInfo(@"Compressed  : %@ (%lu bytes)", [compressedData hexString], (unsigned long)compressedData.length);
 
     NSData *uncompressedData = [uncompressed dataFromBase58Check];
-    DDLogInfo(@"Uncompressed: %@ (%u bytes)", [uncompressedData hexString], uncompressedData.length);
+    DDLogInfo(@"Uncompressed: %@ (%lu bytes)", [uncompressedData hexString], (unsigned long)uncompressedData.length);
 
     WSKey *keyCOM = WSKeyFromWIF(self.networkParameters, compressed);
     XCTAssertTrue([keyCOM isCompressed]);
     NSData *encodedCOM = [keyCOM encodedDataWithParameters:self.networkParameters];
-    DDLogInfo(@"Key (compressed)  : %@ (%u bytes)", [encodedCOM hexString], encodedCOM.length);
+    DDLogInfo(@"Key (compressed)  : %@ (%lu bytes)", [encodedCOM hexString], (unsigned long)encodedCOM.length);
     XCTAssertEqualObjects(keyCOM.data, privateData);
 
     WSKey *keyUC = WSKeyFromWIF(self.networkParameters, uncompressed);
     XCTAssertFalse([keyUC isCompressed]);
     NSData *encodedUC = [keyUC encodedDataWithParameters:self.networkParameters];
-    DDLogInfo(@"Key (uncompressed): %@ (%u bytes)", [encodedUC hexString], encodedUC.length);
+    DDLogInfo(@"Key (uncompressed): %@ (%lu bytes)", [encodedUC hexString], (unsigned long)encodedUC.length);
     XCTAssertEqualObjects(keyUC.data, privateData);
 
     WSKey *testKeyCompressed = [WSKey keyWithData:privateData compressed:YES];
@@ -117,7 +117,7 @@
     NSArray *expAddresses = @[WSAddressFromString(self.networkParameters, @"1Nro9WkpaKm9axmcfPVp79dAJU1Gx7VmMZ"),
                               WSAddressFromString(self.networkParameters, @"1QU41PkTSwfDETtcMU8jhWz3dreH4F369")];
     
-    NSUInteger i = 0;
+    unsigned i = 0;
     for (NSString *pubHex in pubHexes) {
         WSPublicKey *pubKey = WSPublicKeyFromHex(pubHex);
         
@@ -127,7 +127,7 @@
         
         WSAddress *address = [pubKey addressWithParameters:self.networkParameters];
         DDLogInfo(@"Address: %@", address);
-        XCTAssertEqualObjects(address, expAddresses[i], @"Address %d", i);
+        XCTAssertEqualObjects(address, expAddresses[i], @"Address %u", i);
         
         ++i;
     }

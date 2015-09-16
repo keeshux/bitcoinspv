@@ -230,7 +230,7 @@
 {
     NSMutableArray *tokens = [[NSMutableArray alloc] init];
     [tokens addObject:[NSString stringWithFormat:@"header = %@", [self.header descriptionWithIndent:(indent + 1)]]];
-    [tokens addObject:[NSString stringWithFormat:@"transactions = %u", self.transactions.count]];
+    [tokens addObject:[NSString stringWithFormat:@"transactions = %lu", (unsigned long)self.transactions.count]];
     [tokens addObject:[NSString stringWithFormat:@"height = %u", self.height]];
     [tokens addObject:[NSString stringWithFormat:@"work = %@", self.workString]];
     return [NSString stringWithFormat:@"{%@}", WSStringDescriptionFromTokens(tokens, indent)];

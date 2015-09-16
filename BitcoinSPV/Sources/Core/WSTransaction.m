@@ -272,7 +272,7 @@
     NSMutableArray *tokens = [[NSMutableArray alloc] init];
     [tokens addObject:[NSString stringWithFormat:@"version = %u", self.version]];
     [tokens addObject:[NSString stringWithFormat:@"id = %@", self.txId]];
-    [tokens addObject:[NSString stringWithFormat:@"size = %u bytes", self.size]];
+    [tokens addObject:[NSString stringWithFormat:@"size = %lu bytes", (unsigned long)self.size]];
     [tokens addObject:[NSString stringWithFormat:@"coinbase = %@", (self.isCoinbase ? @"YES" : @"NO")]];
     [tokens addObject:[NSString stringWithFormat:@"lockTime = %u", self.lockTime]];
     [tokens addObject:[NSString stringWithFormat:@"inputs =\n%@", [self.inputs descriptionWithLocale:nil indent:(indent + 1)]]];

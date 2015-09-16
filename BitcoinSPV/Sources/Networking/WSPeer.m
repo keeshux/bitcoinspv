@@ -222,10 +222,12 @@
     
     [self.handler submitBlock:^{
         if (message.originalLength < 1024) {
-            DDLogVerbose(@"%@ Received %@ (%u+%u bytes)", self, message, WSMessageHeaderLength, message.originalLength);
+            DDLogVerbose(@"%@ Received %@ (%lu+%lu bytes)",
+                         self, message, (unsigned long)WSMessageHeaderLength, (unsigned long)message.originalLength);
         }
         else {
-            DDLogVerbose(@"%@ Received %@ (%u+%u bytes, too long to display)", self, [message class], WSMessageHeaderLength, message.originalLength);
+            DDLogVerbose(@"%@ Received %@ (%lu+%lu bytes, too long to display)",
+                         self, [message class], (unsigned long)WSMessageHeaderLength, (unsigned long)message.originalLength);
         }
         
         // stop reading txs for current merkleblock
@@ -583,7 +585,7 @@
 
 - (void)receiveAddrMessage:(WSMessageAddr *)message
 {
-    DDLogDebug(@"%@ Received %u addresses", self, message.addresses.count);
+    DDLogDebug(@"%@ Received %lu addresses", self, (unsigned long)message.addresses.count);
     
     const BOOL isLastRelay = ((message.addresses.count > 1) && (message.addresses.count < WSMessageAddrMaxCount));
 
@@ -602,10 +604,10 @@
  
     const NSUInteger count = message.inventories.count;
     if (count < 10) {
-        DDLogDebug(@"%@ Received %u inventories: %@", self, count, message.inventories);
+        DDLogDebug(@"%@ Received %lu inventories: %@", self, (unsigned long)count, message.inventories);
     }
     else {
-        DDLogDebug(@"%@ Received %u inventories", self, count);
+        DDLogDebug(@"%@ Received %lu inventories", self, (unsigned long)count);
     }
 
     [self safelyDelegateBlock:^{
@@ -622,7 +624,7 @@
 
 - (void)receiveNotfoundMessage:(WSMessageNotfound *)message
 {
-    DDLogDebug(@"%@ Got 'notfound' with %u items", self, message.inventories.count);
+    DDLogDebug(@"%@ Got 'notfound' with %lu items", self, (unsigned long)message.inventories.count);
 }
 
 - (void)receiveTxMessage:(WSMessageTx *)message

@@ -114,14 +114,14 @@
     for (WSSignedTransactionInput *input in inputs) {
         const NSUInteger estimatedSize = [input.script estimatedSize];
         const NSUInteger size = [[input.script toBuffer] length];
-        DDLogInfo(@"Input script size: %u == %u", estimatedSize, size);
+        DDLogInfo(@"Input script size: %lu == %lu", (unsigned long)estimatedSize, (unsigned long)size);
         XCTAssertEqual(estimatedSize, size, @"Estimated input script size differs");
     }
 
     for (WSTransactionOutput *output in outputs) {
         const NSUInteger estimatedSize = [output.script estimatedSize];
         const NSUInteger size = [[output.script toBuffer] length];
-        DDLogInfo(@"Output script size: %u == %u", estimatedSize, size);
+        DDLogInfo(@"Output script size: %lu == %lu", (unsigned long)estimatedSize, (unsigned long)size);
         XCTAssertEqual(estimatedSize, size, @"Estimated output script size differs");
     }
 
@@ -150,7 +150,7 @@
     
     NSUInteger size = tx.size;
     const NSUInteger expSize = 797;
-    DDLogInfo(@"Size: %u", size);
+    DDLogInfo(@"Size: %lu", (unsigned long)size);
     XCTAssertEqual(size, expSize, @"Tx size differs");
     
     const uint64_t expTotalOutputValue = 2238155273;
@@ -202,8 +202,8 @@
         XCTAssertEqualObjects(txIn.outpoint.txId, expInTxids[ii]);
 
         DDLogInfo(@"In index (eff): %u", txIn.outpoint.index);
-        DDLogInfo(@"In index (exp): %u", [expInIndexes[ii] unsignedIntegerValue]);
-        XCTAssertEqual(txIn.outpoint.index, [expInIndexes[ii] unsignedIntegerValue]);
+        DDLogInfo(@"In index (exp): %u", [expInIndexes[ii] unsignedIntValue]);
+        XCTAssertEqual(txIn.outpoint.index, [expInIndexes[ii] unsignedIntValue]);
         
         DDLogInfo(@"In address (eff): %@", txIn.address);
         DDLogInfo(@"In address (exp): %@", expInAddresses[ii]);
@@ -328,7 +328,7 @@
     WSSignedTransaction *tx = [builder signedTransactionWithInputKeys:inputKeys error:&error];
     XCTAssertNotNil(tx, @"Unable to sign transaction: %@", error);
 
-    DDLogInfo(@"Signed tx hex (%u): %@", tx.size, [[tx toBuffer] hexString]);
+    DDLogInfo(@"Signed tx hex (%lu): %@", (unsigned long)tx.size, [[tx toBuffer] hexString]);
     DDLogInfo(@"TxId: %@", tx.txId);
     DDLogInfo(@"Tx: %@", tx);
 }

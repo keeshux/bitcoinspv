@@ -70,7 +70,7 @@
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             statusCode = httpResponse.statusCode;
-            DDLogVerbose(@"%@ -> Status %d", request.URL, statusCode);
+            DDLogVerbose(@"%@ -> Status %ld", request.URL, (long)statusCode);
         }
         if (ddLogLevel == LOG_LEVEL_VERBOSE) {
             DDLogVerbose(@"%@ -> Response string: %@", request.URL, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
@@ -87,7 +87,7 @@
             failure(statusCode, error);
         }
 
-        DDLogVerbose(@"%@ -> JSON (%u bytes)", request.URL, data.length);
+        DDLogVerbose(@"%@ -> JSON (%lu bytes)", request.URL, (unsigned long)data.length);
         DDLogVerbose(@"%@", json);
         success(statusCode, json);
     }];

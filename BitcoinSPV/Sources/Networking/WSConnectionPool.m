@@ -93,7 +93,7 @@
         handler.delegate = self;
         self.handlers[handler.identifier] = handler;
 
-        DDLogDebug(@"Added %@ to pool (current: %u)", handler, self.handlers.count);
+        DDLogDebug(@"Added %@ to pool (current: %lu)", handler, (unsigned long)self.handlers.count);
 
         [handler connectWithTimeout:self.connectionTimeout error:NULL];
     }
@@ -186,7 +186,7 @@
     }
     [self.handlers removeObjectForKey:handler.identifier];
 
-    DDLogDebug(@"Removed %@ from pool (current: %u)", handler, self.handlers.count);
+    DDLogDebug(@"Removed %@ from pool (current: %lu)", handler, (unsigned long)self.handlers.count);
 }
 
 @end
@@ -310,11 +310,14 @@
     NSUInteger headerLength;
     WSBuffer *buffer = [message toNetworkBufferWithHeaderLength:&headerLength];
     if (buffer.length > WSMessageMaxLength) {
-        DDLogError(@"Error sending '%@', message is too long (%u > %u)", message.messageType, buffer.length, WSMessageMaxLength);
+        DDLogError(@"Error sending '%@', message is too long (%lu > %lu)", message.messageType,
+                   (unsigned long)buffer.length, (unsigned long)WSMessageMaxLength);
         return;
     }
     
-    DDLogVerbose(@"Sending %@ (%u+%u bytes)", message, headerLength, buffer.length - headerLength);
+    DDLogVerbose(@"Sending %@ (%lu+%lu bytes)", message,
+                 (unsigned long)headerLength, (unsigned long)(buffer.length - headerLength));
+
     DDLogVerbose(@"Sending data: %@", [buffer.data hexString]);
     
     [self unsafeEnqueueData:buffer.data];
