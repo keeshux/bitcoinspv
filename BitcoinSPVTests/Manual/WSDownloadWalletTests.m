@@ -333,12 +333,12 @@
 
 - (NSString *)storePath
 {
-    return [self mockNetworkPathForFilename:@"WalletNetworkTests" extension:@"sqlite"];
+    return [self mockNetworkPathForFilename:@"DownloadWalletTests" extension:@"sqlite"];
 }
 
 - (NSString *)walletPath
 {
-    return [self mockNetworkPathForFilename:@"WalletNetworkTests" extension:@"wallet"];
+    return [self mockNetworkPathForFilename:@"DownloadWalletTests" extension:@"wallet"];
 }
 
 - (WSSeed *)walletSeed
