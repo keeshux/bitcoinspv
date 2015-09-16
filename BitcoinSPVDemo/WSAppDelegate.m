@@ -49,6 +49,7 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 @property (nonatomic, strong) NSString *chainPath;
 @property (nonatomic, strong) NSString *walletPath;
+@property (nonatomic, strong) WSBlockChainDownloader *downloader;
 @property (nonatomic, strong) WSPeerGroup *peerGroup;
 @property (nonatomic, strong) WSHDWallet *wallet;
 
@@ -88,8 +89,8 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
     [controller.view addSubview:buttonConnect];
     
     UIButton *buttonSync = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [buttonSync setTitle:@"Start syncing" forState:UIControlStateNormal];
-    buttonSync.frame = CGRectMake(110, 110, 100, 40);
+    [buttonSync setTitle:@"Start download" forState:UIControlStateNormal];
+    buttonSync.frame = CGRectMake(70, 110, 180, 40);
     [buttonSync addTarget:self action:@selector(toggleSync:) forControlEvents:UIControlEventTouchUpInside];
     [controller.view addSubview:buttonSync];
     
@@ -163,20 +164,19 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 {
     UIButton *button = sender;
     if (![self.peerGroup isDownloading]) {
-        if ([self.peerGroup startBlockChainDownload]) {
-            [button setTitle:@"Stop syncing" forState:UIControlStateNormal];
+        if ([self.peerGroup startDownloadWithDownloader:self.downloader]) {
+            [button setTitle:@"Stop download" forState:UIControlStateNormal];
         }
     }
     else {
-        if ([self.peerGroup stopBlockChainDownload]) {
-            [button setTitle:@"Start syncing" forState:UIControlStateNormal];
-        }
+        [self.peerGroup stopDownload];
+        [button setTitle:@"Start download" forState:UIControlStateNormal];
     }
 }
 
 - (void)stopSyncing
 {
-    [self.peerGroup stopBlockChainDownload];
+    [self.peerGroup stopDownload];
 }
 
 #pragma mark Helpers
@@ -201,10 +201,6 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 - (void)createPeerGroup
 {
-    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.parameters];
-//    WSCoreDataManager *manager = [[WSCoreDataManager alloc] initWithPath:self.chainPath error:NULL];
-//    id<WSBlockStore> store = [[WSCoreDataBlockStore alloc] initWithManager:manager];
-
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidStartDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.viewSync.backgroundColor = [UIColor redColor];
     }];
@@ -215,11 +211,13 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
         self.viewSync.backgroundColor = [UIColor greenColor];
     }];
     
-//    self.peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store fastCatchUpTimestamp:1404424800];
-//    self.peerGroup.peerHosts = @[@"127.0.0.1"];
-
-    self.peerGroup = [[WSPeerGroup alloc] initWithBlockStore:store wallet:self.wallet];
+    id<WSBlockStore> store = [[WSMemoryBlockStore alloc] initWithParameters:self.parameters];
+    self.downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:self.wallet];
+//    self.downloader = [[WSBlockChainDownloader alloc] initWithStore:store fastCatchUpTimestamp:1404424800];
+    
+    self.peerGroup = [[WSPeerGroup alloc] initWithParameters:self.parameters];
     self.peerGroup.maxConnections = 10;
+//    self.peerGroup.peerHosts = @[@"127.0.0.1"];
 }
 
 - (void)printWallet
