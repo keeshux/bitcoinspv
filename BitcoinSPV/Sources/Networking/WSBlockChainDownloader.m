@@ -248,6 +248,11 @@
     return (self.downloadPeer.lastBlockHeight - self.blockChain.currentHeight);
 }
 
+- (BOOL)isSynced
+{
+    return (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight);
+}
+
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count
 {
     WSExceptionCheckIllegal(count > 0);
@@ -259,11 +264,6 @@
         block = [block previousBlockInChain:self.blockChain];
     }
     return recentBlocks;
-}
-
-- (BOOL)isSynced
-{
-    return (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight);
 }
 
 - (void)reconnectForDownload

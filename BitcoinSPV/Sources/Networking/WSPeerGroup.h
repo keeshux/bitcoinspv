@@ -91,6 +91,7 @@
 - (BOOL)isDownloading;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
+- (BOOL)isSynced;
 - (BOOL)reconnectForDownload;
 - (BOOL)rescanBlockChain;
 
@@ -145,8 +146,8 @@
 - (NSUInteger)lastBlockHeight;
 - (NSUInteger)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
-- (NSArray *)recentBlocksWithCount:(NSUInteger)count;
 - (BOOL)isSynced;
+- (NSArray *)recentBlocksWithCount:(NSUInteger)count;
 - (void)reconnectForDownload;
 - (void)rescanBlockChain;
 - (void)saveState;

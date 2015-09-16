@@ -335,6 +335,18 @@
     return numberOfBlocksLeft;
 }
 
+- (BOOL)isSynced
+{
+    __block BOOL isSynced = NO;
+    dispatch_sync(self.queue, ^{
+        if (!self.downloader) {
+            return;
+        }
+        isSynced = [self.downloader isSynced];
+    });
+    return isSynced;
+}
+
 - (BOOL)reconnectForDownload
 {
     __block BOOL reconnected = NO;
