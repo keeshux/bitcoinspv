@@ -407,7 +407,7 @@
         const NSUInteger excluded = arc4random() % self.connectedPeers.count;
         
         NSUInteger i = 0;
-        for (WSPeer *peer in self.connectedPeers) {
+        for (WSPeer *peer in [self.connectedPeers allValues]) {
             if (i != excluded) {
                 [peer sendInvMessageWithInventory:WSInventoryTx(transaction.txId)];
             }
