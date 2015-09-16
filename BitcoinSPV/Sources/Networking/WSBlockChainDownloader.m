@@ -97,7 +97,7 @@
 
 // macros
 - (void)logAddedBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location;
-- (void)logRejectedBlock:(id)block error:(NSError *)error;
+- (void)logRejectedBlock:(id)block location:(WSBlockChainLocation)location error:(NSError *)error;
 - (void)storeRelevantError:(NSError *)error intoError:(NSError **)outError;
 
 @end
@@ -783,7 +783,7 @@
         } error:&localError];
         
         if (!addedBlock) {
-            [self logRejectedBlock:header error:localError];
+            [self logRejectedBlock:header location:location error:localError];
             [self storeRelevantError:localError intoError:error];
             return NO;
         }
@@ -821,7 +821,7 @@
     } error:&localError];
     
     if (!addedBlock) {
-        [self logRejectedBlock:fullBlock error:localError];
+        [self logRejectedBlock:fullBlock location:location error:localError];
         [self storeRelevantError:localError intoError:error];
         return NO;
     }
@@ -864,7 +864,7 @@
     } error:&localError];
     
     if (!addedBlock) {
-        [self logRejectedBlock:filteredBlock error:localError];
+        [self logRejectedBlock:filteredBlock location:location error:localError];
         [self storeRelevantError:localError intoError:error];
         return NO;
     }
@@ -1081,8 +1081,11 @@
     }
 }
 
-- (void)logRejectedBlock:(id)block error:(NSError *)error
+- (void)logRejectedBlock:(id)block location:(WSBlockChainLocation)location error:(NSError *)error
 {
+    if (location == WSBlockChainLocationOrphan) {
+        return;
+    }
     if (!error) {
         DDLogDebug(@"%@ not added: %@", [block class], block);
     }
