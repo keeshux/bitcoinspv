@@ -164,7 +164,7 @@
 {
     WSExceptionCheckIllegal(checkpoint);
     
-    // weak check because checkpoint has no ancestors
+    // weak check because checkpoints usually have no ancestors
 //    if (![self.head isBehindBlock:checkpoint inChain:self]) {
     if (self.head.height >= checkpoint.height) {
         return nil;
