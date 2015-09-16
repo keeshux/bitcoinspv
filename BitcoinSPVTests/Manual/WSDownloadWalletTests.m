@@ -145,17 +145,10 @@
 - (void)testWallet
 {
     WSHDWallet *wallet = [self loadWallet];
+    NSArray *txs = wallet.allTransactions;
 
     DDLogInfo(@"Balance: %llu", wallet.balance);
-    DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
-    DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
-    DDLogInfo(@"Current receive address: %@", wallet.receiveAddress);
-    DDLogInfo(@"Current change address: %@", wallet.changeAddress);
-    DDLogInfo(@"Watched receive addresses: %@", wallet.watchedReceiveAddresses);
-    DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);
-    
-    NSArray *txs = wallet.allTransactions;
-    DDLogInfo(@"Wallet has %u transactions", txs.count);
+    DDLogInfo(@"Transactions: %u", txs.count);
     for (WSSignedTransaction *tx in txs) {
         DDLogInfo(@"%@", tx);
         DDLogInfo(@"Sent:     %llu", [wallet sentValueByTransaction:tx]);
@@ -165,6 +158,12 @@
         DDLogInfo(@"Value:    %lld", [wallet valueForTransaction:tx]);
         DDLogInfo(@"Fee:      %llu", [wallet feeForTransaction:tx]);
     }
+    DDLogInfo(@"Receive addresses: %@", wallet.allReceiveAddresses);
+    DDLogInfo(@"Change addresses: %@", wallet.allChangeAddresses);
+    DDLogInfo(@"Watched receive addresses: %@", wallet.watchedReceiveAddresses);
+    DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);
+    DDLogInfo(@"Current receive address: %@", wallet.receiveAddress);
+    DDLogInfo(@"Current change address: %@", wallet.changeAddress);
 }
 
 - (void)testSignedTransaction
