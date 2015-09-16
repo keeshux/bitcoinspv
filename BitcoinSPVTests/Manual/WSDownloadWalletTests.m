@@ -73,7 +73,7 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateAddressesNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         id<WSWallet> wallet = note.object;
         
-        DDLogInfo(@"New receive address: %@", [wallet receiveAddress]);
+        DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateTransactionsMetadataNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         NSDictionary *metadataById = note.userInfo[WSWalletTransactionsMetadataKey];
@@ -92,12 +92,9 @@
 {
     self.stopOnSync = YES;
 
-    WSHDWallet *wallet = [self loadWallet];
-    if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
-        [wallet saveToPath:[self walletPath]];
-        wallet.shouldAutosave = YES;
-    }
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+    [wallet saveToPath:[self walletPath]];
+    wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
@@ -117,13 +114,12 @@
 {
     self.stopOnSync = YES;
     
-    WSHDWallet *wallet = [self loadWallet];
-    if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
-        [wallet saveToPath:[self walletPath]];
-        wallet.shouldAutosave = YES;
-    }
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+    [wallet saveToPath:[self walletPath]];
+    wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;
+    
+    DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
     
     id<WSBlockStore> store = [self memoryStore];
     WSBlockChainDownloader *downloader = [[WSBlockChainDownloader alloc] initWithStore:store wallet:wallet];
