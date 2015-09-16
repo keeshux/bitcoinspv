@@ -1065,11 +1065,11 @@
     if ([self isSynced]) {
         switch (location) {
             case WSBlockChainLocationMain: {
-                DDLogInfo(@"New head: %@", block);
+                DDLogInfo(@"New head: %@", self.blockChain.head);
                 break;
             }
             case WSBlockChainLocationFork: {
-                DDLogInfo(@"New fork head: %@", block);
+                DDLogInfo(@"New fork block: %@", block);
                 DDLogInfo(@"Fork base: %@", [self.blockChain findForkBaseFromHead:block]);
                 break;
             }
