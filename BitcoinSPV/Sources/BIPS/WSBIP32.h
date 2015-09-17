@@ -46,7 +46,8 @@
 extern const char *             WSBIP32InitSeed;
 extern const uint32_t           WSBIP32HardenedMask;
 extern const NSUInteger         WSBIP32KeyLength;
-extern NSString *const          WSBIP32DefaultPath;
+
+NSString *WSBIP32PathForAccount(uint32_t account);
 
 static inline uint32_t WSBIP32ChildIndex(uint32_t child)
 {

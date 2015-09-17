@@ -104,7 +104,7 @@
 {
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                            seed:self.seed
-                                                     chainsPath:WSBIP32DefaultPath
+                                                     chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:25];
 
     NSArray *expReceives = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
@@ -189,7 +189,7 @@
 
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                            seed:self.seed
-                                                     chainsPath:WSBIP32DefaultPath];
+                                                     chainsPath:WSBIP32PathForAccount(0)];
     
     NSMutableArray *txs = [[NSMutableArray alloc] initWithCapacity:expTxHexes.count];
     NSUInteger i = 0;

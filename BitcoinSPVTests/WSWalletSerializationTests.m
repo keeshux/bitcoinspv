@@ -53,7 +53,7 @@
     WSSeed *seed = WSSeedMakeNow(mnemonic);
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                            seed:seed
-                                                     chainsPath:WSBIP32DefaultPath
+                                                     chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:WALLET_GAP_LIMIT];
     [self saveWallet:wallet];
 }

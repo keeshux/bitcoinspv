@@ -28,7 +28,7 @@
 #import "WSBIP44.h"
 #import "WSErrors.h"
 
-NSString *const WSBIP44DefaultPathFormat = @"m/44'/%u'/0'";
+static NSString *const WSBIP44DefaultPathFormat = @"m/44'/%u'/%u'";
 
 @implementation WSParameters (BIP44)
 
@@ -46,6 +46,11 @@ NSString *const WSBIP44DefaultPathFormat = @"m/44'/%u'/0'";
             return 0;
         }
     }
+}
+
+- (NSString *)bip44PathForAccount:(uint32_t)account
+{
+    return [NSString stringWithFormat:WSBIP44DefaultPathFormat, self.coinType, account];
 }
 
 @end

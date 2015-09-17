@@ -34,10 +34,9 @@ typedef enum {
     WSBIP44CoinTypeTestnet3
 } WSBIP44CoinType;
 
-extern NSString *const WSBIP44DefaultPathFormat;
-
 @interface WSParameters (BIP44)
 
 - (WSBIP44CoinType)coinType;
+- (NSString *)bip44PathForAccount:(uint32_t)account;
 
 @end

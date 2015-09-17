@@ -56,9 +56,9 @@
 NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
 {
 #ifdef BSPV_BIP44_COMPLIANCE
-    return [NSString stringWithFormat:WSBIP44DefaultPathFormat, [parameters coinType]];
+    return [parameters bip44PathForAccount:0];
 #else
-    return WSBIP32DefaultPath;
+    return WSBIP32PathForAccount(0);
 #endif
 }
 
@@ -673,8 +673,9 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         }
         
         if (!wallet->_chainsPath) {
-            DDLogWarn(@"Missing chainsPath, falling back to BIP32 root (%@)", WSBIP32DefaultPath);
-            wallet->_chainsPath = WSBIP32DefaultPath;
+            NSString *bip32ChainsPath = WSBIP32PathForAccount(0);
+            DDLogWarn(@"Missing chainsPath, falling back to BIP32 root (%@)", bip32ChainsPath);
+            wallet->_chainsPath = bip32ChainsPath;
         }
 
         // safe check on singletons
