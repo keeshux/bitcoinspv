@@ -53,7 +53,17 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidRelayTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         WSSignedTransaction *tx = note.userInfo[WSPeerGroupRelayTransactionKey];
         const BOOL isPublished = [note.userInfo[WSPeerGroupRelayIsPublishedKey] boolValue];
+
         DDLogInfo(@"Relayed transaction (isPublished = %u): %@", isPublished, tx);
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidRejectNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        if (!note.userInfo[WSPeerGroupRejectTransactionIdKey]) {
+            return;
+        }
+        WSHash256 *txId = note.userInfo[WSPeerGroupRejectTransactionIdKey];
+        const BOOL wasPending = [note.userInfo[WSPeerGroupRejectWasPendingKey] boolValue];
+        
+        DDLogInfo(@"Rejected transaction (wasPending = %u): %@", wasPending, txId);
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateBalanceNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
