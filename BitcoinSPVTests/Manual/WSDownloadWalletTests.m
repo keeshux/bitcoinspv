@@ -60,9 +60,6 @@
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidRegisterTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         [self saveWallet:note.object];
-        
-        WSSignedTransaction *tx = note.userInfo[WSWalletTransactionKey];
-        DDLogInfo(@"Registered transaction: %@", tx);
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateBalanceNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         id<WSWallet> wallet = note.object;
