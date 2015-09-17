@@ -87,8 +87,7 @@
 - (void)truncateBlockChainForRescan;
 
 // entity handlers
-- (void)handleAddedBlock:(WSStorableBlock *)block;
-- (void)handleReplacedBlock:(WSStorableBlock *)block;
+- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
@@ -764,10 +763,12 @@
 
         NSError *localError;
         WSStorableBlock *addedBlock = nil;
+        WSStorableBlock *previousHead = nil;
         __weak WSBlockChainDownloader *weakSelf = self;
         
         WSBlockChainLocation location;
         NSArray *connectedOrphans;
+        previousHead = self.blockChain.head;
         addedBlock = [self.blockChain addBlockWithHeader:header
                                             transactions:nil
                                                 location:&location
@@ -787,7 +788,7 @@
         [self logAddedBlock:addedBlock location:location];
 
         for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-            [self handleAddedBlock:block];
+            [self handleAddedBlock:block previousHead:previousHead];
         }
     }
 
@@ -825,12 +826,7 @@
     [self logAddedBlock:addedBlock location:location];
 
     for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-        if (![block.blockId isEqual:previousHead.blockId]) {
-            [self handleAddedBlock:block];
-        }
-        else {
-            [self handleReplacedBlock:block];
-        }
+        [self handleAddedBlock:block previousHead:previousHead];
     }
 
     return YES;
@@ -868,12 +864,7 @@
     [self logAddedBlock:addedBlock location:location];
 
     for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-        if (![block.blockId isEqual:previousHead.blockId]) {
-            [self handleAddedBlock:block];
-        }
-        else {
-            [self handleReplacedBlock:block];
-        }
+        [self handleAddedBlock:block previousHead:previousHead];
     }
     
     return YES;
@@ -893,40 +884,36 @@
 
 #pragma mark Entity handlers
 
-- (void)handleAddedBlock:(WSStorableBlock *)block
+- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead
 {
-    [self.peerGroup.notifier notifyBlockAdded:block];
-    
-    const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
-    const BOOL isDownloadFinished = (block.height == lastBlockHeight);
-    
-    if (isDownloadFinished) {
-        for (WSPeer *peer in [self.peerGroup allConnectedPeers]) {
-            if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
-                DDLogDebug(@"Loading Bloom filter for peer %@", peer);
-                [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+    // new block
+    if (![block.blockId isEqual:previousHead.blockId]) {
+        [self.peerGroup.notifier notifyBlockAdded:block];
+        
+        const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
+        const BOOL isDownloadFinished = (block.height == lastBlockHeight);
+        
+        if (isDownloadFinished) {
+            for (WSPeer *peer in [self.peerGroup allConnectedPeers]) {
+                if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
+                    DDLogDebug(@"Loading Bloom filter for peer %@", peer);
+                    [peer sendFilterloadMessageWithFilter:self.bloomFilter];
+                }
+                DDLogDebug(@"Requesting mempool from peer %@", peer);
+                [peer sendMempoolMessage];
             }
-            DDLogDebug(@"Requesting mempool from peer %@", peer);
-            [peer sendMempoolMessage];
+            
+            [self trySaveBlockChainToCoreData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
+            });
+            [self.peerGroup.notifier notifyDownloadFinished];
         }
-        
-        [self trySaveBlockChainToCoreData];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(detectDownloadTimeout) object:nil];
-        });
-        [self.peerGroup.notifier notifyDownloadFinished];
     }
     
     //
     
-    if (self.wallet) {
-        [self recoverMissedBlockTransactions:block];
-    }
-}
-
-- (void)handleReplacedBlock:(WSStorableBlock *)block
-{
     if (self.wallet) {
         [self recoverMissedBlockTransactions:block];
     }
