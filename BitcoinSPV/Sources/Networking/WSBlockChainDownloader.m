@@ -90,7 +90,7 @@
 - (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead originalEntity:(id)entity;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
-- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block originalEntity:(id)entity;
 - (BOOL)maybeRebuildAndSendBloomFilter;
 
 // macros
@@ -891,7 +891,6 @@
 {
     NSParameterAssert(block);
     NSParameterAssert(previousHead);
-    NSParameterAssert(entity);
 
     // new block
     if (![block.blockId isEqual:previousHead.blockId]) {
@@ -918,7 +917,7 @@
     }
     
     if (self.wallet) {
-        [self recoverMissedBlockTransactions:block];
+        [self recoverMissedBlockTransactions:block originalEntity:entity];
     }
 }
 
@@ -977,7 +976,7 @@
     }
 }
 
-- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block
+- (void)recoverMissedBlockTransactions:(WSStorableBlock *)block originalEntity:(id)entity
 {
     NSParameterAssert(block);
 
@@ -995,6 +994,9 @@
     }
 
     [self.wallet registerBlock:block];
+    if ([entity isKindOfClass:[WSFilteredBlock class]]) {
+        [self.wallet registerFilteredBlock:entity];
+    }
 
     if (didGenerateNewAddresses) {
         DDLogWarn(@"Block registration triggered new addresses generation");

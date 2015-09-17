@@ -34,6 +34,7 @@
 @class WSTransactionBuilder;
 @class WSSignedTransaction;
 @class WSStorableBlock;
+@class WSFilteredBlock;
 @class WSTransactionOutput;
 @class WSBloomFilter;
 @class WSBIP37FilterParameters;
@@ -109,6 +110,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction;
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block;
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block;
+- (NSDictionary *)registerFilteredBlock:(WSFilteredBlock *)filteredBlock;
 - (void)reorganizeWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses;
 - (void)removeAllTransactions;
 

@@ -41,6 +41,8 @@
 #import "WSAddress.h"
 #import "WSScript.h"
 #import "WSStorableBlock.h"
+#import "WSFilteredBlock.h"
+#import "WSPartialMerkleTree.h"
 #import "WSTransactionMetadata.h"
 #import "WSConfig.h"
 #import "WSLogging.h"
@@ -97,6 +99,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction batch:(BOOL)batch;
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block batch:(BOOL)batch;
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch;
+- (NSDictionary *)registerFilteredBlock:(WSFilteredBlock *)filteredBlock batch:(BOOL)batch;
 - (void)sortTransactions;
 - (void)recalculateSpendsAndBalance;
 
@@ -1077,6 +1080,11 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
     return [self unregisterBlock:block batch:NO];
 }
 
+- (NSDictionary *)registerFilteredBlock:(WSFilteredBlock *)filteredBlock
+{
+    return [self registerFilteredBlock:filteredBlock batch:NO];
+}
+
 - (BOOL)registerTransaction:(WSSignedTransaction *)transaction didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses batch:(BOOL)batch
 {
     WSExceptionCheckIllegal(transaction);
@@ -1210,6 +1218,39 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
                 [self save];
             }
 
+            [self notifyWithName:WSWalletDidUpdateTransactionsMetadataNotification userInfo:@{WSWalletTransactionsMetadataKey: updates}];
+        }
+        return updates;
+    }
+}
+
+- (NSDictionary *)registerFilteredBlock:(WSFilteredBlock *)filteredBlock batch:(BOOL)batch
+{
+    WSExceptionCheckIllegal(filteredBlock);
+    
+    @synchronized (self) {
+        NSMutableDictionary *updates = nil;
+        
+        for (WSHash256 *txId in filteredBlock.partialMerkleTree.matchedTxIds) {
+            WSTransactionMetadata *metadata = _metadataByTxId[txId];
+            if (!metadata) {
+                continue;
+            }
+            
+            metadata = [[WSTransactionMetadata alloc] initWithNoParentBlock];
+            _metadataByTxId[txId] = metadata;
+            
+            if (!updates) {
+                updates = [[NSMutableDictionary alloc] init];
+            }
+            updates[txId] = metadata;
+        }
+        
+        if (!batch && updates) {
+            if (self.shouldAutosave) {
+                [self save];
+            }
+            
             [self notifyWithName:WSWalletDidUpdateTransactionsMetadataNotification userInfo:@{WSWalletTransactionsMetadataKey: updates}];
         }
         return updates;
