@@ -30,7 +30,7 @@
 #pragma mark - Library
 
 NSString *const         WSClientName                                    = @"BitcoinSPV";
-NSString *const         WSClientVersion                                 = @"0.6";
+NSString *const         WSClientVersion                                 = @"0.7";
 
 NSBundle *WSClientBundle(Class clazz)
 {
