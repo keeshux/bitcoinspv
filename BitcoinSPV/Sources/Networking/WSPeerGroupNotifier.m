@@ -62,7 +62,7 @@ NSString *const WSPeerGroupRejectCodeKey                        = @"Code";
 NSString *const WSPeerGroupRejectReasonKey                      = @"Reason";
 NSString *const WSPeerGroupRejectTransactionIdKey               = @"TransactionId";
 NSString *const WSPeerGroupRejectBlockIdKey                     = @"BlockId";
-NSString *const WSPeerGroupRejectIsRejectedKey                  = @"IsRejected";
+NSString *const WSPeerGroupRejectWasPendingKey                  = @"WasPending";
 
 NSString *const WSPeerGroupErrorKey                             = @"Error";
 
@@ -190,7 +190,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
 }
 
-- (void)notifyRejectMessage:(WSMessageReject *)message isRejected:(BOOL)isRejected fromPeer:(WSPeer *)peer
+- (void)notifyRejectMessage:(WSMessageReject *)message wasPending:(BOOL)wasPending fromPeer:(WSPeer *)peer
 {
     if ([message.message isEqualToString:WSMessageRejectMessageTx]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
@@ -198,7 +198,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
                                                                          WSPeerGroupRejectTransactionIdKey: txId,
-                                                                         WSPeerGroupRejectIsRejectedKey: @(isRejected)}];
+                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending)}];
     }
     else if ([message.message isEqualToString:WSMessageRejectMessageBlock]) {
         WSHash256 *blockId = WSHash256FromData(message.payload);
@@ -206,7 +206,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
                                                                          WSPeerGroupRejectBlockIdKey: blockId,
-                                                                         WSPeerGroupRejectIsRejectedKey: @(isRejected)}];
+                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending)}];
     }
 }
 

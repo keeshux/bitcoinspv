@@ -690,13 +690,13 @@
 {
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
-    BOOL isRejected = NO;
+    BOOL wasPending = NO;
     if ([message.message isEqualToString:WSMessageRejectMessageTx]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
-        isRejected = [self findAndRemoveRejectedTransactionWithId:txId fromPeer:peer];
+        wasPending = [self findAndRemoveRejectedTransactionWithId:txId fromPeer:peer];
     }
 
-    [self.notifier notifyRejectMessage:message isRejected:isRejected fromPeer:peer];
+    [self.notifier notifyRejectMessage:message wasPending:wasPending fromPeer:peer];
 }
 
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes
@@ -1026,14 +1026,14 @@
 
 - (BOOL)findAndRemoveRejectedTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer
 {
-    BOOL isRejected = NO;
+    BOOL wasPending = NO;
     if (self.pendingTransactions[txId]) {
         [self.pendingTransactions removeObjectForKey:txId];
-        isRejected = YES;
+        wasPending = YES;
 
         DDLogInfo(@"Peer %@ rejected pending transaction: %@", peer, txId);
     }
-    return isRejected;
+    return wasPending;
 }
 
 + (BOOL)isHardNetworkError:(NSError *)error
