@@ -91,8 +91,8 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 // serialization (sensitive data should be excluded and saved by other means)
 - (BOOL)saveToPath:(NSString *)path;
 - (BOOL)save;
-- (BOOL)shouldAutosave;
-- (void)setShouldAutosave:(BOOL)shouldAutosave;
+- (BOOL)shouldAutoSave;
+- (void)setShouldAutoSave:(BOOL)shouldAutoSave;
 
 @end
 

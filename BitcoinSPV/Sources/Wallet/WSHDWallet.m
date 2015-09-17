@@ -1121,7 +1121,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
-            if (self.shouldAutosave) {
+            if (self.shouldAutoSave) {
                 [self save];
             }
 
@@ -1164,7 +1164,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
-            if (self.shouldAutosave) {
+            if (self.shouldAutoSave) {
                 [self save];
             }
 
@@ -1212,7 +1212,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         }
     
         if (!batch && updates) {
-            if (self.shouldAutosave) {
+            if (self.shouldAutoSave) {
                 [self save];
             }
 
@@ -1247,7 +1247,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         }
     
         if (!batch && updates) {
-            if (self.shouldAutosave) {
+            if (self.shouldAutoSave) {
                 [self save];
             }
 
@@ -1297,7 +1297,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         [updates addEntriesFromDictionary:unregisteredUpdates];
         
         if (updates.count > 0) {
-            if (self.shouldAutosave) {
+            if (self.shouldAutoSave) {
                 [self save];
             }
 

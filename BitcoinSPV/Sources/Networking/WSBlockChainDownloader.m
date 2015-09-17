@@ -108,7 +108,7 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.autoSaveWallet = YES;
+        self.shouldAutoSaveWallet = YES;
         self.bloomFilterRateMin = WSBlockChainDownloaderDefaultBFRateMin;
         self.bloomFilterRateDelta = WSBlockChainDownloaderDefaultBFRateDelta;
         self.bloomFilterObservedRateMax = WSBlockChainDownloaderDefaultBFObservedRateMax;
@@ -284,7 +284,7 @@
 - (void)saveState
 {
     [self trySaveBlockChainToCoreData];
-    if (self.autoSaveWallet) {
+    if (self.shouldAutoSaveWallet) {
         [self.wallet save];
     }
 }
