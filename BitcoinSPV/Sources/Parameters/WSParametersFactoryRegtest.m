@@ -35,7 +35,7 @@
 
 @interface WSParametersFactoryRegtest ()
 
-@property (nonatomic, strong) WSMutableParameters *parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 
 @end
 
@@ -44,42 +44,35 @@
 - (instancetype)init
 {
     if ((self = [super init])) {
-        WSMutableParameters *parameters = [[WSMutableParameters alloc] initWithNetworkType:WSNetworkTypeRegtest];
+        WSParametersBuilder *builder = [[WSParametersBuilder alloc] initWithNetworkType:WSNetworkTypeRegtest];
         
-        parameters.magicNumber                  = 0xdab5bffa;
-        parameters.publicKeyAddressVersion      = 0x6f;
-        parameters.scriptAddressVersion         = 0xc4;
-        parameters.privateKeyVersion            = 0xef;
-        parameters.peerPort                     = 18444;
-//        parameters.bip32PublicKeyVersion        = 0x0488b21e; // "xpub"
-//        parameters.bip32PrivateKeyVersion       = 0x0488ade4; // "xprv"
-        parameters.maxProofOfWork               = 0x1d00ffff;
-//        parameters.retargetTimespan             = 2 * WSDatesOneWeek;
-//        parameters.minRetargetTimespan          = parameters.retargetTimespan / 4;
-//        parameters.maxRetargetTimespan          = parameters.retargetTimespan * 4;
-//        parameters.retargetSpacing              = 10 * WSDatesOneMinute;
-        parameters.retargetInterval             = 10000;
+        builder.magicNumber                 = 0xdab5bffa;
+        builder.publicKeyAddressVersion     = 0x6f;
+        builder.scriptAddressVersion        = 0xc4;
+        builder.privateKeyVersion           = 0xef;
+        builder.peerPort                    = 18444;
+//        builder.bip32PublicKeyVersion       = 0x0488b21e; // "xpub"
+//        builder.bip32PrivateKeyVersion      = 0x0488ade4; // "xprv"
+        builder.maxProofOfWork              = 0x1d00ffff;
+//        builder.retargetTimespan            = 2 * WSDatesOneWeek;
+//        builder.minRetargetTimespan         = builder.retargetTimespan / 4;
+//        builder.maxRetargetTimespan         = builder.retargetTimespan * 4;
+//        builder.retargetSpacing             = 10 * WSDatesOneMinute;
+        builder.retargetInterval            = 10000;
         
-        WSBlockHeader *genesisHeader = [[WSBlockHeader alloc] initWithParameters:parameters
-                                                                         version:1
-                                                                 previousBlockId:WSHash256Zero()
-                                                                      merkleRoot:WSHash256FromHex(@"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
-                                                                       timestamp:1296688602
-                                                                            bits:0x207fffff
-                                                                           nonce:2];
-        
-        NSAssert([genesisHeader.blockId isEqual:WSHash256FromHex(@"0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")], @"Bad genesis block id (regtest)");
-        
-        WSPartialMerkleTree *genesisPMT = [[WSPartialMerkleTree alloc] initWithTxCount:1
-                                                                                hashes:@[genesisHeader.merkleRoot]
-                                                                                 flags:[NSData dataWithBytes:"\x01" length:1]
-                                                                                 error:NULL];
-        
-        parameters.genesisBlock = [[WSFilteredBlock alloc] initWithHeader:genesisHeader partialMerkleTree:genesisPMT];
+        builder.genesisVersion              = 1;
+        builder.genesisMerkleRoot           = WSHash256FromHex(@"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b");
+        builder.genesisTimestamp            = 1296688602;
+        builder.genesisBits                 = 0x207fffff;
+        builder.genesisNonce                = 2;
 
-        // no seeds for regtest
+        // no seeds nor checkpoints for regtest
         
-        self.parameters = parameters;
+        self.parameters = [builder build];
+
+        NSAssert([self.parameters.genesisBlockId isEqual:WSHash256FromHex(@"0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")],
+                 @"Bad genesis block id (regtest)");
+        
     }
     return self;
 }
