@@ -187,7 +187,9 @@
                           @"8b84151eaab153071ac2a7b255dc8bcaf2a33d21b9d79874405c15c4a3bcddbb",
                           @"a905b3814244e7710ce5ec696193c4b87111a788a8c0033e1a4b9b4851fa746d"];
 
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                           seed:self.seed
+                                                     chainsPath:WSBIP32DefaultPath];
     
     NSMutableArray *txs = [[NSMutableArray alloc] initWithCapacity:expTxHexes.count];
     NSUInteger i = 0;
