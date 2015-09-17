@@ -675,15 +675,17 @@
     }
     
     if (notfoundInventories.count > 0) {
+        DDLogDebug(@"Reporting not found inventories to peer %@: %@", peer, notfoundInventories);
+
         [peer sendNotfoundMessageWithInventories:notfoundInventories];
     }
     
     if (pendingTransactions.count > 0) {
         DDLogDebug(@"Published pending transactions to peer %@: %@", peer, pendingTransactions);
     }
-    else {
-        DDLogDebug(@"No transaction was published");
-    }
+//    else {
+//        DDLogDebug(@"No pending transaction was published");
+//    }
 }
 
 - (void)peer:(WSPeer *)peer didReceiveRejectMessage:(WSMessageReject *)message
