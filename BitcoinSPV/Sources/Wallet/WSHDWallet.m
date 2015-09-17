@@ -1104,8 +1104,14 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         
         [_txs insertObject:transaction atIndex:0];
         _txsById[transaction.txId] = transaction;
-        _metadataByTxId[transaction.txId] = [[WSTransactionMetadata alloc] initWithNoParentBlock];
         
+        DDLogDebug(@"Registered transaction: %@", transaction);
+
+        WSTransactionMetadata *metadata = [[WSTransactionMetadata alloc] initWithNoParentBlock];
+        _metadataByTxId[transaction.txId] = metadata;
+        
+        DDLogDebug(@"Added transaction %@ metadata: %@", transaction.txId, metadata);
+
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
@@ -1141,9 +1147,14 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         }
         
         [_metadataByTxId removeObjectForKey:transaction.txId];
+
+        DDLogDebug(@"Removed transaction %@ metadata", transaction.txId);
+
         [_txsById removeObjectForKey:transaction.txId];
         [_txs removeObject:transaction];
         
+        DDLogDebug(@"Unregistered transaction: %@", transaction);
+
         if (!batch) {
             [self sortTransactions];
             [self recalculateSpendsAndBalance];
@@ -1173,6 +1184,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             
             metadata = [[WSTransactionMetadata alloc] initWithParentBlock:block];
             _metadataByTxId[tx.txId] = metadata;
+
+            DDLogDebug(@"Updated transaction %@ metadata: %@", tx.txId, metadata);
             
             if (!updates) {
                 updates = [[NSMutableDictionary alloc] init];
@@ -1206,6 +1219,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             
             metadata = [[WSTransactionMetadata alloc] initWithNoParentBlock];
             _metadataByTxId[tx.txId] = metadata;
+
+            DDLogDebug(@"Updated transaction %@ metadata: %@", tx.txId, metadata);
             
             if (!updates) {
                 updates = [[NSMutableDictionary alloc] init];
@@ -1239,6 +1254,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             
             metadata = [[WSTransactionMetadata alloc] initWithNoParentBlock];
             _metadataByTxId[txId] = metadata;
+            
+            DDLogDebug(@"Updated transaction %@ metadata: %@", txId, metadata);
             
             if (!updates) {
                 updates = [[NSMutableDictionary alloc] init];
