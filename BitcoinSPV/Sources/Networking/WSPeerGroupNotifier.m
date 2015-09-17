@@ -187,7 +187,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 - (void)notifyTransaction:(WSSignedTransaction *)transaction isPublished:(BOOL)isPublished fromPeer:(WSPeer *)peer
 {
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
-                                                                               WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
+                                                                               WSPeerGroupRelayIsPublishedKey: @(isPublished),
+                                                                               WSPeerGroupPeerHostKey: peer.remoteHost}];
 }
 
 - (void)notifyRejectMessage:(WSMessageReject *)message wasPending:(BOOL)wasPending fromPeer:(WSPeer *)peer
@@ -198,7 +199,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
                                                                          WSPeerGroupRejectTransactionIdKey: txId,
-                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending)}];
+                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending),
+                                                                         WSPeerGroupPeerHostKey: peer.remoteHost}];
     }
     else if ([message.message isEqualToString:WSMessageRejectMessageBlock]) {
         WSHash256 *blockId = WSHash256FromData(message.payload);
@@ -206,7 +208,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
                                                                          WSPeerGroupRejectBlockIdKey: blockId,
-                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending)}];
+                                                                         WSPeerGroupRejectWasPendingKey: @(wasPending),
+                                                                         WSPeerGroupPeerHostKey: peer.remoteHost}];
     }
 }
 
