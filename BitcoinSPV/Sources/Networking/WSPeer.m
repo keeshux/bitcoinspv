@@ -134,7 +134,6 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
-        self.identifier = [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
         self.needsBloomFiltering = flags.needsBloomFiltering;
         self.delegateQueue = dispatch_get_main_queue();
 
@@ -142,6 +141,8 @@
         _remoteHost = host;
         _remoteAddress = WSNetworkIPv4FromHost(_remoteHost);
         _remotePort = [self.parameters peerPort];
+
+        self.identifier = [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
 
 #ifdef BSPV_TEST_MESSAGE_QUEUE
         self.messageQueueCondition = [[NSCondition alloc] init];
