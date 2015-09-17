@@ -395,7 +395,7 @@
             break;
         }
         default: {
-            DDLogError(@"%@ Unknown network stream eventCode %u", self, (long)eventCode);
+            DDLogError(@"%@ Unknown network stream eventCode %lu", self, (unsigned long)eventCode);
             break;
         }
     }
