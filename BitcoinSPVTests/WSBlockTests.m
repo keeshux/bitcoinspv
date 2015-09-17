@@ -146,6 +146,19 @@
     }
 }
 
+- (void)testTransactionInPartialMerkleTree
+{
+    NSString *blockHex = @"0300000010ecc5c88e6de3e673086b76e72fb8c50156df80e83c215729d13c07000000007c553d05a76d608ef73458f2342dda6c0e9385e48ddfda7538f898a891ee065ec9aefa55ffff001d57c4fd79150000000593c2d1c800939e157c9eb0701a4e1e152be81f51c1831b121524dec3f7a43f6c1ecb4aa61e62572cfbaac98f8f4b7f471e40e66b7dceea232d9cf10745d1e6a4b64ecdf832647ee84625f3bcfb727d80d466be3e042d41182098b93633659db6e05a4c3757e95c952b335d4bba6560b918e17ca40b5b940e35eaf8ec90e5a83c0747998537a41529920ed9e4ccfb4a98c08631137920ba5485237c8272cfa72a02dd00";
+    NSString *txIdHex = @"b69d653336b9982018412d043ebe66d4807d72fbbcf32546e87e6432f8cd4eb6";
+
+    WSFilteredBlock *block = WSFilteredBlockFromHex(self.networkParameters, blockHex);
+    WSHash256 *txId = WSHash256FromHex(txIdHex);
+    
+    DDLogInfo(@"PMT transactions: %@", [block.partialMerkleTree valueForKey:@"matchedTxIds"]);
+
+    XCTAssertTrue([block.partialMerkleTree containsTransactionWithId:txId]);
+}
+
 - (void)testVerifyBlockHeaders
 {
     NSArray *headers = @[@"0100000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea330900000000bac8b0fa927c0ac8234287e33c5f74d38d354820e24756ad709d7038fc5f31f020e7494dffff001d03e4b67200",
