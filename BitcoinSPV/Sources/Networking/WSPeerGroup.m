@@ -553,12 +553,17 @@
     for (WSInventory *inv in inventories) {
 
         // look for relayed transaction
-        if ((inv.inventoryType == WSInventoryTypeTx) &&
-            self.publishedTransactions[inv.inventoryHash]) {
-            
+        if ((inv.inventoryType == WSInventoryTypeTx) && self.publishedTransactions[inv.inventoryHash]) {
             WSSignedTransaction *transaction = self.publishedTransactions[inv.inventoryHash];
             const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
+            if (!isPublished) {
+                return;
+            }
             [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+
+            if (self.downloader) {
+                [self.downloader peerGroup:self peer:peer didReceiveTransaction:transaction];
+            }
         }
     }
     

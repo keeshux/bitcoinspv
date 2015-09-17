@@ -464,9 +464,9 @@
 
 - (void)peerGroup:(WSPeerGroup *)peerGroup peer:(WSPeer *)peer didReceiveTransaction:(WSSignedTransaction *)transaction
 {
-    if (peer != self.downloadPeer) {
-        return;
-    }
+//    if (peer != self.downloadPeer) {
+//        return;
+//    }
 
     [self handleReceivedTransaction:transaction];
 }
