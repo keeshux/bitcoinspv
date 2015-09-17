@@ -186,7 +186,7 @@
                          @"xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTfunKau47EL2dhHKon",
                          @"xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt"];
     
-    NSUInteger i = 0;
+    unsigned i = 0;
     for (WSBIP32Key *key in keys) {
         NSString *testPub = pubKeys[i];
         
@@ -196,7 +196,7 @@
         DDLogInfo(@"%@", [testPub hexFromBase58Check]);
         DDLogInfo(@"");
         
-        XCTAssertEqualObjects([key serializedKey], testPub, @"Key %d", i);
+        XCTAssertEqualObjects([key serializedKey], testPub, @"Key %u", i);
         
         ++i;
     }
@@ -334,7 +334,7 @@
     NSString *mnemonic = [self mockWalletMnemonic];
     NSData *keyData = [[mnemonic dataUsingEncoding:NSUTF8StringEncoding] SHA256]; // weak hash
     WSHDKeyring *bip32 = [[WSHDKeyring alloc] initWithParameters:self.networkParameters data:keyData];
-    const NSUInteger count = 100;
+    const unsigned count = 100;
     NSTimeInterval startTime;
     
     startTime = [NSDate timeIntervalSinceReferenceDate];
