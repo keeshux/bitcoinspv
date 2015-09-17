@@ -87,7 +87,7 @@
 - (void)truncateBlockChainForRescan;
 
 // entity handlers
-- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead;
+- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead originalEntity:(id)entity;
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction;
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block;
@@ -787,8 +787,9 @@
         
         [self logAddedBlock:addedBlock location:location];
 
-        for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-            [self handleAddedBlock:block previousHead:previousHead];
+        [self handleAddedBlock:addedBlock previousHead:previousHead originalEntity:header];
+        for (WSStorableBlock *block in connectedOrphans) {
+            [self handleAddedBlock:block previousHead:previousHead originalEntity:nil];
         }
     }
 
@@ -825,8 +826,9 @@
     
     [self logAddedBlock:addedBlock location:location];
 
-    for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-        [self handleAddedBlock:block previousHead:previousHead];
+    [self handleAddedBlock:addedBlock previousHead:previousHead originalEntity:fullBlock];
+    for (WSStorableBlock *block in connectedOrphans) {
+        [self handleAddedBlock:block previousHead:previousHead originalEntity:nil];
     }
 
     return YES;
@@ -863,8 +865,9 @@
     
     [self logAddedBlock:addedBlock location:location];
 
-    for (WSStorableBlock *block in [connectedOrphans arrayByAddingObject:addedBlock]) {
-        [self handleAddedBlock:block previousHead:previousHead];
+    [self handleAddedBlock:addedBlock previousHead:previousHead originalEntity:filteredBlock];
+    for (WSStorableBlock *block in connectedOrphans) {
+        [self handleAddedBlock:block previousHead:previousHead originalEntity:nil];
     }
     
     return YES;
@@ -884,10 +887,11 @@
 
 #pragma mark Entity handlers
 
-- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead
+- (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead originalEntity:(id)entity
 {
     NSParameterAssert(block);
     NSParameterAssert(previousHead);
+    NSParameterAssert(entity);
 
     // new block
     if (![block.blockId isEqual:previousHead.blockId]) {
