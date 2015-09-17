@@ -420,10 +420,13 @@
     
     __block BOOL published = NO;
     dispatch_sync(self.queue, ^{
+        if (![self unsafeIsConnected]) {
+            return;
+        }
         if (safely && ![self.downloader isSynced]) {
             return;
         }
-        if (!self.keepConnected || self.pendingTransactions[transaction.txId]) {
+        if (self.pendingTransactions[transaction.txId]) {
             return;
         }
         
