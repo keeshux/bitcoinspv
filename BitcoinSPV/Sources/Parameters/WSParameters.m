@@ -37,10 +37,6 @@
 @interface WSParameters ()
 
 @property (nonatomic, assign) WSNetworkType networkType;
-@property (nonatomic, strong) NSMutableArray *mutableDnsSeeds;
-@property (nonatomic, strong) NSArray *checkpoints;
-@property (nonatomic, strong) NSDictionary *checkpointsByHeight;
-
 @property (nonatomic, assign) uint32_t magicNumber;
 @property (nonatomic, assign) uint8_t publicKeyAddressVersion;
 @property (nonatomic, assign) uint8_t scriptAddressVersion;
@@ -56,6 +52,10 @@
 @property (nonatomic, assign) uint32_t retargetInterval;
 @property (nonatomic, strong) WSFilteredBlock *genesisBlock;
 
+@property (nonatomic, strong) NSArray *checkpoints;
+@property (nonatomic, strong) NSDictionary *checkpointsByHeight;
+@property (nonatomic, strong) NSMutableArray *mutableDnsSeeds;
+
 @end
 
 @implementation WSParameters
@@ -64,8 +64,8 @@
 {
     if ((self = [super init])) {
         self.networkType = networkType;
-        self.mutableDnsSeeds = [[NSMutableArray alloc] init];
         self.checkpoints = nil;
+        self.mutableDnsSeeds = [[NSMutableArray alloc] init];
     }
     return self;
 }
