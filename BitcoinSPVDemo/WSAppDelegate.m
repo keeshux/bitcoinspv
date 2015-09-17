@@ -41,7 +41,7 @@ static const NSTimeInterval WALLET_CREATION_TIME    = 423352800;
 
 @interface WSAppDelegate ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 
 @property (nonatomic, strong) UILabel *labelBalance;
 @property (nonatomic, strong) UITextField *textAddress;
