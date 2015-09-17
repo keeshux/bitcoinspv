@@ -559,7 +559,7 @@
             if (!isPublished) {
                 return;
             }
-            [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+            [self.notifier notifyTransaction:transaction isPublished:isPublished fromPeer:peer];
 
             if (self.downloader) {
                 [self.downloader peerGroup:self peer:peer didReceiveTransaction:transaction];
@@ -618,7 +618,7 @@
     DDLogVerbose(@"Received transaction from %@: %@", peer, transaction);
 
     const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
-    [self.notifier notifyTransaction:transaction fromPeer:peer isPublished:isPublished];
+    [self.notifier notifyTransaction:transaction isPublished:isPublished fromPeer:peer];
     
     [self.downloader peerGroup:self peer:peer didReceiveTransaction:transaction];
 }
@@ -689,7 +689,9 @@
 {
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
-#warning TODO: handle reject message
+#warning TODO: unpublish rejected transaction
+
+    [self.notifier notifyRejectMessage:message fromPeer:peer];
 }
 
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes

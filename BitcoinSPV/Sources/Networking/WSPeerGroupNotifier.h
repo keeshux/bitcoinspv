@@ -32,6 +32,7 @@
 @class WSStorableBlock;
 @protocol WSTransaction;
 @class WSSignedTransaction;
+@class WSMessageReject;
 
 extern NSString *const WSPeerGroupDidConnectNotification;
 extern NSString *const WSPeerGroupDidDisconnectNotification;
@@ -53,6 +54,12 @@ extern NSString *const WSPeerGroupDidRelayTransactionNotification;
 extern NSString *const WSPeerGroupRelayTransactionKey;
 extern NSString *const WSPeerGroupRelayIsPublishedKey;
 
+extern NSString *const WSPeerGroupDidRejectNotification;
+extern NSString *const WSPeerGroupRejectCodeKey;
+extern NSString *const WSPeerGroupRejectReasonKey;
+extern NSString *const WSPeerGroupRejectTransactionIdKey;
+extern NSString *const WSPeerGroupRejectBlockIdKey;
+
 extern NSString *const WSPeerGroupErrorKey;
 
 #pragma mark -
@@ -72,7 +79,8 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyDownloadFinished;
 - (void)notifyDownloadFailedWithError:(NSError *)error;
 - (void)notifyBlock:(WSStorableBlock *)block;
-- (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished;
+- (void)notifyTransaction:(WSSignedTransaction *)transaction isPublished:(BOOL)isPublished fromPeer:(WSPeer *)peer;
+- (void)notifyRejectMessage:(WSMessageReject *)message fromPeer:(WSPeer *)peer;
 - (void)notifyRescan;
 
 - (BOOL)didNotifyDownloadStarted;

@@ -32,6 +32,7 @@
 #import "WSPeer.h"
 #import "WSStorableBlock.h"
 #import "WSTransaction.h"
+#import "WSMessageReject.h"
 #import "WSLogging.h"
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
@@ -55,6 +56,12 @@ NSString *const WSPeerGroupDownloadBlockKey                     = @"Block";
 NSString *const WSPeerGroupDidRelayTransactionNotification      = @"WSPeerGroupDidRelayTransactionNotification";
 NSString *const WSPeerGroupRelayTransactionKey                  = @"Transaction";
 NSString *const WSPeerGroupRelayIsPublishedKey                  = @"IsPublished";
+
+NSString *const WSPeerGroupDidRejectNotification                = @"WSPeerGroupDidRejectNotification";
+NSString *const WSPeerGroupRejectCodeKey                        = @"Code";
+NSString *const WSPeerGroupRejectReasonKey                      = @"Reason";
+NSString *const WSPeerGroupRejectTransactionIdKey               = @"TransactionId";
+NSString *const WSPeerGroupRejectBlockIdKey                     = @"BlockId";
 
 NSString *const WSPeerGroupErrorKey                             = @"Error";
 
@@ -176,10 +183,28 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     [self notifyWithName:WSPeerGroupDidDownloadBlockNotification userInfo:@{WSPeerGroupDownloadBlockKey: block}];
 }
 
-- (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished
+- (void)notifyTransaction:(WSSignedTransaction *)transaction isPublished:(BOOL)isPublished fromPeer:(WSPeer *)peer
 {
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
+}
+
+- (void)notifyRejectMessage:(WSMessageReject *)message fromPeer:(WSPeer *)peer
+{
+    if ([message.message isEqualToString:WSMessageType_TX]) {
+        WSHash256 *txId = WSHash256FromData(message.payload);
+
+        [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
+                                                                         WSPeerGroupRejectReasonKey: message.reason,
+                                                                         WSPeerGroupRejectTransactionIdKey: txId}];
+    }
+    else if ([message.message isEqualToString:WSMessageType_BLOCK]) {
+        WSHash256 *blockId = WSHash256FromData(message.payload);
+
+        [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
+                                                                         WSPeerGroupRejectReasonKey: message.reason,
+                                                                         WSPeerGroupRejectBlockIdKey: blockId}];
+    }
 }
 
 - (void)notifyRescan
