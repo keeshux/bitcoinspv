@@ -102,7 +102,10 @@
 
 - (void)testGeneration
 {
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:self.seed gapLimit:25];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                           seed:self.seed
+                                                     chainsPath:WSBIP32DefaultPath
+                                                       gapLimit:25];
 
     NSArray *expReceives = @[@"mxxPia3SdVKxbcHSguq44RvSXHzFZkKsJP",
                              @"mm4Z6thuZxVAYXXVU35KxzirnfFZ7YwszT",

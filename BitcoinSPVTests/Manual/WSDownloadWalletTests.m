@@ -91,7 +91,10 @@
 {
     self.stopOnSync = YES;
 
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                           seed:[self walletSeed]
+                                                     chainsPath:WSBIP32DefaultPath
+                                                       gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
     wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;
@@ -133,7 +136,10 @@
 {
     self.stopOnSync = YES;
     
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:[self walletSeed] gapLimit:WALLET_GAP_LIMIT];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                           seed:[self walletSeed]
+                                                     chainsPath:WSBIP32DefaultPath
+                                                       gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
     wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;

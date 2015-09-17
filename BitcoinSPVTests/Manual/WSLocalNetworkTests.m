@@ -239,7 +239,10 @@
     WSSeed *seed = WSSeedMakeUnknown(mnemonic);
     WSHDWallet *wallet = [WSHDWallet loadFromPath:walletPath parameters:self.networkParameters seed:seed];
     if (!wallet) {
-        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:seed gapLimit:4];
+        wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                   seed:seed
+                                             chainsPath:WSBIP32DefaultPath
+                                               gapLimit:4];
     }
 
     static dispatch_once_t onceToken;

@@ -51,7 +51,10 @@
 
     NSString *mnemonic = [self mockWalletMnemonic];
     WSSeed *seed = WSSeedMakeNow(mnemonic);
-    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters seed:seed gapLimit:WALLET_GAP_LIMIT];
+    WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
+                                                           seed:seed
+                                                     chainsPath:WSBIP32DefaultPath
+                                                       gapLimit:WALLET_GAP_LIMIT];
     [self saveWallet:wallet];
 }
 

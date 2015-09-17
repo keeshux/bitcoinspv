@@ -39,8 +39,8 @@
 @property (nonatomic, assign) BOOL shouldAutosave; // NO
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
+- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath gapLimit:(NSUInteger)gapLimit;
 - (id<WSParameters>)parameters;
 - (WSSeed *)seed;
 - (NSUInteger)gapLimit;
@@ -55,6 +55,5 @@
 // provide the seed each time you reload a serialized wallet.
 //
 + (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed;
-+ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
 
 @end
