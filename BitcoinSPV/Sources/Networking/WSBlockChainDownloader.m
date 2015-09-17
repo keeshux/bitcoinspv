@@ -886,6 +886,9 @@
 
 - (void)handleAddedBlock:(WSStorableBlock *)block previousHead:(WSStorableBlock *)previousHead
 {
+    NSParameterAssert(block);
+    NSParameterAssert(previousHead);
+
     // new block
     if (![block.blockId isEqual:previousHead.blockId]) {
         [self.peerGroup.notifier notifyBlockAdded:block];
@@ -921,6 +924,8 @@
 
 - (void)handleReceivedTransaction:(WSSignedTransaction *)transaction
 {
+    NSParameterAssert(transaction);
+
     BOOL didGenerateNewAddresses = NO;
     if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
         return;
@@ -937,6 +942,10 @@
 
 - (void)handleReorganizeAtBase:(WSStorableBlock *)base oldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks
 {
+    NSParameterAssert(base);
+    NSParameterAssert(oldBlocks);
+    NSParameterAssert(newBlocks);
+
     DDLogDebug(@"Reorganized blockchain at block: %@", base);
     DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
     DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
@@ -970,6 +979,8 @@
 
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block
 {
+    NSParameterAssert(block);
+
     //
     // enforce registration in case we lost these transactions
     //
@@ -1070,6 +1081,8 @@
 
 - (void)logRejectedBlock:(id)block location:(WSBlockChainLocation)location error:(NSError *)error
 {
+    NSParameterAssert(block);
+
     if (location == WSBlockChainLocationOrphan) {
         return;
     }
@@ -1084,6 +1097,8 @@
 
 - (void)storeRelevantError:(NSError *)error intoError:(NSError *__autoreleasing *)outError
 {
+    NSParameterAssert(error);
+
     if (!outError) {
         return;
     }
