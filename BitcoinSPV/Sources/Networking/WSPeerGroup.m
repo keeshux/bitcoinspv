@@ -558,7 +558,7 @@
             WSSignedTransaction *transaction = self.pendingTransactions[inv.inventoryHash];
             const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
             if (!isPublished) {
-                return;
+                continue;
             }
             [self.notifier notifyTransaction:transaction isPublished:isPublished fromPeer:peer];
 
