@@ -90,6 +90,7 @@
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
 @property (nonatomic, strong) NSMutableDictionary *pendingTransactions;     // WSHash256 -> WSSignedTransaction
+@property (nonatomic, strong) NSMutableDictionary *pendingPeerHostsByTxId;  // WSHash256 -> NSMutableSet<NSString>
 
 @property (nonatomic, strong) id<WSPeerGroupDownloader> downloader;
 
@@ -152,6 +153,7 @@
         self.connectedPeers = [[NSMutableDictionary alloc] init];
         self.misbehavingHosts = [[NSMutableSet alloc] init];
         self.pendingTransactions = [[NSMutableDictionary alloc] init];
+        self.pendingPeerHostsByTxId = [[NSMutableDictionary alloc] init];
 
         [self.reachability startNotifier];
     }
@@ -431,8 +433,16 @@
         NSMutableArray *publishingPeers = [[self.connectedPeers allValues] mutableCopy];
         [publishingPeers removeObjectAtIndex:(arc4random() % publishingPeers.count)];
         
+        WSHash256 *txId = transaction.txId;
         for (WSPeer *peer in publishingPeers) {
-            [peer sendInvMessageWithInventory:WSInventoryTx(transaction.txId)];
+            [peer sendInvMessageWithInventory:WSInventoryTx(txId)];
+
+            NSMutableSet *pendingHosts = self.pendingPeerHostsByTxId[txId];
+            if (!pendingHosts) {
+                pendingHosts = [[NSMutableSet alloc] initWithCapacity:self.connectedPeers.count];
+                self.pendingPeerHostsByTxId[txId] = pendingHosts;
+            }
+            [pendingHosts addObject:peer.remoteHost];
         }
         published = YES;
     });
@@ -1016,12 +1026,18 @@
 
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer
 {
+    WSHash256 *txId = transaction.txId;
     BOOL isPublished = NO;
-    if (self.pendingTransactions[transaction.txId]) {
-        [self.pendingTransactions removeObjectForKey:transaction.txId];
+    if (self.pendingTransactions[txId]) {
         isPublished = YES;
+
+        NSMutableSet *pendingHosts = self.pendingPeerHostsByTxId[txId];
+        [pendingHosts removeObject:peer.remoteHost];
+        if (pendingHosts.count == 0) {
+            [self.pendingTransactions removeObjectForKey:txId];
+        }
         
-        DDLogInfo(@"Peer %@ published pending transaction: %@", peer, transaction.txId);
+        DDLogInfo(@"Peer %@ published pending transaction: %@", peer, txId);
     }
     return isPublished;
 }
@@ -1030,8 +1046,13 @@
 {
     BOOL wasPending = NO;
     if (self.pendingTransactions[txId]) {
-        [self.pendingTransactions removeObjectForKey:txId];
         wasPending = YES;
+
+        NSMutableSet *pendingHosts = self.pendingPeerHostsByTxId[txId];
+        [pendingHosts removeObject:peer.remoteHost];
+        if (pendingHosts.count == 0) {
+            [self.pendingTransactions removeObjectForKey:txId];
+        }
 
         DDLogInfo(@"Peer %@ rejected pending transaction: %@", peer, txId);
     }
