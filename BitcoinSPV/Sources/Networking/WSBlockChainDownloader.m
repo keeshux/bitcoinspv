@@ -1101,9 +1101,7 @@
 
 - (void)storeRelevantError:(NSError *)error intoError:(NSError *__autoreleasing *)outError
 {
-    NSParameterAssert(error);
-
-    if (!outError) {
+    if (!error || !outError) {
         return;
     }
     if ((error.domain == WSErrorDomain) && (error.code == WSErrorCodeInvalidBlock)) {
