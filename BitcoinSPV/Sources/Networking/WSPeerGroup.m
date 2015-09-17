@@ -89,7 +89,7 @@
 @property (nonatomic, assign) NSUInteger connectionFailures;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
-@property (nonatomic, strong) NSMutableDictionary *publishedTransactions;   // WSHash256 -> WSSignedTransaction
+@property (nonatomic, strong) NSMutableDictionary *pendingTransactions;     // WSHash256 -> WSSignedTransaction
 
 @property (nonatomic, strong) id<WSPeerGroupDownloader> downloader;
 
@@ -151,7 +151,7 @@
         self.pendingPeers = [[NSMutableDictionary alloc] init];
         self.connectedPeers = [[NSMutableDictionary alloc] init];
         self.misbehavingHosts = [[NSMutableSet alloc] init];
-        self.publishedTransactions = [[NSMutableDictionary alloc] init];
+        self.pendingTransactions = [[NSMutableDictionary alloc] init];
 
         [self.reachability startNotifier];
     }
@@ -421,11 +421,11 @@
         if (safely && ![self.downloader isSynced]) {
             return;
         }
-        if (!self.keepConnected || self.publishedTransactions[transaction.txId]) {
+        if (!self.keepConnected || self.pendingTransactions[transaction.txId]) {
             return;
         }
         
-        self.publishedTransactions[transaction.txId] = transaction;
+        self.pendingTransactions[transaction.txId] = transaction;
         
         // exclude one random peer to receive tx broadcast back
         NSMutableArray *publishingPeers = [[self.connectedPeers allValues] mutableCopy];
@@ -554,8 +554,8 @@
     for (WSInventory *inv in inventories) {
 
         // look for relayed transaction
-        if ((inv.inventoryType == WSInventoryTypeTx) && self.publishedTransactions[inv.inventoryHash]) {
-            WSSignedTransaction *transaction = self.publishedTransactions[inv.inventoryHash];
+        if ((inv.inventoryType == WSInventoryTypeTx) && self.pendingTransactions[inv.inventoryHash]) {
+            WSSignedTransaction *transaction = self.pendingTransactions[inv.inventoryHash];
             const BOOL isPublished = [self findAndRemovePublishedTransaction:transaction fromPeer:peer];
             if (!isPublished) {
                 return;
@@ -651,7 +651,7 @@
     DDLogDebug(@"Received data request from %@ with inventories: %@", peer, inventories);
 
     NSMutableArray *notfoundInventories = [[NSMutableArray alloc] initWithCapacity:inventories.count];
-    NSMutableSet *publishedTransactions = [[NSMutableSet alloc] initWithCapacity:inventories.count];
+    NSMutableSet *pendingTransactions = [[NSMutableSet alloc] initWithCapacity:inventories.count];
     
     for (WSInventory *inv in inventories) {
         
@@ -662,7 +662,7 @@
         }
         
         WSHash256 *txId = inv.inventoryHash;
-        WSSignedTransaction *transaction = self.publishedTransactions[txId];
+        WSSignedTransaction *transaction = self.pendingTransactions[txId];
         
         // requested transaction we don't own
         if (!transaction) {
@@ -671,18 +671,18 @@
         }
         
         [peer sendTxMessageWithTransaction:transaction];
-        [publishedTransactions addObject:transaction.txId];
+        [pendingTransactions addObject:transaction.txId];
     }
     
     if (notfoundInventories.count > 0) {
         [peer sendNotfoundMessageWithInventories:notfoundInventories];
     }
     
-    if (publishedTransactions.count > 0) {
-        DDLogDebug(@"Published transactions to peer %@: %@", peer, publishedTransactions);
+    if (pendingTransactions.count > 0) {
+        DDLogDebug(@"Published pending transactions to peer %@: %@", peer, pendingTransactions);
     }
     else {
-        DDLogDebug(@"No published transactions");
+        DDLogDebug(@"No transaction was published");
     }
 }
 
@@ -1015,21 +1015,21 @@
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer
 {
     BOOL isPublished = NO;
-    if (self.publishedTransactions[transaction.txId]) {
-        [self.publishedTransactions removeObjectForKey:transaction.txId];
+    if (self.pendingTransactions[transaction.txId]) {
+        [self.pendingTransactions removeObjectForKey:transaction.txId];
         isPublished = YES;
         
-        DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction.txId);
+        DDLogInfo(@"Peer %@ relayed pending transaction: %@", peer, transaction.txId);
     }
     return isPublished;
 }
 
 - (void)rejectTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer
 {
-    if (self.publishedTransactions[txId]) {
-        [self.publishedTransactions removeObjectForKey:txId];
+    if (self.pendingTransactions[txId]) {
+        [self.pendingTransactions removeObjectForKey:txId];
 
-        DDLogInfo(@"Peer %@ rejected published transaction: %@", peer, txId);
+        DDLogInfo(@"Peer %@ rejected pending transaction: %@", peer, txId);
     }
 }
 
