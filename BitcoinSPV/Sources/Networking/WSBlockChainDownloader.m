@@ -195,6 +195,13 @@
     }
 }
 
+- (void)setShouldAutoSaveWallet:(BOOL)shouldAutoSaveWallet
+{
+    _shouldAutoSaveWallet = shouldAutoSaveWallet;
+    
+    [self.wallet setShouldAutoSave:_shouldAutoSaveWallet];
+}
+
 #pragma mark WSPeerGroupDownloader
 
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup

@@ -41,14 +41,16 @@
 //
 @interface WSBlockChainDownloader : NSObject <WSPeerGroupDownloader>
 
+@property (nonatomic, strong) WSCoreDataManager *coreDataManager;           // nil
 @property (nonatomic, assign) BOOL shouldAutoSaveWallet;                    // YES
+
+// tuning
 @property (nonatomic, assign) double bloomFilterRateMin;                    // 0.0001
 @property (nonatomic, assign) double bloomFilterRateDelta;                  // 0.0004
 @property (nonatomic, assign) double bloomFilterObservedRateMax;            // 0.005
 @property (nonatomic, assign) double bloomFilterLowPassRatio;               // 0.01
 @property (nonatomic, assign) NSUInteger bloomFilterTxsPerBlock;            // 600
 @property (nonatomic, assign) NSTimeInterval requestTimeout;                // 5.0
-@property (nonatomic, strong) WSCoreDataManager *coreDataManager;           // nil
 
 - (instancetype)initWithStore:(id<WSBlockStore>)store headersOnly:(BOOL)headersOnly;
 - (instancetype)initWithStore:(id<WSBlockStore>)store fastCatchUpTimestamp:(uint32_t)fastCatchUpTimestamp;
