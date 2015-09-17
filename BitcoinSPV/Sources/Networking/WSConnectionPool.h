@@ -31,6 +31,8 @@
 
 @class WSParameters;
 
+#pragma mark -
+
 //
 // thread-safe: yes
 //

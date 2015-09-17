@@ -34,6 +34,8 @@
 @protocol WSSynchronizableWallet;
 @class WSCoreDataManager;
 
+#pragma mark -
+
 //
 // thread-safe: no (should only run in group queue)
 //
