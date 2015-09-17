@@ -68,8 +68,8 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)isWalletAddress:(WSAddress *)address;
 
 // history
-- (NSArray *)allTransactions;               // WSSignedTransaction
-- (NSArray *)unspentOutputs;                // WSTransactionOutPoint
+- (NSDictionary *)allTransactions;          // WSHash256 -> WSSignedTransaction
+- (NSArray *)sortedTransactions;            // WSSignedTransaction
 - (NSArray *)transactionsInRange:(NSRange)range;
 - (uint64_t)receivedValueFromTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)sentValueByTransaction:(WSSignedTransaction *)transaction;
@@ -78,6 +78,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)isInternalTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)balance;
 - (uint64_t)confirmedBalance;
+- (NSArray *)unspentOutputs;                // WSTransactionOutPoint
 - (WSTransactionMetadata *)metadataForTransactionId:(WSHash256 *)txId;
 
 // spending (fee = 0 for standard fee)

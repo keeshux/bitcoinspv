@@ -311,17 +311,17 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 #pragma mark History
 
-- (NSArray *)allTransactions
+- (NSDictionary *)allTransactions
 {
     @synchronized (self) {
-        return [_txs array];
+        return [_txsById copy];
     }
 }
 
-- (NSArray *)unspentOutputs
+- (NSArray *)sortedTransactions
 {
     @synchronized (self) {
-        return [_unspentOutpoints array];
+        return [_txs array];
     }
 }
 
@@ -435,6 +435,13 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 {
     @synchronized (self) {
         return _confirmedBalance;
+    }
+}
+
+- (NSArray *)unspentOutputs
+{
+    @synchronized (self) {
+        return [_unspentOutpoints array];
     }
 }
 
