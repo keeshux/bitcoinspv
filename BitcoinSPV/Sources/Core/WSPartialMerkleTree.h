@@ -40,6 +40,7 @@
 - (NSData *)flags;
 
 - (WSHash256 *)merkleRoot;
-- (BOOL)containsTransactionWithId:(WSHash256 *)txId;
+- (NSSet *)matchedTxIds;
+- (BOOL)matchesTransactionWithId:(WSHash256 *)txId;
 
 @end

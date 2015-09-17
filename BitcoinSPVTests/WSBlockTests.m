@@ -140,7 +140,7 @@
         
         WSPartialMerkleTree *pmt = block.partialMerkleTree;
         WSHash256 *txId = WSHash256FromHex(txIds[i]);
-        XCTAssertTrue([pmt containsTransactionWithId:txId]);
+        XCTAssertTrue([pmt matchesTransactionWithId:txId]);
 
         ++i;
     }
@@ -156,7 +156,7 @@
     
     DDLogInfo(@"PMT transactions: %@", [block.partialMerkleTree valueForKey:@"matchedTxIds"]);
 
-    XCTAssertTrue([block.partialMerkleTree containsTransactionWithId:txId]);
+    XCTAssertTrue([block.partialMerkleTree matchesTransactionWithId:txId]);
 }
 
 - (void)testVerifyBlockHeaders

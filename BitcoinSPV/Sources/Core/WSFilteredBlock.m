@@ -76,7 +76,7 @@
 
 - (BOOL)containsTransactionWithId:(WSHash256 *)txId
 {
-    return [self.partialMerkleTree containsTransactionWithId:txId];
+    return [self.partialMerkleTree matchesTransactionWithId:txId];
 }
 
 #pragma mark WSBufferEncoder

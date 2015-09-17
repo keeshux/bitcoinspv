@@ -100,7 +100,7 @@
     return self;
 }
 
-- (BOOL)containsTransactionWithId:(WSHash256 *)txId
+- (BOOL)matchesTransactionWithId:(WSHash256 *)txId
 {
     WSExceptionCheckIllegal(txId);
 
