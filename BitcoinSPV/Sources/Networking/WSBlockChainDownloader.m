@@ -993,10 +993,12 @@
         didGenerateNewAddresses |= txDidGenerateNewAddresses;
     }
 
-    [self.wallet registerBlock:block];
+    // optionally merge txids from empty filtered block
+    WSFilteredBlock *filteredBlock;
     if ([entity isKindOfClass:[WSFilteredBlock class]]) {
-        [self.wallet registerBlock:block matchingFilteredBlock:entity];
+        filteredBlock = entity;
     }
+    [self.wallet registerBlock:block matchingFilteredBlock:filteredBlock];
 
     if (didGenerateNewAddresses) {
         DDLogWarn(@"Block registration triggered new addresses generation");
