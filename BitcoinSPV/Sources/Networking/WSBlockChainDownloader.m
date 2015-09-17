@@ -108,6 +108,7 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
+        self.autoSaveWallet = YES;
         self.bloomFilterRateMin = WSBlockChainDownloaderDefaultBFRateMin;
         self.bloomFilterRateDelta = WSBlockChainDownloaderDefaultBFRateDelta;
         self.bloomFilterObservedRateMax = WSBlockChainDownloaderDefaultBFObservedRateMax;
@@ -283,6 +284,9 @@
 - (void)saveState
 {
     [self trySaveBlockChainToCoreData];
+    if (self.autoSaveWallet) {
+        [self.wallet save];
+    }
 }
 
 #pragma mark WSPeerGroupDownloadDelegate

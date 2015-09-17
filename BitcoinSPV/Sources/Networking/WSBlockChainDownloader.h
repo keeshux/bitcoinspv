@@ -41,6 +41,7 @@
 //
 @interface WSBlockChainDownloader : NSObject <WSPeerGroupDownloader>
 
+@property (nonatomic, assign) BOOL autoSaveWallet;                          // YES
 @property (nonatomic, assign) double bloomFilterRateMin;                    // 0.0001
 @property (nonatomic, assign) double bloomFilterRateDelta;                  // 0.0004
 @property (nonatomic, assign) double bloomFilterObservedRateMax;            // 0.005
