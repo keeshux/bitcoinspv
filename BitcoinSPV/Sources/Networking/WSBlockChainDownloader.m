@@ -378,6 +378,14 @@
     
 #warning XXX: if !shouldDownloadBlocks, only download headers of new announced blocks
     
+    // ignore blockchain tip inventory if already an orphan
+    if (inventories.count == 1) {
+        WSInventory *headInventory = [inventories lastObject];
+        if ([self.blockChain isKnownOrphanBlockWithId:headInventory.inventoryHash]) {
+            return;
+        }
+    }
+    
     for (WSInventory *inv in inventories) {
         if ([inv isBlockInventory]) {
             if ([self needsBloomFiltering]) {

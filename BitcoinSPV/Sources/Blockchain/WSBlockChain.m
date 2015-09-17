@@ -397,8 +397,15 @@
 - (BOOL)isOrphanBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block);
-    
+
     return ![self.store blockForId:block.previousBlockId];
+}
+
+- (BOOL)isKnownOrphanBlockWithId:(WSHash256 *)blockId
+{
+    WSExceptionCheckIllegal(blockId);
+
+    return (self.orphans[blockId] != nil);
 }
 
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead

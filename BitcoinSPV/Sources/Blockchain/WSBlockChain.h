@@ -78,6 +78,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
                                   error:(NSError **)error;
 
 - (BOOL)isOrphanBlock:(WSStorableBlock *)block;
+- (BOOL)isKnownOrphanBlockWithId:(WSHash256 *)blockId;
 - (WSStorableBlock *)findForkBaseFromHead:(WSStorableBlock *)forkHead;
 
 - (void)loadFromCoreDataManager:(WSCoreDataManager *)manager;
