@@ -26,6 +26,7 @@
 //
 
 #import "WSMessageReject.h"
+#import "WSBitcoinConstants.h"
 #import "WSErrors.h"
 
 @interface WSMessageReject ()
@@ -33,28 +34,43 @@
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, assign) uint8_t code;
 @property (nonatomic, copy) NSString *reason;
+@property (nonatomic, copy) NSData *payload;
 
-- (instancetype)initWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
+- (instancetype)initWithParameters:(WSParameters *)parameters
+                           message:(NSString *)message
+                              code:(uint8_t)code
+                            reason:(NSString *)reason
+                           payload:(NSData *)payload;
 
 @end
 
 @implementation WSMessageReject
 
-+ (instancetype)messageWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
++ (instancetype)messageWithParameters:(WSParameters *)parameters
+                              message:(NSString *)message
+                                 code:(uint8_t)code
+                               reason:(NSString *)reason
+                              payload:(NSData *)payload
 {
-    return [[self alloc] initWithParameters:parameters message:message code:code reason:reason];
+    return [[self alloc] initWithParameters:parameters message:message code:code reason:reason payload:payload];
 }
 
-- (instancetype)initWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
+- (instancetype)initWithParameters:(WSParameters *)parameters
+                           message:(NSString *)message
+                              code:(uint8_t)code
+                            reason:(NSString *)reason
+                           payload:(NSData *)payload
 {
     WSExceptionCheckIllegal(message);
     WSExceptionCheckIllegal(code <= 0x4f);
     WSExceptionCheckIllegal(reason);
+    WSExceptionCheckIllegal(payload);
     
     if ((self = [super initWithParameters:parameters])) {
         self.message = message;
         self.code = code;
         self.reason = reason;
+        self.payload = payload;
     }
     return self;
 }
@@ -78,6 +94,7 @@
     [buffer appendString:self.message];
     [buffer appendUint8:self.code];
     [buffer appendString:self.reason];
+    [buffer appendData:self.payload];
 }
 
 #pragma mark WSBufferDecoder
@@ -95,6 +112,14 @@
         offset += sizeof(uint8_t);
         
         self.reason = [buffer stringAtOffset:offset length:&varIntLength];
+        offset += varIntLength;
+        
+        if ([self.message isEqualToString:WSMessageType_TX]) {
+            self.payload = [buffer dataAtOffset:offset length:WSHash256Length];
+        }
+        else if ([self.message isEqualToString:WSMessageType_BLOCK]) {
+            self.payload = [buffer dataAtOffset:offset length:WSHash256Length];
+        }
     }
     return self;
 }

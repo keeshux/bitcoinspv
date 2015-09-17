@@ -29,9 +29,14 @@
 
 @interface WSMessageReject : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
++ (instancetype)messageWithParameters:(WSParameters *)parameters
+                              message:(NSString *)message
+                                 code:(uint8_t)code
+                               reason:(NSString *)reason
+                              payload:(NSData *)payload;
 - (NSString *)message;
 - (uint8_t)code;
 - (NSString *)reason;
+- (NSData *)payload;
 
 @end
