@@ -530,7 +530,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
     for (WSSignedTransaction *tx in block.transactions) {
         [self.wallet registerTransaction:tx didGenerateNewAddresses:NULL];
     }
-    [self.wallet registerBlock:block];
+    [self.wallet registerBlock:block matchingFilteredBlock:nil];
 
     DDLogInfo(@"Wallet transactions (%lu): %@", (unsigned long)self.wallet.allTransactions.count, self.wallet.allTransactions);
 }
