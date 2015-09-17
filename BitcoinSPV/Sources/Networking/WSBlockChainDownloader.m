@@ -95,7 +95,7 @@
 
 // macros
 - (void)logAddedBlock:(WSStorableBlock *)block location:(WSBlockChainLocation)location;
-- (void)logRejectedBlock:(id)block location:(WSBlockChainLocation)location error:(NSError *)error;
+- (void)logRejectedEntity:(id)entity location:(WSBlockChainLocation)location error:(NSError *)error;
 - (void)storeRelevantError:(NSError *)error intoError:(NSError **)outError;
 
 @end
@@ -780,7 +780,7 @@
         } error:&localError];
         
         if (!addedBlock) {
-            [self logRejectedBlock:header location:location error:localError];
+            [self logRejectedEntity:header location:location error:localError];
             [self storeRelevantError:localError intoError:error];
             return NO;
         }
@@ -818,7 +818,7 @@
     } error:&localError];
     
     if (!addedBlock) {
-        [self logRejectedBlock:fullBlock location:location error:localError];
+        [self logRejectedEntity:fullBlock location:location error:localError];
         [self storeRelevantError:localError intoError:error];
         return NO;
     }
@@ -856,7 +856,7 @@
     } error:&localError];
     
     if (!addedBlock) {
-        [self logRejectedBlock:filteredBlock location:location error:localError];
+        [self logRejectedEntity:filteredBlock location:location error:localError];
         [self storeRelevantError:localError intoError:error];
         return NO;
     }
@@ -1075,18 +1075,18 @@
     }
 }
 
-- (void)logRejectedBlock:(id)block location:(WSBlockChainLocation)location error:(NSError *)error
+- (void)logRejectedEntity:(id)entity location:(WSBlockChainLocation)location error:(NSError *)error
 {
-    NSParameterAssert(block);
+    NSParameterAssert(entity);
 
     if (location == WSBlockChainLocationOrphan) {
         return;
     }
     if (!error) {
-        DDLogDebug(@"%@ not added: %@", [block class], block);
+        DDLogDebug(@"%@ not added: %@", [entity class], entity);
     }
     else {
-        DDLogDebug(@"Error adding %@ (%@): %@", [block class], error, block);
+        DDLogDebug(@"Error adding %@ (%@): %@", [entity class], error, entity);
     }
     DDLogDebug(@"Current head: %@", self.blockChain.head);
 }
