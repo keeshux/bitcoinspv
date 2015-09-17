@@ -34,8 +34,6 @@
 
 #pragma mark -
 
-extern NSString *const WSHDWalletDefaultChainsPath;
-
 @interface WSHDWallet : NSObject <WSSynchronizableWallet>
 
 @property (nonatomic, assign) BOOL shouldAutosave; // NO

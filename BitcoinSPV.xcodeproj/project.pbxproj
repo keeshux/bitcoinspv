@@ -10,6 +10,7 @@
 		0E0E7C6C1AC44E0E00E7840B /* WSConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0E7C6B1AC44E0E00E7840B /* WSConnection.m */; };
 		0E1143921A352F6E00AB3F59 /* WSBIP21Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143911A352F6E00AB3F59 /* WSBIP21Tests.m */; };
 		0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E1143991A355E6100AB3F59 /* WSMessageBlock.m */; };
+		0E4F654F1BAB187500539E0A /* WSBIP44.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E4F654E1BAB187500539E0A /* WSBIP44.m */; };
 		0E6A02B91A2F762B001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E6A02BA1A2F762F001454C0 /* libBitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8FB7F7196776B400A07156 /* libBitcoinSPV.a */; };
 		0E761AB61AE6629A00F1F068 /* WSMacrosCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E761AB51AE6629A00F1F068 /* WSMacrosCore.m */; };
@@ -207,6 +208,8 @@
 		0E1143981A355E6100AB3F59 /* WSMessageBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageBlock.h; sourceTree = "<group>"; };
 		0E1143991A355E6100AB3F59 /* WSMessageBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSMessageBlock.m; sourceTree = "<group>"; };
 		0E282B1B1B0AAB8900D9C959 /* WSAbstractKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSAbstractKey.h; sourceTree = "<group>"; };
+		0E4F654D1BAB187500539E0A /* WSBIP44.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP44.h; sourceTree = "<group>"; };
+		0E4F654E1BAB187500539E0A /* WSBIP44.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP44.m; sourceTree = "<group>"; };
 		0E570D061B9F4E1E000E9D7C /* WSPeerGroup+Download.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WSPeerGroup+Download.h"; sourceTree = "<group>"; };
 		0E58BB2F1A3266A00042C935 /* WSCheckpointsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSCheckpointsTests.m; sourceTree = "<group>"; };
 		0E761AB41AE6629A00F1F068 /* WSMacrosCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMacrosCore.h; sourceTree = "<group>"; };
@@ -732,6 +735,8 @@
 				0EF696791A34DC57006E027C /* WSBIP38.m */,
 				8C8ADF97196786CA007787ED /* WSBIP39.h */,
 				8C8ADF98196786CA007787ED /* WSBIP39.m */,
+				0E4F654D1BAB187500539E0A /* WSBIP44.h */,
+				0E4F654E1BAB187500539E0A /* WSBIP44.m */,
 			);
 			path = BIPS;
 			sourceTree = "<group>";
@@ -1284,6 +1289,7 @@
 				8C40243B19840536008FDC5F /* WSTransactionOutPoint.m in Sources */,
 				8C8ADFFD196786CA007787ED /* WSBIP39.m in Sources */,
 				8C8AE006196786CA007787ED /* WSParametersFactoryMain.m in Sources */,
+				0E4F654F1BAB187500539E0A /* WSBIP44.m in Sources */,
 				8C497056196EEEF800BD9D3B /* WSAddress.m in Sources */,
 				0E11439A1A355E6100AB3F59 /* WSMessageBlock.m in Sources */,
 				8C497063196EEEF800BD9D3B /* WSTransaction.m in Sources */,

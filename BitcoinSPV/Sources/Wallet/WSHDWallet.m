@@ -32,6 +32,8 @@
 #import "WSHash256.h"
 #import "WSHash160.h"
 #import "WSHDKeyring.h"
+#import "WSBIP44.h"
+#import "WSBIP32.h"
 #import "WSTransactionOutPoint.h"
 #import "WSTransactionInput.h"
 #import "WSTransactionOutput.h"
@@ -51,7 +53,15 @@
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
 
-NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
+NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
+{
+#ifdef BSPV_BIP44_COMPLIANCE
+    const WSBIP44CoinType coinType = WSBIP44CoinTypeFromParameters(parameters);
+    return [NSString stringWithFormat:WSBIP44DefaultPathFormat, coinType];
+#else
+    return WSBIP32DefaultPath;
+#endif
+}
 
 @interface WSHDWallet () {
 
@@ -127,7 +137,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit
 {
-    return [self initWithParameters:parameters seed:seed gapLimit:gapLimit chainsPath:WSHDWalletDefaultChainsPath];
+    
+    return [self initWithParameters:parameters seed:seed gapLimit:gapLimit chainsPath:WSHDWalletDefaultChainsPath(parameters)];
 }
 
 - (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed gapLimit:(NSUInteger)gapLimit chainsPath:(NSString *)chainsPath
@@ -658,7 +669,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 + (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
 {
-    return [self loadFromPath:path parameters:parameters seed:seed chainsPath:WSHDWalletDefaultChainsPath];
+    return [self loadFromPath:path parameters:parameters seed:seed chainsPath:WSHDWalletDefaultChainsPath(parameters)];
 }
 
 + (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath

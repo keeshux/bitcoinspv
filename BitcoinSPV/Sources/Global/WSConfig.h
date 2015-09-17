@@ -29,13 +29,15 @@
 
 //#define BSPV_FEE_PRE_0_9_2_RULES
 
-#define BSPV_WALLET_FILTER_PUBKEYS         1 // bitcoinj approach
-#define BSPV_WALLET_FILTER_UNSPENT         2 // BreadWallet approach
-#define BSPV_WALLET_FILTER                 BSPV_WALLET_FILTER_UNSPENT
+#define BSPV_WALLET_FILTER_PUBKEYS          1 // bitcoinj approach
+#define BSPV_WALLET_FILTER_UNSPENT          2 // BreadWallet approach
+#define BSPV_WALLET_FILTER                  BSPV_WALLET_FILTER_UNSPENT
 
-//#define BSPV_TEST_NO_HASH_VALIDATIONS    // skip some checks for testing (e.g. hashed block id, tx id, ...)
-//#define BSPV_TEST_MESSAGE_QUEUE          // bufferize received messages for synchronous peer requests
-//#define BSPV_TEST_DUMMY_TXS              // don't check transaction relevancy
+#define BSPV_BIP44_COMPLIANCE               // HD wallet defaults to BIP44 chains
+
+//#define BSPV_TEST_NO_HASH_VALIDATIONS       // skip some checks for testing (e.g. hashed block id, tx id, ...)
+//#define BSPV_TEST_MESSAGE_QUEUE             // bufferize received messages for synchronous peer requests
+//#define BSPV_TEST_DUMMY_TXS                 // don't check transaction relevancy
 
 #pragma mark - Library
 

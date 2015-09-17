@@ -45,6 +45,8 @@ const NSUInteger        WSBIP32KeyLength                        = 78;
 static NSString *const  WSBIP32PathValidityRegex                = @"m(/[1-9]?\\d+'?)*";
 static const unichar    WSBIP32PrimeChar                        = '\'';
 
+NSString *const         WSBIP32DefaultPath                      = @"m/0'";
+
 #pragma mark -
 
 @interface WSBIP32Key ()
