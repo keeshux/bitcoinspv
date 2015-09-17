@@ -92,6 +92,12 @@
     return self;
 }
 
+- (void)truncate
+{
+    [self.store truncate];
+    [self.orphans removeAllObjects];
+}
+
 #pragma mark Access
 
 - (WSStorableBlock *)head

@@ -60,6 +60,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (instancetype)initWithStore:(id<WSBlockStore>)store;
 - (instancetype)initWithStore:(id<WSBlockStore>)store maxSize:(NSUInteger)maxSize;
 - (NSUInteger)maxSize;
+- (void)truncate;
 
 - (WSStorableBlock *)head;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;

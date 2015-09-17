@@ -50,7 +50,6 @@
 
 // configuration
 @property (nonatomic, strong) id<WSParameters> parameters;
-@property (nonatomic, strong) id<WSBlockStore> store;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
 @property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
@@ -143,8 +142,7 @@
     WSExceptionCheckIllegal(store);
     
     if ((self = [self initWithParameters:store.parameters])) {
-        self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:store maxSize:maxSize];
         self.wallet = nil;
         self.fastCatchUpTimestamp = 0;
 
@@ -159,8 +157,7 @@
     WSExceptionCheckIllegal(store);
 
     if ((self = [self initWithParameters:store.parameters])) {
-        self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:store maxSize:maxSize];
         self.wallet = nil;
         self.fastCatchUpTimestamp = fastCatchUpTimestamp;
 
@@ -176,8 +173,7 @@
     WSExceptionCheckIllegal(wallet);
 
     if ((self = [self initWithParameters:store.parameters])) {
-        self.store = store;
-        self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
+        self.blockChain = [[WSBlockChain alloc] initWithStore:store maxSize:maxSize];
         self.wallet = wallet;
         self.fastCatchUpTimestamp = [self.wallet earliestKeyTimestamp];
 
@@ -887,12 +883,9 @@
 {
     DDLogDebug(@"Rescan, preparing to truncate blockchain and wallet (if any)");
     
-    [self.store truncate];
-    [self.wallet removeAllTransactions];
-    
-    const NSUInteger maxSize = self.blockChain.maxSize;
-    self.blockChain = [[WSBlockChain alloc] initWithStore:self.store maxSize:maxSize];
+    [self.blockChain truncate];
     NSAssert(self.blockChain.currentHeight == 0, @"Expected genesis blockchain");
+    [self.wallet removeAllTransactions];
     
     DDLogDebug(@"Rescan, truncate complete");
     [self.peerGroup.notifier notifyRescan];
