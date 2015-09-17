@@ -223,9 +223,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSKey *)privateKeyForAddress:(WSAddress *)address
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(address);
+    WSExceptionCheckIllegal(address);
 
+    @synchronized (self) {
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
             return [self.safeExternalChain privateKeyForAccount:(uint32_t)externalAccount];
@@ -242,9 +242,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSPublicKey *)publicKeyForAddress:(WSAddress *)address
 {
+    WSExceptionCheckIllegal(address);
+
     @synchronized (self) {
-        WSExceptionCheckIllegal(address);
-    
         const NSUInteger externalAccount = [_allExternalAddresses indexOfObject:address];
         if (externalAccount != NSNotFound) {
             return [self.safeExternalChain publicKeyForAccount:(uint32_t)externalAccount];
@@ -299,6 +299,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)isWalletAddress:(WSAddress *)address
 {
+    WSExceptionCheckIllegal(address);
+
     @synchronized (self) {
         return ([_allExternalAddresses containsObject:address] || [_allInternalAddresses containsObject:address]);
     }
@@ -377,9 +379,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 {
     WSExceptionCheckIllegal(transaction);
     
-    @synchronized (self) {
-        uint64_t fee = 0;
+    uint64_t fee = 0;
 
+    @synchronized (self) {
         for (WSSignedTransactionInput *input in transaction.inputs) {
             WSTransactionOutput *previousOutput = [self previousOutputFromInput:input];
             
@@ -388,13 +390,12 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             }
             fee += previousOutput.value;
         }
-
-        for (WSTransactionOutput *output in transaction.outputs) {
-            fee -= output.value;
-        }
-
-        return fee;
     }
+    for (WSTransactionOutput *output in transaction.outputs) {
+        fee -= output.value;
+    }
+
+    return fee;
 }
 
 - (BOOL)isInternalTransaction:(WSSignedTransaction *)transaction
@@ -436,9 +437,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSTransactionMetadata *)metadataForTransactionId:(WSHash256 *)txId
 {
+    WSExceptionCheckIllegal(txId);
+
     @synchronized (self) {
-        WSExceptionCheckIllegal(txId);
-        
         return _metadataByTxId[txId];
     }
 }
@@ -447,56 +448,58 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSTransactionOutput *)previousOutputFromInput:(WSSignedTransactionInput *)input
 {
-    WSSignedTransaction *previousTx = _txsById[input.outpoint.txId];
-    if (!previousTx) {
-        return nil;
+    NSParameterAssert(input);
+
+    @synchronized (self) {
+        WSSignedTransaction *previousTx = _txsById[input.outpoint.txId];
+        if (!previousTx) {
+            return nil;
+        }
+        return [previousTx outputAtIndex:input.outpoint.index];
     }
-    return [previousTx outputAtIndex:input.outpoint.index];
 }
 
 - (WSTransactionBuilder *)buildTransactionToAddress:(WSAddress *)address forValue:(uint64_t)value fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(address);
-        WSExceptionCheckIllegal(value > 0);
+    WSExceptionCheckIllegal(address);
+    WSExceptionCheckIllegal(value > 0);
 
-        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
-        return [self buildTransactionWithOutputs:[NSOrderedSet orderedSetWithObject:output] fee:fee error:error];
-    }
+    WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
+
+    return [self buildTransactionWithOutputs:[NSOrderedSet orderedSetWithObject:output] fee:fee error:error];
 }
 
 - (WSTransactionBuilder *)buildTransactionToAddresses:(NSArray *)addresses forValues:(NSArray *)values fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(addresses.count > 0);
-        WSExceptionCheckIllegal(values.count == addresses.count);
-        
-        uint64_t totalValue = 0;
-        for (NSNumber *value in values) {
-            totalValue += [value unsignedLongLongValue];
-        }
-        WSExceptionCheckIllegal(totalValue > 0);
+    WSExceptionCheckIllegal(addresses.count > 0);
+    WSExceptionCheckIllegal(values.count == addresses.count);
 
-        NSMutableOrderedSet *outputs = [[NSMutableOrderedSet alloc] initWithCapacity:values.count];
-        NSUInteger i = 0;
-        for (NSNumber *valueNumber in values) {
-            const uint64_t value = [valueNumber unsignedLongLongValue];
-            WSAddress *address = addresses[i];
-            
-            WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
-            [outputs addObject:output];
-            
-            ++i;
-        }
-        return [self buildTransactionWithOutputs:outputs fee:fee error:error];
+    uint64_t totalValue = 0;
+    for (NSNumber *value in values) {
+        totalValue += [value unsignedLongLongValue];
     }
+    WSExceptionCheckIllegal(totalValue > 0);
+        
+    NSMutableOrderedSet *outputs = [[NSMutableOrderedSet alloc] initWithCapacity:values.count];
+    NSUInteger i = 0;
+    for (NSNumber *valueNumber in values) {
+        const uint64_t value = [valueNumber unsignedLongLongValue];
+        WSAddress *address = addresses[i];
+        
+        WSTransactionOutput *output = [[WSTransactionOutput alloc] initWithAddress:address value:value];
+        [outputs addObject:output];
+        
+        ++i;
+    }
+
+    return [self buildTransactionWithOutputs:outputs fee:fee error:error];
 }
 
 - (WSTransactionBuilder *)buildTransactionWithOutputs:(NSOrderedSet *)outputs fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(outputs.count > 0);
+    WSExceptionCheckIllegal(outputs.count > 0);
 
+    @synchronized (self) {
         if (self.balance == 0) {
             WSErrorSet(error, WSErrorCodeInsufficientFunds, @"Wallet is empty");
             return nil;
@@ -552,9 +555,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSTransactionBuilder *)buildSweepTransactionToAddress:(WSAddress *)address fee:(uint64_t)fee error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(address != nil);
+    WSExceptionCheckIllegal(address);
 
+    @synchronized (self) {
         if (self.balance == 0) {
             WSErrorSet(error, WSErrorCodeInsufficientFunds, @"Wallet is empty");
             return nil;
@@ -590,9 +593,11 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSSignedTransaction *)signedTransactionWithBuilder:(WSTransactionBuilder *)builder error:(NSError *__autoreleasing *)error
 {
-    @synchronized (self) {
-        NSMutableDictionary *keys = [[NSMutableDictionary alloc] initWithCapacity:builder.signableInputs.count];
+    WSExceptionCheckIllegal(builder);
 
+    NSMutableDictionary *keys = [[NSMutableDictionary alloc] initWithCapacity:builder.signableInputs.count];
+
+    @synchronized (self) {
         for (WSSignableTransactionInput *input in builder.signableInputs) {
             WSAddress *inputAddress = input.address;
             WSKey *key = [self privateKeyForAddress:inputAddress];
@@ -605,9 +610,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
             }
             keys[inputAddress] = key;
         }
-        
-        return [builder signedTransactionWithInputKeys:keys error:error];
     }
+
+    return [builder signedTransactionWithInputKeys:keys error:error];
 }
 
 #pragma mark Serialization
@@ -832,9 +837,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(parameters != nil, @"Nil parameters");
+    WSExceptionCheckIllegal(parameters);
         
+    @synchronized (self) {
         NSUInteger capacity = 2 * (_allExternalAddresses.count + _allInternalAddresses.count);
         
         // heuristic
@@ -872,7 +877,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
 {
-    WSExceptionCheckIllegal(bloomFilter != nil, @"Nil bloomFilter");
+    WSExceptionCheckIllegal(bloomFilter);
     
     @synchronized (self) {
         NSArray *chains = @[self.safeExternalChain, self.safeInternalChain];
@@ -901,9 +906,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(parameters);
         
+    @synchronized (self) {
         NSUInteger capacity = _allExternalAddresses.count + _allInternalAddresses.count + _unspentOutpoints.count;
         
         // heuristic
@@ -935,31 +940,35 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)isCoveredByBloomFilter:(WSBloomFilter *)bloomFilter
 {
-    for (WSAddress *address in _allExternalAddresses) {
-        if (![bloomFilter containsAddress:address]) {
-            return NO;
+    WSExceptionCheckIllegal(bloomFilter);
+
+    @synchronized (self) {
+        for (WSAddress *address in _allExternalAddresses) {
+            if (![bloomFilter containsAddress:address]) {
+                return NO;
+            }
         }
-    }
-    for (WSAddress *address in _allInternalAddresses) {
-        if (![bloomFilter containsAddress:address]) {
-            return NO;
+        for (WSAddress *address in _allInternalAddresses) {
+            if (![bloomFilter containsAddress:address]) {
+                return NO;
+            }
         }
-    }
-    for (WSTransactionOutPoint *unspent in _unspentOutpoints) {
-        if (![bloomFilter containsUnspent:unspent]) {
-            return NO;
+        for (WSTransactionOutPoint *unspent in _unspentOutpoints) {
+            if (![bloomFilter containsUnspent:unspent]) {
+                return NO;
+            }
         }
+        return YES;
     }
-    return YES;
 }
 
 #else
 
 - (WSBloomFilter *)bloomFilterWithParameters:(WSBIP37FilterParameters *)parameters
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(parameters);
+    WSExceptionCheckIllegal(parameters);
         
+    @synchronized (self) {
         return [[WSBloomFilter alloc] initWithFullMatch];
     }
 }
@@ -978,13 +987,13 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)isRelevantTransaction:(WSSignedTransaction *)transaction savingReceivingAddresses:(NSMutableSet *)receivingAddresses
 {
+    WSExceptionCheckIllegal(transaction);
+        
 #ifdef BSPV_TEST_DUMMY_TXS
     return YES;
 #endif
-    
+
     @synchronized (self) {
-        WSExceptionCheckIllegal(transaction);
-        
         //
         // the major weakness is that the test would drop new unconfirmed transactions received during
         // sync because spent transaction has not been registered yet (previous transaction in outpoint
@@ -1070,9 +1079,9 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)registerTransaction:(WSSignedTransaction *)transaction didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses batch:(BOOL)batch
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(transaction);
+    WSExceptionCheckIllegal(transaction);
         
+    @synchronized (self) {
         if (_txsById[transaction.txId]) {
             DDLogVerbose(@"Ignored wallet transaction %@ (already registered)", transaction.txId);
             return NO;
@@ -1116,6 +1125,8 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction batch:(BOOL)batch
 {
+    WSExceptionCheckIllegal(transaction);
+
     @synchronized (self) {
         if (!_txsById[transaction.txId]) {
             return NO;
@@ -1141,11 +1152,11 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block batch:(BOOL)batch
 {
-    NSMutableDictionary *updates = nil;
-    
-    @synchronized (self) {
-        WSExceptionCheckIllegal(block);
+    WSExceptionCheckIllegal(block);
         
+    @synchronized (self) {
+        NSMutableDictionary *updates = nil;
+    
         for (WSSignedTransaction *tx in block.transactions) {
             WSTransactionMetadata *metadata = _metadataByTxId[tx.txId];
             if (!metadata || [block.blockId isEqual:metadata.parentBlockId]) {
@@ -1174,10 +1185,10 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block batch:(BOOL)batch
 {
-    NSMutableDictionary *updates = nil;
-    
+    WSExceptionCheckIllegal(block);
+
     @synchronized (self) {
-        WSExceptionCheckIllegal(block);
+        NSMutableDictionary *updates = nil;
         
         for (WSSignedTransaction *tx in block.transactions) {
             WSTransactionMetadata *metadata = _metadataByTxId[tx.txId];
@@ -1207,10 +1218,10 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
 
 - (void)reorganizeWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses
 {
-    @synchronized (self) {
-        WSExceptionCheckIllegal(oldBlocks.count > 0);
-        WSExceptionCheckIllegal(newBlocks.count > 0);
+    WSExceptionCheckIllegal(oldBlocks.count > 0);
+    WSExceptionCheckIllegal(newBlocks.count > 0);
         
+    @synchronized (self) {
         if (didGenerateNewAddresses) {
             *didGenerateNewAddresses = NO;
         }
