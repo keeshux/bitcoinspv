@@ -109,8 +109,8 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)registerTransaction:(WSSignedTransaction *)transaction didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses;
 - (BOOL)unregisterTransaction:(WSSignedTransaction *)transaction;
 - (NSDictionary *)registerBlock:(WSStorableBlock *)block;
+- (NSDictionary *)registerBlock:(WSStorableBlock *)block matchingFilteredBlock:(WSFilteredBlock *)filteredBlock;
 - (NSDictionary *)unregisterBlock:(WSStorableBlock *)block;
-- (NSDictionary *)registerFilteredBlock:(WSFilteredBlock *)filteredBlock;
 - (void)reorganizeWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks didGenerateNewAddresses:(BOOL *)didGenerateNewAddresses;
 - (void)removeAllTransactions;
 

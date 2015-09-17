@@ -995,7 +995,7 @@
 
     [self.wallet registerBlock:block];
     if ([entity isKindOfClass:[WSFilteredBlock class]]) {
-        [self.wallet registerFilteredBlock:entity];
+        [self.wallet registerBlock:block matchingFilteredBlock:entity];
     }
 
     if (didGenerateNewAddresses) {
