@@ -512,7 +512,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         uint64_t gathered = 0;
         uint64_t effectiveFee = 0;
 
-        for (WSTransactionOutPoint *utxo in _unspentOutpoints) {
+        for (WSTransactionOutPoint *utxo in [_unspentOutpoints reverseObjectEnumerator]) {
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
             
@@ -563,7 +563,7 @@ NSString *const WSHDWalletDefaultChainsPath      = @"m/0'";
         WSTransactionBuilder *builder = [[WSTransactionBuilder alloc] init];
         uint64_t gathered = 0;
 
-        for (WSTransactionOutPoint *utxo in _unspentOutpoints) {
+        for (WSTransactionOutPoint *utxo in [_unspentOutpoints reverseObjectEnumerator]) {
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
             
