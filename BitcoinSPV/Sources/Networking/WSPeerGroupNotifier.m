@@ -192,7 +192,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyRejectMessage:(WSMessageReject *)message isRejected:(BOOL)isRejected fromPeer:(WSPeer *)peer
 {
-    if ([message.message isEqualToString:WSMessageType_TX]) {
+    if ([message.message isEqualToString:WSMessageRejectMessageTx]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
 
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
@@ -200,7 +200,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
                                                                          WSPeerGroupRejectTransactionIdKey: txId,
                                                                          WSPeerGroupRejectIsRejectedKey: @(isRejected)}];
     }
-    else if ([message.message isEqualToString:WSMessageType_BLOCK]) {
+    else if ([message.message isEqualToString:WSMessageRejectMessageBlock]) {
         WSHash256 *blockId = WSHash256FromData(message.payload);
 
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),

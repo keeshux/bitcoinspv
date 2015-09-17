@@ -27,6 +27,9 @@
 
 #import "WSAbstractMessage.h"
 
+extern NSString *const WSMessageRejectMessageTx;
+extern NSString *const WSMessageRejectMessageBlock;
+
 @interface WSMessageReject : WSAbstractMessage <WSBufferDecoder>
 
 + (instancetype)messageWithParameters:(WSParameters *)parameters

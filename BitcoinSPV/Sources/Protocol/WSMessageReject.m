@@ -29,6 +29,9 @@
 #import "WSBitcoinConstants.h"
 #import "WSErrors.h"
 
+NSString *const WSMessageRejectMessageTx        = @"tx";
+NSString *const WSMessageRejectMessageBlock     = @"block";
+
 @interface WSMessageReject ()
 
 @property (nonatomic, copy) NSString *message;
@@ -114,10 +117,10 @@
         self.reason = [buffer stringAtOffset:offset length:&varIntLength];
         offset += varIntLength;
         
-        if ([self.message isEqualToString:WSMessageType_TX]) {
+        if ([self.message isEqualToString:WSMessageRejectMessageTx]) {
             self.payload = [buffer dataAtOffset:offset length:WSHash256Length];
         }
-        else if ([self.message isEqualToString:WSMessageType_BLOCK]) {
+        else if ([self.message isEqualToString:WSMessageRejectMessageBlock]) {
             self.payload = [buffer dataAtOffset:offset length:WSHash256Length];
         }
     }

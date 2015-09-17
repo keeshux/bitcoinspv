@@ -691,7 +691,7 @@
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
     BOOL isRejected = NO;
-    if ([message.message isEqualToString:WSMessageType_TX]) {
+    if ([message.message isEqualToString:WSMessageRejectMessageTx]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
         isRejected = [self findAndRemoveRejectedTransactionWithId:txId fromPeer:peer];
     }
