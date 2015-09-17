@@ -48,7 +48,7 @@
         const NSUInteger from = [note.userInfo[WSPeerGroupDownloadFromHeightKey] unsignedIntegerValue];
         const NSUInteger to = [note.userInfo[WSPeerGroupDownloadToHeightKey] unsignedIntegerValue];
         
-        DDLogInfo(@"Download started, status = %u/%u", from, to);
+        DDLogInfo(@"Download started, status = %lu/%lu", (unsigned long)from, (unsigned long)to);
     }];
     [nc addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         DDLogInfo(@"Download finished");
@@ -241,7 +241,7 @@
     WSHash256 *blockId = WSHash256FromHex(@"000000009c3754679ccef8a8a4266c4e5eb84fe1c1791e274ad7a617ff9874b6");
     WSStorableBlock *block = [store blockForId:blockId];
     
-    DDLogInfo(@"Transactions in #%u = %u", block.height, block.transactions.count);
+    DDLogInfo(@"Transactions in #%u = %lu", block.height, (unsigned long)block.transactions.count);
     XCTAssertEqual(block.height, 266749);
     XCTAssertEqual(block.transactions.count, 198);
 

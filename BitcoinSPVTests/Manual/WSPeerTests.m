@@ -96,7 +96,7 @@
     [self.peer sendGetaddr];
     
     WSMessageAddr *message = (WSMessageAddr *)[self assertPeerMessageClass:[WSMessageAddr class] timeout:10.0];
-    DDLogInfo(@"Addresses count: %u", message.addresses.count);
+    DDLogInfo(@"Addresses count: %lu", (unsigned long)message.addresses.count);
 }
 
 - (void)testGetblocks
@@ -110,7 +110,7 @@
     [self.peer sendGetblocksMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageInv *message = (WSMessageInv *)[self assertPeerMessageClass:[WSMessageInv class]];
-    DDLogInfo(@"Blocks count: %u", message.inventories.count);
+    DDLogInfo(@"Blocks count: %lu", (unsigned long)message.inventories.count);
     XCTAssertEqual(message.inventories.count, WSMessageBlocksMaxCount, @"Must return maximum blocks from genesis");
 }
 
@@ -128,7 +128,7 @@
     [self.peer sendGetheadersMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageHeaders *message = (WSMessageHeaders *)[self assertPeerMessageClass:[WSMessageHeaders class]];
-    DDLogInfo(@"Headers count: %u", message.headers.count);
+    DDLogInfo(@"Headers count: %lu", (unsigned long)message.headers.count);
     XCTAssertEqual(message.headers.count, WSMessageHeadersMaxCount, @"Must return maximum headers from genesis");
 
 //    for (NSUInteger i = 0; i < 20; ++i) {
@@ -165,7 +165,7 @@
     [self.peer sendGetheadersMessageWithLocator:locator hashStop:hashStop];
 
     WSMessageHeaders *message = (WSMessageHeaders *)[self assertPeerMessageClass:[WSMessageHeaders class]];
-    DDLogInfo(@"Headers count: %u", message.headers.count);
+    DDLogInfo(@"Headers count: %lu", (unsigned long)message.headers.count);
     XCTAssertEqual(message.headers.count, 20);
 }
 

@@ -311,8 +311,8 @@
     DDLogInfo(@"Current change address: %@", wallet.changeAddress);
     DDLogInfo(@"Used addresses: %@", wallet.usedAddresses);
     
-    NSArray *txs = wallet.allTransactions;
-    DDLogInfo(@"Wallet has %u transactions", txs.count);
+    NSArray *txs = wallet.sortedTransactions;
+    DDLogInfo(@"Wallet has %lu transactions", (unsigned long)txs.count);
     for (WSSignedTransaction *tx in txs) {
         DDLogInfo(@"%@", tx);
     }

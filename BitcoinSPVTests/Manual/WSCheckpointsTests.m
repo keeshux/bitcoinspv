@@ -121,7 +121,7 @@
 
     DDLogInfo(@"Checkpoints path: %@", checkpointsPath);
     DDLogInfo(@"Embeddable hex: %@", [checkpoints hexString]);
-    DDLogInfo(@"Size: %u", checkpoints.length);
+    DDLogInfo(@"Size: %lu", (unsigned long)checkpoints.length);
 
     NSUInteger offset = 0;
     while (offset < checkpoints.length) {

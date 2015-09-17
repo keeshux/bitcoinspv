@@ -164,11 +164,11 @@
 - (void)testWallet
 {
     WSHDWallet *wallet = [self loadWallet];
-    NSArray *txs = wallet.allTransactions;
+    NSArray *txs = wallet.sortedTransactions;
 
     DDLogInfo(@"Balance: %llu", wallet.balance);
     DDLogInfo(@"UTXO: %@", wallet.unspentOutputs);
-    DDLogInfo(@"Transactions: %u", txs.count);
+    DDLogInfo(@"Transactions: %lu", (unsigned long)txs.count);
 
     for (WSSignedTransaction *tx in txs) {
         DDLogInfo(@"%@", tx);
