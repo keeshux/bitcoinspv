@@ -79,12 +79,12 @@
 
 // set on creation
 @property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
 
 // set on [WSConnectionProcessor openedConnectionToHost:port:handler:]
 @property (nonatomic, strong) id<WSConnectionHandler> handler;
-@property (nonatomic, strong) NSString *identifier;
 
 // stateful messages
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
@@ -134,6 +134,7 @@
     
     if ((self = [super init])) {
         self.parameters = parameters;
+        self.identifier = [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
         self.needsBloomFiltering = flags.needsBloomFiltering;
         self.delegateQueue = dispatch_get_main_queue();
 
@@ -197,7 +198,6 @@
 
     @synchronized (self) {
         self.handler = handler;
-        self.identifier = [NSString stringWithFormat:@"(%@:%u)", host, port];
 
         _peerStatus = WSPeerStatusConnecting;
         _didReceiveVerack = NO;
