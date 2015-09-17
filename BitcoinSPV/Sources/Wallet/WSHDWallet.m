@@ -56,8 +56,7 @@
 NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
 {
 #ifdef BSPV_BIP44_COMPLIANCE
-    const WSBIP44CoinType coinType = WSBIP44CoinTypeFromParameters(parameters);
-    return [NSString stringWithFormat:WSBIP44DefaultPathFormat, coinType];
+    return [NSString stringWithFormat:WSBIP44DefaultPathFormat, [parameters coinType]];
 #else
     return WSBIP32DefaultPath;
 #endif
