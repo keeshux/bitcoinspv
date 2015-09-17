@@ -102,6 +102,7 @@
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)removeInactiveHost:(NSString *)host;
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
+- (void)rejectTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 - (BOOL)unsafeIsConnected;
@@ -689,7 +690,11 @@
 {
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
-#warning TODO: unpublish rejected transaction
+    if ([message.message isEqualToString:WSMessageType_TX]) {
+        WSHash256 *txId = WSHash256FromData(message.payload);
+
+        [self rejectTransactionWithId:txId fromPeer:peer];
+    }
 
     [self.notifier notifyRejectMessage:message fromPeer:peer];
 }
@@ -1014,9 +1019,18 @@
         [self.publishedTransactions removeObjectForKey:transaction.txId];
         isPublished = YES;
         
-        DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction);
+        DDLogInfo(@"Peer %@ relayed published transaction: %@", peer, transaction.txId);
     }
     return isPublished;
+}
+
+- (void)rejectTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer
+{
+    if (self.publishedTransactions[txId]) {
+        [self.publishedTransactions removeObjectForKey:txId];
+
+        DDLogInfo(@"Peer %@ rejected published transaction: %@", peer, txId);
+    }
 }
 
 + (BOOL)isHardNetworkError:(NSError *)error
