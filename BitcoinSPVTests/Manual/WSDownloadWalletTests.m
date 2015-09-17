@@ -287,6 +287,7 @@
         XCTAssertNotNil(tx, @"Unable to sign transaction: %@", error);
 
         DDLogInfo(@"Tx: %@", tx);
+        [txs addObject:tx];
     }
     
     WSPeerGroup *peerGroup = [[WSPeerGroup alloc] initWithParameters:self.networkParameters];
@@ -336,7 +337,7 @@
 //    const NSTimeInterval creationTime = WSTimestampFromISODate(@"2014-07-16") - NSTimeIntervalSince1970;
 //    const NSTimeInterval creationTime = 0.0;
     
-    return WSSeedMake([self mockWalletMnemonic], creationTime);
+    return WSSeedMake(@"remind crush angry snake speak refuse social hungry movie expect venue assault", creationTime);
 }
 
 @end
