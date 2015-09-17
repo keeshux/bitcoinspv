@@ -70,6 +70,6 @@ const NSTimeInterval    WSBlockChainDownloaderDefaultRequestTimeout     = 5.0;
 
 const uint32_t          WSMessageVersionLocalhost                       = 0x0100007f;
 
-const NSUInteger        WSHDWalletDefaultGapLimit                       = 10;
+const NSUInteger        WSHDWalletDefaultGapLimit                       = 20;
 
 const NSTimeInterval    WSJSONClientDefaultTimeout                      = 10.0;
