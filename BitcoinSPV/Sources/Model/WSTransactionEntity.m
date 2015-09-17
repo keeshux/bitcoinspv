@@ -78,7 +78,7 @@
     self.lockTime = @(transaction.lockTime);
 }
 
-- (WSSignedTransaction *)toSignedTransactionWithParameters:(id<WSParameters>)parameters
+- (WSSignedTransaction *)toSignedTransactionWithParameters:(WSParameters *)parameters
 {
     const uint32_t version = (uint32_t)[self.version unsignedIntegerValue];
 

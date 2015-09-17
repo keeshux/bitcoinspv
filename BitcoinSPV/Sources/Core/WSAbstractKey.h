@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSHash256;
 @class WSAddress;
 
@@ -35,7 +35,7 @@
 
 - (NSData *)data;
 - (BOOL)isCompressed;
-- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressWithParameters:(WSParameters *)parameters;
 - (BOOL)verifyHash256:(WSHash256 *)hash256 signature:(NSData *)signature;
 
 @end

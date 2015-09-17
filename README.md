@@ -123,7 +123,7 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
     - (void)createWallet
     {
-        id<WSParameters> parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+        WSParameters *parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
 
         WSSeed *seed = [[WSSeedGenerator sharedInstance] generateRandomSeed];
 
@@ -147,7 +147,7 @@ Developers familiar with bitcoinj may recall some of the class names in the foll
 
     - (void)restoreWallet
     {
-        id<WSParameters> parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+        WSParameters *parameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
 
         WSSeed *seed = WSSeedMakeFromISODate(@"enter your bip39 mnemonic seed phrase", @"2014-02-28");
 
@@ -177,7 +177,7 @@ Most initializers depend on network parameters, you can get a reference with the
 
     // networkType must be one of: WSNetworkTypeMain, WSNetworkTypeTestnet3, WSNetworkTypeRegtest
 
-    id<WSParameters> networkParameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
+    WSParameters *networkParameters = WSParametersForNetworkType(WSNetworkTypeTestnet3);
     ...
 
 __WARNING: operating on main network may cost you real money, make sure you know what you're doing!__

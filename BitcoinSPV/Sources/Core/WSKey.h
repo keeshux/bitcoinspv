@@ -29,7 +29,7 @@
 
 #import "WSAbstractKey.h"
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSHash256;
 @class WSPublicKey;
 @class WSAddress;
@@ -40,10 +40,10 @@
 
 + (instancetype)keyWithData:(NSData *)data;
 + (instancetype)keyWithData:(NSData *)data compressed:(BOOL)compressed;
-+ (instancetype)keyWithWIF:(NSString *)wif parameters:(id<WSParameters>)parameters;
++ (instancetype)keyWithWIF:(NSString *)wif parameters:(WSParameters *)parameters;
 - (WSPublicKey *)publicKey;
-- (NSData *)encodedDataWithParameters:(id<WSParameters>)parameters;
-- (NSString *)WIFWithParameters:(id<WSParameters>)parameters;
+- (NSData *)encodedDataWithParameters:(WSParameters *)parameters;
+- (NSString *)WIFWithParameters:(WSParameters *)parameters;
 - (NSData *)signatureForHash256:(WSHash256 *)hash256;
 
 @end

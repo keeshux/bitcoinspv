@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol WSParameters;
+@class WSParameters;
 @protocol WSMessage;
 
 #pragma mark -
@@ -35,7 +35,7 @@
 @interface WSProtocolDeserializer : NSObject
 
 - (instancetype)init;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port;
+- (instancetype)initWithParameters:(WSParameters *)parameters host:(NSString *)host port:(uint16_t)port;
 - (id<WSMessage>)parseMessageFromStream:(NSInputStream *)inputStream error:(NSError **)error;
 - (void)resetBuffers;
 

@@ -36,4 +36,4 @@ typedef enum {
 
 extern NSString *const WSBIP44DefaultPathFormat;
 
-WSBIP44CoinType WSBIP44CoinTypeFromParameters(id<WSParameters> parameters);
+WSBIP44CoinType WSBIP44CoinTypeFromParameters(WSParameters *parameters);

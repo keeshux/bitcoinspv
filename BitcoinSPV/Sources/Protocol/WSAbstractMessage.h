@@ -30,12 +30,12 @@
 #import "WSMessage.h"
 #import "WSIndentableDescription.h"
 
-@protocol WSParameters;
+@class WSParameters;
 
 @interface WSAbstractMessage : NSObject <WSMessage, WSIndentableDescription>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters originalLength:(NSUInteger)originalLength;
++ (instancetype)messageWithParameters:(WSParameters *)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters originalLength:(NSUInteger)originalLength;
 
 @end

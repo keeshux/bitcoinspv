@@ -131,7 +131,7 @@
     return (self.data.length == WSPublicKeyCompressedLength);
 }
 
-- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
     

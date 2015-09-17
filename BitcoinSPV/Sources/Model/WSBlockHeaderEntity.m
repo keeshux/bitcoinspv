@@ -54,7 +54,7 @@
     self.nonce = @(header.nonce);
 }
 
-- (WSBlockHeader *)toBlockHeaderWithParameters:(id<WSParameters>)parameters
+- (WSBlockHeader *)toBlockHeaderWithParameters:(WSParameters *)parameters
 {
     const uint32_t version = (uint32_t)[self.version unsignedIntegerValue];
     WSHash256 *previousBlockId = WSHash256FromData(self.previousBlockIdData);

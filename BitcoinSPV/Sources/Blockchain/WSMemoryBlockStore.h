@@ -33,6 +33,6 @@
 
 @interface WSMemoryBlockStore : NSObject <WSBlockStore>
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
 
 @end

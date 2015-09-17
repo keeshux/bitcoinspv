@@ -31,7 +31,7 @@
 #import "WSTransaction.h"
 
 @class WSStorableBlockEntity, WSTransactionInputEntity, WSTransactionOutputEntity;
-@protocol WSParameters;
+@class WSParameters;
 
 @interface WSTransactionEntity : NSManagedObject
 
@@ -43,7 +43,7 @@
 @property (nonatomic, retain) NSOrderedSet *outputs;
 
 - (void)copyFromSignedTransaction:(WSSignedTransaction *)transaction;
-- (WSSignedTransaction *)toSignedTransactionWithParameters:(id<WSParameters>)parameters;
+- (WSSignedTransaction *)toSignedTransactionWithParameters:(WSParameters *)parameters;
 
 @end
 

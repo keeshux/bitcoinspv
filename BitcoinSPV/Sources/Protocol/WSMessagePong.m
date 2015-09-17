@@ -32,18 +32,18 @@
 
 @property (nonatomic, assign) uint64_t nonce;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce;
+- (instancetype)initWithParameters:(WSParameters *)parameters nonce:(uint64_t)nonce;
 
 @end
 
 @implementation WSMessagePong
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce
++ (instancetype)messageWithParameters:(WSParameters *)parameters nonce:(uint64_t)nonce
 {
     return [[self alloc] initWithParameters:parameters nonce:nonce];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce
+- (instancetype)initWithParameters:(WSParameters *)parameters nonce:(uint64_t)nonce
 {
     if ((self = [super initWithParameters:parameters])) {
         self.nonce = nonce;
@@ -80,7 +80,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < sizeof(uint64_t)) {
         WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, sizeof(uint64_t));

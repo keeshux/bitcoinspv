@@ -29,7 +29,7 @@
 
 #import "WSAbstractKey.h"
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSAddress;
 @class WSHash256;
 @class WSHash160;

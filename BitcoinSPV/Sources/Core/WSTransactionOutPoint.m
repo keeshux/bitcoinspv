@@ -33,23 +33,23 @@
 
 @interface WSTransactionOutPoint ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) WSHash256 *txId;
 @property (nonatomic, assign) uint32_t index;
 @property (nonatomic, strong) WSBuffer *buffer;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index;
+- (instancetype)initWithParameters:(WSParameters *)parameters txId:(WSHash256 *)txId index:(uint32_t)index;
 
 @end
 
 @implementation WSTransactionOutPoint
 
-+ (instancetype)outpointWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index
++ (instancetype)outpointWithParameters:(WSParameters *)parameters txId:(WSHash256 *)txId index:(uint32_t)index
 {
     return [[self alloc] initWithParameters:parameters txId:txId index:index];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters txId:(WSHash256 *)txId index:(uint32_t)index
+- (instancetype)initWithParameters:(WSParameters *)parameters txId:(WSHash256 *)txId index:(uint32_t)index
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(txId);
@@ -125,7 +125,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSTransactionOutPointSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSTransactionOutPointSize);

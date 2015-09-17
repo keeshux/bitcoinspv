@@ -45,7 +45,7 @@
 
 @protocol WSTransactionInput <NSObject>
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (WSTransactionOutPoint *)outpoint;
 - (WSScript *)script;
 - (uint32_t)sequence;

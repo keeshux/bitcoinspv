@@ -31,7 +31,7 @@
 #import "WSMessageFactory.h"
 #import "WSInventory.h"
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSBloomFilter;
 @class WSSignedTransaction;
 @class WSBlockLocator;
@@ -70,8 +70,8 @@ typedef enum {
 @property (nonatomic, weak) id<WSPeerDelegate> delegate;
 @property (nonatomic, weak) dispatch_queue_t delegateQueue;
 
-- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags;
-- (id<WSParameters>)parameters;
+- (instancetype)initWithHost:(NSString *)host parameters:(WSParameters *)parameters flags:(WSPeerFlags *)flags;
+- (WSParameters *)parameters;
 
 // connection
 - (WSPeerStatus)peerStatus;
@@ -136,6 +136,6 @@ typedef enum {
 @interface WSConnectionPool (Peer)
 
 - (BOOL)openConnectionToPeer:(WSPeer *)peer;
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags;
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(WSParameters *)parameters flags:(WSPeerFlags *)flags;
 
 @end

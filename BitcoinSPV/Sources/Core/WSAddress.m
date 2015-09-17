@@ -37,7 +37,7 @@
 
 @interface WSAddress ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) uint8_t version;
 @property (nonatomic, strong) WSHash160 *hash160;
 @property (nonatomic, strong) NSString *encoded;
@@ -46,7 +46,7 @@
 
 @implementation WSAddress
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint8_t)version hash160:(WSHash160 *)hash160
+- (instancetype)initWithParameters:(WSParameters *)parameters version:(uint8_t)version hash160:(WSHash160 *)hash160
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(hash160);
@@ -66,7 +66,7 @@
     return self;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters encoded:(NSString *)encoded
+- (instancetype)initWithParameters:(WSParameters *)parameters encoded:(NSString *)encoded
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(encoded);

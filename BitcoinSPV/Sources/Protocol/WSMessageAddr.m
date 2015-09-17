@@ -35,18 +35,18 @@
 
 @property (nonatomic, strong) NSArray *addresses;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses;
+- (instancetype)initWithParameters:(WSParameters *)parameters addresses:(NSArray *)addresses;
 
 @end
 
 @implementation WSMessageAddr
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses
++ (instancetype)messageWithParameters:(WSParameters *)parameters addresses:(NSArray *)addresses
 {
     return [[self alloc] initWithParameters:parameters addresses:addresses];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses
+- (instancetype)initWithParameters:(WSParameters *)parameters addresses:(NSArray *)addresses
 {
     WSExceptionCheckIllegal(addresses.count > 0);
 
@@ -92,7 +92,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         NSUInteger offset = from;

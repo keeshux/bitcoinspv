@@ -44,7 +44,7 @@
 @property (nonatomic, assign) uint32_t lastBlockHeight;
 @property (nonatomic, assign) uint8_t relayTransactions;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                           services:(uint64_t)services
               remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
@@ -57,7 +57,7 @@
 
 @implementation WSMessageVersion
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters
++ (instancetype)messageWithParameters:(WSParameters *)parameters
                               version:(uint32_t)version
                              services:(uint64_t)services
                  remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
@@ -67,7 +67,7 @@
     return [[self alloc] initWithParameters:parameters version:version services:services remoteNetworkAddress:remoteNetworkAddress localPort:localPort relayTransactions:relayTransactions];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                           services:(uint64_t)services
               remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress
@@ -145,7 +145,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < 85) {
         WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, 85);

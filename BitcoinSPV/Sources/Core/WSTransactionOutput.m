@@ -41,7 +41,7 @@
 
 @implementation WSTransactionOutput
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters script:(WSScript *)script value:(uint64_t)value
+- (instancetype)initWithParameters:(WSParameters *)parameters script:(WSScript *)script value:(uint64_t)value
 {
     // 0 value is legit
     WSExceptionCheckIllegal(script);
@@ -69,7 +69,7 @@
     return self;
 }
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.address.parameters;
 }
@@ -98,7 +98,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSUInteger offset = from;
     NSUInteger varIntLength;

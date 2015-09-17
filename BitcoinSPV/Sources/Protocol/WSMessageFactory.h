@@ -29,12 +29,12 @@
 
 #import "WSMessage.h"
 
-@protocol WSParameters;
+@class WSParameters;
 
 @interface WSMessageFactory : NSObject
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
-- (id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
+- (WSParameters *)parameters;
 
 - (id<WSMessage>)messageFromType:(NSString *)type payload:(WSBuffer *)payload error:(NSError **)error;
 

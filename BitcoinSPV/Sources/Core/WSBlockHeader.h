@@ -30,11 +30,11 @@
 #import "WSBuffer.h"
 #import "WSIndentableDescription.h"
 
-@protocol WSParameters;
+@class WSParameters;
 
 @interface WSBlockHeader : NSObject <NSCopying, WSBufferEncoder, WSBufferDecoder, WSIndentableDescription>
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                    previousBlockId:(WSHash256 *)previousBlockId
                         merkleRoot:(WSHash256 *)merkleRoot
@@ -42,7 +42,7 @@
                               bits:(uint32_t)bits
                              nonce:(uint32_t)nonce;
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (uint32_t)version;
 - (WSHash256 *)previousBlockId;
 - (WSHash256 *)merkleRoot;

@@ -31,13 +31,13 @@
 
 @protocol WSParametersFactory <NSObject>
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 
 @end
 
 @interface WSParametersFactory : NSObject
 
 + (instancetype)sharedInstance;
-- (id<WSParameters>)parametersForNetworkType:(WSNetworkType)networkType;
+- (WSParameters *)parametersForNetworkType:(WSNetworkType)networkType;
 
 @end

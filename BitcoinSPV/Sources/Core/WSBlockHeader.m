@@ -35,7 +35,7 @@
 
 @interface WSBlockHeader ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) uint32_t version;
 @property (nonatomic, strong) WSHash256 *previousBlockId;
 @property (nonatomic, strong) WSHash256 *merkleRoot;
@@ -52,7 +52,7 @@
 
 @implementation WSBlockHeader
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                    previousBlockId:(WSHash256 *)previousBlockId
                         merkleRoot:(WSHash256 *)merkleRoot
@@ -70,7 +70,7 @@
                             blockId:nil];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                    previousBlockId:(WSHash256 *)previousBlockId
                         merkleRoot:(WSHash256 *)merkleRoot
@@ -288,7 +288,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSBlockHeaderSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);

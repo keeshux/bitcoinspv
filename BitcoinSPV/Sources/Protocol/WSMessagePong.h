@@ -29,7 +29,7 @@
 
 @interface WSMessagePong : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters nonce:(uint64_t)nonce;
++ (instancetype)messageWithParameters:(WSParameters *)parameters nonce:(uint64_t)nonce;
 - (uint64_t)nonce;
 
 @end

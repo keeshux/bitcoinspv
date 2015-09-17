@@ -38,7 +38,7 @@
 
 @property (nonatomic, weak) id<WSConnectionHandlerDelegate> delegate;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
+- (instancetype)initWithParameters:(WSParameters *)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
 - (void)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)error;
 
 @end
@@ -47,7 +47,7 @@
 
 @interface WSConnectionPool ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) NSMutableDictionary *handlers;    // NSString -> WSConnectionHandler
 
 - (id<WSConnectionHandler>)unsafeHandlerForProcessor:(id<WSConnectionProcessor>)processor;
@@ -64,7 +64,7 @@
     return nil;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
     
@@ -195,7 +195,7 @@
 
 @interface WSStreamConnectionHandler ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) NSString *host;
 @property (nonatomic, assign) uint16_t port;
 @property (nonatomic, strong) NSString *identifier;
@@ -215,7 +215,7 @@
 
 @implementation WSStreamConnectionHandler
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
+- (instancetype)initWithParameters:(WSParameters *)parameters host:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(host);

@@ -34,18 +34,18 @@
 
 @property (nonatomic, strong) WSSignedTransaction *transaction;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction;
+- (instancetype)initWithParameters:(WSParameters *)parameters transaction:(WSSignedTransaction *)transaction;
 
 @end
 
 @implementation WSMessageTx
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction
++ (instancetype)messageWithParameters:(WSParameters *)parameters transaction:(WSSignedTransaction *)transaction
 {
     return [[self alloc] initWithParameters:parameters transaction:transaction];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction
+- (instancetype)initWithParameters:(WSParameters *)parameters transaction:(WSSignedTransaction *)transaction
 {
     WSExceptionCheckIllegal(transaction);
     
@@ -83,7 +83,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         self.transaction = [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:from available:available error:error];

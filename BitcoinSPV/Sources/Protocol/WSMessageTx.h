@@ -31,7 +31,7 @@
 
 @interface WSMessageTx : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters transaction:(WSSignedTransaction *)transaction;
++ (instancetype)messageWithParameters:(WSParameters *)parameters transaction:(WSSignedTransaction *)transaction;
 - (WSSignedTransaction *)transaction;
 
 @end

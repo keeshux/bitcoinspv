@@ -66,9 +66,9 @@
     return self;
 }
 
-- (id<WSParameters>)parametersForNetworkType:(WSNetworkType)networkType
+- (WSParameters *)parametersForNetworkType:(WSNetworkType)networkType
 {
-    id<WSParameters> parameters = self.mapping[@(networkType)];
+    WSParameters *parameters = self.mapping[@(networkType)];
     WSExceptionCheck(parameters != nil, WSExceptionIllegalArgument, @"Unhandled parameters type: %d", networkType);
     return parameters;
 }

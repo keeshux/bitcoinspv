@@ -86,7 +86,7 @@
 
 #pragma mark WSTransactionInput
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.outpoint.parameters;
 }
@@ -125,7 +125,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSUInteger offset = from;
     NSUInteger varIntLength;
@@ -247,7 +247,7 @@
 
 #pragma mark WSTransactionInput
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.previousOutput.parameters;
 }

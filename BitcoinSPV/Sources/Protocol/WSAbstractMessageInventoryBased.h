@@ -31,7 +31,7 @@
 
 @interface WSAbstractMessageInventoryBased : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories;
++ (instancetype)messageWithParameters:(WSParameters *)parameters inventories:(NSArray *)inventories;
 - (NSArray *)inventories;
 
 @end

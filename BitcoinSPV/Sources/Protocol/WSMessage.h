@@ -69,7 +69,7 @@ extern NSString *const          WSMessageType_ALERT;
 
 @protocol WSMessage <WSBufferEncoder>
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (NSString *)messageType;
 - (NSUInteger)originalLength;
 - (WSBuffer *)toNetworkBufferWithHeaderLength:(NSUInteger *)headerLength;

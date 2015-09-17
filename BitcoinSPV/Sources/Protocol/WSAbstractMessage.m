@@ -33,14 +33,14 @@
 
 @interface WSAbstractMessage ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) NSUInteger originalLength;
 
 @end
 
 @implementation WSAbstractMessage
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters
++ (instancetype)messageWithParameters:(WSParameters *)parameters
 {
     return [[self alloc] initWithParameters:parameters];
 }
@@ -51,12 +51,12 @@
     return nil;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     return [self initWithParameters:parameters originalLength:0];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters originalLength:(NSUInteger)originalLength
+- (instancetype)initWithParameters:(WSParameters *)parameters originalLength:(NSUInteger)originalLength
 {
     WSExceptionCheckIllegal(parameters);
     

@@ -64,7 +64,7 @@ NSString *WSStringDescriptionFromTokens(NSArray *tokens, NSUInteger indent)
 #import "NSData+Binary.h"
 #import "NSData+Hash.h"
 
-inline id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType)
+inline WSParameters *WSParametersForNetworkType(WSNetworkType networkType)
 {
     return [[WSParametersFactory sharedInstance] parametersForNetworkType:networkType];
 }
@@ -134,7 +134,7 @@ inline WSKey *WSKeyFromHex(NSString *hex)
     return [WSKey keyWithData:[hex dataFromHex]];
 }
 
-inline WSKey *WSKeyFromWIF(id<WSParameters> parameters, NSString *wif)
+inline WSKey *WSKeyFromWIF(WSParameters *parameters, NSString *wif)
 {
     return [WSKey keyWithWIF:wif parameters:parameters];
 }
@@ -144,22 +144,22 @@ inline WSPublicKey *WSPublicKeyFromHex(NSString *hex)
     return [WSPublicKey publicKeyWithData:[hex dataFromHex]];
 }
 
-inline WSAddress *WSAddressFromString(id<WSParameters> parameters, NSString *string)
+inline WSAddress *WSAddressFromString(WSParameters *parameters, NSString *string)
 {
     return [[WSAddress alloc] initWithParameters:parameters encoded:string];
 }
 
-inline WSAddress *WSAddressFromHex(id<WSParameters> parameters, NSString *hexString)
+inline WSAddress *WSAddressFromHex(WSParameters *parameters, NSString *hexString)
 {
     return WSAddressFromString(parameters, [hexString base58CheckFromHex]);
 }
 
-inline WSAddress *WSAddressP2PKHFromHash160(id<WSParameters> parameters, WSHash160 *hash160)
+inline WSAddress *WSAddressP2PKHFromHash160(WSParameters *parameters, WSHash160 *hash160)
 {
     return [[WSAddress alloc] initWithParameters:parameters version:[parameters publicKeyAddressVersion] hash160:hash160];
 }
 
-inline WSAddress *WSAddressP2SHFromHash160(id<WSParameters> parameters, WSHash160 *hash160)
+inline WSAddress *WSAddressP2SHFromHash160(WSParameters *parameters, WSHash160 *hash160)
 {
     return [[WSAddress alloc] initWithParameters:parameters version:[parameters scriptAddressVersion] hash160:hash160];
 }
@@ -299,14 +299,14 @@ inline WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex)
     return [[WSCoinbaseScript alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NSString *hex)
+inline WSSignedTransaction *WSTransactionFromHex(WSParameters *parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
     return [[WSSignedTransaction alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string)
+inline WSBIP21URL *WSBIP21URLFromString(WSParameters *parameters, NSString *string)
 {
     return [WSBIP21URL URLWithParameters:parameters string:string];
 }
@@ -368,14 +368,14 @@ inline uint32_t WSTimestampFromISODate(NSString *iso)
 #import "WSPartialMerkleTree.h"
 #import "WSFilteredBlock.h"
 
-inline WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex)
+inline WSBlockHeader *WSBlockHeaderFromHex(WSParameters *parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
     return [[WSBlockHeader alloc] initWithParameters:parameters buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex)
+inline WSBlock *WSBlockFromHex(WSParameters *parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
@@ -389,7 +389,7 @@ inline WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex)
     return [[WSPartialMerkleTree alloc] initWithParameters:nil buffer:buffer from:0 available:buffer.length error:NULL];
 }
 
-inline WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex)
+inline WSFilteredBlock *WSFilteredBlockFromHex(WSParameters *parameters, NSString *hex)
 {
     WSBuffer *buffer = WSBufferFromHex(hex);
     
@@ -400,7 +400,7 @@ inline WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSSt
 // difficulty = maxTarget / target > 1.0
 // maxDifficulty = maxTarget / maxTarget = 1.0
 //
-static inline void WSBlockGetDifficultyInteger(id<WSParameters> parameters, BIGNUM *diffInteger, BIGNUM *diffFraction, const BIGNUM *target)
+static inline void WSBlockGetDifficultyInteger(WSParameters *parameters, BIGNUM *diffInteger, BIGNUM *diffFraction, const BIGNUM *target)
 {
     NSCParameterAssert(parameters);
     
@@ -418,7 +418,7 @@ static inline void WSBlockGetDifficultyInteger(id<WSParameters> parameters, BIGN
     BN_free(&maxTarget);
 }
 
-NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits)
+NSData *WSBlockGetDifficultyFromBits(WSParameters *parameters, uint32_t bits)
 {
     BIGNUM target;
     BIGNUM diffInteger;
@@ -439,7 +439,7 @@ NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits)
     return difficulty;
 }
 
-NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits)
+NSString *WSBlockGetDifficultyStringFromBits(WSParameters *parameters, uint32_t bits)
 {
     BIGNUM target;
     BIGNUM diffInteger;

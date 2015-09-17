@@ -42,7 +42,7 @@
     self.value = @(output.value);
 }
 
-- (WSTransactionOutput *)toOutputWithParameters:(id<WSParameters>)parameters
+- (WSTransactionOutput *)toOutputWithParameters:(WSParameters *)parameters
 {
     WSBuffer *scriptBuffer = [[WSBuffer alloc] initWithData:self.scriptData];
     WSScript *script = [[WSScript alloc] initWithParameters:nil buffer:scriptBuffer from:0 available:scriptBuffer.length error:NULL];

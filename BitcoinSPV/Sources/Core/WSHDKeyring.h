@@ -35,11 +35,11 @@
 
 @interface WSHDKeyring : NSObject <WSBIP32Keyring>
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters mnemonic:(NSString *)mnemonic;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters data:(NSData *)data;
+- (instancetype)initWithParameters:(WSParameters *)parameters mnemonic:(NSString *)mnemonic;
+- (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed;
+- (instancetype)initWithParameters:(WSParameters *)parameters data:(NSData *)data;
 - (instancetype)initWithExtendedPrivateKey:(WSBIP32Key *)extendedPrivateKey;
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (WSHDPublicKeyring *)publicKeyring;
 
 @end
@@ -49,6 +49,6 @@
 @interface WSHDPublicKeyring : NSObject <WSBIP32PublicKeyring>
 
 - (instancetype)initWithExtendedPublicKey:(WSBIP32Key *)extendedPublicKey;
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 
 @end

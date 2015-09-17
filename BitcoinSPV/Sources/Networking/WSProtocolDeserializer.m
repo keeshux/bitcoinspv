@@ -35,7 +35,7 @@
 
 @interface WSProtocolDeserializer ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) NSString *host;
 @property (nonatomic, assign) uint16_t port;
 @property (nonatomic, strong) WSMessageFactory *factory;
@@ -55,7 +55,7 @@
     return nil;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters host:(NSString *)host port:(uint16_t)port
+- (instancetype)initWithParameters:(WSParameters *)parameters host:(NSString *)host port:(uint16_t)port
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(host);

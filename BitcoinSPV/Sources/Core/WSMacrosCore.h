@@ -88,7 +88,7 @@ static inline double WSUtilsProgress(const NSUInteger from, const NSUInteger to,
 @class WSBIP21URL;
 @class WSBIP38Key;
 
-id<WSParameters> WSParametersForNetworkType(WSNetworkType networkType);
+WSParameters *WSParametersForNetworkType(WSNetworkType networkType);
 
 WSHash256 *WSHash256Compute(NSData *sourceData);
 WSHash256 *WSHash256FromHex(NSString *hexString);
@@ -103,18 +103,18 @@ WSBuffer *WSBufferFromHex(NSString *hex);
 WSMutableBuffer *WSMutableBufferFromHex(NSString *hex);
 
 WSKey *WSKeyFromHex(NSString *hex);
-WSKey *WSKeyFromWIF(id<WSParameters> parameters, NSString *wif);
+WSKey *WSKeyFromWIF(WSParameters *parameters, NSString *wif);
 WSPublicKey *WSPublicKeyFromHex(NSString *hex);
 
-WSAddress *WSAddressFromString(id<WSParameters> parameters, NSString *string);
-WSAddress *WSAddressFromHex(id<WSParameters> parameters, NSString *hexString);
-WSAddress *WSAddressP2PKHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
-WSAddress *WSAddressP2SHFromHash160(id<WSParameters> parameters, WSHash160 *hash160);
+WSAddress *WSAddressFromString(WSParameters *parameters, NSString *string);
+WSAddress *WSAddressFromHex(WSParameters *parameters, NSString *hexString);
+WSAddress *WSAddressP2PKHFromHash160(WSParameters *parameters, WSHash160 *hash160);
+WSAddress *WSAddressP2SHFromHash160(WSParameters *parameters, WSHash160 *hash160);
 
-WSBlockHeader *WSBlockHeaderFromHex(id<WSParameters> parameters, NSString *hex);
-WSBlock *WSBlockFromHex(id<WSParameters> parameters, NSString *hex);
+WSBlockHeader *WSBlockHeaderFromHex(WSParameters *parameters, NSString *hex);
+WSBlock *WSBlockFromHex(WSParameters *parameters, NSString *hex);
 WSPartialMerkleTree *WSPartialMerkleTreeFromHex(NSString *hex);
-WSFilteredBlock *WSFilteredBlockFromHex(id<WSParameters> parameters, NSString *hex);
+WSFilteredBlock *WSFilteredBlockFromHex(WSParameters *parameters, NSString *hex);
 
 WSInventory *WSInventoryTx(WSHash256 *hash);
 WSInventory *WSInventoryTxFromHex(NSString *hex);
@@ -141,9 +141,9 @@ uint32_t WSNetworkIPv4FromIPv6(NSData *ipv6);
 
 WSScript *WSScriptFromHex(NSString *hex);
 WSCoinbaseScript *WSCoinbaseScriptFromHex(NSString *hex);
-WSSignedTransaction *WSTransactionFromHex(id<WSParameters> parameters, NSString *hex);
+WSSignedTransaction *WSTransactionFromHex(WSParameters *parameters, NSString *hex);
 
-WSBIP21URL *WSBIP21URLFromString(id<WSParameters> parameters, NSString *string);
+WSBIP21URL *WSBIP21URLFromString(WSParameters *parameters, NSString *string);
 WSBIP38Key *WSBIP38KeyFromString(NSString *string);
 
 NSString *WSCurrentQueueLabel();
@@ -228,5 +228,5 @@ static inline void WSBlockWorkFromData(BIGNUM *work, NSData *data)
     BN_bin2bn(data.bytes, (int)data.length, work);
 }
 
-NSData *WSBlockGetDifficultyFromBits(id<WSParameters> parameters, uint32_t bits);
-NSString *WSBlockGetDifficultyStringFromBits(id<WSParameters> parameters, uint32_t bits);
+NSData *WSBlockGetDifficultyFromBits(WSParameters *parameters, uint32_t bits);
+NSString *WSBlockGetDifficultyStringFromBits(WSParameters *parameters, uint32_t bits);

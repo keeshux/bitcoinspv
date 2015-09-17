@@ -31,7 +31,7 @@
 
 @interface WSMessageVersion : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters
++ (instancetype)messageWithParameters:(WSParameters *)parameters
                               version:(uint32_t)version
                              services:(uint64_t)services
                  remoteNetworkAddress:(WSNetworkAddress *)remoteNetworkAddress

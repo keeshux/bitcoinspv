@@ -51,7 +51,7 @@ NSString *const         WSBIP32DefaultPath                      = @"m/0'";
 
 @interface WSBIP32Key ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) uint32_t version;
 @property (nonatomic, assign) uint8_t depth;
 @property (nonatomic, assign) uint32_t parentFingerprint;
@@ -59,7 +59,7 @@ NSString *const         WSBIP32DefaultPath                      = @"m/0'";
 @property (nonatomic, copy) NSData *chainData;
 @property (nonatomic, copy) NSData *keyData;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                              depth:(uint8_t)depth
                  parentFingerprint:(uint32_t)parentFingerprint
@@ -71,17 +71,17 @@ NSString *const         WSBIP32DefaultPath                      = @"m/0'";
 
 @implementation WSBIP32Key
 
-- (instancetype)initPrivateWithParameters:(id<WSParameters>)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
+- (instancetype)initPrivateWithParameters:(WSParameters *)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
 {
     return [self initWithParameters:parameters version:[parameters bip32PrivateKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
 }
 
-- (instancetype)initPublicWithParameters:(id<WSParameters>)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
+- (instancetype)initPublicWithParameters:(WSParameters *)parameters depth:(uint8_t)depth parentFingerprint:(uint32_t)parentFingerprint child:(uint32_t)child chainData:(NSData *)chainData keyData:(NSData *)keyData
 {
     return [self initWithParameters:parameters version:[parameters bip32PublicKeyVersion] depth:depth parentFingerprint:parentFingerprint child:child chainData:chainData keyData:keyData];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
                            version:(uint32_t)version
                              depth:(uint8_t)depth
                  parentFingerprint:(uint32_t)parentFingerprint

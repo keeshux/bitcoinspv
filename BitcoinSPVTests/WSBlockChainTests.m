@@ -31,8 +31,8 @@
 #import "WSBlockChain.h"
 #import "WSStorableBlock+BlockChain.h"
 
-static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work);
-static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters, WSHash256 *blockId);
+static WSBlockHeader *WSMakeDummyHeader(WSParameters *networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work);
+static NSOrderedSet *WSMakeDummyTransactions(WSParameters *networkParameters, WSHash256 *blockId);
 
 @interface WSBlockChainTests : XCTestCase <WSBlockChainDelegate>
 
@@ -603,7 +603,7 @@ static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters,
 
 @end
 
-static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
+static WSBlockHeader *WSMakeDummyHeader(WSParameters *networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
 {
     BIGNUM bnLargest;
     BIGNUM bnTarget;
@@ -645,7 +645,7 @@ static WSBlockHeader *WSMakeDummyHeader(id<WSParameters> networkParameters, WSHa
     return header;
 }
 
-static NSOrderedSet *WSMakeDummyTransactions(id<WSParameters> networkParameters, WSHash256 *blockId)
+static NSOrderedSet *WSMakeDummyTransactions(WSParameters *networkParameters, WSHash256 *blockId)
 {
     NSMutableOrderedSet *txs = [[NSMutableOrderedSet alloc] initWithCapacity:3];
     WSHash256 *outpointTxId = WSHash256FromHex(@"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");

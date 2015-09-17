@@ -31,7 +31,7 @@
 
 @interface WSMessageAddr : WSAbstractMessage <WSBufferDecoder>
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters addresses:(NSArray *)addresses;
++ (instancetype)messageWithParameters:(WSParameters *)parameters addresses:(NSArray *)addresses;
 - (NSArray *)addresses;
 
 @end

@@ -144,7 +144,7 @@
 
 #pragma mark Intrinsic
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.header.parameters;
 }
@@ -192,7 +192,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < WSBlockHeaderSize) {
         WSErrorSetNotEnoughBytes(error, [self class], available, WSBlockHeaderSize);

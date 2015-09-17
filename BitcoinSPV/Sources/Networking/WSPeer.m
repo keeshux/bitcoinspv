@@ -78,7 +78,7 @@
 }
 
 // set on creation
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, assign) BOOL shouldDownloadBlocks;
 @property (nonatomic, assign) BOOL needsBloomFiltering;
@@ -127,7 +127,7 @@
 
 @implementation WSPeer
 
-- (instancetype)initWithHost:(NSString *)host parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags
+- (instancetype)initWithHost:(NSString *)host parameters:(WSParameters *)parameters flags:(WSPeerFlags *)flags
 {
     WSExceptionCheckIllegal(host);
     WSExceptionCheckIllegal(flags);
@@ -843,7 +843,7 @@
     return [self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer];
 }
 
-- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(id<WSParameters>)parameters flags:(WSPeerFlags *)flags
+- (WSPeer *)openConnectionToPeerHost:(NSString *)peerHost parameters:(WSParameters *)parameters flags:(WSPeerFlags *)flags
 {
     WSPeer *peer = [[WSPeer alloc] initWithHost:peerHost parameters:parameters flags:flags];
     if (![self openConnectionToHost:peer.remoteHost port:peer.remotePort processor:peer]) {

@@ -32,7 +32,7 @@
 #import "WSReachability.h"
 #import "WSBlockChain.h"
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSConnectionPool;
 @protocol WSPeerGroupDownloader;
 @protocol WSPeerGroupDownloadDelegate;
@@ -41,7 +41,7 @@
 
 @interface WSPeerGroupStatus : NSObject
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (BOOL)isConnected;
 - (BOOL)isDownloading;
 - (NSUInteger)currentHeight;
@@ -73,8 +73,8 @@
 @property (nonatomic, assign) BOOL needsBloomFiltering;                     // NO
 
 // WARNING: queue must be of type DISPATCH_QUEUE_SERIAL
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
-- (instancetype)initWithParameters:(id<WSParameters>)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue;
 
 // connection
 - (BOOL)startConnections;
@@ -140,7 +140,7 @@
 //
 @protocol WSPeerGroupDownloader <WSPeerGroupDownloadDelegate>
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup;
 - (void)stop;
 - (NSUInteger)lastBlockHeight;

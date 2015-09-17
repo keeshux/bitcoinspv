@@ -48,7 +48,7 @@
     self.scriptData = [[input.script toBuffer] data];
 }
 
-- (WSSignedTransactionInput *)toSignedInputWithParameters:(id<WSParameters>)parameters
+- (WSSignedTransactionInput *)toSignedInputWithParameters:(WSParameters *)parameters
 {
     WSTransactionOutPoint *outpoint = [self.outpoint toOutpointWithParameters:parameters];
     WSBuffer *scriptBuffer = [[WSBuffer alloc] initWithData:self.scriptData];

@@ -125,7 +125,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
     WSExceptionCheckIllegal(completion);
     WSExceptionCheckIllegal(failure);
     
-    id<WSParameters> parameters = toAddress.parameters;
+    WSParameters *parameters = toAddress.parameters;
 
     if (maxTxSize == 0) {
         maxTxSize = WSTransactionMaxSize;
@@ -235,7 +235,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
     NSParameterAssert(completion);
     NSParameterAssert(failure);
     
-    id<WSParameters> parameters = address.parameters;
+    WSParameters *parameters = address.parameters;
 
     NSURL *baseURL = [NSURL URLWithString:[NSString stringWithFormat:WSWebExplorerBiteasyBaseAPIFormat, [self networkName]]];
     NSString *path = [NSString stringWithFormat:WSWebExplorerBiteasyUnspentPathFormat,

@@ -53,7 +53,7 @@
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
 
-NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
+NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
 {
 #ifdef BSPV_BIP44_COMPLIANCE
     const WSBIP44CoinType coinType = WSBIP44CoinTypeFromParameters(parameters);
@@ -94,7 +94,7 @@ NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
     uint64_t _confirmedBalance;
 }
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead forced:(BOOL)forced;
 - (BOOL)generateAddressesWithLookAhead:(NSUInteger)lookAhead internal:(BOOL)internal forced:(BOOL)forced;
@@ -130,18 +130,18 @@ NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
 
 @implementation WSHDWallet
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
+- (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed
 {
     return [self initWithParameters:parameters seed:seed chainsPath:WSHDWalletDefaultChainsPath(parameters) gapLimit:WSHDWalletDefaultGapLimit];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
+- (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath
 {
     
     return [self initWithParameters:parameters seed:seed chainsPath:chainsPath gapLimit:WSHDWalletDefaultGapLimit];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath gapLimit:(NSUInteger)gapLimit
+- (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath gapLimit:(NSUInteger)gapLimit
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(seed);
@@ -661,7 +661,7 @@ NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
     }
 }
 
-+ (instancetype)loadFromPath:(NSString *)path parameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
++ (instancetype)loadFromPath:(NSString *)path parameters:(WSParameters *)parameters seed:(WSSeed *)seed
 {
     WSExceptionCheckIllegal(path);
     WSExceptionCheckIllegal(parameters);
@@ -682,8 +682,8 @@ NSString *WSHDWalletDefaultChainsPath(id<WSParameters> parameters)
         WSExceptionCheck(parameters == wallet.parameters,
                          WSExceptionIllegalArgument,
                          @"Wallet created on '%@' network (expected: '%@')",
-                         WSNetworkTypeString([wallet.parameters networkType]),
-                         WSNetworkTypeString([parameters networkType]));
+                         [wallet.parameters networkTypeString],
+                         [parameters networkTypeString]);
 
         wallet->_path = path;
         [wallet loadSensitiveDataWithSeed:seed];

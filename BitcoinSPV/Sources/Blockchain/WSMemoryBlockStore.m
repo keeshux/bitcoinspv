@@ -54,7 +54,7 @@
     return nil;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
 
@@ -67,7 +67,7 @@
 
 #pragma mark WSBlockStore
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.genesisBlock.parameters;
 }

@@ -38,7 +38,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 
 @interface WSBIP21URLBuilder ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, copy) NSString *label;
 @property (nonatomic, strong) WSAddress *address;
 @property (nonatomic, copy) NSString *message;
@@ -107,18 +107,18 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
 @property (nonatomic, assign) uint64_t amount;
 @property (nonatomic, copy) NSDictionary *others;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters string:(NSString *)string;
+- (instancetype)initWithParameters:(WSParameters *)parameters string:(NSString *)string;
 
 @end
 
 @implementation WSBIP21URL
 
-+ (instancetype)URLWithParameters:(id<WSParameters>)parameters string:(NSString *)string
++ (instancetype)URLWithParameters:(WSParameters *)parameters string:(NSString *)string
 {
     return [[self alloc] initWithParameters:parameters string:string];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters string:(NSString *)string
+- (instancetype)initWithParameters:(WSParameters *)parameters string:(NSString *)string
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(string);

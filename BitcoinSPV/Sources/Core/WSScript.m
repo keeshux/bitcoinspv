@@ -54,11 +54,11 @@
 @property (nonatomic, strong) NSData *originalData;
 @property (nonatomic, strong) NSArray *chunks;
 
-- (WSAddress *)addressFromScriptSigWithParameters:(id<WSParameters>)parameters;
-- (WSAddress *)addressFromScriptMultisigWithParameters:(id<WSParameters>)parameters;
-- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(id<WSParameters>)parameters;
-- (WSAddress *)addressFromPay2ScriptHashWithParameters:(id<WSParameters>)parameters;
-- (WSAddress *)addressFromPay2PubKeyWithParameters:(id<WSParameters>)parameters;
+- (WSAddress *)addressFromScriptSigWithParameters:(WSParameters *)parameters;
+- (WSAddress *)addressFromScriptMultisigWithParameters:(WSParameters *)parameters;
+- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(WSParameters *)parameters;
+- (WSAddress *)addressFromPay2ScriptHashWithParameters:(WSParameters *)parameters;
+- (WSAddress *)addressFromPay2PubKeyWithParameters:(WSParameters *)parameters;
 
 @end
 
@@ -309,7 +309,7 @@
 
 #pragma mark Standard address
 
-- (WSAddress *)standardInputAddressWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)standardInputAddressWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
     
@@ -320,7 +320,7 @@
     return address;
 }
             
-- (WSAddress *)standardOutputAddressWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)standardOutputAddressWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
 
@@ -334,7 +334,7 @@
     return address;
 }
 
-- (WSAddress *)standardAddressWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)standardAddressWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
 
@@ -345,7 +345,7 @@
     return address;
 }
 
-- (WSAddress *)addressFromScriptSigWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromScriptSigWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
     
@@ -365,7 +365,7 @@
     return WSAddressP2PKHFromHash160(parameters, [localPublicKey hash160]);
 }
 
-- (WSAddress *)addressFromScriptMultisigWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromScriptMultisigWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
 
@@ -376,7 +376,7 @@
     return WSAddressP2SHFromHash160(parameters, [[redeemScript toBuffer] computeHash160]);
 }
 
-- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromPay2PubKeyHashWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
 
@@ -387,7 +387,7 @@
     return WSAddressP2PKHFromHash160(parameters, WSHash160FromData(hash160));
 }
 
-- (WSAddress *)addressFromPay2ScriptHashWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromPay2ScriptHashWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
 
@@ -398,7 +398,7 @@
     return WSAddressP2SHFromHash160(parameters, WSHash160FromData(hash160));
 }
 
-- (WSAddress *)addressFromPay2PubKeyWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromPay2PubKeyWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
 
@@ -409,7 +409,7 @@
     return [pubKey addressWithParameters:parameters];
 }
 
-- (WSAddress *)addressFromHashWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressFromHashWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
 
@@ -448,7 +448,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     NSData *scriptData = [buffer dataAtOffset:from length:available];
 
@@ -850,7 +850,7 @@
 //
 // https://github.com/bitcoin/bips/blob/master/bip-0034.mediawiki
 //
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters buffer:buffer from:from available:available error:error])) {
         self.originalData = [buffer.data subdataWithRange:NSMakeRange(from, available)];

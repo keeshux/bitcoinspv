@@ -33,7 +33,7 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
 //
 
-@protocol WSParameters;
+@class WSParameters;
 @class WSBIP32Key;
 @protocol WSBIP32PublicKeyring;
 @class WSBIP32Node;
@@ -139,21 +139,21 @@ void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i);
 
 @interface WSBIP32Key : NSObject
 
-- (instancetype)initPrivateWithParameters:(id<WSParameters>)parameters
+- (instancetype)initPrivateWithParameters:(WSParameters *)parameters
                                     depth:(uint8_t)depth
                         parentFingerprint:(uint32_t)parentFingerprint
                                     child:(uint32_t)child
                                 chainData:(NSData *)chainData
                                   keyData:(NSData *)keyData;
 
-- (instancetype)initPublicWithParameters:(id<WSParameters>)parameters
+- (instancetype)initPublicWithParameters:(WSParameters *)parameters
                                    depth:(uint8_t)depth
                        parentFingerprint:(uint32_t)parentFingerprint
                                    child:(uint32_t)child
                                chainData:(NSData *)chainData
                                  keyData:(NSData *)keyData;
 
-- (id<WSParameters>)parameters;
+- (WSParameters *)parameters;
 - (uint32_t)version;
 - (uint8_t)depth;
 - (uint32_t)parentFingerprint;

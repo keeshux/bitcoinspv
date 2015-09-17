@@ -66,7 +66,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return [[self alloc] initWithData:data compressed:compressed];
 }
 
-+ (instancetype)keyWithWIF:(NSString *)wif parameters:(id<WSParameters>)parameters
++ (instancetype)keyWithWIF:(NSString *)wif parameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(wif);
     WSExceptionCheckIllegal(parameters);
@@ -153,7 +153,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return [WSPublicKey publicKeyWithData:pubKey];
 }
 
-- (NSData *)encodedDataWithParameters:(id<WSParameters>)parameters
+- (NSData *)encodedDataWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
     
@@ -176,7 +176,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return data;
 }
 
-- (NSString *)WIFWithParameters:(id<WSParameters>)parameters
+- (NSString *)WIFWithParameters:(WSParameters *)parameters
 {
     return [[self encodedDataWithParameters:parameters] base58CheckString];
 }
@@ -265,7 +265,7 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     return (EC_KEY_get_conv_form(self.key) == POINT_CONVERSION_COMPRESSED);
 }
 
-- (WSAddress *)addressWithParameters:(id<WSParameters>)parameters
+- (WSAddress *)addressWithParameters:(WSParameters *)parameters
 {
     return [[self publicKey] addressWithParameters:parameters];
 }

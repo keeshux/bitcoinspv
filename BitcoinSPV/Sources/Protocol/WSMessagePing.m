@@ -36,7 +36,7 @@
 
 @implementation WSMessagePing
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     if ((self = [super initWithParameters:parameters])) {
         self.nonce = arc4random();
@@ -73,7 +73,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if (available < sizeof(uint64_t)) {
         WSErrorSetNotEnoughMessageBytes(error, self.messageType, available, sizeof(uint64_t));

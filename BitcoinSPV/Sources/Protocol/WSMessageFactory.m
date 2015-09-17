@@ -30,13 +30,13 @@
 
 @interface WSMessageFactory ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 
 @end
 
 @implementation WSMessageFactory
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     WSExceptionCheckIllegal(parameters);
     

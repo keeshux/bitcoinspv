@@ -35,9 +35,12 @@
 
 #pragma mark -
 
-@protocol WSParameters <NSObject>
+@interface WSParameters : NSObject
 
+- (instancetype)initWithNetworkType:(WSNetworkType)networkType;
 - (WSNetworkType)networkType;
+- (NSString *)networkTypeString;
+
 - (uint32_t)magicNumber;
 - (uint8_t)publicKeyAddressVersion;
 - (uint8_t)scriptAddressVersion;
@@ -53,33 +56,31 @@
 - (uint32_t)retargetInterval;
 - (WSFilteredBlock *)genesisBlock;
 - (WSHash256 *)genesisBlockId;
-- (NSArray *)dnsSeeds;
+
 - (NSArray *)checkpoints;
 - (WSStorableBlock *)checkpointAtHeight:(uint32_t)height;
 - (WSStorableBlock *)lastCheckpointBeforeTimestamp:(uint32_t)timestamp;
+- (NSArray *)dnsSeeds;
 
 @end
 
-#pragma mark -
+@interface WSMutableParameters : WSParameters
 
-@interface WSMutableParameters : NSObject <WSParameters>
+- (void)setMagicNumber:(uint32_t)magicNumber;
+- (void)setPublicKeyAddressVersion:(uint8_t)publicKeyAddressVersion;
+- (void)setScriptAddressVersion:(uint8_t)scriptAddressVersion;
+- (void)setPrivateKeyVersion:(uint8_t)privateKeyVersion;
+- (void)setPeerPort:(NSUInteger)peerPort;
+- (void)setBip32PublicKeyVersion:(uint32_t)bip32PublicKeyVersion;
+- (void)setBip32PrivateKeyVersion:(uint32_t)bip32PrivateKeyVersion;
+- (void)setMaxProofOfWork:(uint32_t)maxProofOfWork;
+- (void)setRetargetTimespan:(uint32_t)retargetTimespan;
+- (void)setMinRetargetTimespan:(uint32_t)minRetargetTimespan;
+- (void)setMaxRetargetTimespan:(uint32_t)maxRetargetTimespan;
+- (void)setRetargetSpacing:(uint32_t)retargetSpacing;
+- (void)setRetargetInterval:(uint32_t)retargetInterval;
+- (void)setGenesisBlock:(WSFilteredBlock *)genesisBlock;
 
-@property (nonatomic, assign) uint32_t magicNumber;
-@property (nonatomic, assign) uint8_t publicKeyAddressVersion;
-@property (nonatomic, assign) uint8_t scriptAddressVersion;
-@property (nonatomic, assign) uint8_t privateKeyVersion;
-@property (nonatomic, assign) NSUInteger peerPort;
-@property (nonatomic, assign) uint32_t bip32PublicKeyVersion;
-@property (nonatomic, assign) uint32_t bip32PrivateKeyVersion;
-@property (nonatomic, assign) uint32_t maxProofOfWork;
-@property (nonatomic, assign) uint32_t retargetTimespan;
-@property (nonatomic, assign) uint32_t retargetSpacing;
-@property (nonatomic, assign) uint32_t minRetargetTimespan;
-@property (nonatomic, assign) uint32_t maxRetargetTimespan;
-@property (nonatomic, assign) uint32_t retargetInterval;
-@property (nonatomic, strong) WSFilteredBlock *genesisBlock;
-
-- (instancetype)initWithNetworkType:(WSNetworkType)networkType;
 - (void)loadCheckpointsFromHex:(NSString *)hex;
 - (void)addDnsSeed:(NSString *)dnsSeed;
 

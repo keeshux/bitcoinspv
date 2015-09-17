@@ -30,7 +30,7 @@
 
 // XXX: I know, but CFRunLoopStop is useless and category properties are overkill
 static volatile BOOL running;
-static id<WSParameters> networkParameters;
+static WSParameters *networkParameters;
 
 @implementation XCTestCase (BitcoinSPV)
 
@@ -44,7 +44,7 @@ static id<WSParameters> networkParameters;
     networkParameters = WSParametersForNetworkType(networkType);
 }
 
-- (id<WSParameters>)networkParameters
+- (WSParameters *)networkParameters
 {
     NSAssert(networkParameters, @"Forgot to set networkType?");
     

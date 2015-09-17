@@ -31,7 +31,7 @@
 
 @interface WSAbstractMessageLocatorBased : WSAbstractMessage
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
++ (instancetype)messageWithParameters:(WSParameters *)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
 - (uint32_t)version;
 - (WSBlockLocator *)locator;
 - (WSHash256 *)hashStop;

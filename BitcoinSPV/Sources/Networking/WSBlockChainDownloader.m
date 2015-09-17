@@ -49,7 +49,7 @@
 @interface WSBlockChainDownloader ()
 
 // configuration
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) WSBlockChain *blockChain;
 @property (nonatomic, strong) id<WSSynchronizableWallet> wallet;
 @property (nonatomic, assign) uint32_t fastCatchUpTimestamp;
@@ -65,7 +65,7 @@
 @property (nonatomic, strong) WSBlockLocator *startingBlockChainLocator;
 @property (nonatomic, assign) NSTimeInterval lastKeepAliveTime;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
 
 // business
 - (BOOL)needsBloomFiltering;
@@ -102,7 +102,7 @@
 
 @implementation WSBlockChainDownloader
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     NSParameterAssert(parameters);
     

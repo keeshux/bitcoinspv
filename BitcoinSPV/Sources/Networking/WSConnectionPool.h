@@ -29,7 +29,7 @@
 
 #import "WSConnection.h"
 
-@protocol WSParameters;
+@class WSParameters;
 
 //
 // thread-safe: yes
@@ -38,7 +38,7 @@
 
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters;
+- (instancetype)initWithParameters:(WSParameters *)parameters;
 
 - (BOOL)openConnectionToHost:(NSString *)host port:(uint16_t)port processor:(id<WSConnectionProcessor>)processor;
 - (void)closeConnectionForProcessor:(id<WSConnectionProcessor>)processor;

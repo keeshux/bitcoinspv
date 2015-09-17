@@ -37,18 +37,18 @@
 @property (nonatomic, strong) WSBlockLocator *locator;
 @property (nonatomic, strong) WSHash256 *hashStop;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
+- (instancetype)initWithParameters:(WSParameters *)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop;
 
 @end
 
 @implementation WSAbstractMessageLocatorBased
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
++ (instancetype)messageWithParameters:(WSParameters *)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
     return [[self alloc] initWithParameters:parameters version:version locator:locator hashStop:hashStop];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
+- (instancetype)initWithParameters:(WSParameters *)parameters version:(uint32_t)version locator:(WSBlockLocator *)locator hashStop:(WSHash256 *)hashStop
 {
     WSExceptionCheckIllegal(locator);
     

@@ -33,18 +33,18 @@
 
 @property (nonatomic, strong) NSArray *inventories;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories;
+- (instancetype)initWithParameters:(WSParameters *)parameters inventories:(NSArray *)inventories;
 
 @end
 
 @implementation WSAbstractMessageInventoryBased
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories
++ (instancetype)messageWithParameters:(WSParameters *)parameters inventories:(NSArray *)inventories
 {
     return [[self alloc] initWithParameters:parameters inventories:inventories];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters inventories:(NSArray *)inventories
+- (instancetype)initWithParameters:(WSParameters *)parameters inventories:(NSArray *)inventories
 {
     WSExceptionCheckIllegal(inventories.count > 0);
     WSExceptionCheckIllegal(inventories.count <= WSMessageMaxInventories);
@@ -84,7 +84,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         NSUInteger offset = from;

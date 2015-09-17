@@ -30,7 +30,7 @@
 
 NSString *const WSBIP44DefaultPathFormat = @"m/44'/%u'/0'";
 
-WSBIP44CoinType WSBIP44CoinTypeFromParameters(id<WSParameters> parameters)
+WSBIP44CoinType WSBIP44CoinTypeFromParameters(WSParameters *parameters)
 {
     switch (parameters.networkType) {
         case WSNetworkTypeMain: {
@@ -40,7 +40,7 @@ WSBIP44CoinType WSBIP44CoinTypeFromParameters(id<WSParameters> parameters)
             return WSBIP44CoinTypeTestnet3;
         }
         default: {
-            WSExceptionCheck(NO, @"No BIP44 coin type available for %@ network", WSNetworkTypeString(parameters.networkType));
+            WSExceptionCheck(NO, @"No BIP44 coin type available for %@ network", [parameters networkTypeString]);
             return 0;
         }
     }

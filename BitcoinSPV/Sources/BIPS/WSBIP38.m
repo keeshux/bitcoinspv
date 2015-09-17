@@ -102,12 +102,12 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
     return self;
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase
+- (instancetype)initWithParameters:(WSParameters *)parameters key:(WSKey *)key passphrase:(NSString *)passphrase
 {
     return [self initWithParameters:parameters key:key passphrase:passphrase ec:NO];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters key:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec
+- (instancetype)initWithParameters:(WSParameters *)parameters key:(WSKey *)key passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(key);
@@ -312,12 +312,12 @@ static NSData *point_multiply(NSData *point, const BIGNUM *factor, BOOL compress
 
 @implementation WSKey (BIP38)
 
-- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase
+- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(WSParameters *)parameters passphrase:(NSString *)passphrase
 {
     return [self encryptedBIP38KeyWithParameters:parameters passphrase:passphrase ec:NO];
 }
 
-- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(id<WSParameters>)parameters passphrase:(NSString *)passphrase ec:(BOOL)ec
+- (WSBIP38Key *)encryptedBIP38KeyWithParameters:(WSParameters *)parameters passphrase:(NSString *)passphrase ec:(BOOL)ec
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(passphrase);

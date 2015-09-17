@@ -65,7 +65,7 @@
 
 @implementation WSHDKeyring
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters mnemonic:(NSString *)mnemonic
+- (instancetype)initWithParameters:(WSParameters *)parameters mnemonic:(NSString *)mnemonic
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(mnemonic);
@@ -74,7 +74,7 @@
     return [self initWithParameters:parameters data:keyData];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters seed:(WSSeed *)seed
+- (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(seed);
@@ -83,7 +83,7 @@
     return [self initWithParameters:parameters data:keyData];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters data:(NSData *)data
+- (instancetype)initWithParameters:(WSParameters *)parameters data:(NSData *)data
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(data);
@@ -123,7 +123,7 @@
     return self;
 }
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.extendedPrivateKey.parameters;
 }
@@ -271,7 +271,7 @@
     return self;
 }
 
-- (id<WSParameters>)parameters
+- (WSParameters *)parameters
 {
     return self.extendedPublicKey.parameters;
 }

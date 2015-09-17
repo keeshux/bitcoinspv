@@ -30,7 +30,7 @@
 
 @interface WSMessageFilterload : WSAbstractMessage
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters filter:(WSBloomFilter *)filter;
++ (instancetype)messageWithParameters:(WSParameters *)parameters filter:(WSBloomFilter *)filter;
 - (WSBloomFilter *)filter;
 
 @end

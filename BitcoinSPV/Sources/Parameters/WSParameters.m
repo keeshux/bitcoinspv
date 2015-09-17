@@ -34,25 +34,45 @@
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
 
-@interface WSMutableParameters ()
+@interface WSParameters ()
 
 @property (nonatomic, assign) WSNetworkType networkType;
-@property (nonatomic, strong) NSMutableArray *dnsSeeds;
+@property (nonatomic, strong) NSMutableArray *mutableDnsSeeds;
 @property (nonatomic, strong) NSArray *checkpoints;
 @property (nonatomic, strong) NSDictionary *checkpointsByHeight;
 
+@property (nonatomic, assign) uint32_t magicNumber;
+@property (nonatomic, assign) uint8_t publicKeyAddressVersion;
+@property (nonatomic, assign) uint8_t scriptAddressVersion;
+@property (nonatomic, assign) uint8_t privateKeyVersion;
+@property (nonatomic, assign) NSUInteger peerPort;
+@property (nonatomic, assign) uint32_t bip32PublicKeyVersion;
+@property (nonatomic, assign) uint32_t bip32PrivateKeyVersion;
+@property (nonatomic, assign) uint32_t maxProofOfWork;
+@property (nonatomic, assign) uint32_t retargetTimespan;
+@property (nonatomic, assign) uint32_t retargetSpacing;
+@property (nonatomic, assign) uint32_t minRetargetTimespan;
+@property (nonatomic, assign) uint32_t maxRetargetTimespan;
+@property (nonatomic, assign) uint32_t retargetInterval;
+@property (nonatomic, strong) WSFilteredBlock *genesisBlock;
+
 @end
 
-@implementation WSMutableParameters
+@implementation WSParameters
 
 - (instancetype)initWithNetworkType:(WSNetworkType)networkType
 {
     if ((self = [super init])) {
         self.networkType = networkType;
-        self.dnsSeeds = [[NSMutableArray alloc] init];
+        self.mutableDnsSeeds = [[NSMutableArray alloc] init];
         self.checkpoints = nil;
     }
     return self;
+}
+
+- (NSString *)networkTypeString
+{
+    return WSNetworkTypeString(self.networkType);
 }
 
 - (WSHash256 *)genesisBlockId
@@ -122,9 +142,20 @@
     return lastCheckpoint;
 }
 
+- (NSArray *)dnsSeeds
+{
+    return self.mutableDnsSeeds;
+}
+
 - (void)addDnsSeed:(NSString *)dnsSeed
 {
-    [self.dnsSeeds addObject:dnsSeed];
+    [self.mutableDnsSeeds addObject:dnsSeed];
 }
+
+@end
+
+#pragma mark -
+
+@implementation WSMutableParameters
 
 @end

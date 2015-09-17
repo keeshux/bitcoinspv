@@ -53,7 +53,7 @@
 
 @interface WSPeerGroupStatus ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) BOOL isConnected;
 @property (nonatomic, assign) BOOL isDownloading;
 @property (nonatomic, assign) NSUInteger currentHeight;
@@ -73,7 +73,7 @@
 
 @interface WSPeerGroup ()
 
-@property (nonatomic, strong) id<WSParameters> parameters;
+@property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, strong) WSPeerGroupNotifier *notifier;
 @property (nonatomic, strong) WSConnectionPool *pool;
 @property (nonatomic, strong) dispatch_queue_t queue;
@@ -112,7 +112,7 @@
 
 @implementation WSPeerGroup
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters
+- (instancetype)initWithParameters:(WSParameters *)parameters
 {
     WSConnectionPool *pool = [[WSConnectionPool alloc] initWithParameters:parameters];
     NSString *className = [self.class description];
@@ -121,7 +121,7 @@
     return [self initWithParameters:parameters pool:pool queue:queue];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue
+- (instancetype)initWithParameters:(WSParameters *)parameters pool:(WSConnectionPool *)pool queue:(dispatch_queue_t)queue
 {
     WSExceptionCheckIllegal(parameters);
     WSExceptionCheckIllegal(pool);
@@ -273,8 +273,8 @@
     WSExceptionCheck(downloader.parameters == self.parameters,
                      WSExceptionIllegalArgument,
                      @"Downloader configured for %@ network (expected: %@)",
-                     WSNetworkTypeString([downloader.parameters networkType]),
-                     WSNetworkTypeString([self.parameters networkType]));
+                     [downloader.parameters networkTypeString],
+                     [self.parameters networkTypeString]);
     
     __block BOOL started = NO;
     dispatch_sync(self.queue, ^{

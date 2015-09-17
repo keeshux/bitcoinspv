@@ -30,7 +30,7 @@
 #import "WSPeerGroup.h"
 
 @protocol WSBlockStore;
-@protocol WSParameters;
+@class WSParameters;
 @protocol WSSynchronizableWallet;
 @class WSCoreDataManager;
 

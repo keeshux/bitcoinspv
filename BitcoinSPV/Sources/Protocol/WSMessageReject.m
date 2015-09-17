@@ -34,18 +34,18 @@
 @property (nonatomic, assign) uint8_t code;
 @property (nonatomic, copy) NSString *reason;
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
+- (instancetype)initWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason;
 
 @end
 
 @implementation WSMessageReject
 
-+ (instancetype)messageWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
++ (instancetype)messageWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
 {
     return [[self alloc] initWithParameters:parameters message:message code:code reason:reason];
 }
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
+- (instancetype)initWithParameters:(WSParameters *)parameters message:(NSString *)message code:(uint8_t)code reason:(NSString *)reason
 {
     WSExceptionCheckIllegal(message);
     WSExceptionCheckIllegal(code <= 0x4f);
@@ -82,7 +82,7 @@
 
 #pragma mark WSBufferDecoder
 
-- (instancetype)initWithParameters:(id<WSParameters>)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
+- (instancetype)initWithParameters:(WSParameters *)parameters buffer:(WSBuffer *)buffer from:(NSUInteger)from available:(NSUInteger)available error:(NSError *__autoreleasing *)error
 {
     if ((self = [super initWithParameters:parameters originalLength:buffer.length])) {
         NSUInteger offset = from;
