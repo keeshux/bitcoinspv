@@ -93,7 +93,7 @@
 
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                            seed:[self walletSeed]
-                                                     chainsPath:WSBIP32DefaultPath
+                                                     chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
     wallet.shouldAutosave = YES;
@@ -138,7 +138,7 @@
     
     WSHDWallet *wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                            seed:[self walletSeed]
-                                                     chainsPath:WSBIP32DefaultPath
+                                                     chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
     wallet.shouldAutosave = YES;

@@ -241,7 +241,7 @@
     if (!wallet) {
         wallet = [[WSHDWallet alloc] initWithParameters:self.networkParameters
                                                    seed:seed
-                                             chainsPath:WSBIP32DefaultPath
+                                             chainsPath:WSBIP32PathForAccount(0)
                                                gapLimit:4];
     }
 
