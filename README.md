@@ -70,6 +70,7 @@ Grouped by area:
     * BIP37: Bloom filtering for fast blockchain synchronization.
     * BIP38: passphrase-protected private keys.
     * BIP39: mnemonics for deterministic keys.
+    * BIP44: multi-account hierarchy for deterministic wallets.
 
 ## Installation
 
@@ -86,7 +87,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'BitcoinSPV', '~> 0.6'
+    pod 'BitcoinSPV', '~> 0.7'
 
 and run on the terminal:
 
