@@ -84,6 +84,7 @@
 
 // set on [WSConnectionProcessor openedConnectionToHost:port:handler:]
 @property (nonatomic, strong) id<WSConnectionHandler> handler;
+@property (nonatomic, strong) NSString *identifier;
 
 // stateful messages
 @property (nonatomic, strong) WSFilteredBlock *currentFilteredBlock;
@@ -184,7 +185,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(%@:%u)", _remoteHost, _remotePort];
+    return self.identifier;
 }
 
 #pragma mark WSConnectionProcessor (handler queue)
@@ -196,6 +197,7 @@
 
     @synchronized (self) {
         self.handler = handler;
+        self.identifier = [NSString stringWithFormat:@"(%@:%u)", host, port];
 
         _peerStatus = WSPeerStatusConnecting;
         _didReceiveVerack = NO;

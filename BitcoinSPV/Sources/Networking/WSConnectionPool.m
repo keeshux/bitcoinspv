@@ -93,7 +93,7 @@
         handler.delegate = self;
         self.handlers[handler.identifier] = handler;
 
-        DDLogDebug(@"Added %@ to pool (current: %lu)", handler, (unsigned long)self.handlers.count);
+        DDLogDebug(@"%@ Added to pool (current: %lu)", handler, (unsigned long)self.handlers.count);
 
         [handler connectWithTimeout:self.connectionTimeout error:NULL];
     }
@@ -138,12 +138,12 @@
 
 - (void)connectionHandlerDidConnect:(id<WSConnectionHandler>)connectionHandler
 {
-    DDLogDebug(@"Handler connected");
+    DDLogDebug(@"%@ Handler connected", connectionHandler);
 }
 
 - (void)connectionHandler:(id<WSConnectionHandler>)connectionHandler didDisconnectWithError:(NSError *)error
 {
-    DDLogDebug(@"Handler disconnected%@", WSStringOptional(error, @" (%@)"));
+    DDLogDebug(@"%@ Handler disconnected%@", connectionHandler, WSStringOptional(error, @" (%@)"));
 
     @synchronized (self.handlers) {
         [self unsafeRemoveHandler:connectionHandler];
@@ -181,12 +181,12 @@
     NSParameterAssert(handler);
     
     if (!self.handlers[handler.identifier]) {
-        DDLogDebug(@"Removing nonexistent handler (%@)", handler);
+        DDLogDebug(@"%@ Removing nonexistent handler", handler);
         return;
     }
     [self.handlers removeObjectForKey:handler.identifier];
 
-    DDLogDebug(@"Removed %@ from pool (current: %lu)", handler, (unsigned long)self.handlers.count);
+    DDLogDebug(@"%@ Removed from pool (current: %lu)", handler, (unsigned long)self.handlers.count);
 }
 
 @end
@@ -225,7 +225,7 @@
         self.parameters = parameters;
         self.host = host;
         self.port = port;
-        self.identifier = [NSString stringWithFormat:@"%@:%u", self.host, self.port];
+        self.identifier = [NSString stringWithFormat:@"(%@:%u)", self.host, self.port];
         self.processor = processor;
     }
     return self;
@@ -310,15 +310,15 @@
     NSUInteger headerLength;
     WSBuffer *buffer = [message toNetworkBufferWithHeaderLength:&headerLength];
     if (buffer.length > WSMessageMaxLength) {
-        DDLogError(@"Error sending '%@', message is too long (%lu > %lu)", message.messageType,
+        DDLogError(@"%@ Error sending '%@', message is too long (%lu > %lu)", self, message.messageType,
                    (unsigned long)buffer.length, (unsigned long)WSMessageMaxLength);
         return;
     }
     
-    DDLogVerbose(@"Sending %@ (%lu+%lu bytes)", message,
+    DDLogVerbose(@"%@ Sending %@ (%lu+%lu bytes)", self, message,
                  (unsigned long)headerLength, (unsigned long)(buffer.length - headerLength));
 
-    DDLogVerbose(@"Sending data: %@", [buffer.data hexString]);
+    DDLogVerbose(@"%@ Sending data: %@", self, [buffer.data hexString]);
     
     [self unsafeEnqueueData:buffer.data];
     [self unsafeFlush];
@@ -346,7 +346,7 @@
 {
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
-//            DDLogDebug(@"Connected to %@", self);
+//            DDLogDebug(@"%@ Connected", self);
             
             if (aStream == self.outputStream) {
                 [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -376,7 +376,7 @@
                 }
                 else {
                     if (error) {
-                        DDLogError(@"Error deserializing message: %@", error);
+                        DDLogError(@"%@ Error deserializing message: %@", self, error);
                         if (error.code == WSErrorCodeMalformed) {
                             [self disconnectWithError:error];
                         }
@@ -395,7 +395,7 @@
             break;
         }
         default: {
-            DDLogError(@"Unknown network stream eventCode %u", (int)eventCode);
+            DDLogError(@"%@ Unknown network stream eventCode %u", self, (long)eventCode);
             break;
         }
     }
