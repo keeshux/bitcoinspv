@@ -62,6 +62,7 @@ NSString *const WSPeerGroupRejectCodeKey                        = @"Code";
 NSString *const WSPeerGroupRejectReasonKey                      = @"Reason";
 NSString *const WSPeerGroupRejectTransactionIdKey               = @"TransactionId";
 NSString *const WSPeerGroupRejectBlockIdKey                     = @"BlockId";
+NSString *const WSPeerGroupRejectIsRejectedKey                  = @"IsRejected";
 
 NSString *const WSPeerGroupErrorKey                             = @"Error";
 
@@ -189,21 +190,23 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished)}];
 }
 
-- (void)notifyRejectMessage:(WSMessageReject *)message fromPeer:(WSPeer *)peer
+- (void)notifyRejectMessage:(WSMessageReject *)message isRejected:(BOOL)isRejected fromPeer:(WSPeer *)peer
 {
     if ([message.message isEqualToString:WSMessageType_TX]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
 
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
-                                                                         WSPeerGroupRejectTransactionIdKey: txId}];
+                                                                         WSPeerGroupRejectTransactionIdKey: txId,
+                                                                         WSPeerGroupRejectIsRejectedKey: @(isRejected)}];
     }
     else if ([message.message isEqualToString:WSMessageType_BLOCK]) {
         WSHash256 *blockId = WSHash256FromData(message.payload);
 
         [self notifyWithName:WSPeerGroupDidRejectNotification userInfo:@{WSPeerGroupRejectCodeKey: @(message.code),
                                                                          WSPeerGroupRejectReasonKey: message.reason,
-                                                                         WSPeerGroupRejectBlockIdKey: blockId}];
+                                                                         WSPeerGroupRejectBlockIdKey: blockId,
+                                                                         WSPeerGroupRejectIsRejectedKey: @(isRejected)}];
     }
 }
 

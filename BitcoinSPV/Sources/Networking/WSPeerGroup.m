@@ -102,7 +102,7 @@
 - (void)reconnectAfterDelay:(NSTimeInterval)delay;
 - (void)removeInactiveHost:(NSString *)host;
 - (BOOL)findAndRemovePublishedTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer;
-- (void)rejectTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer;
+- (BOOL)findAndRemoveRejectedTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer;
 + (BOOL)isHardNetworkError:(NSError *)error;
 
 - (BOOL)unsafeIsConnected;
@@ -690,13 +690,13 @@
 {
     DDLogDebug(@"Received reject from %@: %@", peer, message);
     
+    BOOL isRejected = NO;
     if ([message.message isEqualToString:WSMessageType_TX]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
-
-        [self rejectTransactionWithId:txId fromPeer:peer];
+        isRejected = [self findAndRemoveRejectedTransactionWithId:txId fromPeer:peer];
     }
 
-    [self.notifier notifyRejectMessage:message fromPeer:peer];
+    [self.notifier notifyRejectMessage:message isRejected:isRejected fromPeer:peer];
 }
 
 - (void)peer:(WSPeer *)peer didSendNumberOfBytes:(NSUInteger)numberOfBytes
@@ -1019,18 +1019,21 @@
         [self.pendingTransactions removeObjectForKey:transaction.txId];
         isPublished = YES;
         
-        DDLogInfo(@"Peer %@ relayed pending transaction: %@", peer, transaction.txId);
+        DDLogInfo(@"Peer %@ published pending transaction: %@", peer, transaction.txId);
     }
     return isPublished;
 }
 
-- (void)rejectTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer
+- (BOOL)findAndRemoveRejectedTransactionWithId:(WSHash256 *)txId fromPeer:(WSPeer *)peer
 {
+    BOOL isRejected = NO;
     if (self.pendingTransactions[txId]) {
         [self.pendingTransactions removeObjectForKey:txId];
+        isRejected = YES;
 
         DDLogInfo(@"Peer %@ rejected pending transaction: %@", peer, txId);
     }
+    return isRejected;
 }
 
 + (BOOL)isHardNetworkError:(NSError *)error
