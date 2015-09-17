@@ -45,8 +45,6 @@
     self.networkType = WSNetworkTypeTestnet3;
     
     [[NSNotificationCenter defaultCenter] addObserverForName:WSPeerGroupDidFinishDownloadNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        [self saveWallet:self.persistentWallet];
-        
         [self runForSeconds:3.0];
         if (self.stopOnSync) {
             [self stopRunning];
@@ -58,9 +56,6 @@
         DDLogInfo(@"Relayed transaction (isPublished = %u): %@", isPublished, tx);
     }];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidRegisterTransactionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        [self saveWallet:note.object];
-    }];
     [[NSNotificationCenter defaultCenter] addObserverForName:WSWalletDidUpdateBalanceNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         id<WSWallet> wallet = note.object;
         
@@ -93,7 +88,6 @@
                                                      chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
-    wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
@@ -138,7 +132,6 @@
                                                      chainsPath:WSBIP32PathForAccount(0)
                                                        gapLimit:WALLET_GAP_LIMIT];
     [wallet saveToPath:[self walletPath]];
-    wallet.shouldAutosave = YES;
     self.persistentWallet = wallet;
     
     DDLogInfo(@"Receive address: %@", [wallet receiveAddress]);
@@ -309,17 +302,6 @@
 - (WSHDWallet *)loadWallet
 {
     return [WSHDWallet loadFromPath:[self walletPath] parameters:self.networkParameters seed:[self walletSeed]];
-}
-
-- (void)saveWallet:(id<WSWallet>)wallet
-{
-    NSString *path = [self walletPath];
-    if ([wallet saveToPath:path]) {
-        DDLogInfo(@"Wallet successfully saved to %@", path);
-    }
-    else {
-        DDLogInfo(@"Failed to save wallet to %@", path);
-    }
 }
 
 - (NSString *)storePath
