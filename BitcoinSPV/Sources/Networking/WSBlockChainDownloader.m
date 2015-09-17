@@ -893,10 +893,8 @@
     if (![block.blockId isEqual:previousHead.blockId]) {
         [self.peerGroup.notifier notifyBlockAdded:block];
         
-        const NSUInteger lastBlockHeight = self.downloadPeer.lastBlockHeight;
-        const BOOL isDownloadFinished = (block.height == lastBlockHeight);
-        
-        if (isDownloadFinished) {
+        // download finished
+        if (block.height == self.downloadPeer.lastBlockHeight) {
             for (WSPeer *peer in [self.peerGroup allConnectedPeers]) {
                 if ([self needsBloomFiltering] && (peer != self.downloadPeer)) {
                     DDLogDebug(@"Loading Bloom filter for peer %@", peer);
@@ -915,8 +913,6 @@
         }
     }
     
-    //
-    
     if (self.wallet) {
         [self recoverMissedBlockTransactions:block];
     }
@@ -926,16 +922,18 @@
 {
     NSParameterAssert(transaction);
 
-    BOOL didGenerateNewAddresses = NO;
-    if (self.wallet && ![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
-        return;
-    }
+    if (self.wallet) {
+        BOOL didGenerateNewAddresses = NO;
+        if (![self.wallet registerTransaction:transaction didGenerateNewAddresses:&didGenerateNewAddresses]) {
+            return;
+        }
     
-    if (didGenerateNewAddresses) {
-        DDLogDebug(@"Last transaction triggered new addresses generation");
-        
-        if ([self maybeRebuildAndSendBloomFilter]) {
-            [self requestOutdatedBlocks];
+        if (didGenerateNewAddresses) {
+            DDLogDebug(@"Last transaction triggered new addresses generation");
+            
+            if ([self maybeRebuildAndSendBloomFilter]) {
+                [self requestOutdatedBlocks];
+            }
         }
     }
 }
@@ -961,18 +959,16 @@
     // for the above reason, a reorg should never generate new addresses
     //
     
-    if (!self.wallet) {
-        return;
-    }
-    
-    BOOL didGenerateNewAddresses = NO;
-    [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
-    
-    if (didGenerateNewAddresses) {
-        DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
+    if (self.wallet) {
+        BOOL didGenerateNewAddresses = NO;
+        [self.wallet reorganizeWithOldBlocks:oldBlocks newBlocks:newBlocks didGenerateNewAddresses:&didGenerateNewAddresses];
         
-        if ([self maybeRebuildAndSendBloomFilter]) {
-            [self requestOutdatedBlocks];
+        if (didGenerateNewAddresses) {
+            DDLogWarn(@"Reorganize triggered (unexpected) new addresses generation");
+            
+            if ([self maybeRebuildAndSendBloomFilter]) {
+                [self requestOutdatedBlocks];
+            }
         }
     }
 }
