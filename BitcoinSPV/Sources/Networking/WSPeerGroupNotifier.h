@@ -71,7 +71,7 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight;
 - (void)notifyDownloadFinished;
 - (void)notifyDownloadFailedWithError:(NSError *)error;
-- (void)notifyBlockAdded:(WSStorableBlock *)block;
+- (void)notifyBlock:(WSStorableBlock *)block;
 - (void)notifyTransaction:(WSSignedTransaction *)transaction fromPeer:(WSPeer *)peer isPublished:(BOOL)isPublished;
 - (void)notifyRescan;
 

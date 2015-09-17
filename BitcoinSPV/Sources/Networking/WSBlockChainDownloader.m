@@ -894,7 +894,7 @@
 
     // new block
     if (![block.blockId isEqual:previousHead.blockId]) {
-        [self.peerGroup.notifier notifyBlockAdded:block];
+        [self.peerGroup.notifier notifyBlock:block];
         
         // download finished
         if (block.height == self.downloadPeer.lastBlockHeight) {

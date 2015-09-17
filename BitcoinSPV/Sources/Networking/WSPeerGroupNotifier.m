@@ -156,7 +156,7 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     [self notifyWithName:WSPeerGroupDidFailDownloadNotification userInfo:(error ? @{WSPeerGroupErrorKey: error} : nil)];
 }
 
-- (void)notifyBlockAdded:(WSStorableBlock *)block
+- (void)notifyBlock:(WSStorableBlock *)block
 {
     const NSUInteger fromHeight = self.syncFromHeight;
     const NSUInteger toHeight = self.syncToHeight;
