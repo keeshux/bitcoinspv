@@ -646,6 +646,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         if (![NSKeyedArchiver archiveRootObject:self toFile:path]) {
             return NO;
         }
+        DDLogInfo(@"Saved wallet to %@", path);
         _path = path;
         return YES;
     }
@@ -684,6 +685,8 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
                          @"Wallet created on '%@' network (expected: '%@')",
                          [wallet.parameters networkTypeString],
                          [parameters networkTypeString]);
+
+        DDLogInfo(@"Loaded wallet from %@", path);
 
         wallet->_path = path;
         [wallet loadSensitiveDataWithSeed:seed];
