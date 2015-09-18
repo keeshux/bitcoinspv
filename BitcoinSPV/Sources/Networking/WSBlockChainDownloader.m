@@ -182,6 +182,8 @@
 #if BSPV_WALLET_FILTER == BSPV_WALLET_FILTER_UNSPENT
         self.bloomFilterParameters.flags = WSBIP37FlagsUpdateAll;
 #endif
+
+        [self.wallet setShouldAutoSave:self.shouldAutoSaveWallet];
     }
     return self;
 }
