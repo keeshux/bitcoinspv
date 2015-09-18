@@ -336,6 +336,13 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
     }
 }
 
+- (WSSignedTransaction *)transactionForId:(WSHash256 *)txId
+{
+    @synchronized (self) {
+        return _txsById[txId];
+    }
+}
+
 - (NSArray *)transactionsInRange:(NSRange)range
 {
     @synchronized (self) {

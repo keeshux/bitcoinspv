@@ -70,6 +70,7 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 // history
 - (NSDictionary *)allTransactions;          // WSHash256 -> WSSignedTransaction
 - (NSArray *)sortedTransactions;            // WSSignedTransaction
+- (WSSignedTransaction *)transactionForId:(WSHash256 *)txId;
 - (NSArray *)transactionsInRange:(NSRange)range;
 - (uint64_t)receivedValueFromTransaction:(WSSignedTransaction *)transaction;
 - (uint64_t)sentValueByTransaction:(WSSignedTransaction *)transaction;
