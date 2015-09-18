@@ -1069,7 +1069,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = WS;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Davide De Rosa";
 				TargetAttributes = {
 					8C6005831949EC9400248F04 = {
@@ -1458,6 +1458,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1519,6 +1520,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BitcoinSPVDemo/Prefix.pch;
 				INFOPLIST_FILE = BitcoinSPVDemo/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BitcoinSPVDemo;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1534,6 +1536,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BitcoinSPVDemo/Prefix.pch;
 				INFOPLIST_FILE = BitcoinSPVDemo/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BitcoinSPVDemo;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1576,6 +1579,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = BitcoinSPVTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1592,6 +1596,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = BitcoinSPVTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1608,6 +1613,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = BitcoinSPV/Resources/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = BitcoinSPV;
 				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = bundle;
@@ -1622,6 +1628,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = BitcoinSPV/Resources/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = BitcoinSPV;
 				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = bundle;
