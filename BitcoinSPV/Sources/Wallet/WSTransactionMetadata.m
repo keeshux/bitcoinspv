@@ -46,6 +46,7 @@
 - (instancetype)initWithParentBlock:(WSStorableBlock *)block
 {
     WSExceptionCheckIllegal(block);
+    WSExceptionCheckIllegal(block.height != WSBlockUnknownHeight);
     
     if ((self = [super init])) {
         self.parentBlockId = block.blockId;
