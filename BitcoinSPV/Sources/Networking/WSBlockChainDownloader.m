@@ -1000,6 +1000,11 @@
 - (void)recoverMissedBlockTransactions:(WSStorableBlock *)block originalEntity:(id)entity
 {
     NSParameterAssert(block);
+    
+    // don't register orphan blocks
+    if ([self.blockChain isKnownOrphanBlockWithId:block.blockId]) {
+        return;
+    }
 
     //
     // enforce registration in case we lost these transactions
