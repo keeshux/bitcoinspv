@@ -1325,7 +1325,13 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
             WSTransactionMetadata *m1 = _metadataByTxId[tx1.txId];
             WSTransactionMetadata *m2 = _metadataByTxId[tx2.txId];
             
-            if (m1.height > m2.height) {
+            if (!m1 || (m1.height == WSBlockUnknownHeight)) {
+                return NSOrderedAscending;
+            }
+            else if (!m2 || (m2.height == WSBlockUnknownHeight)) {
+                return NSOrderedDescending;
+            }
+            else if (m1.height > m2.height) {
                 return NSOrderedAscending;
             }
             else if (m1.height < m2.height) {
