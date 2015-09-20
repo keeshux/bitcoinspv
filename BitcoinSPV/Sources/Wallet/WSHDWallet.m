@@ -698,6 +698,7 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         wallet->_path = path;
         [wallet loadSensitiveDataWithSeed:seed];
         [wallet rebuildTransientStructures];
+        [wallet sortTransactions];
         return wallet;
     }
 }
