@@ -155,6 +155,7 @@
 		8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */; };
 		8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3EE9A196D912400FC48F1 /* WSReachability.m */; };
 		8CDD9A241983066300720304 /* WSTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A231983066300720304 /* WSTimerTests.m */; };
+		A363E76D0C8931A377E0DAEB /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 		B873CF4DF73F960DE972BC7B /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -495,6 +496,7 @@
 			files = (
 				8C498220197092D5007CE061 /* CoreData.framework in Frameworks */,
 				8C8FB7F8196776B600A07156 /* Foundation.framework in Frameworks */,
+				A363E76D0C8931A377E0DAEB /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
