@@ -766,7 +766,7 @@
             [self.peerGroup disconnectPeer:self.downloadPeer
                                      error:WSErrorMake(WSErrorCodePeerGroupTimeout, @"Download timed out, disconnecting")];
         }
-    } synchronously:YES];
+    } synchronously:NO];
 }
 
 #pragma mark Blockchain
