@@ -56,7 +56,7 @@ static inline BOOL WSUtilsCheckBit(const uint8_t *data, NSUInteger i)
     return ((data[i >> 3] & bitMask[7 & i]) != 0);
 }
 
-static inline double WSUtilsProgress(const NSUInteger from, const NSUInteger to, const NSUInteger current)
+static inline double WSUtilsProgress(const uint32_t from, const uint32_t to, const uint32_t current)
 {
     return ((current >= to) ? 1.0 : ((double)(current - from) / (to - from)));
 }

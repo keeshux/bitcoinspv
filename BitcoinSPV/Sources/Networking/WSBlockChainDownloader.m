@@ -235,15 +235,15 @@
     self.peerGroup = nil;
 }
 
-- (NSUInteger)lastBlockHeight
+- (uint32_t)lastBlockHeight
 {
     if (!self.downloadPeer) {
-        return NSNotFound;
+        return WSBlockUnknownHeight;
     }
     return self.downloadPeer.lastBlockHeight;
 }
 
-- (NSUInteger)currentHeight
+- (uint32_t)currentHeight
 {
     return self.blockChain.currentHeight;
 }
@@ -554,7 +554,7 @@
     DDLogInfo(@"Preparing for blockchain download");
 
     if (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight) {
-        const NSUInteger height = self.blockChain.currentHeight;
+        const uint32_t height = self.blockChain.currentHeight;
         [self.peerGroup.notifier notifyDownloadStartedFromHeight:height toHeight:height];
         
         DDLogInfo(@"Blockchain is up to date");
@@ -578,8 +578,8 @@
         DDLogDebug(@"No fast catch-up checkpoint");
     }
     
-    const NSUInteger fromHeight = self.blockChain.currentHeight;
-    const NSUInteger toHeight = self.downloadPeer.lastBlockHeight;
+    const uint32_t fromHeight = self.blockChain.currentHeight;
+    const uint32_t toHeight = self.downloadPeer.lastBlockHeight;
     [self.peerGroup.notifier notifyDownloadStartedFromHeight:fromHeight toHeight:toHeight];
     
     self.fastCatchUpTimestamp = self.fastCatchUpTimestamp;
@@ -629,7 +629,7 @@
 {
     NSParameterAssert(headers.count > 0);
     
-//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//    const uint32_t currentHeight = self.blockChain.currentHeight;
 //
 //    DDLogDebug(@"Still behind (%u < %u), requesting more headers ahead of time",
 //               currentHeight, self.lastBlockHeight);
@@ -678,7 +678,7 @@
         return;
     }
     
-//    const NSUInteger currentHeight = self.blockChain.currentHeight;
+//    const uint32_t currentHeight = self.blockChain.currentHeight;
 //
 //    DDLogDebug(@"Still behind (%u < %u), requesting more blocks ahead of time",
 //               currentHeight, self.lastBlockHeight);
@@ -1041,8 +1041,8 @@
         return NO;
     }
     
-    DDLogDebug(@"Bloom filter may be outdated (height: %lu, receive: %lu, change: %lu)",
-               (unsigned long)self.blockChain.currentHeight,
+    DDLogDebug(@"Bloom filter may be outdated (height: %u, receive: %lu, change: %lu)",
+               self.blockChain.currentHeight,
                (unsigned long)self.wallet.allReceiveAddresses.count,
                (unsigned long)self.wallet.allChangeAddresses.count);
     

@@ -33,6 +33,7 @@
 #import "WSStorableBlock.h"
 #import "WSTransaction.h"
 #import "WSMessageReject.h"
+#import "WSConfig.h"
 #import "WSLogging.h"
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
@@ -71,8 +72,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 @interface WSPeerGroupNotifier ()
 
 @property (nonatomic, weak) WSPeerGroup *peerGroup;
-@property (nonatomic, assign) NSUInteger syncFromHeight;
-@property (nonatomic, assign) NSUInteger syncToHeight;
+@property (nonatomic, assign) uint32_t syncFromHeight;
+@property (nonatomic, assign) uint32_t syncToHeight;
 @property (nonatomic, assign) UIBackgroundTaskIdentifier syncTaskId;
 
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo;
@@ -87,8 +88,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     
     if ((self = [super init])) {
         self.peerGroup = peerGroup;
-        self.syncFromHeight = NSNotFound;
-        self.syncToHeight = NSNotFound;
+        self.syncFromHeight = WSBlockUnknownHeight;
+        self.syncToHeight = WSBlockUnknownHeight;
         self.syncTaskId = UIBackgroundTaskInvalid;
     }
     return self;
@@ -115,9 +116,9 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     [self notifyWithName:WSPeerGroupPeerDidDisconnectNotification userInfo:@{WSPeerGroupPeerHostKey: peer.remoteHost}];
 }
 
-- (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight
+- (void)notifyDownloadStartedFromHeight:(uint32_t)fromHeight toHeight:(uint32_t)toHeight
 {
-    DDLogInfo(@"Download started, status = %lu/%lu", (unsigned long)fromHeight, (unsigned long)toHeight);
+    DDLogInfo(@"Download started, status = %u/%u", fromHeight, toHeight);
 
     self.syncFromHeight = fromHeight;
     self.syncToHeight = toHeight;
@@ -132,18 +133,18 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyDownloadFinished
 {
-    const NSUInteger fromHeight = self.syncFromHeight;
-    const NSUInteger toHeight = self.syncToHeight;
+    const uint32_t fromHeight = self.syncFromHeight;
+    const uint32_t toHeight = self.syncToHeight;
 
-    self.syncFromHeight = NSNotFound;
-    self.syncToHeight = NSNotFound;
+    self.syncFromHeight = WSBlockUnknownHeight;
+    self.syncToHeight = WSBlockUnknownHeight;
 
     if (self.syncTaskId != UIBackgroundTaskInvalid) {
         [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
         self.syncTaskId = UIBackgroundTaskInvalid;
     }
 
-    DDLogInfo(@"Download finished, %lu -> %lu", (unsigned long)fromHeight, (unsigned long)toHeight);
+    DDLogInfo(@"Download finished, %u -> %u", fromHeight, toHeight);
     
     [self notifyWithName:WSPeerGroupDidFinishDownloadNotification userInfo:@{WSPeerGroupDownloadFromHeightKey: @(fromHeight),
                                                                              WSPeerGroupDownloadToHeightKey: @(toHeight)}];
@@ -153,8 +154,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 {
     DDLogError(@"Download failed%@", WSStringOptional(error, @" (%@)"));
     
-    self.syncFromHeight = NSNotFound;
-    self.syncToHeight = NSNotFound;
+    self.syncFromHeight = WSBlockUnknownHeight;
+    self.syncToHeight = WSBlockUnknownHeight;
 
     if (self.syncTaskId != UIBackgroundTaskInvalid) {
         [[UIApplication sharedApplication] endBackgroundTask:self.syncTaskId];
@@ -166,18 +167,15 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyBlock:(WSStorableBlock *)block
 {
-    const NSUInteger fromHeight = self.syncFromHeight;
-    const NSUInteger toHeight = self.syncToHeight;
-    const NSUInteger currentHeight = block.height;
+    const uint32_t fromHeight = self.syncFromHeight;
+    const uint32_t toHeight = self.syncToHeight;
+    const uint32_t currentHeight = block.height;
 
     if (currentHeight <= toHeight) {
         if (currentHeight % 1000 == 0) {
             const double progress = WSUtilsProgress(fromHeight, toHeight, currentHeight);
 
-            DDLogInfo(@"Download progress = %lu/%lu (%.2f%%)",
-                      (unsigned long)currentHeight,
-                      (unsigned long)toHeight,
-                      100.0 * progress);
+            DDLogInfo(@"Download progress = %u/%u (%.2f%%)", currentHeight, toHeight, 100.0 * progress);
         }
     }
 
@@ -220,10 +218,10 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (BOOL)didNotifyDownloadStarted
 {
-    return (self.syncFromHeight != NSNotFound);
+    return (self.syncFromHeight != WSBlockUnknownHeight);
 }
 
-- (double)downloadProgressAtHeight:(NSUInteger)height
+- (double)downloadProgressAtHeight:(uint32_t)height
 {
     if (![self didNotifyDownloadStarted]) {
         return 0.0;

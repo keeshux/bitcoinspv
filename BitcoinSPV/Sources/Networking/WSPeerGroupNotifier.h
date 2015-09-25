@@ -76,7 +76,7 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyDisconnected;
 - (void)notifyPeerConnected:(WSPeer *)peer reachedMaxConnections:(BOOL)reachedMaxConnections;
 - (void)notifyPeerDisconnected:(WSPeer *)peer;
-- (void)notifyDownloadStartedFromHeight:(NSUInteger)fromHeight toHeight:(NSUInteger)toHeight;
+- (void)notifyDownloadStartedFromHeight:(uint32_t)fromHeight toHeight:(uint32_t)toHeight;
 - (void)notifyDownloadFinished;
 - (void)notifyDownloadFailedWithError:(NSError *)error;
 - (void)notifyBlock:(WSStorableBlock *)block;
@@ -85,6 +85,6 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyRescan;
 
 - (BOOL)didNotifyDownloadStarted;
-- (double)downloadProgressAtHeight:(NSUInteger)height;
+- (double)downloadProgressAtHeight:(uint32_t)height;
 
 @end

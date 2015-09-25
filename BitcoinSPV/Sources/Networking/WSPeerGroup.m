@@ -56,8 +56,8 @@
 @property (nonatomic, strong) WSParameters *parameters;
 @property (nonatomic, assign) BOOL isConnected;
 @property (nonatomic, assign) BOOL isDownloading;
-@property (nonatomic, assign) NSUInteger currentHeight;
-@property (nonatomic, assign) NSUInteger targetHeight;
+@property (nonatomic, assign) uint32_t currentHeight;
+@property (nonatomic, assign) uint32_t targetHeight;
 @property (nonatomic, assign) double downloadProgress;
 @property (nonatomic, strong) NSArray *recentBlocks;
 @property (nonatomic, assign) NSUInteger sentBytes;
@@ -314,9 +314,9 @@
     return isDownloading;
 }
 
-- (NSUInteger)currentHeight
+- (uint32_t)currentHeight
 {
-    __block NSUInteger currentHeight = NSNotFound;
+    __block uint32_t currentHeight = 0;
     dispatch_sync(self.queue, ^{
         if (!self.downloader) {
             return;
@@ -467,8 +467,8 @@
     [self.pendingPeers removeObjectForKey:peer.remoteHost];
     self.connectedPeers[peer.remoteHost] = peer;
     
-    DDLogInfo(@"Connected to %@ at height %lu (active: %lu)", peer,
-              (unsigned long)peer.lastBlockHeight, (unsigned long)self.connectedPeers.count);
+    DDLogInfo(@"Connected to %@ at height %u (active: %lu)", peer,
+              peer.lastBlockHeight, (unsigned long)self.connectedPeers.count);
 
     DDLogInfo(@"Active peers: %@", self.connectedPeers);
 

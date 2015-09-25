@@ -44,8 +44,8 @@
 - (WSParameters *)parameters;
 - (BOOL)isConnected;
 - (BOOL)isDownloading;
-- (NSUInteger)currentHeight;
-- (NSUInteger)targetHeight;
+- (uint32_t)currentHeight;
+- (uint32_t)targetHeight;
 - (double)downloadProgress;
 - (NSArray *)recentBlocks;
 - (NSUInteger)sentBytes;
@@ -89,7 +89,7 @@
 - (BOOL)startDownloadWithDownloader:(id<WSPeerGroupDownloader>)downloader;
 - (void)stopDownload;
 - (BOOL)isDownloading;
-- (NSUInteger)currentHeight;
+- (uint32_t)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
 - (BOOL)isSynced;
 - (BOOL)reconnectForDownload;
@@ -143,8 +143,8 @@
 - (WSParameters *)parameters;
 - (void)startWithPeerGroup:(WSPeerGroup *)peerGroup;
 - (void)stop;
-- (NSUInteger)lastBlockHeight;
-- (NSUInteger)currentHeight;
+- (uint32_t)lastBlockHeight;
+- (uint32_t)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
 - (BOOL)isSynced;
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count;

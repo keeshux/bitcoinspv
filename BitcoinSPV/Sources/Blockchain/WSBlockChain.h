@@ -65,7 +65,7 @@ typedef void (^WSBlockChainReorganizeBlock)(WSStorableBlock *, NSArray *, NSArra
 - (WSStorableBlock *)head;
 - (WSStorableBlock *)blockForId:(WSHash256 *)blockId;
 - (NSArray *)allBlockIds;
-- (NSUInteger)currentHeight;
+- (uint32_t)currentHeight;
 - (uint32_t)currentTimestamp;
 - (WSBlockLocator *)currentLocator;
 

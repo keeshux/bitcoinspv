@@ -123,7 +123,7 @@
     return ids;
 }
 
-- (NSUInteger)currentHeight
+- (uint32_t)currentHeight
 {
     return self.head.height;
 }
