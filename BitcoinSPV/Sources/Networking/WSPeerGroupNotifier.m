@@ -111,17 +111,24 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyPeerConnected:(WSPeer *)peer reachedMaxConnections:(BOOL)reachedMaxConnections
 {
+    WSExceptionCheckIllegal(peer);
+    
     [self notifyWithName:WSPeerGroupPeerDidConnectNotification userInfo:@{WSPeerGroupPeerHostKey: peer.remoteHost,
                                                                           WSPeerGroupReachedMaxConnectionsKey: @(reachedMaxConnections)}];
 }
 
 - (void)notifyPeerDisconnected:(WSPeer *)peer
 {
+    WSExceptionCheckIllegal(peer);
+
     [self notifyWithName:WSPeerGroupPeerDidDisconnectNotification userInfo:@{WSPeerGroupPeerHostKey: peer.remoteHost}];
 }
 
 - (void)notifyDownloadStartedFromHeight:(uint32_t)fromHeight toHeight:(uint32_t)toHeight
 {
+    WSExceptionCheckIllegal(fromHeight > 0);
+    WSExceptionCheckIllegal(toHeight > 0);
+
     DDLogInfo(@"Download started, status = %u/%u", fromHeight, toHeight);
 
     self.syncFromHeight = fromHeight;
@@ -171,6 +178,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyBlock:(WSStorableBlock *)block
 {
+    WSExceptionCheckIllegal(block);
+
     const uint32_t fromHeight = self.syncFromHeight;
     const uint32_t toHeight = self.syncToHeight;
     const uint32_t currentHeight = block.height;
@@ -188,6 +197,9 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyTransaction:(WSSignedTransaction *)transaction isPublished:(BOOL)isPublished fromPeer:(WSPeer *)peer
 {
+    WSExceptionCheckIllegal(transaction);
+    WSExceptionCheckIllegal(peer);
+
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished),
                                                                                WSPeerGroupPeerHostKey: peer.remoteHost}];
@@ -195,12 +207,18 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyReorganizationWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks
 {
+    WSExceptionCheckIllegal(oldBlocks);
+    WSExceptionCheckIllegal(newBlocks);
+
     [self notifyWithName:WSPeerGroupDidReorganizeNotification userInfo:@{WSPeerGroupReorganizeOldBlocksKey: oldBlocks,
                                                                          WSPeerGroupReorganizeNewBlocksKey: newBlocks}];
 }
 
 - (void)notifyRejectMessage:(WSMessageReject *)message wasPending:(BOOL)wasPending fromPeer:(WSPeer *)peer
 {
+    WSExceptionCheckIllegal(message);
+    WSExceptionCheckIllegal(peer);
+
     if ([message.message isEqualToString:WSMessageRejectMessageTx]) {
         WSHash256 *txId = WSHash256FromData(message.payload);
 
@@ -233,6 +251,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (double)downloadProgressAtHeight:(uint32_t)height
 {
+    WSExceptionCheckIllegal(height > 0);
+
     if (![self didNotifyDownloadStarted]) {
         return 0.0;
     }
@@ -243,6 +263,8 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyWithName:(NSString *)name userInfo:(NSDictionary *)userInfo
 {
+    NSParameterAssert(name);
+
     WSPeerGroup *peerGroup = self.peerGroup;
 
     dispatch_async(dispatch_get_main_queue(), ^{
