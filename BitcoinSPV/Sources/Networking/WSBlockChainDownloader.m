@@ -972,6 +972,8 @@
     DDLogDebug(@"Reorganize, old blocks: %@", oldBlocks);
     DDLogDebug(@"Reorganize, new blocks: %@", newBlocks);
     
+    [self.peerGroup.notifier notifyReorganizationWithOldBlocks:oldBlocks newBlocks:newBlocks];
+    
     //
     // wallet should already contain transactions from new blocks, reorganize will only
     // change their parent block (thus updating wallet metadata)

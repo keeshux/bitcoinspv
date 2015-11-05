@@ -54,6 +54,10 @@ extern NSString *const WSPeerGroupDidRelayTransactionNotification;
 extern NSString *const WSPeerGroupRelayTransactionKey;
 extern NSString *const WSPeerGroupRelayIsPublishedKey;
 
+extern NSString *const WSPeerGroupDidReorganizeNotification;
+extern NSString *const WSPeerGroupReorganizeOldBlocksKey;
+extern NSString *const WSPeerGroupReorganizeNewBlocksKey;
+
 extern NSString *const WSPeerGroupDidRejectNotification;
 extern NSString *const WSPeerGroupRejectCodeKey;
 extern NSString *const WSPeerGroupRejectReasonKey;
@@ -81,6 +85,7 @@ extern NSString *const WSPeerGroupErrorKey;
 - (void)notifyDownloadFailedWithError:(NSError *)error;
 - (void)notifyBlock:(WSStorableBlock *)block;
 - (void)notifyTransaction:(WSSignedTransaction *)transaction isPublished:(BOOL)isPublished fromPeer:(WSPeer *)peer;
+- (void)notifyReorganizationWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks;
 - (void)notifyRejectMessage:(WSMessageReject *)message wasPending:(BOOL)wasPending fromPeer:(WSPeer *)peer;
 - (void)notifyRescan;
 

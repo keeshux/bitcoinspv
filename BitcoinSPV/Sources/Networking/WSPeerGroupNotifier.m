@@ -58,6 +58,10 @@ NSString *const WSPeerGroupDidRelayTransactionNotification      = @"WSPeerGroupD
 NSString *const WSPeerGroupRelayTransactionKey                  = @"Transaction";
 NSString *const WSPeerGroupRelayIsPublishedKey                  = @"IsPublished";
 
+NSString *const WSPeerGroupDidReorganizeNotification            = @"WSPeerGroupDidReorganizeNotification";
+NSString *const WSPeerGroupReorganizeOldBlocksKey               = @"OldBlocks";
+NSString *const WSPeerGroupReorganizeNewBlocksKey               = @"NewBlocks";
+
 NSString *const WSPeerGroupDidRejectNotification                = @"WSPeerGroupDidRejectNotification";
 NSString *const WSPeerGroupRejectCodeKey                        = @"Code";
 NSString *const WSPeerGroupRejectReasonKey                      = @"Reason";
@@ -187,6 +191,12 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
     [self notifyWithName:WSPeerGroupDidRelayTransactionNotification userInfo:@{WSPeerGroupRelayTransactionKey: transaction,
                                                                                WSPeerGroupRelayIsPublishedKey: @(isPublished),
                                                                                WSPeerGroupPeerHostKey: peer.remoteHost}];
+}
+
+- (void)notifyReorganizationWithOldBlocks:(NSArray *)oldBlocks newBlocks:(NSArray *)newBlocks
+{
+    [self notifyWithName:WSPeerGroupDidReorganizeNotification userInfo:@{WSPeerGroupReorganizeOldBlocksKey: oldBlocks,
+                                                                         WSPeerGroupReorganizeNewBlocksKey: newBlocks}];
 }
 
 - (void)notifyRejectMessage:(WSMessageReject *)message wasPending:(BOOL)wasPending fromPeer:(WSPeer *)peer
