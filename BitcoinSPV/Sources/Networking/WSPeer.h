@@ -83,6 +83,7 @@ typedef enum {
 - (uint32_t)version;
 - (uint64_t)services;
 - (uint64_t)timestamp;
+- (NSString *)userAgent;
 - (uint32_t)lastBlockHeight;
 //- (void)cleanUpConnectionData;
 

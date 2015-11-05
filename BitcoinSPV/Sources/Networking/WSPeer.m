@@ -351,6 +351,13 @@
     }
 }
 
+- (NSString *)userAgent
+{
+    @synchronized (self) {
+        return self.receivedVersion.userAgent;
+    }
+}
+
 - (uint32_t)lastBlockHeight
 {
     @synchronized (self) {
