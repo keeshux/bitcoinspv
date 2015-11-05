@@ -39,6 +39,17 @@
 
 #pragma mark -
 
+@interface WSPeerInfo : NSObject
+
+- (NSString *)host;
+- (uint16_t)port;
+- (NSString *)userAgent;
+- (uint32_t)lastBlockHeight;
+
+@end
+
+#pragma mark -
+
 @interface WSPeerGroupStatus : NSObject
 
 - (WSParameters *)parameters;
@@ -50,6 +61,7 @@
 - (NSArray *)recentBlocks;
 - (NSUInteger)sentBytes;
 - (NSUInteger)receivedBytes;
+- (NSArray *)peersInfo;
 
 @end
 

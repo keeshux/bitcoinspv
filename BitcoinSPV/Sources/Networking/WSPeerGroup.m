@@ -51,6 +51,21 @@
 #import "WSMacrosCore.h"
 #import "WSErrors.h"
 
+@interface WSPeerInfo ()
+
+@property (nonatomic, strong) NSString *host;
+@property (nonatomic, assign) uint16_t port;
+@property (nonatomic, strong) NSString *userAgent;
+@property (nonatomic, assign) uint32_t lastBlockHeight;
+
+@end
+
+@implementation WSPeerInfo
+
+@end
+
+#pragma mark -
+
 @interface WSPeerGroupStatus ()
 
 @property (nonatomic, strong) WSParameters *parameters;
@@ -62,6 +77,7 @@
 @property (nonatomic, strong) NSArray *recentBlocks;
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
+@property (nonatomic, strong) NSArray *peersInfo;
 
 @end
 
@@ -405,6 +421,17 @@
         
         status.sentBytes = self.sentBytes;
         status.receivedBytes = self.receivedBytes;
+
+        NSMutableArray *peersInfo = [[NSMutableArray alloc] initWithCapacity:self.connectedPeers.count];
+        for (WSPeer *peer in [self.connectedPeers allValues]) {
+            WSPeerInfo *info = [[WSPeerInfo alloc] init];
+            info.host = peer.remoteHost;
+            info.port = peer.remotePort;
+            info.userAgent = peer.userAgent;
+            info.lastBlockHeight = peer.lastBlockHeight;
+            [peersInfo addObject:info];
+        }
+        status.peersInfo = peersInfo;
     });
     return status;
 }
