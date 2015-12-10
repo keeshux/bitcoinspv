@@ -546,6 +546,10 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         for (WSTransactionOutPoint *utxo in _unspentOutpoints) {
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
+
+            if (!self.maySpendUnconfirmed && ![_metadataByTxId[unspentTx.txId] parentBlockId]) {
+                continue;
+            }
             
             WSSignableTransactionInput *input = [[WSSignableTransactionInput alloc] initWithPreviousTransaction:unspentTx
                                                                                                     outputIndex:utxo.index];
@@ -598,6 +602,10 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
             WSSignedTransaction *unspentTx = _txsById[utxo.txId];
             NSAssert(unspentTx, @"Unspent outputs must only point to wallet transactions, or txsById wasn't rebuilt correctly");
             
+            if (!self.maySpendUnconfirmed && ![_metadataByTxId[unspentTx.txId] parentBlockId]) {
+                continue;
+            }
+
             WSSignableTransactionInput *input = [[WSSignableTransactionInput alloc] initWithPreviousTransaction:unspentTx
                                                                                                     outputIndex:utxo.index];
 

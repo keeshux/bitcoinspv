@@ -94,6 +94,8 @@ extern NSString *const WSWalletTransactionsMetadataKey;
 - (BOOL)save;
 - (BOOL)shouldAutoSave;
 - (void)setShouldAutoSave:(BOOL)shouldAutoSave;
+- (BOOL)maySpendUnconfirmed;
+- (void)setMaySpendUnconfirmed:(BOOL)maySpendUnconfirmed;
 
 @end
 

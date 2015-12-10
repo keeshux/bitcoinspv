@@ -37,6 +37,7 @@
 @interface WSHDWallet : NSObject <WSSynchronizableWallet>
 
 @property (nonatomic, assign) BOOL shouldAutoSave; // NO
+@property (nonatomic, assign) BOOL maySpendUnconfirmed; // NO
 
 - (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed;
 - (instancetype)initWithParameters:(WSParameters *)parameters seed:(WSSeed *)seed chainsPath:(NSString *)chainsPath;
