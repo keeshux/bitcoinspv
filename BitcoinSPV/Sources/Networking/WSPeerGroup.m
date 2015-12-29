@@ -413,7 +413,9 @@
         if (status.isDownloading) {
             status.currentHeight = self.downloader.currentHeight;
             status.targetHeight = self.downloader.lastBlockHeight;
-            status.downloadProgress = [self.notifier downloadProgressAtHeight:status.currentHeight];
+            if (status.currentHeight > 0) {
+                status.downloadProgress = [self.notifier downloadProgressAtHeight:status.currentHeight];
+            }
             if (numberOfRecentBlocks > 0) {
                 status.recentBlocks = [self.downloader recentBlocksWithCount:numberOfRecentBlocks];
             }
