@@ -28,7 +28,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 #import <openssl/ecdsa.h>
 #import <openssl/obj_mac.h>
-#import <bn.h>
+#import <openssl/bn.h>
 
 #import "WSBIP38.h"
 #import "WSAddress.h"
