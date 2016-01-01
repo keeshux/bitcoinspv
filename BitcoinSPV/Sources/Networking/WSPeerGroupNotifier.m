@@ -126,7 +126,6 @@ NSString *const WSPeerGroupErrorKey                             = @"Error";
 
 - (void)notifyDownloadStartedFromHeight:(uint32_t)fromHeight toHeight:(uint32_t)toHeight
 {
-    WSExceptionCheckIllegal(fromHeight > 0);
     WSExceptionCheckIllegal(toHeight > 0);
 
     DDLogInfo(@"Download started, status = %u/%u", fromHeight, toHeight);
