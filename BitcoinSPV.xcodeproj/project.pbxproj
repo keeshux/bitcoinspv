@@ -52,7 +52,7 @@
 		0EF6967A1A34DC57006E027C /* WSBIP38.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF696791A34DC57006E027C /* WSBIP38.m */; };
 		0EF6967C1A34DFF4006E027C /* WSBIP38Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */; };
 		0EF696801A351742006E027C /* WSBIP21.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF6967F1A351742006E027C /* WSBIP21.m */; };
-		736A51E1C14C158F812053C8 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
+		6C19A62ADBF4CF144FB0A1B2 /* libPods-BitcoinSPV.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EED259EF1FA46FB8A7F1C96 /* libPods-BitcoinSPV.a */; };
 		8C068C03196B10D3001E2CE4 /* XCTestCase+BitcoinSPV.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C068C02196B10D3001E2CE4 /* XCTestCase+BitcoinSPV.m */; };
 		8C06C3A9197F9CE5000CA653 /* WSMessageReject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06C3A8197F9CE5000CA653 /* WSMessageReject.m */; };
 		8C0EB608197D5C53004DBBC6 /* WSParametersFactoryRegtest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0EB607197D5C53004DBBC6 /* WSParametersFactoryRegtest.m */; };
@@ -155,8 +155,6 @@
 		8CCFB0291971D01900A6FF28 /* WSPartialMerkleTreeEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCFB0281971D01900A6FF28 /* WSPartialMerkleTreeEntity.m */; };
 		8CD3EE9B196D912400FC48F1 /* WSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3EE9A196D912400FC48F1 /* WSReachability.m */; };
 		8CDD9A241983066300720304 /* WSTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDD9A231983066300720304 /* WSTimerTests.m */; };
-		A363E76D0C8931A377E0DAEB /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
-		B873CF4DF73F960DE972BC7B /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1312A39704004A5AC7444 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -285,8 +283,8 @@
 		0EF6967B1A34DFF4006E027C /* WSBIP38Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP38Tests.m; sourceTree = "<group>"; };
 		0EF6967E1A351742006E027C /* WSBIP21.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSBIP21.h; sourceTree = "<group>"; };
 		0EF6967F1A351742006E027C /* WSBIP21.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSBIP21.m; sourceTree = "<group>"; };
-		324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		35B1312A39704004A5AC7444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		425CD114B7198D6B804E2692 /* Pods-BitcoinSPV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitcoinSPV.release.xcconfig"; path = "Pods/Target Support Files/Pods-BitcoinSPV/Pods-BitcoinSPV.release.xcconfig"; sourceTree = "<group>"; };
+		5EED259EF1FA46FB8A7F1C96 /* libPods-BitcoinSPV.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BitcoinSPV.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C068C01196B10D3001E2CE4 /* XCTestCase+BitcoinSPV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+BitcoinSPV.h"; sourceTree = "<group>"; };
 		8C068C02196B10D3001E2CE4 /* XCTestCase+BitcoinSPV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+BitcoinSPV.m"; sourceTree = "<group>"; };
 		8C06C3A7197F9CE5000CA653 /* WSMessageReject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSMessageReject.h; sourceTree = "<group>"; };
@@ -473,7 +471,7 @@
 		8CD3EE99196D912400FC48F1 /* WSReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSReachability.h; sourceTree = "<group>"; };
 		8CD3EE9A196D912400FC48F1 /* WSReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSReachability.m; sourceTree = "<group>"; };
 		8CDD9A231983066300720304 /* WSTimerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSTimerTests.m; sourceTree = "<group>"; };
-		D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		C4507054EE42E0B476CF97BC /* Pods-BitcoinSPV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BitcoinSPV.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BitcoinSPV/Pods-BitcoinSPV.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -486,7 +484,6 @@
 				8C60058E1949EC9400248F04 /* CoreData.framework in Frameworks */,
 				8C60058C1949EC9400248F04 /* UIKit.framework in Frameworks */,
 				8C6005881949EC9400248F04 /* Foundation.framework in Frameworks */,
-				736A51E1C14C158F812053C8 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,7 +493,7 @@
 			files = (
 				8C498220197092D5007CE061 /* CoreData.framework in Frameworks */,
 				8C8FB7F8196776B600A07156 /* Foundation.framework in Frameworks */,
-				A363E76D0C8931A377E0DAEB /* libPods.a in Frameworks */,
+				6C19A62ADBF4CF144FB0A1B2 /* libPods-BitcoinSPV.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,7 +505,6 @@
 				8C8FB805196776B700A07156 /* XCTest.framework in Frameworks */,
 				8C8FB807196776B700A07156 /* UIKit.framework in Frameworks */,
 				8C8FB806196776B700A07156 /* Foundation.framework in Frameworks */,
-				B873CF4DF73F960DE972BC7B /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -561,6 +557,15 @@
 				0EA147241A55B48600AA400D /* WSWebTickerMonitor.m */,
 			);
 			path = Web;
+			sourceTree = "<group>";
+		};
+		45F3733F0EAE212987B429E8 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C4507054EE42E0B476CF97BC /* Pods-BitcoinSPV.debug.xcconfig */,
+				425CD114B7198D6B804E2692 /* Pods-BitcoinSPV.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		8C402447198527D7008FDC5F /* Resources */ = {
@@ -673,7 +678,7 @@
 				8C60058F1949EC9400248F04 /* BitcoinSPVDemo */,
 				8C6005861949EC9400248F04 /* Frameworks */,
 				8C6005851949EC9400248F04 /* Products */,
-				A9A5AF5E6E020E603D1A1BED /* Pods */,
+				45F3733F0EAE212987B429E8 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -696,8 +701,8 @@
 				8C60058B1949EC9400248F04 /* UIKit.framework */,
 				8C60058D1949EC9400248F04 /* CoreData.framework */,
 				8C6005A51949EC9400248F04 /* XCTest.framework */,
-				35B1312A39704004A5AC7444 /* libPods.a */,
 				8CBB5B07198D0A1D006599DB /* CoreFoundation.framework */,
+				5EED259EF1FA46FB8A7F1C96 /* libPods-BitcoinSPV.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -974,15 +979,6 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		A9A5AF5E6E020E603D1A1BED /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */,
-				324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -990,11 +986,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C6005B61949EC9400248F04 /* Build configuration list for PBXNativeTarget "BitcoinSPVDemo" */;
 			buildPhases = (
-				81E59D7D101E49AB9EB7CC12 /* Check Pods Manifest.lock */,
 				8C6005801949EC9400248F04 /* Sources */,
 				8C6005811949EC9400248F04 /* Frameworks */,
 				8C6005821949EC9400248F04 /* Resources */,
-				C7BBBBA134E5491FB6680F2F /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1011,11 +1005,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C8FB813196776B800A07156 /* Build configuration list for PBXNativeTarget "BitcoinSPV" */;
 			buildPhases = (
-				3BA04B8AE5F14052BD6C1088 /* Check Pods Manifest.lock */,
+				362C33519603AB8EC31626A0 /* Check Pods Manifest.lock */,
 				8C8FB7F3196776B400A07156 /* Sources */,
 				8C8FB7F4196776B400A07156 /* Frameworks */,
 				8C8FB7F5196776B400A07156 /* CopyFiles */,
-				8D891C7E9B9644179F0E89D3 /* Copy Pods Resources */,
+				22D4484F0AAB7E61F60B618A /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1030,11 +1024,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C8FB816196776B800A07156 /* Build configuration list for PBXNativeTarget "BitcoinSPVTests" */;
 			buildPhases = (
-				940A59A6DE1B4A59A27ECACF /* Check Pods Manifest.lock */,
 				8C8FB800196776B600A07156 /* Sources */,
 				8C8FB801196776B600A07156 /* Frameworks */,
 				8C8FB802196776B600A07156 /* Resources */,
-				0DFDA09E1B464011B3530F63 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1140,7 +1132,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0DFDA09E1B464011B3530F63 /* Copy Pods Resources */ = {
+		22D4484F0AAB7E61F60B618A /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1152,10 +1144,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPV/Pods-BitcoinSPV-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3BA04B8AE5F14052BD6C1088 /* Check Pods Manifest.lock */ = {
+		362C33519603AB8EC31626A0 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1168,66 +1160,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		81E59D7D101E49AB9EB7CC12 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		8D891C7E9B9644179F0E89D3 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		940A59A6DE1B4A59A27ECACF /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		C7BBBBA134E5491FB6680F2F /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1514,7 +1446,6 @@
 		};
 		8C6005B71949EC9400248F04 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1530,7 +1461,6 @@
 		};
 		8C6005B81949EC9400248F04 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1546,7 +1476,7 @@
 		};
 		8C8FB814196776B800A07156 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */;
+			baseConfigurationReference = C4507054EE42E0B476CF97BC /* Pods-BitcoinSPV.debug.xcconfig */;
 			buildSettings = {
 				DSTROOT = /tmp/BitcoinSPV.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1557,7 +1487,7 @@
 		};
 		8C8FB815196776B800A07156 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */;
+			baseConfigurationReference = 425CD114B7198D6B804E2692 /* Pods-BitcoinSPV.release.xcconfig */;
 			buildSettings = {
 				DSTROOT = /tmp/BitcoinSPV.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1568,7 +1498,6 @@
 		};
 		8C8FB817196776B800A07156 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D9289741AC9029C6DB012F39 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1589,7 +1518,6 @@
 		};
 		8C8FB818196776B800A07156 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 324AAE6E595E4F9A3F42BBDC /* Pods.release.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
