@@ -57,6 +57,7 @@
 @property (nonatomic, assign) uint16_t port;
 @property (nonatomic, strong) NSString *userAgent;
 @property (nonatomic, assign) uint32_t lastBlockHeight;
+@property (nonatomic, assign) BOOL isDownloadPeer;
 
 @end
 
@@ -78,6 +79,7 @@
 @property (nonatomic, assign) NSUInteger sentBytes;
 @property (nonatomic, assign) NSUInteger receivedBytes;
 @property (nonatomic, strong) NSArray *peersInfo;
+@property (nonatomic, weak) WSPeerInfo *downloadPeerInfo;
 
 @end
 
@@ -431,6 +433,10 @@
             info.port = peer.remotePort;
             info.userAgent = peer.userAgent;
             info.lastBlockHeight = peer.lastBlockHeight;
+            info.isDownloadPeer = [self.downloader isPeerDownloadPeer:peer];
+            if (info.isDownloadPeer) {
+                status.downloadPeerInfo = info;
+            }
             [peersInfo addObject:info];
         }
         status.peersInfo = peersInfo;

@@ -258,6 +258,11 @@
     return (self.blockChain.currentHeight >= self.downloadPeer.lastBlockHeight);
 }
 
+- (BOOL)isPeerDownloadPeer:(WSPeer *)peer
+{
+    return (peer == self.downloadPeer);
+}
+
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count
 {
     WSExceptionCheckIllegal(count > 0);

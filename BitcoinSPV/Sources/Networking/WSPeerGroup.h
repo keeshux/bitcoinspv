@@ -45,6 +45,7 @@
 - (uint16_t)port;
 - (NSString *)userAgent;
 - (uint32_t)lastBlockHeight;
+- (BOOL)isDownloadPeer;
 
 @end
 
@@ -62,6 +63,7 @@
 - (NSUInteger)sentBytes;
 - (NSUInteger)receivedBytes;
 - (NSArray *)peersInfo;
+- (WSPeerInfo *)downloadPeerInfo;
 
 @end
 
@@ -159,6 +161,7 @@
 - (uint32_t)currentHeight;
 - (NSUInteger)numberOfBlocksLeft;
 - (BOOL)isSynced;
+- (BOOL)isPeerDownloadPeer:(WSPeer *)peer;
 - (NSArray *)recentBlocksWithCount:(NSUInteger)count;
 - (void)reconnectForDownload;
 - (void)rescanBlockChain;
