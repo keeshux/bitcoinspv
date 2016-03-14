@@ -26,3 +26,5 @@
 //
 
 #import "WSLogging.h"
+
+const int ddLogLevel = LOG_LEVEL_DEBUG;

@@ -87,7 +87,7 @@ Setup is straightforward thanks to the brilliant [CocoaPods](http://cocoapods.or
 
 Add the following line:
 
-    pod 'BitcoinSPV', '~> 0.7'
+    pod 'BitcoinSPV', '~> 0.7.1'
 
 and run on the terminal:
 
@@ -98,13 +98,6 @@ Beware that some recent versions of CocoaPods may break static linking unless yo
     OTHER_LIBTOOLFLAGS = $(OTHER_LDFLAGS)
 
 ### Imports
-
-BitcoinSPV declares an implicit `extern const int ddLogLevel` for CocoaLumberjack and the linker will complain if you don't define it somewhere, e.g. in the application delegate:
-
-    #import "AppDelegate.h"
-
-    const int ddLogLevel = LOG_LEVEL_DEBUG;
-    ...
 
 All the imports are public but the one you generally need is `#import "BitcoinSPV.h"`.
 

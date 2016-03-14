@@ -28,5 +28,5 @@
 #import <Foundation/Foundation.h>
 #import "DDLog.h"
 
-// required by CocoaLumberjack, define in client project
+// required by CocoaLumberjack, redefine LOG_LEVEL_DEF to constant in client project
 extern const int ddLogLevel;
