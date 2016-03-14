@@ -196,10 +196,10 @@ static inline uint32_t WSBlockGetBits(const BIGNUM *target)
     if (size > 3) {
         BN_init(&x);
         BN_rshift(&x, target, 8 * (size - 3));
-        compact = BN_get_word(&x);
+        compact = (uint32_t)BN_get_word(&x);
     }
     else {
-        compact = BN_get_word(target) << (8 * (3 - size));
+        compact = (uint32_t)(BN_get_word(target) << (8 * (3 - size)));
     }
     
     // if sign is already set, divide the mantissa by 256 and increment the exponent
