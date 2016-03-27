@@ -36,7 +36,7 @@ NSBundle *WSClientBundle(Class clazz)
 {
     NSBundle *parentBundle = [NSBundle bundleForClass:clazz];
     NSString *bundlePath = [parentBundle pathForResource:WSClientName ofType:@"bundle"];
-    return [NSBundle bundleWithPath:bundlePath];
+    return ([NSBundle bundleWithPath:bundlePath] ? : [NSBundle mainBundle]);
 }
 
 #pragma mark - Local parameters
