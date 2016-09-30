@@ -33,6 +33,7 @@
 
 + (instancetype)sharedInstance;
 - (NSString *)generateRandomMnemonic;
+- (NSString *)generateRandomMnemonic:(uint32_t)entropyLength;
 - (WSSeed *)generateRandomSeed;
 - (NSString *)mnemonicFromData:(NSData *)data error:(NSError **)error;
 - (NSData *)dataFromMnemonic:(NSString *)mnemonic error:(NSError **)error;
