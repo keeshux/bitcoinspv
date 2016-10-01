@@ -90,9 +90,14 @@
 
 - (NSString *)generateRandomMnemonic
 {
+    return [self generateRandomMnemonicWithEntropyLength:self.defaultEntropyLength];
+}
+
+- (NSString *)generateRandomMnemonicWithEntropyLength:(uint32_t)entropyLength
+{
     WSExceptionCheckIllegal(self.wordsPath);
     
-    return [self.bip39 generateRandomMnemonicWithEntropyLength:self.defaultEntropyLength];
+    return [self.bip39 generateRandomMnemonicWithEntropyLength:entropyLength];
 }
 
 - (WSSeed *)generateRandomSeed
