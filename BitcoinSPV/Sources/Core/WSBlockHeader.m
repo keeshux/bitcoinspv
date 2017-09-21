@@ -30,6 +30,7 @@
 #import "WSBlockHeader.h"
 #import "WSBitcoinConstants.h"
 #import "WSMacrosCore.h"
+#import "WSMacrosPrivate.h"
 #import "WSErrors.h"
 #import "NSData+Hash.h"
 

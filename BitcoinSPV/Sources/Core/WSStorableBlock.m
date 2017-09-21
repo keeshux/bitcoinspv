@@ -35,6 +35,7 @@
 #import "WSPartialMerkleTree.h"
 #import "WSBitcoinConstants.h"
 #import "WSMacrosCore.h"
+#import "WSMacrosPrivate.h"
 #import "WSErrors.h"
 
 @interface WSStorableBlock ()

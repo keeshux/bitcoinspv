@@ -33,6 +33,7 @@
 #import "WSParameters.h"
 #import "WSErrors.h"
 #import "WSMacrosCore.h"
+#import "WSMacrosPrivate.h"
 
 @implementation WSStorableBlock (BlockChain)
 
