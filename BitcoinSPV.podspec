@@ -6,9 +6,9 @@ Pod::Spec.new do |s|
 
     s.summary           = 'A native Bitcoin SPV client library for iOS with BIP32 support.'
 
-    s.homepage          = 'https://github.com/keeshux/BitcoinSPV'
+    s.homepage          = 'https://github.com/keeshux/bitcoinspv'
     s.authors           = { 'Davide De Rosa' => 'keeshux@gmail.com' }
-    s.source            = { :git => 'https://github.com/keeshux/BitcoinSPV.git',
+    s.source            = { :git => 'https://github.com/keeshux/bitcoinspv.git',
                             :tag => s.version.to_s }
 
     s.source_files      = 'BitcoinSPV/Sources/BitcoinSPV.h'
