@@ -4,12 +4,6 @@ BitcoinSPV is a native Bitcoin SPV ([Simplified Payment Verification](https://en
 
 BitcoinSPV is still experimental and __you DO NOT want to use it in production environments today__.
 
-## Contacts
-
-Twitter: [@keeshux](https://twitter.com/keeshux)
-
-Website: [davidederosa.com](http://davidederosa.com)
-
 ## Structure
 
 The library is thorough and features a moderately high granularity to isolate the smallest bits of the Bitcoin protocol. Many atomic classes make up the whole thing in tiny steps while also decoupling the user from the areas he's not interested in, because files interdependency is kept at an unnoticeable minimum.
@@ -231,7 +225,7 @@ BitcoinSPV is still a work-in-progress and will eventually undergo huge modifica
 
 ## License
 
-BitcoinSPV is released under the [GPL](http://www.gnu.org/licenses/gpl.html).
+BitcoinSPV is released under the [GPLv3](/LICENSE).
 
 Basically those willing to use BitcoinSPV for their software are forced to release their source as well, because the whole point is about keeping Bitcoin-related software as transparent as possible to increase both trust and community contributions.
 
@@ -240,6 +234,12 @@ Nothing more is due as long as this rule of thumb is followed, still a note in t
 ## Disclaimer
 
 The developer takes no responsibility for lost money or any damage due to BitcoinSPV regular usage or bugs. Use at your own risk.
+
+## Contacts
+
+Twitter: [@keeshux](https://twitter.com/keeshux)
+
+Website: [davidederosa.com](https://davidederosa.com)
 
 ## Donations
 
