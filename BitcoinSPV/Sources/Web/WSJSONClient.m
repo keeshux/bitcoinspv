@@ -57,7 +57,8 @@
 
     DDLogVerbose(@"%@ -> Sending request", request.URL);
 
-    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable connectionError) {
         if (connectionError) {
             DDLogVerbose(@"%@ -> Connection error: %@", request.URL, connectionError);
             failure(0, connectionError);
@@ -77,18 +78,18 @@
             failure(statusCode, nil);
             return;
         }
-
+        
         NSError *error = nil;
         id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         if (!json) {
             DDLogVerbose(@"%@ -> Malformed JSON: %@", request.URL, error);
             failure(statusCode, error);
         }
-
+        
         DDLogVerbose(@"%@ -> JSON (%lu bytes)", request.URL, (unsigned long)data.length);
         DDLogVerbose(@"%@", json);
         success(statusCode, json);
-    }];
+    }] resume];
 }
 
 @end
