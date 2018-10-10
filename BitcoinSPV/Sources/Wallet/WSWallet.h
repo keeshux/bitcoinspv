@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 28/12/13.
 //  Copyright (c) 2013 BitcoinSPV. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //

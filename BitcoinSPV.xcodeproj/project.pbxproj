@@ -532,6 +532,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E7B2FC8216E607800BD3D5B /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
+				0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */,
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
 		0EA147161A5589B700AA400D /* Currency */ = {
 			isa = PBXGroup;
 			children = (
@@ -589,9 +598,8 @@
 		8C402447198527D7008FDC5F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0E7B2FC8216E607800BD3D5B /* Content */,
 				8CBB5B13198D0AA8006599DB /* Info.plist */,
-				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
-				0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1014,7 +1022,6 @@
 				8C6005811949EC9400248F04 /* Frameworks */,
 				8C6005821949EC9400248F04 /* Resources */,
 				7E9E4FE9F4A828D3DDDABE20 /* [CP] Embed Pods Frameworks */,
-				0E76E524D67D97D01230D911 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1035,7 +1042,6 @@
 				8C8FB7F3196776B400A07156 /* Sources */,
 				8C8FB7F4196776B400A07156 /* Frameworks */,
 				8C8FB7F5196776B400A07156 /* CopyFiles */,
-				22D4484F0AAB7E61F60B618A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1055,7 +1061,6 @@
 				8C8FB801196776B600A07156 /* Frameworks */,
 				8C8FB802196776B600A07156 /* Resources */,
 				2F08D5AC894A92A42A706454 /* [CP] Embed Pods Frameworks */,
-				A5778E0E5FF2F96B9DC33F69 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1092,7 +1097,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = WS;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Davide De Rosa";
 				TargetAttributes = {
 					8C6005831949EC9400248F04 = {
@@ -1161,49 +1166,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0E76E524D67D97D01230D911 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		22D4484F0AAB7E61F60B618A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPV/Pods-BitcoinSPV-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2F08D5AC894A92A42A706454 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh",
+				"${PODS_ROOT}/OpenSSL-Apple/frameworks/iPhone/openssl.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		362C33519603AB8EC31626A0 /* [CP] Check Pods Manifest.lock */ = {
@@ -1266,28 +1244,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh",
+				"${PODS_ROOT}/OpenSSL-Apple/frameworks/iPhone/openssl.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A5778E0E5FF2F96B9DC33F69 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1512,14 +1478,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -1541,7 +1515,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -1555,14 +1529,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -1577,7 +1559,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1643,11 +1625,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CA40D34968064185619204EF /* Pods-BitcoinSPVTests.debug.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1664,11 +1641,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 400D11F31BFD4AC34AFA9497 /* Pods-BitcoinSPVTests.release.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = BitcoinSPVTests/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";

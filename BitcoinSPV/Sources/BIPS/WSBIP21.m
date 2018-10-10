@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 08/12/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -210,12 +208,13 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
             [string appendString:self.address.encoded];
         }
         
+        NSCharacterSet *charset = [NSCharacterSet URLQueryAllowedCharacterSet];
         NSMutableArray *optionals = [[NSMutableArray alloc] initWithCapacity:4];
         if (self.label.length > 0) {
-            [optionals addObject:[NSString stringWithFormat:@"label=%@", [self.label stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+            [optionals addObject:[NSString stringWithFormat:@"label=%@", [self.label stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
         }
         if (self.message.length > 0) {
-            [optionals addObject:[NSString stringWithFormat:@"message=%@", [self.message stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+            [optionals addObject:[NSString stringWithFormat:@"message=%@", [self.message stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
         }
         if (self.amount > 0) {
             NSDecimalNumber *amountNumber = [NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%llu", self.amount]];
@@ -226,7 +225,7 @@ static NSString *const  WSBIP21URLRegex         = @"^bitcoin:([A-Za-z0-9-IlO0]*)
         if (self.others.count > 0) {
             for (NSString *key in [self.others allKeys]) {
                 NSString *value = self.others[key];
-                [optionals addObject:[NSString stringWithFormat:@"%@=%@", key, [value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+                [optionals addObject:[NSString stringWithFormat:@"%@=%@", key, [value stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
             }
         }
         if (optionals.count > 0) {

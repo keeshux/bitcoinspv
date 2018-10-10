@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 14/06/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -26,8 +24,9 @@
 //
 
 #import <CommonCrypto/CommonHMAC.h>
-#import <openssl/ecdsa.h>
+#import <openssl/ec.h>
 #import <openssl/obj_mac.h>
+#import <openssl/bn.h>
 
 #import "WSKey.h"
 #import "WSPublicKey.h"
@@ -108,19 +107,18 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
         return nil;
     }
     
-    BIGNUM priv;
+    BIGNUM *priv = BN_new();
     BN_CTX_start(ctx);
-    BN_init(&priv);
-    BN_bin2bn(data.bytes, (int)WSKeyLength, &priv);
+    BN_bin2bn(data.bytes, (int)WSKeyLength, priv);
     
-    if (EC_POINT_mul(group, pub, &priv, NULL, NULL, ctx)) {
-        EC_KEY_set_private_key(key, &priv);
+    if (EC_POINT_mul(group, pub, priv, NULL, NULL, ctx)) {
+        EC_KEY_set_private_key(key, priv);
         EC_KEY_set_public_key(key, pub);
         EC_KEY_set_conv_form(key, compressed ? POINT_CONVERSION_COMPRESSED : POINT_CONVERSION_UNCOMPRESSED);
     }
     
     EC_POINT_free(pub);
-    BN_clear_free(&priv);
+    BN_clear_free(priv);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
 
@@ -186,7 +184,10 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     WSExceptionCheckIllegal(hash256);
 
     BN_CTX *ctx = BN_CTX_new();
-    BIGNUM order, halforder, k, r;
+    BIGNUM *order = BN_new();
+    BIGNUM *halforder = BN_new();
+    BIGNUM *k = BN_new();
+    BIGNUM *r = BN_new();
     const BIGNUM *priv = EC_KEY_get0_private_key(self.key);
     const EC_GROUP *group = EC_KEY_get0_group(self.key);
     EC_POINT *p = EC_POINT_new(group);
@@ -195,41 +196,42 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     unsigned char *b;
     
     BN_CTX_start(ctx);
-    BN_init(&order);
-    BN_init(&halforder);
-    BN_init(&k);
-    BN_init(&r);
-    EC_GROUP_get_order(group, &order, ctx);
-    BN_rshift1(&halforder, &order);
+    EC_GROUP_get_order(group, order, ctx);
+    BN_rshift1(halforder, order);
     
     // generate k deterministicly per RFC6979: https://tools.ietf.org/html/rfc6979
     BN_bn2bin(priv, (unsigned char *)[entropy mutableBytes] + entropy.length - BN_num_bytes(priv));
-    BN_bin2bn(WSKeyHMAC_DRBG(entropy, hash256.data).bytes, CC_SHA256_DIGEST_LENGTH, &k);
+    BN_bin2bn(WSKeyHMAC_DRBG(entropy, hash256.data).bytes, CC_SHA256_DIGEST_LENGTH, k);
     
-    EC_POINT_mul(group, p, &k, NULL, NULL, ctx); // compute r, the x-coordinate of generator*k
-    EC_POINT_get_affine_coordinates_GFp(group, p, &r, NULL, ctx);
+    EC_POINT_mul(group, p, k, NULL, NULL, ctx); // compute r, the x-coordinate of generator*k
+    EC_POINT_get_affine_coordinates_GFp(group, p, r, NULL, ctx);
     
-    BN_mod_inverse(&k, &k, &order, ctx); // compute the inverse of k
+    BN_mod_inverse(k, k, order, ctx); // compute the inverse of k
     
-    ECDSA_SIG *s = ECDSA_do_sign_ex(hash256.bytes, (int)hash256.length, &k, &r, self.key);
+    ECDSA_SIG *ecSig = ECDSA_do_sign_ex(hash256.bytes, (int)hash256.length, k, r, self.key);
     
-    if (s) {
+    if (ecSig) {
         // enforce low s values, negate the value (modulo the order) if above order/2.
-        if (BN_cmp(s->s, &halforder) > 0) {
-            BN_sub(s->s, &order, s->s);
+        const BIGNUM *s;
+        ECDSA_SIG_get0(ecSig, NULL, &s);
+        if (BN_cmp(s, halforder) > 0) {
+            BIGNUM *normS = BN_new();
+            BN_sub(normS, order, s);
+            ECDSA_SIG_set0(ecSig, NULL, normS);
+            BN_clear_free(normS);
         }
         
         sig = [NSMutableData dataWithLength:ECDSA_size(self.key)];
         b = sig.mutableBytes;
-        sig.length = i2d_ECDSA_SIG(s, &b);
-        ECDSA_SIG_free(s);
+        sig.length = i2d_ECDSA_SIG(ecSig, &b);
+        ECDSA_SIG_free(ecSig);
     }
     
     EC_POINT_clear_free(p);
-    BN_clear_free(&r);
-    BN_clear_free(&k);
-    BN_free(&halforder);
-    BN_free(&order);
+    BN_clear_free(r);
+    BN_clear_free(k);
+    BN_clear_free(halforder);
+    BN_clear_free(order);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
     

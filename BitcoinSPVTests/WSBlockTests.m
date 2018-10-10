@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 02/07/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -30,6 +28,9 @@
 #import "WSFilteredBlock.h"
 #import "WSPartialMerkleTree.h"
 #import "WSMessageHeaders.h"
+#import "WSMacrosPrivate.h"
+
+#import <openssl/bn.h>
 
 @interface WSStorableBlock ()
 
@@ -218,32 +219,31 @@
 
 - (void)testMaxHash
 {
-    BIGNUM target;
+    BIGNUM *target = BN_new();
 
-    BN_init(&target);
-    BN_lshift(&target, BN_value_one(), 256);
-    BN_sub(&target, &target, BN_value_one());
+    BN_lshift(target, BN_value_one(), 256);
+    BN_sub(target, target, BN_value_one());
     
-    NSString *hex = [NSString stringWithUTF8String:BN_bn2hex(&target)];
+    NSString *hex = [NSString stringWithUTF8String:BN_bn2hex(target)];
     NSString *expHex = @"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
     XCTAssertEqualObjects(hex, expHex);
+
+    BN_clear_free(target);
 }
 
 - (void)testCompactMaxTarget
 {
-    BIGNUM target;
+    BIGNUM *target = BN_new();
     NSString *expHex = @"00000000ffff0000000000000000000000000000000000000000000000000000";
     const uint32_t expBits = 0x1d00ffff;
     
-    BN_init(&target);
-
-    BN_bin2bn([expHex dataFromHex].bytes, 32, &target);
-    const uint32_t bits = WSBlockGetBits(&target);
+    BN_bin2bn([expHex dataFromHex].bytes, 32, target);
+    const uint32_t bits = WSBlockGetBits(target);
     DDLogInfo(@"Bits    : %x", bits);
     DDLogInfo(@"Expected: %x", expBits);
     XCTAssertEqual(bits, expBits);
 
-    BN_free(&target);
+    BN_clear_free(target);
 }
 
 - (void)testDifficulty
@@ -264,7 +264,7 @@
     BIGNUM *expDiffBN = NULL;
     BN_dec2bn(&expDiffBN, expDifficulty.UTF8String);
     NSString *expDifficultyHex = [[NSString stringWithUTF8String:BN_bn2hex(expDiffBN)] lowercaseString];
-    BN_free(expDiffBN);
+    BN_clear_free(expDiffBN);
     XCTAssertEqualObjects(difficultyHex, expDifficultyHex);
 }
 

@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 02/07/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -42,22 +40,21 @@
     NSUInteger i = length;
     char cBase58[i];
     BN_CTX *ctx = BN_CTX_new();
-    BIGNUM base, x, r;
+    BIGNUM *base = BN_new();
+    BIGNUM *x = BN_new();
+    BIGNUM *r = BN_new();
     
     BN_CTX_start(ctx);
-    BN_init(&base);
-    BN_init(&x);
-    BN_init(&r);
-    BN_set_word(&base, 58);
-    BN_bin2bn(self.bytes, (int)self.length, &x);
+    BN_set_word(base, 58);
+    BN_bin2bn(self.bytes, (int)self.length, x);
     
     --i;
     cBase58[i] = '\0';
     
-    while (!BN_is_zero(&x)) {
-        BN_div(&x, &r, &x, &base, ctx);
+    while (!BN_is_zero(x)) {
+        BN_div(x, r, x, base, ctx);
         --i;
-        cBase58[i] = WSBase58Alphabet[BN_get_word(&r)];
+        cBase58[i] = WSBase58Alphabet[BN_get_word(r)];
     }
     
     for (NSUInteger j = 0; j < self.length; ++j) {
@@ -68,9 +65,9 @@
         cBase58[i] = WSBase58Alphabet[0];
     }
     
-    BN_clear_free(&r);
-    BN_clear_free(&x);
-    BN_free(&base);
+    BN_clear_free(r);
+    BN_clear_free(x);
+    BN_clear_free(base);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
     

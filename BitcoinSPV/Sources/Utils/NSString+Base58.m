@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 02/07/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -47,14 +45,13 @@
     NSMutableData *data = [[NSMutableData alloc] initWithCapacity:(self.length * 138 / 100 + 1)];
     unsigned int b;
     BN_CTX *ctx = BN_CTX_new();
-    BIGNUM base, x, y;
+    BIGNUM *base = BN_new();
+    BIGNUM *x = BN_new();
+    BIGNUM *y = BN_new();
     
     BN_CTX_start(ctx);
-    BN_init(&base);
-    BN_init(&x);
-    BN_init(&y);
-    BN_set_word(&base, 58);
-    BN_zero(&x);
+    BN_set_word(base, 58);
+    BN_zero(x);
     
     for (NSUInteger i = 0; i < self.length; ++i) {
         if ([self characterAtIndex:i] != WSBase58Alphabet[0]) {
@@ -90,20 +87,20 @@
             break;
         }
         
-        BN_mul(&x, &x, &base, ctx);
-        BN_set_word(&y, b);
-        BN_add(&x, &x, &y);
+        BN_mul(x, x, base, ctx);
+        BN_set_word(y, b);
+        BN_add(x, x, y);
     }
     
     if (!error) {
-        data.length += BN_num_bytes(&x);
-        BN_bn2bin(&x, (unsigned char *)data.mutableBytes + data.length - BN_num_bytes(&x));
+        data.length += BN_num_bytes(x);
+        BN_bn2bin(x, (unsigned char *)data.mutableBytes + data.length - BN_num_bytes(x));
     }
     
     OPENSSL_cleanse(&b, sizeof(b));
-    BN_clear_free(&y);
-    BN_clear_free(&x);
-    BN_free(&base);
+    BN_clear_free(y);
+    BN_clear_free(x);
+    BN_clear_free(base);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
     

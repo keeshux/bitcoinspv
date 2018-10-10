@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 07/07/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -100,7 +98,7 @@ static WSParameters *networkParameters;
 //    CFRunLoopStop(CFRunLoopGetMain());
 }
 
-- (void)delayBlock:(void (^)())block seconds:(NSTimeInterval)seconds
+- (void)delayBlock:(void (^)(void))block seconds:(NSTimeInterval)seconds
 {
     dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, seconds * NSEC_PER_SEC);
     dispatch_after(when, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{

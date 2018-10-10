@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 08/09/15.
 //  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -37,6 +35,6 @@
 - (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 - (WSPeerGroupNotifier *)notifier;
 
-- (void)executeBlockInGroupQueue:(void (^)())block synchronously:(BOOL)synchronously;
+- (void)executeBlockInGroupQueue:(void (^)(void))block synchronously:(BOOL)synchronously;
 
 @end

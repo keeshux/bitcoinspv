@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 13/06/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -62,7 +60,9 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 {
     const NSUInteger entropyBytesLength = entropyLength / 8;
     NSMutableData *entropy = [[NSMutableData alloc] initWithLength:entropyBytesLength];
-    SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes);
+    if (SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes) != errSecSuccess) {
+        return nil;
+    }
     return [self mnemonicFromData:entropy error:nil];
 }
 

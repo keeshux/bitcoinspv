@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 21/04/15.
 //  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -131,43 +129,37 @@
         span = maxRetargetTimespan;
     }
     
-    BIGNUM bnTarget;
-    BIGNUM bnMaxTarget;
-    BIGNUM bnSpan;
-    BIGNUM bnRetargetSpan;
-    BIGNUM bnTargetXSpan;
-    
-    BN_init(&bnTarget);
-    BN_init(&bnMaxTarget);
-    BN_init(&bnSpan);
-    BN_init(&bnRetargetSpan);
-    BN_init(&bnTargetXSpan);
+    BIGNUM *bnTarget = BN_new();
+    BIGNUM *bnMaxTarget = BN_new();
+    BIGNUM *bnSpan = BN_new();
+    BIGNUM *bnRetargetSpan = BN_new();
+    BIGNUM *bnTargetXSpan = BN_new();
     
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
     
-    WSBlockSetBits(&bnTarget, retargetBlock.header.bits);
-    WSBlockSetBits(&bnMaxTarget, [self.parameters maxProofOfWork]);
-    BN_set_word(&bnSpan, span);
-    BN_set_word(&bnRetargetSpan, [self.parameters retargetTimespan]);
-    BN_mul(&bnTargetXSpan, &bnTarget, &bnSpan, ctx);
-    BN_div(&bnTarget, NULL, &bnTargetXSpan, &bnRetargetSpan, ctx);
+    WSBlockSetBits(bnTarget, retargetBlock.header.bits);
+    WSBlockSetBits(bnMaxTarget, [self.parameters maxProofOfWork]);
+    BN_set_word(bnSpan, span);
+    BN_set_word(bnRetargetSpan, [self.parameters retargetTimespan]);
+    BN_mul(bnTargetXSpan, bnTarget, bnSpan, ctx);
+    BN_div(bnTarget, NULL, bnTargetXSpan, bnRetargetSpan, ctx);
     
     // cap target to max target
-    if (BN_cmp(&bnTarget, &bnMaxTarget) > 0) {
-        BN_copy(&bnTarget, &bnMaxTarget);
+    if (BN_cmp(bnTarget, bnMaxTarget) > 0) {
+        BN_copy(bnTarget, bnMaxTarget);
     }
     
-    const uint32_t expectedBits = WSBlockGetBits(&bnTarget);
+    const uint32_t expectedBits = WSBlockGetBits(bnTarget);
     
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
     
-    BN_free(&bnTarget);
-    BN_free(&bnMaxTarget);
-    BN_free(&bnSpan);
-    BN_free(&bnRetargetSpan);
-    BN_free(&bnTargetXSpan);
+    BN_clear_free(bnTarget);
+    BN_clear_free(bnMaxTarget);
+    BN_clear_free(bnSpan);
+    BN_clear_free(bnRetargetSpan);
+    BN_clear_free(bnTargetXSpan);
     
     if (self.header.bits != expectedBits) {
         WSErrorSet(error, WSErrorCodeInvalidBlock, @"Unexpected target at height %u (%x != %x)",

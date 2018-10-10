@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 04/07/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -69,16 +67,16 @@ static inline uint32_t WSBlockGetBits(const BIGNUM *target)
 {
     uint32_t size = BN_num_bytes(target);
     uint32_t compact = 0;
-    BIGNUM x;
+    BIGNUM *x = BN_new();
     
     if (size > 3) {
-        BN_init(&x);
-        BN_rshift(&x, target, 8 * (size - 3));
-        compact = (uint32_t)BN_get_word(&x);
+        BN_rshift(x, target, 8 * (size - 3));
+        compact = (uint32_t)BN_get_word(x);
     }
     else {
         compact = (uint32_t)(BN_get_word(target) << (8 * (3 - size)));
     }
+    BN_clear_free(x);
     
     // if sign is already set, divide the mantissa by 256 and increment the exponent
     if (compact & 0x00800000) {

@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 04/09/14.
 //  Copyright (c) 2014 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -58,7 +56,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
                              handler:(void (^)(WSSignableTransactionInput *, BOOL, BOOL *))handler
-                          completion:(void (^)())completion
+                          completion:(void (^)(void))completion
                              failure:(void (^)(NSError *))failure;
 
 @end
@@ -226,7 +224,7 @@ static const NSTimeInterval     WSWebExplorerBiteasyYieldInterval           = 1.
 - (void)fetchUnspentInputsForAddress:(WSAddress *)address
                                 page:(NSUInteger)page
                              handler:(void (^)(WSSignableTransactionInput *, BOOL, BOOL *))handler
-                          completion:(void (^)())completion
+                          completion:(void (^)(void))completion
                              failure:(void (^)(NSError *))failure
 {
     NSParameterAssert(address);

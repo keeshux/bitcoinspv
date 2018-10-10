@@ -5,9 +5,7 @@
 //  Created by Davide De Rosa on 26/03/15.
 //  Copyright (c) 2015 Davide De Rosa. All rights reserved.
 //
-//  http://github.com/keeshux
-//  http://twitter.com/keeshux
-//  http://davidederosa.com
+//  https://github.com/keeshux
 //
 //  This file is part of BitcoinSPV.
 //
@@ -41,7 +39,7 @@
 - (id<WSConnectionProcessor>)processor;
 
 - (BOOL)isConnected;
-- (void)submitBlock:(void (^)())block;
+- (void)submitBlock:(void (^)(void))block;
 - (void)writeMessage:(id<WSMessage>)message; // MUST be executed from within submitBlock:
 - (void)disconnectWithError:(NSError *)error;
 

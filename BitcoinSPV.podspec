@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
     s.name              = 'BitcoinSPV'
-    s.version           = '0.7.2'
-    s.platform          = :ios, '7.0'
-    s.license           = 'GPL'
+    s.version           = '0.8'
+    s.platform          = :ios, '11.0'
+    s.license           = { :type => "GPLv3", :file => "LICENSE" }
 
     s.summary           = 'A native Bitcoin SPV client library for iOS with BIP32 support.'
 
@@ -13,10 +13,10 @@ Pod::Spec.new do |s|
 
     s.source_files      = 'BitcoinSPV/Sources/BitcoinSPV.h'
     s.exclude_files     = [ 'BitcoinSPVDemo', 'BitcoinSPVTests' ]
-    s.resource_bundle   = { 'BitcoinSPV' => 'BitcoinSPV/Resources/**/*' }
+    s.resource_bundle   = { 'BitcoinSPV' => 'BitcoinSPV/Resources/Content/**/*' }
     s.requires_arc      = true
 
-    s.dependency 'OpenSSL-Universal', '~> 1.0.1.l'
+    s.dependency 'OpenSSL-Apple', '~> 1.1.0i'
     s.dependency 'CocoaLumberjack', '~> 1.9.2'
     s.dependency 'CocoaAsyncSocket', '~> 7.3.5'
     s.dependency 'AutoCoding', '~> 2.2.1'
@@ -27,6 +27,9 @@ Pod::Spec.new do |s|
                           'BitcoinSPV/Sources/Global/*.{h,m}',
                           'BitcoinSPV/Sources/Parameters/*.{h,m}',
                           'BitcoinSPV/Sources/Utils/*.{h,m}'
+        p.private_header_files = 'BitcoinSPV/Sources/Core/WSMacrosPrivate.h',
+                                 'BitcoinSPV/Sources/Global/WSLogging.h',
+                                 'BitcoinSPV/Sources/Utils/WSLogFormatter.h'
     end
 
     s.subspec 'Blockchain' do |p|
