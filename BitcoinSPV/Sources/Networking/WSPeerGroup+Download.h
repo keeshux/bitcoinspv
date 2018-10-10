@@ -35,6 +35,6 @@
 - (void)reportMisbehavingPeer:(WSPeer *)peer error:(NSError *)error;
 - (WSPeerGroupNotifier *)notifier;
 
-- (void)executeBlockInGroupQueue:(void (^)())block synchronously:(BOOL)synchronously;
+- (void)executeBlockInGroupQueue:(void (^)(void))block synchronously:(BOOL)synchronously;
 
 @end

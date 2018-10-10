@@ -211,10 +211,10 @@
     return YES;
 }
 
-- (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock
+- (void)stopConnectionsWithCompletionBlock:(void (^)(void))completionBlock
 {
     __block id observer;
-    __block void (^onceCompletionBlock)() = completionBlock;
+    __block void (^onceCompletionBlock)(void) = completionBlock;
     __block BOOL notConnected = NO;
 
     dispatch_sync(self.queue, ^{
@@ -1138,7 +1138,7 @@
     [self.pool closeConnectionForProcessor:peer error:error];
 }
 
-- (void)executeBlockInGroupQueue:(void (^)())block synchronously:(BOOL)synchronously
+- (void)executeBlockInGroupQueue:(void (^)(void))block synchronously:(BOOL)synchronously
 {
     NSParameterAssert(block);
 

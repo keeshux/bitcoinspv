@@ -1329,8 +1329,8 @@ NSString *WSHDWalletDefaultChainsPath(WSParameters *parameters)
         [_txs sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
             WSSignedTransaction *tx1 = obj1;
             WSSignedTransaction *tx2 = obj2;
-            WSTransactionMetadata *m1 = _metadataByTxId[tx1.txId];
-            WSTransactionMetadata *m2 = _metadataByTxId[tx2.txId];
+            WSTransactionMetadata *m1 = self->_metadataByTxId[tx1.txId];
+            WSTransactionMetadata *m2 = self->_metadataByTxId[tx2.txId];
             
             if (!m1 || (m1.height == WSBlockUnknownHeight)) {
                 return NSOrderedAscending;

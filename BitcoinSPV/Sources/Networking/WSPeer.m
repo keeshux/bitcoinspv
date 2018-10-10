@@ -113,7 +113,7 @@
 
 // helpers
 - (void)unsafeSendMessage:(id<WSMessage>)message;
-- (void)safelyDelegateBlock:(void (^)())block;
+- (void)safelyDelegateBlock:(void (^)(void))block;
 - (BOOL)tryFinishHandshake;
 
 #ifdef BSPV_TEST_MESSAGE_QUEUE
@@ -393,7 +393,7 @@
 - (void)sendVersionMessageWithRelayTransactions:(uint8_t)relayTransactions
 {
     [self.handler submitBlock:^{
-        WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:_remoteServices ipv4Address:_remoteAddress port:_remotePort];
+        WSNetworkAddress *networkAddress = [[WSNetworkAddress alloc] initWithTimestamp:0 services:self->_remoteServices ipv4Address:self->_remoteAddress port:self->_remotePort];
         WSMessageVersion *message = [WSMessageVersion messageWithParameters:self.parameters
                                                                     version:WSPeerProtocol
                                                                    services:WSPeerEnabledServices
@@ -401,8 +401,8 @@
                                                                   localPort:[self.parameters peerPort]
                                                           relayTransactions:relayTransactions];
         
-        _nonce = message.nonce;
-        _connectionStartTime = [NSDate timeIntervalSinceReferenceDate];
+        self->_nonce = message.nonce;
+        self->_connectionStartTime = [NSDate timeIntervalSinceReferenceDate];
         
         [self unsafeSendMessage:message];
     }];
@@ -412,13 +412,13 @@
 - (void)sendVerackMessage
 {
     [self.handler submitBlock:^{
-        if (_didSendVerack) {
+        if (self->_didSendVerack) {
             DDLogWarn(@"%@ Unexpected 'verack' sending", self);
             return;
         }
         
         [self unsafeSendMessage:[WSMessageVerack messageWithParameters:self.parameters]];
-        _didSendVerack = YES;
+        self->_didSendVerack = YES;
 
         [self tryFinishHandshake];
     }];
@@ -530,7 +530,7 @@
 - (void)sendPingMessage
 {
     [self.handler submitBlock:^{
-        NSAssert(_nonce, @"Nonce not set, is handshake complete?");
+        NSAssert(self->_nonce, @"Nonce not set, is handshake complete?");
 
         [self unsafeSendMessage:[WSMessagePing messageWithParameters:self.parameters]];
     }];
@@ -786,7 +786,7 @@
     }];
 }
 
-- (void)safelyDelegateBlock:(void (^)())block
+- (void)safelyDelegateBlock:(void (^)(void))block
 {
     if (!self.delegate || !self.delegateQueue) {
         return;

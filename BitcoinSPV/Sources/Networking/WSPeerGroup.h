@@ -91,7 +91,7 @@
 // connection
 - (BOOL)startConnections;
 - (BOOL)stopConnections;
-- (void)stopConnectionsWithCompletionBlock:(void (^)())completionBlock;
+- (void)stopConnectionsWithCompletionBlock:(void (^)(void))completionBlock;
 - (BOOL)isStarted;
 - (BOOL)isConnected;
 - (NSUInteger)numberOfConnections;

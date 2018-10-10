@@ -39,7 +39,7 @@
 - (id<WSConnectionProcessor>)processor;
 
 - (BOOL)isConnected;
-- (void)submitBlock:(void (^)())block;
+- (void)submitBlock:(void (^)(void))block;
 - (void)writeMessage:(id<WSMessage>)message; // MUST be executed from within submitBlock:
 - (void)disconnectWithError:(NSError *)error;
 

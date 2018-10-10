@@ -90,7 +90,7 @@ WSParameters *WSParametersForNetworkType(WSNetworkType networkType);
 WSHash256 *WSHash256Compute(NSData *sourceData);
 WSHash256 *WSHash256FromHex(NSString *hexString);
 WSHash256 *WSHash256FromData(NSData *data);
-WSHash256 *WSHash256Zero();
+WSHash256 *WSHash256Zero(void);
 
 WSHash160 *WSHash160Compute(NSData *sourceData);
 WSHash160 *WSHash160FromHex(NSString *hexString);
@@ -143,8 +143,8 @@ WSSignedTransaction *WSTransactionFromHex(WSParameters *parameters, NSString *he
 WSBIP21URL *WSBIP21URLFromString(WSParameters *parameters, NSString *string);
 WSBIP38Key *WSBIP38KeyFromString(NSString *string);
 
-NSString *WSCurrentQueueLabel();
-uint32_t WSCurrentTimestamp();
+NSString *WSCurrentQueueLabel(void);
+uint32_t WSCurrentTimestamp(void);
 void WSTimestampSetCurrent(uint32_t timestamp);
-void WSTimestampUnsetCurrent();
+void WSTimestampUnsetCurrent(void);
 uint32_t WSTimestampFromISODate(NSString *iso); // yyyy-MM-dd

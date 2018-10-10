@@ -98,7 +98,7 @@ static WSParameters *networkParameters;
 //    CFRunLoopStop(CFRunLoopGetMain());
 }
 
-- (void)delayBlock:(void (^)())block seconds:(NSTimeInterval)seconds
+- (void)delayBlock:(void (^)(void))block seconds:(NSTimeInterval)seconds
 {
     dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, seconds * NSEC_PER_SEC);
     dispatch_after(when, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{

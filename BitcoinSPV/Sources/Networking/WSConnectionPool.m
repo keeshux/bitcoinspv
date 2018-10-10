@@ -283,7 +283,7 @@
     return (self.queue != NULL);
 }
 
-- (void)submitBlock:(void (^)())block
+- (void)submitBlock:(void (^)(void))block
 {
     WSExceptionCheckIllegal(block);
     

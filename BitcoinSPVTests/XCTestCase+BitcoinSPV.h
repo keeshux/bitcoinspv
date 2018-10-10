@@ -46,7 +46,7 @@
 - (void)runForSeconds:(NSTimeInterval)seconds;
 - (void)stopRunning;
 
-- (void)delayBlock:(void (^)())block seconds:(NSTimeInterval)seconds;
+- (void)delayBlock:(void (^)(void))block seconds:(NSTimeInterval)seconds;
 - (id<WSMessage>)assertMessageSequenceForPeer:(WSPeer *)peer expectedClasses:(NSArray *)expectedClasses timeout:(NSTimeInterval)timeout;
 
 @end
