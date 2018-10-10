@@ -60,7 +60,9 @@ const NSUInteger        WSBIP39SaltPrefixLength                 = 8;
 {
     const NSUInteger entropyBytesLength = entropyLength / 8;
     NSMutableData *entropy = [[NSMutableData alloc] initWithLength:entropyBytesLength];
-    SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes);
+    if (SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes) != errSecSuccess) {
+        return nil;
+    }
     return [self mnemonicFromData:entropy error:nil];
 }
 
