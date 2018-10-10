@@ -208,18 +208,23 @@ static NSData *WSKeyHMAC_DRBG(NSData *entropy, NSData *nonce);
     
     BN_mod_inverse(k, k, order, ctx); // compute the inverse of k
     
-    ECDSA_SIG *s = ECDSA_do_sign_ex(hash256.bytes, (int)hash256.length, k, r, self.key);
+    ECDSA_SIG *ecSig = ECDSA_do_sign_ex(hash256.bytes, (int)hash256.length, k, r, self.key);
     
-    if (s) {
+    if (ecSig) {
         // enforce low s values, negate the value (modulo the order) if above order/2.
-        if (BN_cmp(s->s, halforder) > 0) {
-            BN_sub(s->s, order, s->s);
+        const BIGNUM *s;
+        ECDSA_SIG_get0(ecSig, NULL, &s);
+        if (BN_cmp(s, halforder) > 0) {
+            BIGNUM *normS = BN_new();
+            BN_sub(normS, order, s);
+            ECDSA_SIG_set0(ecSig, NULL, normS);
+            BN_clear_free(normS);
         }
         
         sig = [NSMutableData dataWithLength:ECDSA_size(self.key)];
         b = sig.mutableBytes;
-        sig.length = i2d_ECDSA_SIG(s, &b);
-        ECDSA_SIG_free(s);
+        sig.length = i2d_ECDSA_SIG(ecSig, &b);
+        ECDSA_SIG_free(ecSig);
     }
     
     EC_POINT_clear_free(p);
