@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
     s.name              = 'BitcoinSPV'
-    s.version           = '0.7.2'
-    s.platform          = :ios, '7.0'
-    s.license           = 'GPL'
+    s.version           = '0.8'
+    s.platform          = :ios, '11.0'
+    s.license           = { :type => "GPLv3", :file => "LICENSE" }
 
     s.summary           = 'A native Bitcoin SPV client library for iOS with BIP32 support.'
 
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.resource_bundle   = { 'BitcoinSPV' => 'BitcoinSPV/Resources/**/*' }
     s.requires_arc      = true
 
-    s.dependency 'OpenSSL-Universal', '~> 1.0.1.l'
+    s.dependency 'OpenSSL-Apple', '~> 1.1.0i'
     s.dependency 'CocoaLumberjack', '~> 1.9.2'
     s.dependency 'CocoaAsyncSocket', '~> 7.3.5'
     s.dependency 'AutoCoding', '~> 2.2.1'

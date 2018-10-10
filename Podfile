@@ -1,8 +1,8 @@
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, 8.0
+platform :ios, 11.0
 
 def shared_pods
-    pod 'OpenSSL'
+    pod 'OpenSSL-Apple', '~> 1.1.0i'
     pod 'CocoaLumberjack', '~> 1.9'
     pod 'AutoCoding', '~> 2.2'
     pod 'CocoaAsyncSocket', '~> 7.4'

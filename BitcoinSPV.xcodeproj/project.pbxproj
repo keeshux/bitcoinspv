@@ -1014,7 +1014,6 @@
 				8C6005811949EC9400248F04 /* Frameworks */,
 				8C6005821949EC9400248F04 /* Resources */,
 				7E9E4FE9F4A828D3DDDABE20 /* [CP] Embed Pods Frameworks */,
-				0E76E524D67D97D01230D911 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1035,7 +1034,6 @@
 				8C8FB7F3196776B400A07156 /* Sources */,
 				8C8FB7F4196776B400A07156 /* Frameworks */,
 				8C8FB7F5196776B400A07156 /* CopyFiles */,
-				22D4484F0AAB7E61F60B618A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1055,7 +1053,6 @@
 				8C8FB801196776B600A07156 /* Frameworks */,
 				8C8FB802196776B600A07156 /* Resources */,
 				2F08D5AC894A92A42A706454 /* [CP] Embed Pods Frameworks */,
-				A5778E0E5FF2F96B9DC33F69 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1161,49 +1158,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0E76E524D67D97D01230D911 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		22D4484F0AAB7E61F60B618A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPV/Pods-BitcoinSPV-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2F08D5AC894A92A42A706454 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh",
+				"${PODS_ROOT}/OpenSSL-Apple/frameworks/iPhone/openssl.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		362C33519603AB8EC31626A0 /* [CP] Check Pods Manifest.lock */ = {
@@ -1266,28 +1236,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh",
+				"${PODS_ROOT}/OpenSSL-Apple/frameworks/iPhone/openssl.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A5778E0E5FF2F96B9DC33F69 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BitcoinSPVTests/Pods-BitcoinSPVTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BitcoinSPVDemo/Pods-BitcoinSPVDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1549,7 +1507,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -1593,7 +1551,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
