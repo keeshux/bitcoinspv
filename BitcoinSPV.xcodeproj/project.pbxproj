@@ -532,6 +532,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E7B2FC8216E607800BD3D5B /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
+				0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */,
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
 		0EA147161A5589B700AA400D /* Currency */ = {
 			isa = PBXGroup;
 			children = (
@@ -589,9 +598,8 @@
 		8C402447198527D7008FDC5F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0E7B2FC8216E607800BD3D5B /* Content */,
 				8CBB5B13198D0AA8006599DB /* Info.plist */,
-				8C402448198527D7008FDC5F /* WSBIP39Words.txt */,
-				0ED680661BA2CAB900ED3AF0 /* WSCoreDataBlockStore.xcdatamodeld */,
 			);
 			path = Resources;
 			sourceTree = "<group>";

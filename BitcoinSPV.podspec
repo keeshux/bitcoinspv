@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
     s.source_files      = 'BitcoinSPV/Sources/BitcoinSPV.h'
     s.exclude_files     = [ 'BitcoinSPVDemo', 'BitcoinSPVTests' ]
-    s.resource_bundle   = { 'BitcoinSPV' => 'BitcoinSPV/Resources/**/*' }
+    s.resource_bundle   = { 'BitcoinSPV' => 'BitcoinSPV/Resources/Content/**/*' }
     s.requires_arc      = true
 
     s.dependency 'OpenSSL-Apple', '~> 1.1.0i'
