@@ -40,60 +40,51 @@ static inline void WSBlockGetDifficultyInteger(WSParameters *parameters, BIGNUM 
 {
     NSCParameterAssert(parameters);
     
-    BIGNUM maxTarget;
+    BIGNUM *maxTarget = BN_new();
     
-    BN_init(&maxTarget);
-    WSBlockSetBits(&maxTarget, [parameters maxProofOfWork]);
+    WSBlockSetBits(maxTarget, [parameters maxProofOfWork]);
     
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
-    BN_div(diffInteger, diffFraction, &maxTarget, target, ctx);
+    BN_div(diffInteger, diffFraction, maxTarget, target, ctx);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
     
-    BN_free(&maxTarget);
+    BN_clear_free(maxTarget);
 }
 
 NSData *WSBlockGetDifficultyFromBits(WSParameters *parameters, uint32_t bits)
 {
-    BIGNUM target;
-    BIGNUM diffInteger;
-    BIGNUM diffFraction;
+    BIGNUM *target = BN_new();
+    BIGNUM *diffInteger = BN_new();
+    BIGNUM *diffFraction = BN_new();
     
-    BN_init(&target);
-    BN_init(&diffInteger);
-    BN_init(&diffFraction);
+    WSBlockSetBits(target, bits);
+    WSBlockGetDifficultyInteger(parameters, diffInteger, diffFraction, target);
+    NSData *difficulty = WSBlockDataFromWork(diffInteger);
     
-    WSBlockSetBits(&target, bits);
-    WSBlockGetDifficultyInteger(parameters, &diffInteger, &diffFraction, &target);
-    NSData *difficulty = WSBlockDataFromWork(&diffInteger);
-    
-    BN_free(&target);
-    BN_free(&diffInteger);
-    BN_free(&diffFraction);
+    BN_clear_free(target);
+    BN_clear_free(diffInteger);
+    BN_clear_free(diffFraction);
     
     return difficulty;
 }
 
 NSString *WSBlockGetDifficultyStringFromBits(WSParameters *parameters, uint32_t bits)
 {
-    BIGNUM target;
-    BIGNUM diffInteger;
-    //    BIGNUM diffFraction;
+    BIGNUM *target = BN_new();
+    BIGNUM *diffInteger = BN_new();
+//    BIGNUM *diffFraction = BN_new();
     
-    BN_init(&target);
-    BN_init(&diffInteger);
-    //    BN_init(&diffFraction);
+    WSBlockSetBits(target, bits);
+//    WSBlockGetDifficultyInteger(diffInteger, diffFraction, target);
+//    NSString *string = [NSString stringWithFormat:@"%s.%s", BN_bn2dec(diffInteger), BN_bn2dec(diffFraction)];
+    WSBlockGetDifficultyInteger(parameters, diffInteger, NULL, target);
+    NSString *string = [NSString stringWithUTF8String:BN_bn2dec(diffInteger)];
     
-    WSBlockSetBits(&target, bits);
-    //    WSBlockGetDifficultyInteger(&diffInteger, &diffFraction, &target);
-    //    NSString *string = [NSString stringWithFormat:@"%s.%s", BN_bn2dec(&diffInteger), BN_bn2dec(&diffFraction)];
-    WSBlockGetDifficultyInteger(parameters, &diffInteger, NULL, &target);
-    NSString *string = [NSString stringWithUTF8String:BN_bn2dec(&diffInteger)];
-    
-    BN_free(&target);
-    BN_free(&diffInteger);
-    //    BN_free(&diffFraction);
+    BN_clear_free(target);
+    BN_clear_free(diffInteger);
+//    BN_clear_free(diffFraction);
     
     return string;
 }

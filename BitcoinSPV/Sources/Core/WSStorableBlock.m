@@ -105,7 +105,7 @@
 
 - (void)dealloc
 {
-    BN_free(self.work);
+    BN_clear_free(self.work);
     self.work = NULL;
 }
 

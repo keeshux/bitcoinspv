@@ -289,7 +289,9 @@ void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i)
     NSMutableData *I = [[NSMutableData alloc] initWithLength:CC_SHA512_DIGEST_LENGTH];
     NSMutableData *data = [[NSMutableData alloc] initWithCapacity:(33 + sizeof(i))];
     BN_CTX *ctx = BN_CTX_new();
-    BIGNUM order, Ilbn, kbn;
+    BIGNUM *order = BN_new();
+    BIGNUM *Ilbn = BN_new();
+    BIGNUM *kbn = BN_new();
     EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp256k1);
     
     // hardened: private derivation
@@ -310,24 +312,21 @@ void WSBIP32CKDpriv(NSMutableData *privKey, NSMutableData *chain, uint32_t i)
     CCHmac(kCCHmacAlgSHA512, chain.bytes, chain.length, data.bytes, data.length, I.mutableBytes);
     
     BN_CTX_start(ctx);
-    BN_init(&order);
-    BN_init(&Ilbn);
-    BN_init(&kbn);
-    BN_bin2bn(I.bytes, 32, &Ilbn);
-    BN_bin2bn(privKey.bytes, (int)privKey.length, &kbn);
-    EC_GROUP_get_order(group, &order, ctx);
+    BN_bin2bn(I.bytes, 32, Ilbn);
+    BN_bin2bn(privKey.bytes, (int)privKey.length, kbn);
+    EC_GROUP_get_order(group, order, ctx);
     
-    BN_mod_add(&kbn, &Ilbn, &kbn, &order, ctx);
+    BN_mod_add(kbn, Ilbn, kbn, order, ctx);
     
     privKey.length = 32;
     [privKey resetBytesInRange:NSMakeRange(0, 32)];
-    BN_bn2bin(&kbn, (unsigned char *)privKey.mutableBytes + 32 - BN_num_bytes(&kbn));
+    BN_bn2bin(kbn, (unsigned char *)privKey.mutableBytes + 32 - BN_num_bytes(kbn));
     [chain replaceBytesInRange:NSMakeRange(0, chain.length) withBytes:((const unsigned char *)I.bytes + 32) length:32];
     
     EC_GROUP_free(group);
-    BN_clear_free(&kbn);
-    BN_clear_free(&Ilbn);
-    BN_free(&order);
+    BN_clear_free(kbn);
+    BN_clear_free(Ilbn);
+    BN_clear_free(order);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
 }
@@ -355,7 +354,7 @@ void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i)
     NSMutableData *data = [pubKey mutableCopy];
     uint8_t form = POINT_CONVERSION_COMPRESSED;
     BN_CTX *ctx = BN_CTX_new();
-    BIGNUM Ilbn;
+    BIGNUM *Ilbn = BN_new();
     EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp256k1);
     EC_POINT *pubKeyPoint = EC_POINT_new(group);
     EC_POINT *IlPoint = EC_POINT_new(group);
@@ -366,12 +365,11 @@ void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i)
     CCHmac(kCCHmacAlgSHA512, chain.bytes, chain.length, data.bytes, data.length, I.mutableBytes);
     
     BN_CTX_start(ctx);
-    BN_init(&Ilbn);
-    BN_bin2bn(I.bytes, 32, &Ilbn);
+    BN_bin2bn(I.bytes, 32, Ilbn);
     EC_GROUP_set_point_conversion_form(group, form);
     EC_POINT_oct2point(group, pubKeyPoint, pubKey.bytes, pubKey.length, ctx);
     
-    EC_POINT_mul(group, IlPoint, &Ilbn, NULL, NULL, ctx);
+    EC_POINT_mul(group, IlPoint, Ilbn, NULL, NULL, ctx);
     EC_POINT_add(group, pubKeyPoint, IlPoint, pubKeyPoint, ctx);
     
     pubKey.length = EC_POINT_point2oct(group, pubKeyPoint, form, NULL, 0, ctx);
@@ -381,7 +379,7 @@ void WSBIP32CKDpub(NSMutableData *pubKey, NSMutableData *chain, uint32_t i)
     EC_POINT_clear_free(IlPoint);
     EC_POINT_clear_free(pubKeyPoint);
     EC_GROUP_free(group);
-    BN_clear_free(&Ilbn);
+    BN_clear_free(Ilbn);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
 }

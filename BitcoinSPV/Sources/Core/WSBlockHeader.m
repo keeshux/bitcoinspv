@@ -123,37 +123,33 @@
 
 - (NSData *)workData
 {
-    BIGNUM bnWork;
-    BIGNUM bnTargetPlusOne;
-
-    BN_init(&bnWork);
-    BN_init(&bnTargetPlusOne);
+    BIGNUM *bnWork = BN_new();
+    BIGNUM *bnTargetPlusOne = BN_new();
 
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
-    WSBlockSetBits(&bnTargetPlusOne, self.bits);
-    BN_add(&bnTargetPlusOne, &bnTargetPlusOne, BN_value_one());
-    BN_div(&bnWork, NULL, [[self class] largestHash], &bnTargetPlusOne, ctx);
+    WSBlockSetBits(bnTargetPlusOne, self.bits);
+    BN_add(bnTargetPlusOne, bnTargetPlusOne, BN_value_one());
+    BN_div(bnWork, NULL, [[self class] largestHash], bnTargetPlusOne, ctx);
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
 
-    NSMutableData *workData = [[NSMutableData alloc] initWithLength:BN_num_bytes(&bnWork)];
-    BN_bn2bin(&bnWork, workData.mutableBytes);
+    NSMutableData *workData = [[NSMutableData alloc] initWithLength:BN_num_bytes(bnWork)];
+    BN_bn2bin(bnWork, workData.mutableBytes);
 
-    BN_free(&bnWork);
-    BN_free(&bnTargetPlusOne);
+    BN_clear_free(bnWork);
+    BN_clear_free(bnTargetPlusOne);
 
     return workData;
 }
 
 - (NSString *)workString
 {
-    BIGNUM work;
+    BIGNUM *work = BN_new();
     
-    BN_init(&work);
-    WSBlockWorkFromData(&work, self.workData);
-    NSString *workString = [[NSString alloc] initWithCString:BN_bn2dec(&work) encoding:NSUTF8StringEncoding];
-    BN_free(&work);
+    WSBlockWorkFromData(work, self.workData);
+    NSString *workString = [[NSString alloc] initWithCString:BN_bn2dec(work) encoding:NSUTF8StringEncoding];
+    BN_clear_free(work);
     
     return workString;
 }
@@ -161,30 +157,26 @@
 - (BOOL)verifyWithError:(NSError *__autoreleasing *)error
 {
     BOOL verificationFailed = NO;
-    BIGNUM target;
-    BIGNUM maxTarget;
-    BIGNUM hash;
-    
-    BN_init(&target);
-    BN_init(&maxTarget);
-    BN_init(&hash);
+    BIGNUM *target = BN_new();
+    BIGNUM *maxTarget = BN_new();
+    BIGNUM *hash = BN_new();
 
-    WSBlockSetBits(&target, self.bits);
-    WSBlockSetBits(&maxTarget, [self.parameters maxProofOfWork]);
+    WSBlockSetBits(target, self.bits);
+    WSBlockSetBits(maxTarget, [self.parameters maxProofOfWork]);
 
     // range out of [1, maxProofOfWork]
-    if ((BN_cmp(&target, BN_value_one()) < 0) || (BN_cmp(&target, &maxTarget) > 0)) {
+    if ((BN_cmp(target, BN_value_one()) < 0) || (BN_cmp(target, maxTarget) > 0)) {
         WSErrorSet(error, WSErrorCodeInvalidBlock, @"Target out of range (%x)", self.bits);
         verificationFailed = YES;
     }
 
     // invalid proof-of-work (smaller values are more difficult)
     if (!verificationFailed) {
-        WSBlockSetHash(&hash, self.blockId);
+        WSBlockSetHash(hash, self.blockId);
 
-        if (BN_cmp(&hash, &target) > 0) {
+        if (BN_cmp(hash, target) > 0) {
             WSErrorSet(error, WSErrorCodeInvalidBlock, @"Block less difficult (greater) than target (%x > %x)",
-                       WSBlockGetBits(&hash), self.bits);
+                       WSBlockGetBits(hash), self.bits);
 
             verificationFailed = YES;
         }
@@ -204,22 +196,22 @@
         }
     }
     
-    BN_free(&target);
-    BN_free(&maxTarget);
-    BN_free(&hash);
+    BN_clear_free(target);
+    BN_clear_free(maxTarget);
+    BN_clear_free(hash);
 
     return !verificationFailed;
 }
 
 + (BIGNUM *)largestHash
 {
-    static BIGNUM largest;
+    static BIGNUM *largest = NULL;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        BN_init(&largest);
-        BN_set_bit(&largest, 256);
+        largest = BN_new();
+        BN_set_bit(largest, 256);
     });
-    return &largest;
+    return largest;
 }
 
 - (BOOL)isEqual:(id)object

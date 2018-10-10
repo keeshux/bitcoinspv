@@ -28,6 +28,9 @@
 #import "WSFilteredBlock.h"
 #import "WSBlockChain.h"
 #import "WSStorableBlock+BlockChain.h"
+#import "WSMacrosPrivate.h"
+
+#import <openssl/bn.h>
 
 static WSBlockHeader *WSMakeDummyHeader(WSParameters *networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work);
 static NSOrderedSet *WSMakeDummyTransactions(WSParameters *networkParameters, WSHash256 *blockId);
@@ -603,31 +606,27 @@ static NSOrderedSet *WSMakeDummyTransactions(WSParameters *networkParameters, WS
 
 static WSBlockHeader *WSMakeDummyHeader(WSParameters *networkParameters, WSHash256 *blockId, WSHash256 *previousBlockId, NSUInteger work)
 {
-    BIGNUM bnLargest;
-    BIGNUM bnTarget;
-    BIGNUM bnWork;
-    
-    BN_init(&bnLargest);
-    BN_init(&bnTarget);
-    BN_init(&bnWork);
+    BIGNUM *bnLargest = BN_new();
+    BIGNUM *bnTarget = BN_new();
+    BIGNUM *bnWork = BN_new();
     
     BN_CTX *ctx = BN_CTX_new();
-    BN_set_bit(&bnLargest, 256);
-    BN_set_word(&bnWork, (unsigned)work);
-    BN_div(&bnTarget, NULL, &bnLargest, &bnWork, ctx);
-    BN_sub(&bnTarget, &bnTarget, BN_value_one());
+    BN_set_bit(bnLargest, 256);
+    BN_set_word(bnWork, (unsigned)work);
+    BN_div(bnTarget, NULL, bnLargest, bnWork, ctx);
+    BN_sub(bnTarget, bnTarget, BN_value_one());
     BN_CTX_free(ctx);
     
-    const uint32_t bits = WSBlockGetBits(&bnTarget);
+    const uint32_t bits = WSBlockGetBits(bnTarget);
     
     //    DDLogCInfo(@"Largest: %s", BN_bn2dec(&bnLargest));
     //    DDLogCInfo(@"Target: %s", BN_bn2dec(&bnTarget));
     //    DDLogCInfo(@"Work: %s", BN_bn2dec(&bnWork));
     //    DDLogCInfo(@"Bits: %x", bits);
     
-    BN_free(&bnLargest);
-    BN_free(&bnTarget);
-    BN_free(&bnWork);
+    BN_clear_free(bnLargest);
+    BN_clear_free(bnTarget);
+    BN_clear_free(bnWork);
     
     WSBlockHeader *header = [[WSBlockHeader alloc] initWithParameters:networkParameters
                                                               version:2
