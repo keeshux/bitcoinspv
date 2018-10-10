@@ -27,6 +27,9 @@ Pod::Spec.new do |s|
                           'BitcoinSPV/Sources/Global/*.{h,m}',
                           'BitcoinSPV/Sources/Parameters/*.{h,m}',
                           'BitcoinSPV/Sources/Utils/*.{h,m}'
+        p.private_header_files = 'BitcoinSPV/Sources/Core/WSMacrosPrivate.h',
+                                 'BitcoinSPV/Sources/Global/WSLogging.h',
+                                 'BitcoinSPV/Sources/Utils/WSLogFormatter.h'
     end
 
     s.subspec 'Blockchain' do |p|
