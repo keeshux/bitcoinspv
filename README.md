@@ -231,6 +231,12 @@ Basically those willing to use BitcoinSPV for their software are forced to relea
 
 Nothing more is due as long as this rule of thumb is followed, still a note in the credits would be appreciated.
 
+## Credits
+
+* [bitcoinj](http://bitcoinj.github.io/) - The most popular Bitcoin library for Java.
+* [breadwallet](http://github.com/voisine/breadwallet) - An open source Bitcoin wallet for iOS.
+* [bip32.org](http://bip32.org) - Deterministic wallets for JavaScript.
+
 ## Disclaimer
 
 The developer takes no responsibility for lost money or any damage due to BitcoinSPV regular usage or bugs. Use at your own risk.
@@ -243,12 +249,6 @@ Website: [davidederosa.com](https://davidederosa.com)
 
 ## Donations
 
-BitcoinSPV is *free* software, donations are extremely welcome.
+BitcoinSPV is free software, donations are extremely welcome.
 
 Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
-
-## Credits
-
-* [bitcoinj](http://bitcoinj.github.io/) - The most popular Bitcoin library for Java.
-* [breadwallet](http://github.com/voisine/breadwallet) - An open source Bitcoin wallet for iOS.
-* [bip32.org](http://bip32.org) - Deterministic wallets for JavaScript.
