@@ -1625,11 +1625,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CA40D34968064185619204EF /* Pods-BitcoinSPVTests.debug.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1646,11 +1641,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 400D11F31BFD4AC34AFA9497 /* Pods-BitcoinSPVTests.release.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = BitcoinSPVTests/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.algoritmico.ios.bitcoin.${PRODUCT_NAME:rfc1034identifier}";
