@@ -249,6 +249,4 @@ Website: [davidederosa.com](https://davidederosa.com)
 
 ## Donations
 
-BitcoinSPV is free software, donations are extremely welcome.
-
-Bitcoin address: [16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju](bitcoin:16w2AWamiH2SS68NYSMDcrbh5MnZ1c5eju)
+BitcoinSPV is free software. If you like it, please [support me on Patreon](https://www.patreon.com/keeshux)
