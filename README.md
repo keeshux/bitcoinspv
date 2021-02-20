@@ -246,7 +246,3 @@ The developer takes no responsibility for lost money or any damage due to Bitcoi
 Twitter: [@keeshux](https://twitter.com/keeshux)
 
 Website: [davidederosa.com](https://davidederosa.com)
-
-## Donations
-
-BitcoinSPV is free software. If you like it, please [support me on Patreon](https://www.patreon.com/keeshux)
